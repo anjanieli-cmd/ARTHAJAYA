@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arthajaya — Akuntansi Bisnis, Secepat Langkahmu</title>
+
+<!-- Favicon menggunakan logo yang sama -->
+<link rel="icon" type="image/png" sizes="32x32" href="logo.png">
+<link rel="icon" type="image/png" sizes="16x16" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -103,7 +109,21 @@
   nav{ position:sticky; top:0; z-index:50; background:var(--nav-bg); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); transition: background .35s ease, border-color .35s ease; }
   .nav-inner{ display:flex; align-items:center; justify-content:space-between; padding:18px 32px; max-width:1220px; margin:0 auto; }
   .logo{ display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:19px; }
-  .logo-mark{ width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,var(--emerald),var(--emerald-dim)); display:flex; align-items:center; justify-content:center; font-size:15px; color:#062A1C; font-weight:800; }
+  .logo-mark{
+    width:30px; height:30px; border-radius:9px;
+    background:var(--surface-strong);
+    border:1px solid var(--border-hover);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden; flex-shrink:0; padding:3px;
+    transition:border-color .25s ease, transform .25s ease;
+  }
+  .logo-mark img{
+    width:100%; 
+    height:100%; 
+    object-fit:contain; 
+    transform:scale(1); /* TIDAK ZOOM */
+  }
+  .logo:hover .logo-mark, a:hover .logo-mark{ border-color:var(--emerald); }
   .logo .dot{ color:var(--emerald); }
   .nav-links{ display:flex; gap:34px; font-size:14.5px; color:var(--text-mute); }
   .nav-links a{ display:flex; align-items:center; gap:5px; position:relative; padding:4px 0; transition: color .2s ease; }
@@ -623,7 +643,7 @@
 
 <nav>
   <div class="nav-inner">
-    <div class="logo"><span class="logo-mark">A</span>Artha<span class="dot">jaya</span></div>
+    <div class="logo"><span class="logo-mark"><img src="logo.png" alt="Arthajaya"></span>Artha<span class="dot">jaya</span></div>
     <div class="nav-links">
       <a href="#fitur"><span data-i18n-en="Features">Fitur</span></a>
       <a href="#manfaat"><span data-i18n-en="Benefits">Manfaat</span></a>
@@ -642,7 +662,7 @@
 <div class="menu-backdrop" id="menuBackdrop"></div>
 <div class="mobile-menu" id="mobileMenu">
   <div class="mobile-menu-head">
-    <div class="logo"><span class="logo-mark">A</span>Artha<span class="dot">jaya</span></div>
+    <div class="logo"><span class="logo-mark"><img src="logo.png" alt="Arthajaya"></span>Artha<span class="dot">jaya</span></div>
     <div class="mobile-menu-close" id="menuClose"><svg class="icon"><use href="#ic-close"/></svg></div>
   </div>
   <a href="#fitur" class="mlink"><span data-i18n-en="Features">Fitur</span></a>
@@ -996,7 +1016,7 @@
   <!-- CTA -->
   <section class="cta-banner reveal">
     <div class="cta-banner-left">
-      <span class="logo-mark">A</span>
+      <span class="logo-mark"><img src="logo.png" alt="Arthajaya"></span>
       <div>
         <h2 data-i18n-en="Ready to take control of your business finances?">Siap kendalikan keuangan bisnismu?</h2>
         <div class="cta-checks">
@@ -1013,7 +1033,7 @@
   <footer>
     <div class="footer-grid reveal">
       <div>
-        <div class="logo"><span class="logo-mark">A</span>Artha<span class="dot">jaya</span></div>
+        <div class="logo"><span class="logo-mark"><img src="logo.png" alt="Arthajaya"></span>Artha<span class="dot">jaya</span></div>
         <p data-i18n-en="Business accounting platform for mid-size to large companies in Indonesia.">Platform akuntansi bisnis untuk perusahaan menengah hingga besar di Indonesia.</p>
       </div>
       <div class="footer-col"><h4 data-i18n-en="Product">Produk</h4><a href="#" data-i18n-en="Invoicing">Faktur</a><a href="#" data-i18n-en="Financial Reports">Laporan Keuangan</a><a href="#" data-i18n-en="Bank Reconciliation">Rekonsiliasi Bank</a></div>
