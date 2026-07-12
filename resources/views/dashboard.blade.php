@@ -86,10 +86,8 @@
   .bg-glow{ position:fixed; top:-25%; right:-10%; width:900px; height:900px; background:radial-gradient(circle, rgba(var(--emerald-rgb),var(--glow1-a)) 0%, transparent 70%); pointer-events:none; z-index:0; }
   .bg-glow-2{ position:fixed; bottom:-15%; left:-15%; width:700px; height:700px; background:radial-gradient(circle, rgba(var(--emerald-rgb),var(--glow2-a)) 0%, transparent 70%); pointer-events:none; z-index:0; }
 
-  /* ===== APP SHELL ===== */
   .app-shell{ display:grid; grid-template-columns:250px 1fr; min-height:100vh; position:relative; z-index:1; }
 
-  /* SIDEBAR */
   .sidebar{ background:var(--nav-bg); backdrop-filter:blur(16px); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:22px 16px; position:sticky; top:0; height:100vh; overflow-y:auto; transition: background .35s ease, border-color .35s ease; }
   .sb-logo{ display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:18px; padding:6px 8px 26px; }
   .sb-logo .logo-mark{ width:30px; height:30px; border-radius:9px; background:var(--surface-strong); border:1px solid var(--border-hover); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; padding:3px; }
@@ -110,7 +108,6 @@
   .sb-plan .name{ font-size:13.5px; font-weight:600; margin-bottom:10px; }
   .sb-plan a{ font-size:12px; color:var(--emerald); font-weight:600; }
 
-  /* TOPBAR */
   .topbar{ position:sticky; top:0; z-index:40; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px 28px; background:var(--nav-bg); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); }
   .search-box{ display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 14px; width:340px; max-width:100%; transition: border-color .2s ease, background .2s ease; }
   .search-box:focus-within{ border-color:var(--border-hover); background:var(--surface-strong); }
@@ -148,7 +145,6 @@
   .sb-toggle{ display:none; width:38px; height:38px; border-radius:11px; background:var(--surface); border:1px solid var(--border); align-items:center; justify-content:center; color:var(--text); cursor:pointer; flex-shrink:0; }
   .sb-toggle .icon{ width:17px; height:17px; }
 
-  /* MAIN */
   main{ padding:28px; position:relative; z-index:1; }
   .page-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; margin-bottom:24px; }
   .page-head h1{ font-size:25px; margin-bottom:6px; }
@@ -162,7 +158,6 @@
   .btn-outline{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
   .btn-outline:hover{ background:var(--surface-strong); border-color:var(--border-hover); }
 
-  /* STAT CARDS */
   .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
   .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:20px; transition: border-color .22s ease, transform .22s ease; }
   .stat-card:hover{ border-color:var(--border-hover); transform:translateY(-3px); }
@@ -176,7 +171,6 @@
   .stat-card .lbl{ font-size:12px; color:var(--text-faint); margin-bottom:5px; }
   .stat-card .val{ font-family:'Space Grotesk'; font-size:23px; font-weight:700; }
 
-  /* GRID LAYOUT */
   .dash-layout{ display:grid; grid-template-columns:1.35fr 1fr; gap:16px; align-items:start; }
   .stack{ display:flex; flex-direction:column; gap:16px; }
   .card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:22px; transition: border-color .22s ease; }
@@ -186,7 +180,6 @@
   .card-head .sub-link{ font-size:12.5px; color:var(--emerald); font-weight:600; display:flex; align-items:center; gap:4px; }
   .card-head .sub-link .icon{ width:13px; height:13px; }
 
-  /* balance card */
   .balance-card{ background:linear-gradient(150deg, rgba(var(--emerald-rgb),0.14), var(--surface) 65%); border-color:rgba(var(--emerald-rgb),0.25); }
   .balance-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
   .balance-lbl{ font-size:12.5px; color:var(--text-mute); margin-bottom:8px; }
@@ -201,7 +194,6 @@
   .mini-spark{ display:flex; align-items:flex-end; gap:5px; height:60px; margin-top:6px; }
   .mini-spark i{ flex:1; background:linear-gradient(180deg,var(--emerald),var(--emerald-dim)); border-radius:3px; opacity:.85; height:4%; transition:height 1s cubic-bezier(.16,1,.3,1); }
 
-  /* transactions table */
   .tx-table{ width:100%; border-collapse:collapse; }
   .tx-table th{ text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); font-weight:600; padding:0 10px 10px; }
   .tx-table td{ padding:12px 10px; font-size:13.5px; border-top:1px solid var(--border); }
@@ -220,7 +212,6 @@
   .amt-cell.pos{ color:var(--emerald); }
   .amt-cell.neg{ color:var(--text-mute); }
 
-  /* donut */
   .donut-wrap{ display:flex; gap:22px; align-items:center; }
   .donut{ width:118px; height:118px; position:relative; flex-shrink:0; }
   .donut svg{ transform:rotate(-90deg); width:100%; height:100%; }
@@ -233,12 +224,10 @@
   .legend-row .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:8px; flex-shrink:0; }
   .legend-row .amt{ font-family:'IBM Plex Mono'; color:var(--text); font-size:11.5px; }
 
-  /* progress */
   .progress-bar{ height:8px; border-radius:100px; background:var(--surface-strong); overflow:hidden; margin-top:14px; }
   .progress-fill{ height:100%; background:linear-gradient(90deg,var(--emerald-dim),var(--emerald)); border-radius:100px; width:0%; transition:width 1.4s cubic-bezier(.16,1,.3,1); }
   .progress-labels{ display:flex; justify-content:space-between; font-size:11px; color:var(--text-faint); margin-top:8px; }
 
-  /* invoice list mini */
   .inv-row{ display:flex; align-items:center; gap:12px; padding:11px 4px; border-top:1px solid var(--border); }
   .inv-row:first-child{ border-top:none; }
   .inv-row .info{ flex:1; min-width:0; }
@@ -272,7 +261,6 @@
   .menu-backdrop{ display:none; position:fixed; inset:0; background:rgba(4,7,12,0.6); backdrop-filter:blur(2px); z-index:90; opacity:0; transition:opacity .3s ease; }
   .menu-backdrop.open{ display:block; opacity:1; }
 
-  /* settings widget (reused from landing) */
   .settings-fab{ position:fixed; right:22px; bottom:22px; z-index:150; width:50px; height:50px; border-radius:50%; background:var(--surface-strong); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text); box-shadow:0 10px 30px rgba(0,0,0,0.35); backdrop-filter:blur(10px); transition: transform .25s ease, border-color .25s ease; }
   .settings-fab:hover{ transform: translateY(-3px) rotate(20deg); border-color:var(--border-hover); }
   .settings-fab .icon{ width:20px; height:20px; }
@@ -353,27 +341,26 @@
     <a href="{{ route('dashboard') }}" class="sb-link active">
       <svg class="icon"><use href="#ic-activity"/></svg> Dashboard
     </a>
-    <a href="{{ route('invoices.index') ?? '#' }}" class="sb-link">
+    <a href="#" class="sb-link">
       <svg class="icon"><use href="#ic-invoice"/></svg> Faktur
-      @if(($pendingInvoiceCount ?? 0) > 0)
-        <span class="badge">{{ $pendingInvoiceCount }}</span>
-      @endif
+      <!-- PERUBAHAN: pakai angka dummy -->
+      <span class="badge">3</span>
     </a>
-    <a href="{{ route('clients.index') ?? '#' }}" class="sb-link">
+    <a href="#" class="sb-link">
       <svg class="icon"><use href="#ic-users"/></svg> Klien
     </a>
-    <a href="{{ route('transactions.index') ?? '#' }}" class="sb-link">
+    <a href="#" class="sb-link">
       <svg class="icon"><use href="#ic-doc"/></svg> Transaksi
     </a>
-    <a href="{{ route('reconciliation.index') ?? '#' }}" class="sb-link">
+    <a href="#" class="sb-link">
       <svg class="icon"><use href="#ic-bank"/></svg> Rekonsiliasi Bank
     </a>
-    <a href="{{ route('reports.index') ?? '#' }}" class="sb-link">
+    <a href="#" class="sb-link">
       <svg class="icon"><use href="#ic-trending"/></svg> Laporan
     </a>
 
     <div class="sb-group-label">Lainnya</div>
-    <a href="{{ route('profile.edit') ?? '#' }}" class="sb-link">
+    <a href="#" class="sb-link">
       <svg class="icon"><use href="#ic-settings"/></svg> Pengaturan
     </a>
 
@@ -381,7 +368,7 @@
       <div class="sb-plan">
         <div class="lbl">Paket Aktif</div>
         <div class="name">Pro Plan</div>
-        <a href="{{ route('billing.index') ?? '#' }}">Kelola langganan →</a>
+        <a href="#">Kelola langganan →</a>
       </div>
     </div>
   </aside>
@@ -398,7 +385,7 @@
         </div>
       </div>
       <div class="topbar-right">
-        <a href="{{ route('invoices.create') ?? '#' }}" class="btn btn-primary" style="display:none;" id="newInvoiceBtnDesktop">
+        <a href="#" class="btn btn-primary" style="display:none;" id="newInvoiceBtnDesktop">
           <svg class="icon"><use href="#ic-plus"/></svg> Faktur Baru
         </a>
         <div class="icon-btn" id="notifBtn" aria-label="Notifikasi">
@@ -408,11 +395,8 @@
         <div class="user-menu">
           <div class="user-trigger" id="userTrigger">
             <div class="user-avatar">
-              @if(!empty(Auth::user()->avatar_url ?? null))
-                <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}">
-              @else
-                {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
-              @endif
+              <!-- PERUBAHAN: pakai Auth::user() -->
+              {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
             </div>
             <span class="name">{{ Auth::user()->name ?? 'Pengguna' }}</span>
             <svg class="icon"><use href="#ic-chevron"/></svg>
@@ -422,10 +406,11 @@
               <div class="n">{{ Auth::user()->name ?? 'Pengguna' }}</div>
               <div class="e">{{ Auth::user()->email ?? '' }}</div>
             </div>
-            <a href="{{ route('profile.edit') ?? '#' }}"><svg class="icon"><use href="#ic-user"/></svg> Profil Saya</a>
-            <a href="{{ route('profile.edit') ?? '#' }}"><svg class="icon"><use href="#ic-settings"/></svg> Pengaturan</a>
+            <a href="#"><svg class="icon"><use href="#ic-user"/></svg> Profil Saya</a>
+            <a href="#"><svg class="icon"><use href="#ic-settings"/></svg> Pengaturan</a>
             <hr>
-            <form method="POST" action="{{ route('logout') ?? '#' }}">
+            <!-- PERUBAHAN: form logout pake route('logout') -->
+            <form method="POST" action="{{ route('logout') }}">
               @csrf
               <button type="submit" class="danger"><svg class="icon"><use href="#ic-logout"/></svg> Keluar</button>
             </form>
@@ -438,14 +423,15 @@
     <main>
       <div class="page-head">
         <div>
+          <!-- PERUBAHAN: nama user dinamis -->
           <h1>Hai, {{ explode(' ', Auth::user()->name ?? 'Pengguna')[0] }} 👋</h1>
           <p>Ini ringkasan keuangan bisnismu hari ini, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}.</p>
         </div>
         <div class="actions">
-          <a href="{{ route('transactions.create') ?? '#' }}" class="btn btn-outline">
+          <a href="#" class="btn btn-outline">
             <svg class="icon"><use href="#ic-receive"/></svg> Catat Transaksi
           </a>
-          <a href="{{ route('invoices.create') ?? '#' }}" class="btn btn-primary">
+          <a href="#" class="btn btn-primary">
             <svg class="icon"><use href="#ic-plus"/></svg> Faktur Baru
           </a>
         </div>
@@ -517,86 +503,37 @@
           <div class="card">
             <div class="card-head">
               <h3>Transaksi Terbaru</h3>
-              <a href="{{ route('transactions.index') ?? '#' }}" class="sub-link">Lihat semua <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
+              <a href="#" class="sub-link">Lihat semua <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
             </div>
-            @if(($recentTransactions ?? collect())->isEmpty())
+            <!-- PERUBAHAN: data dummy transactions -->
+            @php
+                $dummyTransactions = [
+                    ['title' => 'Faktur #0568 — PT Andalas Maju', 'date' => '21 Jun 2026, 09:40', 'status' => 'paid', 'amount' => -5750, 'icon' => 'invoice'],
+                    ['title' => 'Sewa Kantor — Juni 2026', 'date' => '20 Jun 2026, 08:30', 'status' => 'paid', 'amount' => -42900000, 'icon' => 'building'],
+                    ['title' => 'Pembayaran Klien — Kopi Kenangan Senja', 'date' => '18 Jun 2026, 10:20', 'status' => 'paid', 'amount' => 2800000, 'icon' => 'briefcase'],
+                    ['title' => 'Faktur #0571 — Nusantara Logistik', 'date' => '15 Jun 2026, 14:05', 'status' => 'pending', 'amount' => 18400000, 'icon' => 'invoice'],
+                    ['title' => 'Faktur #0552 — Bumi Retail Group', 'date' => '02 Jun 2026, 11:15', 'status' => 'overdue', 'amount' => 9200000, 'icon' => 'invoice'],
+                ];
+            @endphp
             <table class="tx-table">
               <thead>
                 <tr><th>Deskripsi</th><th>Status</th><th style="text-align:right">Jumlah</th></tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <div class="tx-who">
-                      <div class="tx-ic"><svg class="icon"><use href="#ic-invoice"/></svg></div>
-                      <div><div class="tx-name">Faktur #0568 — PT Andalas Maju</div><div class="tx-date">21 Jun 2026, 09:40</div></div>
-                    </div>
-                  </td>
-                  <td><span class="status-pill paid">Lunas</span></td>
-                  <td class="amt-cell neg">-Rp5.750</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="tx-who">
-                      <div class="tx-ic"><svg class="icon"><use href="#ic-building"/></svg></div>
-                      <div><div class="tx-name">Sewa Kantor — Juni 2026</div><div class="tx-date">20 Jun 2026, 08:30</div></div>
-                    </div>
-                  </td>
-                  <td><span class="status-pill paid">Lunas</span></td>
-                  <td class="amt-cell neg">-Rp42.900.000</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="tx-who">
-                      <div class="tx-ic"><svg class="icon"><use href="#ic-briefcase"/></svg></div>
-                      <div><div class="tx-name">Pembayaran Klien — Kopi Kenangan Senja</div><div class="tx-date">18 Jun 2026, 10:20</div></div>
-                    </div>
-                  </td>
-                  <td><span class="status-pill paid">Lunas</span></td>
-                  <td class="amt-cell pos">+Rp2.800.000</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="tx-who">
-                      <div class="tx-ic"><svg class="icon"><use href="#ic-invoice"/></svg></div>
-                      <div><div class="tx-name">Faktur #0571 — Nusantara Logistik</div><div class="tx-date">15 Jun 2026, 14:05</div></div>
-                    </div>
-                  </td>
-                  <td><span class="status-pill pending">Menunggu</span></td>
-                  <td class="amt-cell pos">+Rp18.400.000</td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="tx-who">
-                      <div class="tx-ic"><svg class="icon"><use href="#ic-invoice"/></svg></div>
-                      <div><div class="tx-name">Faktur #0552 — Bumi Retail Group</div><div class="tx-date">02 Jun 2026, 11:15</div></div>
-                    </div>
-                  </td>
-                  <td><span class="status-pill overdue">Jatuh Tempo</span></td>
-                  <td class="amt-cell pos">+Rp9.200.000</td>
-                </tr>
-              </tbody>
-            </table>
-            @else
-              {{-- Loop over real $recentTransactions from the controller when available --}}
-              <table class="tx-table">
-                <thead><tr><th>Deskripsi</th><th>Status</th><th style="text-align:right">Jumlah</th></tr></thead>
-                <tbody>
-                @foreach($recentTransactions as $tx)
+                @foreach($dummyTransactions as $tx)
                   <tr>
                     <td>
                       <div class="tx-who">
-                        <div class="tx-ic"><svg class="icon"><use href="#ic-{{ $tx->icon ?? 'doc' }}"/></svg></div>
-                        <div><div class="tx-name">{{ $tx->title }}</div><div class="tx-date">{{ $tx->created_at->translatedFormat('d M Y, H:i') }}</div></div>
+                        <div class="tx-ic"><svg class="icon"><use href="#ic-{{ $tx['icon'] }}"/></svg></div>
+                        <div><div class="tx-name">{{ $tx['title'] }}</div><div class="tx-date">{{ $tx['date'] }}</div></div>
                       </div>
                     </td>
-                    <td><span class="status-pill {{ $tx->status }}">{{ ucfirst($tx->status) }}</span></td>
-                    <td class="amt-cell {{ $tx->amount >= 0 ? 'pos' : 'neg' }}">{{ $tx->amount >= 0 ? '+' : '-' }}Rp{{ number_format(abs($tx->amount), 0, ',', '.') }}</td>
+                    <td><span class="status-pill {{ $tx['status'] }}">{{ ucfirst($tx['status']) }}</span></td>
+                    <td class="amt-cell {{ $tx['amount'] >= 0 ? 'pos' : 'neg' }}">{{ $tx['amount'] >= 0 ? '+' : '-' }}Rp{{ number_format(abs($tx['amount']), 0, ',', '.') }}</td>
                   </tr>
                 @endforeach
-                </tbody>
-              </table>
-            @endif
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -637,7 +574,7 @@
           <div class="card">
             <div class="card-head">
               <h3>Faktur Akan Jatuh Tempo</h3>
-              <a href="{{ route('invoices.index') ?? '#' }}" class="sub-link">Semua <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
+              <a href="#" class="sub-link">Semua <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
             </div>
             <div class="inv-row">
               <div class="info"><div class="n">#0571 — Nusantara Logistik</div><div class="c">Jatuh tempo 25 Jun 2026</div></div>
@@ -742,7 +679,7 @@
   if(menuBackdrop) menuBackdrop.addEventListener('click', closeSidebar);
   document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeSidebar(); });
 
-  // ===== SETTINGS WIDGET: theme, accent, language (shared w/ landing page) =====
+  // ===== SETTINGS WIDGET: theme, accent, language =====
   (function(){
     const root = document.documentElement;
     const fab = document.getElementById('settingsFab');
@@ -774,13 +711,11 @@
     document.querySelectorAll('.theme-opt').forEach(el => el.addEventListener('click', () => applyTheme(el.getAttribute('data-theme-opt'))));
     document.querySelectorAll('.accent-dot').forEach(el => el.addEventListener('click', () => applyAccent(el.getAttribute('data-accent-opt'))));
 
-    // language switching: for a real backend switch, POST to a locale route instead.
     document.querySelectorAll('.lang-opt').forEach(el => {
       el.addEventListener('click', () => {
         const l = el.getAttribute('data-lang-opt');
         save('aj-lang', l);
         document.querySelectorAll('.lang-opt').forEach(o => o.classList.toggle('active', o === el));
-        // window.location.href = "{{ route('locale.switch') ?? '#' }}?lang=" + l;
       });
     });
     document.querySelectorAll('.lang-opt').forEach(el => {

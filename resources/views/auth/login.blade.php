@@ -601,8 +601,6 @@
 <!-- Reusable icon defs -->
 <svg width="0" height="0" style="position:absolute">
 <defs>
-<svg width="0" height="0" style="position:absolute">
-<defs>
   <symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
   <symbol id="ic-invoice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z"/><path d="M9 7h6M9 11h6M9 15h3"/></symbol>
   <symbol id="ic-receive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="7" x2="7" y2="17"/><polyline points="7 7 7 17 17 17"/></symbol>
@@ -636,11 +634,9 @@
 </defs>
 </svg>
 
-</defs>
-</svg>
-
 <div class="auth-page">
   <div class="auth-card">
+    <!-- PERUBAHAN: Back home pakai url('/') -->
     <a href="{{ url('/') }}" class="back-home">&larr; <span>Kembali ke beranda</span></a>
 
     <div class="auth-head">
@@ -664,6 +660,7 @@
       </div>
     @endif
 
+    <!-- PERUBAHAN: Form action pakai route('login') -->
     <form class="auth-form" method="POST" action="{{ route('login') }}">
       @csrf
       <label class="field">
@@ -693,6 +690,7 @@
       </button>
     </form>
 
+    <!-- PERUBAHAN: Link register pakai route('register') -->
     <p class="auth-switch">
       Belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a>
     </p>

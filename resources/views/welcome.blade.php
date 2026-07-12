@@ -121,7 +121,7 @@
     width:100%; 
     height:100%; 
     object-fit:contain; 
-    transform:scale(1); /* TIDAK ZOOM */
+    transform:scale(1);
   }
   .logo:hover .logo-mark, a:hover .logo-mark{ border-color:var(--emerald); }
   .logo .dot{ color:var(--emerald); }
@@ -169,7 +169,7 @@
   .a4{ width:16px; height:16px; top:80%; right:10%; animation: floatSlow 6.5s ease-in-out infinite 1.5s; }
   @keyframes floatSlow{ 0%,100%{transform:translateY(0px);} 50%{transform:translateY(-18px);} }
 
-  /* DASHBOARD LAPTOP MOCKUP — landscape, real laptop proportions */
+  /* DASHBOARD LAPTOP MOCKUP */
   .laptop-wrap{
     position:absolute; top:6px; right:-70px; width:600px; z-index:2;
     transform-style:preserve-3d; transition: filter .3s ease, opacity 1.1s cubic-bezier(.16,1,.3,1), transform 1.1s cubic-bezier(.16,1,.3,1);
