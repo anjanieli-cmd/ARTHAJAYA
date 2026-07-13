@@ -29,4 +29,13 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Relasi ke Company
+     * Seorang User memiliki satu Company
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

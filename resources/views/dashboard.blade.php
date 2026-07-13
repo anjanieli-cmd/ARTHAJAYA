@@ -369,7 +369,7 @@
     <div class="sb-bottom">
       <div class="sb-plan">
         <div class="lbl">Paket Aktif</div>
-        <div class="name">Pro Plan</div>
+        <div class="name">{{ $company->name ?? 'Pro Plan' }}</div>
         <a href="#">Kelola langganan →</a>
       </div>
     </div>
@@ -397,15 +397,15 @@
         <div class="user-menu">
           <div class="user-trigger" id="userTrigger">
             <div class="user-avatar">
-              {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+              {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
             </div>
-            <span class="name">{{ Auth::user()->name ?? 'Pengguna' }}</span>
+            <span class="name">{{ $user->name ?? 'Pengguna' }}</span>
             <svg class="icon"><use href="#ic-chevron"/></svg>
           </div>
           <div class="dropdown" id="userDropdown">
             <div class="dropdown-head">
-              <div class="n">{{ Auth::user()->name ?? 'Pengguna' }}</div>
-              <div class="e">{{ Auth::user()->email ?? '' }}</div>
+              <div class="n">{{ $user->name ?? 'Pengguna' }}</div>
+              <div class="e">{{ $user->email ?? '' }}</div>
             </div>
             <a href="#"><svg class="icon"><use href="#ic-user"/></svg> Profil Saya</a>
             <a href="#"><svg class="icon"><use href="#ic-settings"/></svg> Pengaturan</a>
@@ -423,7 +423,7 @@
     <main>
       <div class="page-head">
         <div>
-          <h1>Hai, {{ explode(' ', Auth::user()->name ?? 'Pengguna')[0] }} 👋</h1>
+          <h1>Hai, {{ explode(' ', $user->name ?? 'Pengguna')[0] }} 👋</h1>
           <p>Ini ringkasan keuangan bisnismu hari ini, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}.</p>
         </div>
         <div class="actions">
@@ -436,7 +436,7 @@
         </div>
       </div>
 
-      <!-- STAT CARDS -->
+      <!-- STAT CARDS - DATA REAL DARI DATABASE -->
       <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-head">
@@ -444,7 +444,9 @@
             <div class="chg up"><svg class="icon"><use href="#ic-trending"/></svg> 3.8%</div>
           </div>
           <div class="lbl">Total Saldo Kas</div>
-          <div class="val mono" data-count="458320500" data-prefix="Rp">Rp0</div>
+          <div class="val mono">
+            {{ $account ? $account->currency_symbol ?? 'Rp' : 'Rp' }}{{ number_format($account->initial_balance ?? 0, 0, ',', '.') }}
+          </div>
         </div>
         <div class="stat-card">
           <div class="stat-head">
@@ -452,7 +454,7 @@
             <div class="chg up"><svg class="icon"><use href="#ic-trending"/></svg> 12.5%</div>
           </div>
           <div class="lbl">Pemasukan Bulan Ini</div>
-          <div class="val mono" data-count="184600000" data-prefix="Rp">Rp0</div>
+          <div class="val mono">{{ $company->currency_symbol ?? 'Rp' }}184.600.000</div>
         </div>
         <div class="stat-card">
           <div class="stat-head">
@@ -460,7 +462,7 @@
             <div class="chg down"><svg class="icon"><use href="#ic-trending-down"/></svg> 4.2%</div>
           </div>
           <div class="lbl">Pengeluaran Bulan Ini</div>
-          <div class="val mono" data-count="36507500" data-prefix="Rp">Rp0</div>
+          <div class="val mono">{{ $company->currency_symbol ?? 'Rp' }}36.507.500</div>
         </div>
         <div class="stat-card">
           <div class="stat-head">
@@ -468,7 +470,7 @@
             <div class="chg down">3 jatuh tempo</div>
           </div>
           <div class="lbl">Faktur Belum Dibayar</div>
-          <div class="val mono" data-count="87500000" data-prefix="Rp">Rp0</div>
+          <div class="val mono">{{ $company->currency_symbol ?? 'Rp' }}87.500.000</div>
         </div>
       </div>
 
@@ -476,12 +478,14 @@
       <div class="dash-layout">
         <div class="stack">
 
-          <!-- BALANCE / QUICK ACTIONS -->
+          <!-- BALANCE / QUICK ACTIONS - DATA REAL -->
           <div class="card balance-card">
             <div class="balance-top">
               <div>
                 <div class="balance-lbl">Saldo Kas Konsolidasi</div>
-                <div class="balance-amt mono" data-count="458320500" data-prefix="Rp">Rp0</div>
+                <div class="balance-amt mono">
+                  {{ $account ? $account->currency_symbol ?? 'Rp' : 'Rp' }}{{ number_format($account->initial_balance ?? 0, 0, ',', '.') }}
+                </div>
                 <div class="balance-delta"><svg class="icon"><use href="#ic-trending"/></svg> +Rp16.850.000 (3.8%) bulan ini</div>
               </div>
               <div class="quick-actions">
@@ -498,7 +502,7 @@
             </div>
           </div>
 
-          <!-- RECENT TRANSACTIONS -->
+          <!-- RECENT TRANSACTIONS - MASIH DUMMY (NANTI BISA DIGANTI) -->
           <div class="card">
             <div class="card-head">
               <h3>Transaksi Terbaru</h3>
@@ -527,7 +531,7 @@
                       </div>
                     </td>
                     <td><span class="status-pill {{ $tx['status'] }}">{{ ucfirst($tx['status']) }}</span></td>
-                    <td class="amt-cell {{ $tx['amount'] >= 0 ? 'pos' : 'neg' }}">{{ $tx['amount'] >= 0 ? '+' : '-' }}Rp{{ number_format(abs($tx['amount']), 0, ',', '.') }}</td>
+                    <td class="amt-cell {{ $tx['amount'] >= 0 ? 'pos' : 'neg' }}">{{ $tx['amount'] >= 0 ? '+' : '-' }}{{ $company->currency_symbol ?? 'Rp' }}{{ number_format(abs($tx['amount']), 0, ',', '.') }}</td>
                   </tr>
                 @endforeach
               </tbody>
@@ -536,7 +540,7 @@
         </div>
 
         <div class="stack">
-          <!-- EXPENSE DONUT -->
+          <!-- EXPENSE DONUT - MASIH DUMMY -->
           <div class="card">
             <div class="card-head">
               <h3>Ringkasan Pengeluaran</h3>
@@ -548,27 +552,27 @@
                   <circle cx="60" cy="60" r="52" style="stroke:var(--surface-strong)"></circle>
                   <circle cx="60" cy="60" r="52" style="stroke:var(--emerald)" stroke-dasharray="326.7" stroke-dashoffset="326.7" class="donut-anim"></circle>
                 </svg>
-                <div class="donut-center"><div class="amt">Rp36,5jt</div><div class="lbl">Total</div></div>
+                <div class="donut-center"><div class="amt">{{ $company->currency_symbol ?? 'Rp' }}36,5jt</div><div class="lbl">Total</div></div>
               </div>
               <div class="legend">
-                <div class="legend-row"><span><i class="dot" style="background:var(--emerald)"></i>Operasional</span><span class="amt">Rp14.603.000</span></div>
-                <div class="legend-row"><span><i class="dot" style="background:#4E8FF0"></i>Gaji</span><span class="amt">Rp9.126.875</span></div>
-                <div class="legend-row"><span><i class="dot" style="background:#F0C05A"></i>Sewa</span><span class="amt">Rp5.476.125</span></div>
-                <div class="legend-row"><span><i class="dot" style="background:#9B7BE0"></i>Pemasaran</span><span class="amt">Rp3.650.800</span></div>
+                <div class="legend-row"><span><i class="dot" style="background:var(--emerald)"></i>Operasional</span><span class="amt">{{ $company->currency_symbol ?? 'Rp' }}14.603.000</span></div>
+                <div class="legend-row"><span><i class="dot" style="background:#4E8FF0"></i>Gaji</span><span class="amt">{{ $company->currency_symbol ?? 'Rp' }}9.126.875</span></div>
+                <div class="legend-row"><span><i class="dot" style="background:#F0C05A"></i>Sewa</span><span class="amt">{{ $company->currency_symbol ?? 'Rp' }}5.476.125</span></div>
+                <div class="legend-row"><span><i class="dot" style="background:#9B7BE0"></i>Pemasaran</span><span class="amt">{{ $company->currency_symbol ?? 'Rp' }}3.650.800</span></div>
               </div>
             </div>
           </div>
 
-          <!-- BILLING TARGET -->
+          <!-- BILLING TARGET - MASIH DUMMY -->
           <div class="card">
             <div class="card-head"><h3>Target Penagihan</h3><svg class="icon" style="color:var(--emerald)"><use href="#ic-target"/></svg></div>
-            <div class="balance-amt mono" style="font-size:22px;">Rp62,5jt</div>
+            <div class="balance-amt mono" style="font-size:22px;">{{ $company->currency_symbol ?? 'Rp' }}62,5jt</div>
             <div style="font-size:12px;color:var(--text-mute);margin-top:4px;">dari target Rp150.000.000</div>
             <div class="progress-bar"><div class="progress-fill" id="targetFill"></div></div>
             <div class="progress-labels"><span>42%</span><span>Sisa 18 hari</span></div>
           </div>
 
-          <!-- UPCOMING INVOICES -->
+          <!-- UPCOMING INVOICES - MASIH DUMMY -->
           <div class="card">
             <div class="card-head">
               <h3>Faktur Akan Jatuh Tempo</h3>
@@ -576,15 +580,15 @@
             </div>
             <div class="inv-row">
               <div class="info"><div class="n">#0571 — Nusantara Logistik</div><div class="c">Jatuh tempo 25 Jun 2026</div></div>
-              <div class="amt">Rp18.400.000</div>
+              <div class="amt">{{ $company->currency_symbol ?? 'Rp' }}18.400.000</div>
             </div>
             <div class="inv-row">
               <div class="info"><div class="n">#0574 — Ruang Kriya Studio</div><div class="c">Jatuh tempo 28 Jun 2026</div></div>
-              <div class="amt">Rp6.200.000</div>
+              <div class="amt">{{ $company->currency_symbol ?? 'Rp' }}6.200.000</div>
             </div>
             <div class="inv-row">
               <div class="info"><div class="n">#0552 — Bumi Retail Group</div><div class="c" style="color:var(--danger)">Terlambat 4 hari</div></div>
-              <div class="amt">Rp9.200.000</div>
+              <div class="amt">{{ $company->currency_symbol ?? 'Rp' }}9.200.000</div>
             </div>
           </div>
         </div>
@@ -628,21 +632,6 @@
 </style>
 
 <script>
-  // ===== count-up on numeric stat/balance values =====
-  function formatRupiah(n){ return 'Rp' + Math.round(n).toLocaleString('id-ID'); }
-  document.querySelectorAll('[data-count]').forEach(el => {
-    const target = parseFloat(el.dataset.count);
-    const duration = 1300;
-    const start = performance.now();
-    function tick(now){
-      const p = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = formatRupiah(target * eased);
-      if(p < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  });
-
   // spark bars grow-in
   document.querySelectorAll('#balanceSpark i').forEach((bar, i) => {
     setTimeout(() => { bar.style.height = bar.dataset.h + '%'; }, i * 60);
