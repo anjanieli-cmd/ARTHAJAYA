@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — Arthajaya</title>
 
-<!-- Favicon pakai logo yang sama -->
-<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/logo.png') }}">
-<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/logo.png') }}">
-<link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
+<!-- FAVICON - pakai logo dari public/logo.png -->
+<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logo.png') }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('logo.png') }}">
+<link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -334,7 +334,9 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-logo">
-      <span class="logo-mark"><img src="{{ asset('images/logo.png') }}" alt="Arthajaya"></span>
+      <span class="logo-mark">
+        <img src="{{ asset('logo.png') }}" alt="Arthajaya">
+      </span>
       Artha<span class="dot">jaya</span>
     </div>
 
