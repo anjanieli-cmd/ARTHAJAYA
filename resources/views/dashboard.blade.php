@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Arthajaya</title>
+<title>Dashboard — {{ $company->name ?? 'Arthajaya' }}</title>
 
 <!-- FAVICON - pakai logo dari public/logo.png -->
 <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logo.png') }}">
@@ -148,6 +148,7 @@
 
   main{ padding:28px; position:relative; z-index:1; }
   .page-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; margin-bottom:24px; }
+  .page-head .eyebrow{ font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--emerald); font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
   .page-head h1{ font-size:25px; margin-bottom:6px; }
   .page-head p{ font-size:13.5px; color:var(--text-mute); }
   .page-head .actions{ display:flex; gap:10px; }
@@ -158,6 +159,22 @@
   .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 28px rgba(var(--emerald-rgb),0.45); }
   .btn-outline{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
   .btn-outline:hover{ background:var(--surface-strong); border-color:var(--border-hover); }
+
+  /* ===== COMPANY PROFILE CARD (data dari onboarding) ===== */
+  .company-card{ background:linear-gradient(135deg, rgba(var(--emerald-rgb),0.08), var(--surface) 55%); border:1px solid var(--border); border-radius:20px; padding:22px 24px; margin-bottom:20px; transition: border-color .22s ease; }
+  .company-card:hover{ border-color:var(--border-hover); }
+  .company-card-inner{ display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap; }
+  .company-logo{ width:64px; height:64px; border-radius:16px; background:var(--surface-strong); border:1px solid var(--border-hover); display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; font-family:'Space Grotesk'; font-weight:700; font-size:20px; color:var(--emerald); }
+  .company-logo img{ width:100%; height:100%; object-fit:cover; }
+  .company-meta{ flex:1; min-width:240px; }
+  .company-meta h2{ font-size:20px; margin-bottom:8px; }
+  .company-tags{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .tag-pill{ font-size:11.5px; font-weight:600; padding:5px 11px; border-radius:100px; background:var(--surface-strong); border:1px solid var(--border); color:var(--text-mute); }
+  .company-details{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px 20px; }
+  .company-details div{ display:flex; flex-direction:column; gap:3px; }
+  .company-details .k{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); }
+  .company-details .v{ font-size:13px; font-weight:600; color:var(--text); }
+  .company-edit-btn{ flex-shrink:0; }
 
   .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
   .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:20px; transition: border-color .22s ease, transform .22s ease; }
@@ -184,6 +201,7 @@
   .balance-card{ background:linear-gradient(150deg, rgba(var(--emerald-rgb),0.14), var(--surface) 65%); border-color:rgba(var(--emerald-rgb),0.25); }
   .balance-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
   .balance-lbl{ font-size:12.5px; color:var(--text-mute); margin-bottom:8px; }
+  .balance-sub{ font-size:11.5px; color:var(--text-faint); margin-top:2px; }
   .balance-amt{ font-family:'Space Grotesk'; font-size:36px; font-weight:700; }
   .balance-delta{ font-size:12.5px; color:var(--emerald); margin-top:8px; display:flex; align-items:center; gap:6px; }
   .balance-delta .icon{ width:13px; height:13px; }
@@ -236,11 +254,20 @@
   .inv-row .c{ font-size:11.5px; color:var(--text-faint); }
   .inv-row .amt{ font-family:'IBM Plex Mono'; font-size:12.5px; text-align:right; }
 
+  .team-row{ display:flex; align-items:center; gap:12px; padding:11px 4px; border-top:1px solid var(--border); }
+  .team-row:first-child{ border-top:none; }
+  .team-avatar{ width:34px; height:34px; border-radius:50%; background:var(--surface-strong); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk'; font-weight:700; font-size:12px; color:var(--emerald); flex-shrink:0; }
+  .team-info{ flex:1; min-width:0; }
+  .team-info .n{ font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .team-info .c{ font-size:11.5px; color:var(--text-faint); }
+  .team-role-pill{ font-size:10.5px; font-weight:600; padding:4px 9px; border-radius:100px; background:var(--surface-strong); color:var(--text-mute); flex-shrink:0; }
+
   .empty-state{ text-align:center; padding:32px 16px; color:var(--text-faint); font-size:13px; }
 
   @media (max-width: 1180px){
     .dash-layout{ grid-template-columns:1fr; }
     .stat-grid{ grid-template-columns:repeat(2,1fr); }
+    .company-details{ grid-template-columns:repeat(2,1fr); }
   }
   @media (max-width: 980px){
     .app-shell{ grid-template-columns:1fr; }
@@ -257,6 +284,9 @@
     .balance-amt{ font-size:28px; }
     .quick-actions{ justify-content:space-between; }
     .qa-btn{ width:auto; flex:1; }
+    .company-card-inner{ flex-direction:column; }
+    .company-details{ grid-template-columns:1fr 1fr; }
+    .company-edit-btn{ width:100%; }
   }
 
   .menu-backdrop{ display:none; position:fixed; inset:0; background:rgba(4,7,12,0.6); backdrop-filter:blur(2px); z-index:90; opacity:0; transition:opacity .3s ease; }
@@ -368,9 +398,9 @@
 
     <div class="sb-bottom">
       <div class="sb-plan">
-        <div class="lbl">Paket Aktif</div>
-        <div class="name">{{ $company->name ?? 'Pro Plan' }}</div>
-        <a href="#">Kelola langganan →</a>
+        <div class="lbl">Perusahaan Aktif</div>
+        <div class="name">{{ $company->name ?? 'Belum diatur' }}</div>
+        <a href="#">Kelola perusahaan →</a>
       </div>
     </div>
   </aside>
@@ -423,8 +453,9 @@
     <main>
       <div class="page-head">
         <div>
-          <h1>Hai, {{ explode(' ', $user->name ?? 'Pengguna')[0] }} 👋</h1>
-          <p>Ini ringkasan keuangan bisnismu hari ini, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}.</p>
+          <div class="eyebrow"><svg class="icon" style="width:13px;height:13px;"><use href="#ic-building"/></svg> Dashboard Perusahaan</div>
+          <h1>{{ $company->name ?? 'Perusahaan Belum Diatur' }}</h1>
+          <p>{{ $company->industry ?? 'Industri belum diisi' }} @if($company->city ?? false) • {{ $company->city }}@endif — Diperbarui {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
         </div>
         <div class="actions">
           <a href="#" class="btn btn-outline">
@@ -432,6 +463,36 @@
           </a>
           <a href="#" class="btn btn-primary">
             <svg class="icon"><use href="#ic-plus"/></svg> Faktur Baru
+          </a>
+        </div>
+      </div>
+
+      <!-- COMPANY PROFILE - DATA REAL DARI ONBOARDING -->
+      <div class="card company-card">
+        <div class="company-card-inner">
+          <div class="company-logo">
+            @if(!empty($company->logo))
+              <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }}">
+            @else
+              {{ strtoupper(substr($company->name ?? 'PT', 0, 2)) }}
+            @endif
+          </div>
+          <div class="company-meta">
+            <h2>{{ $company->name ?? 'Nama Perusahaan' }}</h2>
+            <div class="company-tags">
+              <span class="tag-pill">{{ $company->industry ?? 'Industri belum diisi' }}</span>
+              @if($company->business_size ?? false)<span class="tag-pill">{{ $company->business_size }}</span>@endif
+              <span class="tag-pill">{{ $company->city ?? '-' }}, {{ $company->country ?? 'Indonesia' }}</span>
+            </div>
+            <div class="company-details">
+              <div><span class="k">Alamat</span><span class="v">{{ $company->address ?? '-' }}</span></div>
+              <div><span class="k">Mata Uang</span><span class="v">{{ $company->currency ?? 'IDR' }} ({{ $company->currency_symbol ?? 'Rp' }})</span></div>
+              <div><span class="k">Zona Waktu</span><span class="v">{{ $company->timezone ?? '-' }}</span></div>
+              <div><span class="k">Tahun Fiskal</span><span class="v">{{ $company->fiscal_start_month ?? 'Januari' }} — {{ $company->fiscal_year ?? date('Y') }}</span></div>
+            </div>
+          </div>
+          <a href="#" class="btn btn-outline company-edit-btn">
+            <svg class="icon"><use href="#ic-settings"/></svg> Edit Profil
           </a>
         </div>
       </div>
@@ -478,7 +539,7 @@
       <div class="dash-layout">
         <div class="stack">
 
-          <!-- BALANCE / QUICK ACTIONS - DATA REAL -->
+          <!-- BALANCE / QUICK ACTIONS - DATA REAL (rekening dari onboarding) -->
           <div class="card balance-card">
             <div class="balance-top">
               <div>
@@ -486,6 +547,9 @@
                 <div class="balance-amt mono">
                   {{ $account ? $account->currency_symbol ?? 'Rp' : 'Rp' }}{{ number_format($account->initial_balance ?? 0, 0, ',', '.') }}
                 </div>
+                @if($account)
+                  <div class="balance-sub">{{ $account->bank_name ?? 'Kas Tunai' }} @if($account->account_number ?? false) • {{ $account->account_number }} @endif</div>
+                @endif
                 <div class="balance-delta"><svg class="icon"><use href="#ic-trending"/></svg> +Rp16.850.000 (3.8%) bulan ini</div>
               </div>
               <div class="quick-actions">
@@ -570,6 +634,28 @@
             <div style="font-size:12px;color:var(--text-mute);margin-top:4px;">dari target Rp150.000.000</div>
             <div class="progress-bar"><div class="progress-fill" id="targetFill"></div></div>
             <div class="progress-labels"><span>42%</span><span>Sisa 18 hari</span></div>
+          </div>
+
+          <!-- TIM PERUSAHAAN - DATA REAL DARI UNDANGAN ONBOARDING (jika ada) -->
+          <div class="card">
+            <div class="card-head">
+              <h3>Tim Perusahaan</h3>
+              <a href="#" class="sub-link">Kelola <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
+            </div>
+            @if(!empty($teamMembers) && count($teamMembers))
+              @foreach($teamMembers as $member)
+                <div class="team-row">
+                  <div class="team-avatar">{{ strtoupper(substr($member->name ?? $member->email, 0, 1)) }}</div>
+                  <div class="team-info">
+                    <div class="n">{{ $member->name ?? $member->email }}</div>
+                    <div class="c">{{ $member->email }}</div>
+                  </div>
+                  <span class="team-role-pill">{{ $member->role ?? 'Anggota' }}</span>
+                </div>
+              @endforeach
+            @else
+              <div class="empty-state">Belum ada anggota tim diundang. Undang rekan kerja lewat menu Pengaturan.</div>
+            @endif
           </div>
 
           <!-- UPCOMING INVOICES - MASIH DUMMY -->

@@ -22,6 +22,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
+    Route::post('/onboarding/update', [OnboardingController::class, 'update'])->name('onboarding.update');
 });
 
 // Logout
@@ -33,7 +34,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $user = Auth::user();
         $company = $user->company;
         $account = $company ? $company->accounts()->first() : null;
-        
+
         return view('dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
 });
