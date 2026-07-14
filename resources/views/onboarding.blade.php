@@ -320,7 +320,7 @@
     <div class="success-recap">
       <div class="item"><div class="lbl">Perusahaan</div><div class="val">{{ $company->name ?? '—' }}</div></div>
       <div class="item"><div class="lbl">Mata Uang</div><div class="val">{{ $company->currency ?? '—' }}</div></div>
-      <div class="item"><div class="lbl">Saldo Awal</div><div class="val">Rp{{ number_format($company->accounts->first()->initial_balance ?? 0, 0, ',', '.') }}</div></div>
+      <div class="item"><div class="lbl">Saldo Awal</div><div class="val">Rp{{ number_format($company->accounts?->first()?->initial_balance ?? 0, 0, ',', '.') }}</div></div>
     </div>
     <div class="success-actions">
       <a href="{{ route('dashboard') }}" class="btn btn-primary">Masuk ke Dashboard <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
