@@ -38,9 +38,9 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ Route::has('receivables.index') ? route('receivables.index') : '#' }}" class="sb-sublink {{ request()->routeIs('receivables.*') ? 'active' : '' }}">Piutang Usaha (AR)</a>
-        <a href="{{ Route::has('payables.index') ? route('payables.index') : '#' }}" class="sb-sublink {{ request()->routeIs('payables.*') ? 'active' : '' }}">Utang Usaha (AP)</a>
-        <a href="{{ Route::has('aging.index') ? route('aging.index') : '#' }}" class="sb-sublink {{ request()->routeIs('aging.*') ? 'active' : '' }}">Aging Report (30/60/90 hari)</a>
+        <a href="{{ route('receivables.index') }}" class="sb-sublink {{ request()->routeIs('receivables.*') ? 'active' : '' }}">Piutang Usaha (AR)</a>
+        <a href="{{ route('payables.index') }}" class="sb-sublink {{ request()->routeIs('payables.*') ? 'active' : '' }}">Utang Usaha (AP)</a>
+        <a href="{{ route('aging.index') }}" class="sb-sublink {{ request()->routeIs('aging.*') ? 'active' : '' }}">Aging Report (30/60/90 hari)</a>
       </div>
     </div>
   </div>

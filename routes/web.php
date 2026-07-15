@@ -38,14 +38,4 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         return view('dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
-
-    // Faktur / Invoices
-    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
-    Route::get('/invoices/create', [InvoiceController::class, 'create'])->name('invoices.create');
-    Route::post('/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
-    Route::delete('/invoices/bulk-delete', [InvoiceController::class, 'bulkDestroy'])->name('invoices.bulk-destroy');
-    Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
-    Route::get('/invoices/{invoice}/edit', [InvoiceController::class, 'edit'])->name('invoices.edit');
-    Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
-    Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('invoices.destroy');
 });
