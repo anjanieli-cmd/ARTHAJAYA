@@ -22,9 +22,9 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="#" class="sb-sublink {{ request()->routeIs('invoices.*') ? 'active' : '' }}">Semua Faktur</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('quotes.*') ? 'active' : '' }}">Penawaran / Quotation</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('clients.*') ? 'active' : '' }}">Klien</a>
+        <a href="{{ Route::has('invoices.index') ? route('invoices.index') : '#' }}" class="sb-sublink {{ request()->routeIs('invoices.*') ? 'active' : '' }}">Semua Faktur</a>
+        <a href="{{ Route::has('quotes.index') ? route('quotes.index') : '#' }}" class="sb-sublink {{ request()->routeIs('quotes.*') ? 'active' : '' }}">Penawaran / Quotation</a>
+        <a href="{{ Route::has('clients.index') ? route('clients.index') : '#' }}" class="sb-sublink {{ request()->routeIs('clients.*') ? 'active' : '' }}">Klien</a>
       </div>
     </div>
   </div>
@@ -38,9 +38,9 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="#" class="sb-sublink {{ request()->routeIs('receivables.*') ? 'active' : '' }}">Piutang Usaha (AR)</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('payables.*') ? 'active' : '' }}">Utang Usaha (AP)</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('aging.*') ? 'active' : '' }}">Aging Report (30/60/90 hari)</a>
+        <a href="{{ Route::has('receivables.index') ? route('receivables.index') : '#' }}" class="sb-sublink {{ request()->routeIs('receivables.*') ? 'active' : '' }}">Piutang Usaha (AR)</a>
+        <a href="{{ Route::has('payables.index') ? route('payables.index') : '#' }}" class="sb-sublink {{ request()->routeIs('payables.*') ? 'active' : '' }}">Utang Usaha (AP)</a>
+        <a href="{{ Route::has('aging.index') ? route('aging.index') : '#' }}" class="sb-sublink {{ request()->routeIs('aging.*') ? 'active' : '' }}">Aging Report (30/60/90 hari)</a>
       </div>
     </div>
   </div>
@@ -54,8 +54,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="#" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }}">Pengeluaran</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">Kategori Biaya</a>
+        <a href="{{ Route::has('expenses.index') ? route('expenses.index') : '#' }}" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }}">Pengeluaran</a>
+        <a href="{{ Route::has('expense-categories.index') ? route('expense-categories.index') : '#' }}" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">Kategori Biaya</a>
       </div>
     </div>
   </div>
@@ -69,8 +69,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="#" class="sb-sublink {{ request()->routeIs('reconciliation.*') ? 'active' : '' }}">Rekonsiliasi Bank</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('bank-mutations.*') ? 'active' : '' }}">Mutasi Rekening</a>
+        <a href="{{ Route::has('reconciliation.index') ? route('reconciliation.index') : '#' }}" class="sb-sublink {{ request()->routeIs('reconciliation.*') ? 'active' : '' }}">Rekonsiliasi Bank</a>
+        <a href="{{ Route::has('bank-mutations.index') ? route('bank-mutations.index') : '#' }}" class="sb-sublink {{ request()->routeIs('bank-mutations.*') ? 'active' : '' }}">Mutasi Rekening</a>
       </div>
     </div>
   </div>
@@ -84,10 +84,10 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="#" class="sb-sublink {{ request()->routeIs('reports.profit-loss') ? 'active' : '' }}">Laba Rugi</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('reports.balance-sheet') ? 'active' : '' }}">Neraca</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('reports.cash-flow') ? 'active' : '' }}">Arus Kas</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('reports.general-ledger') ? 'active' : '' }}">Buku Besar</a>
+        <a href="{{ Route::has('reports.profit-loss') ? route('reports.profit-loss') : '#' }}" class="sb-sublink {{ request()->routeIs('reports.profit-loss') ? 'active' : '' }}">Laba Rugi</a>
+        <a href="{{ Route::has('reports.balance-sheet') ? route('reports.balance-sheet') : '#' }}" class="sb-sublink {{ request()->routeIs('reports.balance-sheet') ? 'active' : '' }}">Neraca</a>
+        <a href="{{ Route::has('reports.cash-flow') ? route('reports.cash-flow') : '#' }}" class="sb-sublink {{ request()->routeIs('reports.cash-flow') ? 'active' : '' }}">Arus Kas</a>
+        <a href="{{ Route::has('reports.general-ledger') ? route('reports.general-ledger') : '#' }}" class="sb-sublink {{ request()->routeIs('reports.general-ledger') ? 'active' : '' }}">Buku Besar</a>
       </div>
     </div>
   </div>
@@ -101,8 +101,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="#" class="sb-sublink {{ request()->routeIs('inventory.*') ? 'active' : '' }}">Stok Barang</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('cogs.*') ? 'active' : '' }}">Harga Pokok Penjualan (HPP)</a>
+        <a href="{{ Route::has('inventory.index') ? route('inventory.index') : '#' }}" class="sb-sublink {{ request()->routeIs('inventory.*') ? 'active' : '' }}">Stok Barang</a>
+        <a href="{{ Route::has('cogs.index') ? route('cogs.index') : '#' }}" class="sb-sublink {{ request()->routeIs('cogs.*') ? 'active' : '' }}">Harga Pokok Penjualan (HPP)</a>
       </div>
     </div>
   </div>
@@ -116,8 +116,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="#" class="sb-sublink {{ request()->routeIs('payroll.*') ? 'active' : '' }}">Slip Gaji</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('employees.*') ? 'active' : '' }}">Data Karyawan</a>
+        <a href="{{ Route::has('payroll.index') ? route('payroll.index') : '#' }}" class="sb-sublink {{ request()->routeIs('payroll.*') ? 'active' : '' }}">Slip Gaji</a>
+        <a href="{{ Route::has('employees.index') ? route('employees.index') : '#' }}" class="sb-sublink {{ request()->routeIs('employees.*') ? 'active' : '' }}">Data Karyawan</a>
       </div>
     </div>
   </div>
@@ -132,16 +132,16 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="#" class="sb-sublink {{ request()->routeIs('taxes.pph') ? 'active' : '' }}">PPh</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('taxes.ppn') ? 'active' : '' }}">PPN</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('tax-calendar.*') ? 'active' : '' }}">Kalender Pajak</a>
+        <a href="{{ Route::has('taxes.pph') ? route('taxes.pph') : '#' }}" class="sb-sublink {{ request()->routeIs('taxes.pph') ? 'active' : '' }}">PPh</a>
+        <a href="{{ Route::has('taxes.ppn') ? route('taxes.ppn') : '#' }}" class="sb-sublink {{ request()->routeIs('taxes.ppn') ? 'active' : '' }}">PPN</a>
+        <a href="{{ Route::has('tax-calendar.index') ? route('tax-calendar.index') : '#' }}" class="sb-sublink {{ request()->routeIs('tax-calendar.*') ? 'active' : '' }}">Kalender Pajak</a>
       </div>
     </div>
   </div>
 
   {{-- ===== BUDGETING (single link) ===== --}}
   <div class="sb-group-label">Keuangan</div>
-  <a href="#" class="sb-link {{ request()->routeIs('budgets.*') ? 'active' : '' }}">
+  <a href="{{ Route::has('budgets.index') ? route('budgets.index') : '#' }}" class="sb-link {{ request()->routeIs('budgets.*') ? 'active' : '' }}">
     <svg class="icon"><use href="#ic-target"/></svg> Anggaran &amp; Forecasting
   </a>
 
@@ -155,9 +155,9 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="#" class="sb-sublink {{ request()->routeIs('users.*') ? 'active' : '' }}">Multi-User &amp; Hak Akses</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('integrations.*') ? 'active' : '' }}">Integrasi</a>
-        <a href="#" class="sb-sublink {{ request()->routeIs('security.*') ? 'active' : '' }}">Keamanan</a>
+        <a href="{{ Route::has('users.index') ? route('users.index') : '#' }}" class="sb-sublink {{ request()->routeIs('users.*') ? 'active' : '' }}">Multi-User &amp; Hak Akses</a>
+        <a href="{{ Route::has('integrations.index') ? route('integrations.index') : '#' }}" class="sb-sublink {{ request()->routeIs('integrations.*') ? 'active' : '' }}">Integrasi</a>
+        <a href="{{ Route::has('security.index') ? route('security.index') : '#' }}" class="sb-sublink {{ request()->routeIs('security.*') ? 'active' : '' }}">Keamanan</a>
         <a href="{{ Route::has('profile.edit') ? route('profile.edit') : '#' }}" class="sb-sublink {{ request()->routeIs('profile.edit') ? 'active' : '' }}">Profil Saya</a>
       </div>
     </div>
