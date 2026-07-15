@@ -1,6 +1,13 @@
 <x-app-layout>
   <x-slot name="title">Dashboard</x-slot>
 
+  @php
+    // Mapping kode mata uang -> simbol, karena kolom currency_symbol
+    // tidak pernah disimpan di database (hanya 'currency' spt IDR/USD).
+    $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
+    $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
+  @endphp
+
   <div class="page-head">
     <div>
       <div class="eyebrow"><svg class="icon" style="width:13px;height:13px;"><use href="#ic-building"/></svg> Dashboard Perusahaan</div>
@@ -31,13 +38,10 @@
         <h2>{{ $company->name ?? 'Nama Perusahaan' }}</h2>
         <div class="company-tags">
           <span class="tag-pill">{{ $company->industry ?? 'Industri belum diisi' }}</span>
-          @if($company->business_size ?? false)<span class="tag-pill">{{ $company->business_size }}</span>@endif
-          <span class="tag-pill">{{ $company->city ?? '-' }}, {{ $company->country ?? 'Indonesia' }}</span>
+          @if($company->city ?? false)<span class="tag-pill">{{ $company->city }}</span>@endif
         </div>
         <div class="company-details">
-          <div><span class="k">Alamat</span><span class="v">{{ $company->address ?? '-' }}</span></div>
-          <div><span class="k">Mata Uang</span><span class="v">{{ $company->currency ?? 'IDR' }} ({{ $company->currency_symbol ?? 'Rp' }})</span></div>
-          <div><span class="k">Zona Waktu</span><span class="v">{{ $company->timezone ?? '-' }}</span></div>
+          <div><span class="k">Mata Uang</span><span class="v">{{ $company->currency ?? 'IDR' }} ({{ $currencySymbol }})</span></div>
           <div><span class="k">Tahun Fiskal</span><span class="v">{{ $company->fiscal_start_month ?? 'Januari' }} — {{ $company->fiscal_year ?? date('Y') }}</span></div>
         </div>
       </div>
@@ -56,7 +60,7 @@
       </div>
       <div class="lbl">Total Saldo Kas</div>
       <div class="val mono">
-        {{ $account ? $account->currency_symbol ?? 'Rp' : 'Rp' }}{{ number_format($account->initial_balance ?? 0, 0, ',', '.') }}
+        {{ $currencySymbol }}{{ number_format($account->initial_balance ?? 0, 0, ',', '.') }}
       </div>
     </div>
     <div class="stat-card">
@@ -65,7 +69,7 @@
         <div class="chg up"><svg class="icon"><use href="#ic-trending"/></svg> 12.5%</div>
       </div>
       <div class="lbl">Pemasukan Bulan Ini</div>
-      <div class="val mono">{{ $company->currency_symbol ?? 'Rp' }}184.600.000</div>
+      <div class="val mono">{{ $currencySymbol }}184.600.000</div>
     </div>
     <div class="stat-card">
       <div class="stat-head">
@@ -73,7 +77,7 @@
         <div class="chg down"><svg class="icon"><use href="#ic-trending-down"/></svg> 4.2%</div>
       </div>
       <div class="lbl">Pengeluaran Bulan Ini</div>
-      <div class="val mono">{{ $company->currency_symbol ?? 'Rp' }}36.507.500</div>
+      <div class="val mono">{{ $currencySymbol }}36.507.500</div>
     </div>
     <div class="stat-card">
       <div class="stat-head">
@@ -81,7 +85,7 @@
         <div class="chg down">3 jatuh tempo</div>
       </div>
       <div class="lbl">Faktur Belum Dibayar</div>
-      <div class="val mono">{{ $company->currency_symbol ?? 'Rp' }}87.500.000</div>
+      <div class="val mono">{{ $currencySymbol }}87.500.000</div>
     </div>
   </div>
 
@@ -95,10 +99,10 @@
           <div>
             <div class="balance-lbl">Saldo Kas Konsolidasi</div>
             <div class="balance-amt mono">
-              {{ $account ? $account->currency_symbol ?? 'Rp' : 'Rp' }}{{ number_format($account->initial_balance ?? 0, 0, ',', '.') }}
+              {{ $currencySymbol }}{{ number_format($account->initial_balance ?? 0, 0, ',', '.') }}
             </div>
             @if($account)
-              <div class="balance-sub">{{ $account->bank_name ?? 'Kas Tunai' }} @if($account->account_number ?? false) • {{ $account->account_number }} @endif</div>
+              <div class="balance-sub">{{ $account->bank_name ?? 'Kas Tunai' }}</div>
             @endif
             <div class="balance-delta"><svg class="icon"><use href="#ic-trending"/></svg> +Rp16.850.000 (3.8%) bulan ini</div>
           </div>
@@ -145,7 +149,7 @@
                   </div>
                 </td>
                 <td><span class="status-pill {{ $tx['status'] }}">{{ ucfirst($tx['status']) }}</span></td>
-                <td class="amt-cell {{ $tx['amount'] >= 0 ? 'pos' : 'neg' }}">{{ $tx['amount'] >= 0 ? '+' : '-' }}{{ $company->currency_symbol ?? 'Rp' }}{{ number_format(abs($tx['amount']), 0, ',', '.') }}</td>
+                <td class="amt-cell {{ $tx['amount'] >= 0 ? 'pos' : 'neg' }}">{{ $tx['amount'] >= 0 ? '+' : '-' }}{{ $currencySymbol }}{{ number_format(abs($tx['amount']), 0, ',', '.') }}</td>
               </tr>
             @endforeach
           </tbody>
@@ -166,13 +170,13 @@
               <circle cx="60" cy="60" r="52" style="stroke:var(--surface-strong)"></circle>
               <circle cx="60" cy="60" r="52" style="stroke:var(--emerald)" stroke-dasharray="326.7" stroke-dashoffset="326.7" class="donut-anim"></circle>
             </svg>
-            <div class="donut-center"><div class="amt">{{ $company->currency_symbol ?? 'Rp' }}36,5jt</div><div class="lbl">Total</div></div>
+            <div class="donut-center"><div class="amt">{{ $currencySymbol }}36,5jt</div><div class="lbl">Total</div></div>
           </div>
           <div class="legend">
-            <div class="legend-row"><span><i class="dot" style="background:var(--emerald)"></i>Operasional</span><span class="amt">{{ $company->currency_symbol ?? 'Rp' }}14.603.000</span></div>
-            <div class="legend-row"><span><i class="dot" style="background:#4E8FF0"></i>Gaji</span><span class="amt">{{ $company->currency_symbol ?? 'Rp' }}9.126.875</span></div>
-            <div class="legend-row"><span><i class="dot" style="background:#F0C05A"></i>Sewa</span><span class="amt">{{ $company->currency_symbol ?? 'Rp' }}5.476.125</span></div>
-            <div class="legend-row"><span><i class="dot" style="background:#9B7BE0"></i>Pemasaran</span><span class="amt">{{ $company->currency_symbol ?? 'Rp' }}3.650.800</span></div>
+            <div class="legend-row"><span><i class="dot" style="background:var(--emerald)"></i>Operasional</span><span class="amt">{{ $currencySymbol }}14.603.000</span></div>
+            <div class="legend-row"><span><i class="dot" style="background:#4E8FF0"></i>Gaji</span><span class="amt">{{ $currencySymbol }}9.126.875</span></div>
+            <div class="legend-row"><span><i class="dot" style="background:#F0C05A"></i>Sewa</span><span class="amt">{{ $currencySymbol }}5.476.125</span></div>
+            <div class="legend-row"><span><i class="dot" style="background:#9B7BE0"></i>Pemasaran</span><span class="amt">{{ $currencySymbol }}3.650.800</span></div>
           </div>
         </div>
       </div>
@@ -180,7 +184,7 @@
       <!-- BILLING TARGET - MASIH DUMMY -->
       <div class="card">
         <div class="card-head"><h3>Target Penagihan</h3><svg class="icon" style="color:var(--emerald)"><use href="#ic-target"/></svg></div>
-        <div class="balance-amt mono" style="font-size:22px;">{{ $company->currency_symbol ?? 'Rp' }}62,5jt</div>
+        <div class="balance-amt mono" style="font-size:22px;">{{ $currencySymbol }}62,5jt</div>
         <div style="font-size:12px;color:var(--text-mute);margin-top:4px;">dari target Rp150.000.000</div>
         <div class="progress-bar"><div class="progress-fill" id="targetFill"></div></div>
         <div class="progress-labels"><span>42%</span><span>Sisa 18 hari</span></div>
@@ -216,15 +220,15 @@
         </div>
         <div class="inv-row">
           <div class="info"><div class="n">#0571 — Nusantara Logistik</div><div class="c">Jatuh tempo 25 Jun 2026</div></div>
-          <div class="amt">{{ $company->currency_symbol ?? 'Rp' }}18.400.000</div>
+          <div class="amt">{{ $currencySymbol }}18.400.000</div>
         </div>
         <div class="inv-row">
           <div class="info"><div class="n">#0574 — Ruang Kriya Studio</div><div class="c">Jatuh tempo 28 Jun 2026</div></div>
-          <div class="amt">{{ $company->currency_symbol ?? 'Rp' }}6.200.000</div>
+          <div class="amt">{{ $currencySymbol }}6.200.000</div>
         </div>
         <div class="inv-row">
           <div class="info"><div class="n">#0552 — Bumi Retail Group</div><div class="c" style="color:var(--danger)">Terlambat 4 hari</div></div>
-          <div class="amt">{{ $company->currency_symbol ?? 'Rp' }}9.200.000</div>
+          <div class="amt">{{ $currencySymbol }}9.200.000</div>
         </div>
       </div>
     </div>
