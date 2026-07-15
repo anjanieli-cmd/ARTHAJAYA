@@ -392,7 +392,7 @@
               <div class="n">{{ Auth::user()->name ?? 'Pengguna' }}</div>
               <div class="e">{{ Auth::user()->email ?? '' }}</div>
             </div>
-            <a href="{{ route('profile.edit') }}"><svg class="icon"><use href="#ic-user"/></svg> Profil Saya</a>
+            <a href="{{ Route::has('profile.edit') ? route('profile.edit') : '#' }}"><svg class="icon"><use href="#ic-user"/></svg> Profil Saya</a>
             <a href="#"><svg class="icon"><use href="#ic-settings"/></svg> Pengaturan</a>
             <hr>
             <form method="POST" action="{{ route('logout') }}">
