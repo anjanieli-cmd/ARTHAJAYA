@@ -22,9 +22,9 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ Route::has('invoices.index') ? route('invoices.index') : '#' }}" class="sb-sublink {{ request()->routeIs('invoices.*') ? 'active' : '' }}">Semua Faktur</a>
-        <a href="{{ Route::has('quotes.index') ? route('quotes.index') : '#' }}" class="sb-sublink {{ request()->routeIs('quotes.*') ? 'active' : '' }}">Penawaran / Quotation</a>
-        <a href="{{ Route::has('clients.index') ? route('clients.index') : '#' }}" class="sb-sublink {{ request()->routeIs('clients.*') ? 'active' : '' }}">Klien</a>
+        <a href="{{ route('invoices.index') }}" class="sb-sublink {{ request()->routeIs('invoices.*') ? 'active' : '' }}">Semua Faktur</a>
+        <a href="{{ route('quotes.index') }}" class="sb-sublink {{ request()->routeIs('quotes.*') ? 'active' : '' }}">Penawaran / Quotation</a>
+        <a href="{{ route('clients.index') }}" class="sb-sublink {{ request()->routeIs('clients.*') ? 'active' : '' }}">Klien</a>
       </div>
     </div>
   </div>
@@ -54,8 +54,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ Route::has('expenses.index') ? route('expenses.index') : '#' }}" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }}">Pengeluaran</a>
-        <a href="{{ Route::has('expense-categories.index') ? route('expense-categories.index') : '#' }}" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">Kategori Biaya</a>
+        <a href="{{ route('expenses.index') }}" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }}">Pengeluaran</a>
+        <a href="{{ route('expense-categories.index') }}" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">Kategori Biaya</a>
       </div>
     </div>
   </div>
@@ -69,8 +69,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ Route::has('reconciliation.index') ? route('reconciliation.index') : '#' }}" class="sb-sublink {{ request()->routeIs('reconciliation.*') ? 'active' : '' }}">Rekonsiliasi Bank</a>
-        <a href="{{ Route::has('bank-mutations.index') ? route('bank-mutations.index') : '#' }}" class="sb-sublink {{ request()->routeIs('bank-mutations.*') ? 'active' : '' }}">Mutasi Rekening</a>
+        <a href="{{ route('reconciliation.index') }}" class="sb-sublink {{ request()->routeIs('reconciliation.*') ? 'active' : '' }}">Rekonsiliasi Bank</a>
+        <a href="{{ route('bank-mutations.index') }}" class="sb-sublink {{ request()->routeIs('bank-mutations.*') ? 'active' : '' }}">Mutasi Rekening</a>
       </div>
     </div>
   </div>
@@ -84,10 +84,10 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ Route::has('reports.profit-loss') ? route('reports.profit-loss') : '#' }}" class="sb-sublink {{ request()->routeIs('reports.profit-loss') ? 'active' : '' }}">Laba Rugi</a>
-        <a href="{{ Route::has('reports.balance-sheet') ? route('reports.balance-sheet') : '#' }}" class="sb-sublink {{ request()->routeIs('reports.balance-sheet') ? 'active' : '' }}">Neraca</a>
-        <a href="{{ Route::has('reports.cash-flow') ? route('reports.cash-flow') : '#' }}" class="sb-sublink {{ request()->routeIs('reports.cash-flow') ? 'active' : '' }}">Arus Kas</a>
-        <a href="{{ Route::has('reports.general-ledger') ? route('reports.general-ledger') : '#' }}" class="sb-sublink {{ request()->routeIs('reports.general-ledger') ? 'active' : '' }}">Buku Besar</a>
+        <a href="{{ route('reports.profit-loss') }}" class="sb-sublink {{ request()->routeIs('reports.profit-loss') ? 'active' : '' }}">Laba Rugi</a>
+        <a href="{{ route('reports.balance-sheet') }}" class="sb-sublink {{ request()->routeIs('reports.balance-sheet') ? 'active' : '' }}">Neraca</a>
+        <a href="{{ route('reports.cash-flow') }}" class="sb-sublink {{ request()->routeIs('reports.cash-flow') ? 'active' : '' }}">Arus Kas</a>
+        <a href="{{ route('reports.general-ledger') }}" class="sb-sublink {{ request()->routeIs('reports.general-ledger') ? 'active' : '' }}">Buku Besar</a>
       </div>
     </div>
   </div>
@@ -101,8 +101,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ Route::has('inventory.index') ? route('inventory.index') : '#' }}" class="sb-sublink {{ request()->routeIs('inventory.*') ? 'active' : '' }}">Stok Barang</a>
-        <a href="{{ Route::has('cogs.index') ? route('cogs.index') : '#' }}" class="sb-sublink {{ request()->routeIs('cogs.*') ? 'active' : '' }}">Harga Pokok Penjualan (HPP)</a>
+        <a href="{{ route('inventory.index') }}" class="sb-sublink {{ request()->routeIs('inventory.*') ? 'active' : '' }}">Stok Barang</a>
+        <a href="{{ route('cogs.index') }}" class="sb-sublink {{ request()->routeIs('cogs.*') ? 'active' : '' }}">Harga Pokok Penjualan (HPP)</a>
       </div>
     </div>
   </div>
@@ -116,8 +116,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ Route::has('payroll.index') ? route('payroll.index') : '#' }}" class="sb-sublink {{ request()->routeIs('payroll.*') ? 'active' : '' }}">Slip Gaji</a>
-        <a href="{{ Route::has('employees.index') ? route('employees.index') : '#' }}" class="sb-sublink {{ request()->routeIs('employees.*') ? 'active' : '' }}">Data Karyawan</a>
+        <a href="{{ route('payroll.index') }}" class="sb-sublink {{ request()->routeIs('payroll.*') ? 'active' : '' }}">Slip Gaji</a>
+        <a href="{{ route('employees.index') }}" class="sb-sublink {{ request()->routeIs('employees.*') ? 'active' : '' }}">Data Karyawan</a>
       </div>
     </div>
   </div>
@@ -132,16 +132,16 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ Route::has('taxes.pph') ? route('taxes.pph') : '#' }}" class="sb-sublink {{ request()->routeIs('taxes.pph') ? 'active' : '' }}">PPh</a>
-        <a href="{{ Route::has('taxes.ppn') ? route('taxes.ppn') : '#' }}" class="sb-sublink {{ request()->routeIs('taxes.ppn') ? 'active' : '' }}">PPN</a>
-        <a href="{{ Route::has('tax-calendar.index') ? route('tax-calendar.index') : '#' }}" class="sb-sublink {{ request()->routeIs('tax-calendar.*') ? 'active' : '' }}">Kalender Pajak</a>
+        <a href="{{ route('taxes.pph') }}" class="sb-sublink {{ request()->routeIs('taxes.pph') ? 'active' : '' }}">PPh</a>
+        <a href="{{ route('taxes.ppn') }}" class="sb-sublink {{ request()->routeIs('taxes.ppn') ? 'active' : '' }}">PPN</a>
+        <a href="{{ route('tax-calendar.index') }}" class="sb-sublink {{ request()->routeIs('tax-calendar.*') ? 'active' : '' }}">Kalender Pajak</a>
       </div>
     </div>
   </div>
 
   {{-- ===== BUDGETING (single link) ===== --}}
   <div class="sb-group-label">Keuangan</div>
-  <a href="{{ Route::has('budgets.index') ? route('budgets.index') : '#' }}" class="sb-link {{ request()->routeIs('budgets.*') ? 'active' : '' }}">
+  <a href="{{ route('budgets.index') }}" class="sb-link {{ request()->routeIs('budgets.*') ? 'active' : '' }}">
     <svg class="icon"><use href="#ic-target"/></svg> Anggaran &amp; Forecasting
   </a>
 
@@ -155,10 +155,10 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ Route::has('users.index') ? route('users.index') : '#' }}" class="sb-sublink {{ request()->routeIs('users.*') ? 'active' : '' }}">Multi-User &amp; Hak Akses</a>
-        <a href="{{ Route::has('integrations.index') ? route('integrations.index') : '#' }}" class="sb-sublink {{ request()->routeIs('integrations.*') ? 'active' : '' }}">Integrasi</a>
-        <a href="{{ Route::has('security.index') ? route('security.index') : '#' }}" class="sb-sublink {{ request()->routeIs('security.*') ? 'active' : '' }}">Keamanan</a>
-        <a href="{{ Route::has('profile.edit') ? route('profile.edit') : '#' }}" class="sb-sublink {{ request()->routeIs('profile.edit') ? 'active' : '' }}">Profil Saya</a>
+        <a href="{{ route('users.index') }}" class="sb-sublink {{ request()->routeIs('users.*') ? 'active' : '' }}">Multi-User &amp; Hak Akses</a>
+        <a href="{{ route('integrations.index') }}" class="sb-sublink {{ request()->routeIs('integrations.*') ? 'active' : '' }}">Integrasi</a>
+        <a href="{{ route('security.index') }}" class="sb-sublink {{ request()->routeIs('security.*') ? 'active' : '' }}">Keamanan</a>
+        <a href="{{ route('profile.edit') }}" class="sb-sublink {{ request()->routeIs('profile.edit') ? 'active' : '' }}">Profil Saya</a>
       </div>
     </div>
   </div>
@@ -173,6 +173,32 @@
 </aside>
 
 <style>
+  /* ===== SIDEBAR BASE (mandiri — supaya partial ini tampil benar di halaman manapun ia di-include) ===== */
+  .sidebar{
+    width:262px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border);
+    padding:22px 16px; display:flex; flex-direction:column; gap:2px; position:sticky; top:0; height:100vh; overflow-y:auto;
+  }
+  .sb-logo{ display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:17px; padding:6px 10px 22px; }
+  .logo-mark{ width:28px; height:28px; border-radius:8px; background:var(--surface-strong); border:1px solid var(--border-hover); display:flex; align-items:center; justify-content:center; overflow:hidden; padding:3px; flex-shrink:0; }
+  .logo-mark img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .sb-logo .dot{ color:var(--emerald); }
+  .sb-group-label{ font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint); padding:16px 12px 8px; }
+  .sb-link{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:11px; font-size:13.5px; font-weight:500; color:var(--text-mute); transition:all .2s ease; }
+  .sb-link .icon{ width:16px; height:16px; flex-shrink:0; }
+  .sb-link:hover{ background:var(--surface-strong); color:var(--text); }
+  .sb-link.active{ background:rgba(var(--emerald-rgb),0.1); color:var(--emerald); }
+  .sb-link .badge{ margin-left:auto; background:var(--emerald); color:#052117; font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:100px; }
+  .sb-bottom{ margin-top:auto; padding-top:16px; }
+  .sb-plan{ background:var(--surface-strong); border:1px solid var(--border); border-radius:14px; padding:14px; }
+  .sb-plan .lbl{ font-size:11px; color:var(--text-faint); }
+  .sb-plan .name{ font-size:13.5px; font-weight:600; margin:3px 0 8px; }
+  .sb-plan a{ font-size:12px; color:var(--emerald); font-weight:600; }
+
+  @media (max-width: 900px){
+    .sidebar{ display:none; }
+  }
+
+  /* ===== ACCORDION / SUBMENU ===== */
   .sb-accordion{ margin-bottom:2px; }
   .sb-parent{ width:100%; background:none; border:none; cursor:pointer; text-align:left; }
   .sb-parent .chevron{ margin-left:auto; width:14px; height:14px; transition: transform .25s ease; flex-shrink:0; }
@@ -181,7 +207,6 @@
   .sb-accordion.open > .sb-parent .chevron{ transform: rotate(180deg); }
   .sb-accordion.open > .sb-parent{ color:var(--text); }
 
-  /* ===== FIX: wrapper tunggal per grid row, biar collapse-nya bener ===== */
   .sb-submenu{
     display:grid;
     grid-template-rows: 0fr;
