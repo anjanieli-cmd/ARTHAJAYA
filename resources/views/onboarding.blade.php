@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Siapkan Akun Bisnismu — Arthajaya</title>
 
-<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logo.png') }}">
-<link rel="apple-touch-icon" href="{{ asset('logo.png') }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logos.png') }}">
+<link rel="apple-touch-icon" href="{{ asset('logos.png') }}">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -222,7 +222,7 @@
 </div>
 
 <div class="topbar">
-  <div class="logo"><span class="logo-mark"><img src="{{ asset('logo.png') }}" alt="Arthajaya"></span>Artha<span class="dot">jaya</span></div>
+  <div class="logo"><span class="logo-mark"><img src="{{ asset('logos.png') }}" alt="Arthajaya"></span>Artha<span class="dot">jaya</span></div>
   <form method="POST" action="{{ route('logout') }}">
     @csrf
     <button type="submit" class="exit-link"><svg class="icon"><use href="#ic-logout"/></svg> Simpan &amp; keluar</button>
@@ -238,7 +238,7 @@
     <div class="success-recap">
       <div class="item"><div class="lbl">Perusahaan</div><div class="val">{{ $company->name ?? '—' }}</div></div>
       <div class="item"><div class="lbl">Mata Uang</div><div class="val">{{ $company->currency ?? '—' }}</div></div>
-      <div class="item"><div class="lbl">Saldo Awal</div><div class="val">Rp{{ number_format($company?->accounts?->first()?->initial_balance ?? 0, 0, ',', '.') }}</div></div>
+      <div class="item"><div class="lbl">Saldo Awal</div><div class="val">{{ $company->currency_symbol ?? 'Rp' }}{{ number_format($company?->accounts?->first()?->initial_balance ?? 0, 0, ',', '.') }}</div></div>
     </div>
     <a href="{{ route('dashboard') }}" class="btn btn-primary" style="width:auto;display:inline-flex;">Masuk ke Dashboard <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
   </div>
