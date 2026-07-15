@@ -37,4 +37,26 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         return view('dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
+
+    // Piutang & Utang (AR / AP)
+    Route::get('/receivables', function () {
+        $user = Auth::user();
+        $company = $user->company;
+
+        return view('receivables.index', compact('user', 'company'));
+    })->name('receivables.index');
+
+    Route::get('/payables', function () {
+        $user = Auth::user();
+        $company = $user->company;
+
+        return view('payables.index', compact('user', 'company'));
+    })->name('payables.index');
+
+    Route::get('/aging-report', function () {
+        $user = Auth::user();
+        $company = $user->company;
+
+        return view('aging.index', compact('user', 'company'));
+    })->name('aging.index');
 });
