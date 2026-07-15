@@ -38,4 +38,44 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         return view('dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
+<<<<<<< HEAD
+=======
+
+    // Piutang & Utang (AR / AP)
+    Route::get('/receivables', function () {
+        $user = Auth::user();
+        $company = $user->company;
+
+        return view('receivables.index', compact('user', 'company'));
+    })->name('receivables.index');
+
+    Route::get('/payables', function () {
+        $user = Auth::user();
+        $company = $user->company;
+
+        return view('payables.index', compact('user', 'company'));
+    })->name('payables.index');
+
+    Route::get('/aging-report', function () {
+        $user = Auth::user();
+        $company = $user->company;
+
+        return view('aging.index', compact('user', 'company'));
+    })->name('aging.index');
+
+    // Pembelian & Biaya
+    Route::get('/expenses', function () {
+        $user = Auth::user();
+        $company = $user->company;
+
+        return view('expenses.index', compact('user', 'company'));
+    })->name('expenses.index');
+
+    Route::get('/expense-categories', function () {
+        $user = Auth::user();
+        $company = $user->company;
+
+        return view('expense-categories.index', compact('user', 'company'));
+    })->name('expense-categories.index');
+>>>>>>> 70d67f7 (fix pengeluaran)
 });

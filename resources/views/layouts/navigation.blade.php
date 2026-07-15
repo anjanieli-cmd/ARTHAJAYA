@@ -54,8 +54,13 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
+<<<<<<< HEAD
         <a href="{{ Route::has('expenses.index') ? route('expenses.index') : '#' }}" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }}">Pengeluaran</a>
         <a href="{{ Route::has('expense-categories.index') ? route('expense-categories.index') : '#' }}" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">Kategori Biaya</a>
+=======
+        <a href="{{ route('expenses.index') }}" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }}">Pengeluaran</a>
+        <a href="{{ route('expense-categories.index') }}" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">Kategori Biaya</a>
+>>>>>>> 70d67f7 (fix pengeluaran)
       </div>
     </div>
   </div>
