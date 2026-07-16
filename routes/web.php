@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\QuoteController;
 use Illuminate\Support\Facades\Auth;
 
 // Homepage
@@ -55,18 +56,19 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     });
 
     // ===== CLIENTS =====
-    Route::get('/clients', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('clients.index', compact('user', 'company'));
-    })->name('clients.index');
+    Route::resource('clients', ClientController::class);
 
     // ===== QUOTES =====
-    Route::get('/quotes', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('quotes.index', compact('user', 'company'));
-    })->name('quotes.index');
+    Route::controller(QuoteController::class)->group(function () {
+        Route::get('/quotes', 'index')->name('quotes.index');
+        Route::get('/quotes/create', 'create')->name('quotes.create');
+        Route::post('/quotes', 'store')->name('quotes.store');
+        Route::get('/quotes/{quote}', 'show')->name('quotes.show');
+        Route::get('/quotes/{quote}/edit', 'edit')->name('quotes.edit');
+        Route::put('/quotes/{quote}', 'update')->name('quotes.update');
+        Route::delete('/quotes/{quote}', 'destroy')->name('quotes.destroy');
+        Route::delete('/quotes/bulk-destroy', 'bulkDestroy')->name('quotes.bulk-destroy');
+    });
 
     // ===== PIUTANG & UTANG (AR / AP) =====
     Route::get('/receivables', function () {
