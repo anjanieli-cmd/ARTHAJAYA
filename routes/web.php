@@ -6,6 +6,8 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\LabaRugiController;
+use App\Http\Controllers\NeracaController;
 use Illuminate\Support\Facades\Auth;
 
 // Homepage
@@ -116,17 +118,12 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     })->name('bank-mutations.index');
 
     // ===== LAPORAN =====
-    Route::get('/reports/profit-loss', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('reports.profit-loss', compact('user', 'company'));
-    })->name('reports.profit-loss');
 
-    Route::get('/reports/balance-sheet', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('reports.balance-sheet', compact('user', 'company'));
-    })->name('reports.balance-sheet');
+    // Laba Rugi
+    Route::resource('laba-rugi', LabaRugiController::class)->except('show');
+
+    // Neraca
+    Route::resource('neraca', NeracaController::class)->except('show');
 
     Route::get('/reports/cash-flow', function () {
         $user = Auth::user();
