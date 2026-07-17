@@ -30,6 +30,12 @@ class User extends Authenticatable
         ];
     }
 
+    protected $fillable = [
+    'name', 'email', 'password', 'company_id',
+    'phone', 'position', 'avatar',
+    'two_factor_enabled', 'password_changed_at',
+];
+
     /**
      * Relasi ke Company
      * Seorang User memiliki satu Company
