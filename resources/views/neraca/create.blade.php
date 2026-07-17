@@ -1,15 +1,21 @@
 <x-app-layout>
-    <x-slot name="title">Edit Faktur</x-slot>
+    <x-slot name="title">Tambah Pos Neraca</x-slot>
 
 <style>
     .page-head{ margin-bottom:24px; }
     .page-head h1{ font-size:24px; margin-bottom:6px; }
     .page-head p{ font-size:14px; color:var(--text-mute); }
-    .panel{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:32px; max-width:820px; }
+    .panel{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:32px; max-width:760px; position:relative; overflow:hidden; }
+    .panel::before{ content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--info); }
+    .panel-icon-row{ display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+    .panel-icon{ width:38px; height:38px; border-radius:10px; background:rgba(var(--info-rgb),0.12); color:var(--info); display:flex; align-items:center; justify-content:center; }
+    .panel-icon .icon{ width:18px; height:18px; }
+    .panel-icon-row span{ font-size:13px; color:var(--text-mute); }
     .field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
     .field-grid .full{ grid-column:1/-1; }
     .field{ display:flex; flex-direction:column; gap:7px; }
     .field label{ font-size:12.5px; color:var(--text-mute); font-weight:500; }
+    .field label .req{ color:var(--danger); }
     .field label .opt{ color:var(--text-faint); font-weight:400; }
     .field input, .field select, .field textarea{
         width:100%; padding:12px 14px; border-radius:12px; background:var(--surface-strong); border:1px solid var(--border);
@@ -21,7 +27,6 @@
     }
     .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--border-hover); background:var(--surface); }
     .field textarea{ resize:vertical; min-height:80px; }
-    .field-hint{ font-size:11.5px; color:var(--text-faint); }
     .field-error{ font-size:12px; color:var(--danger); margin-top:2px; }
     .panel-actions{ margin-top:28px; padding-top:24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; }
     .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 22px; border-radius:12px; font-size:13.5px; font-weight:600; cursor:pointer; border:none; transition:all .2s ease; }
@@ -33,18 +38,21 @@
 </style>
 
 <div class="page-head">
-    <h1>Edit Faktur</h1>
-    <p>Perbarui detail faktur {{ $invoice->invoice_number }}.</p>
+    <h1>Tambah Pos Neraca</h1>
+    <p>Catat pos aset, kewajiban, atau modal per tanggal tertentu.</p>
 </div>
 
-<form method="POST" action="{{ route('invoices.update', $invoice) }}">
+<form method="POST" action="{{ route('neraca.store') }}">
     @csrf
-    @method('PUT')
     <div class="panel">
-        @include('invoices._form')
+        <div class="panel-icon-row">
+            <div class="panel-icon"><svg class="icon"><use href="#ic-bank"/></svg></div>
+            <span>Pastikan total Aset seimbang dengan total Kewajiban + Modal.</span>
+        </div>
+        @include('neraca._form')
         <div class="panel-actions">
-            <a href="{{ route('invoices.index') }}" class="btn btn-outline">Batal</a>
-            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+            <a href="{{ route('neraca.index') }}" class="btn btn-outline">Batal</a>
+            <button type="submit" class="btn btn-primary">Simpan Pos</button>
         </div>
     </div>
 </form>

@@ -4,7 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\LabaRugiController;
+use App\Http\Controllers\NeracaController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\CashFlowController;
+use App\Http\Controllers\LedgerController;
 
 // Homepage
 Route::get('/', function () {
@@ -31,6 +37,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Dashboard & Protected routes (auth + onboarding complete)
 Route::middleware(['auth', 'onboarding.complete'])->group(function () {
+
+    // ===== DASHBOARD =====
     Route::get('/dashboard', function () {
         $user = Auth::user();
         $company = $user->company;
@@ -39,55 +47,166 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return view('dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
 
-    // Piutang & Utang (AR / AP)
+    // ===== INVOICES =====
+    Route::controller(InvoiceController::class)->group(function () {
+        Route::get('/invoices', 'index')->name('invoices.index');
+        Route::get('/invoices/create', 'create')->name('invoices.create');
+        Route::post('/invoices', 'store')->name('invoices.store');
+        Route::get('/invoices/{invoice}', 'show')->name('invoices.show');
+        Route::get('/invoices/{invoice}/edit', 'edit')->name('invoices.edit');
+        Route::put('/invoices/{invoice}', 'update')->name('invoices.update');
+        Route::delete('/invoices/{invoice}', 'destroy')->name('invoices.destroy');
+        Route::delete('/invoices/bulk-destroy', 'bulkDestroy')->name('invoices.bulk-destroy');
+    });
+
+    // ===== CLIENTS =====
+    Route::resource('clients', ClientController::class);
+
+    // ===== QUOTES =====
+    Route::controller(QuoteController::class)->group(function () {
+        Route::get('/quotes', 'index')->name('quotes.index');
+        Route::get('/quotes/create', 'create')->name('quotes.create');
+        Route::post('/quotes', 'store')->name('quotes.store');
+        Route::get('/quotes/{quote}', 'show')->name('quotes.show');
+        Route::get('/quotes/{quote}/edit', 'edit')->name('quotes.edit');
+        Route::put('/quotes/{quote}', 'update')->name('quotes.update');
+        Route::delete('/quotes/{quote}', 'destroy')->name('quotes.destroy');
+        Route::delete('/quotes/bulk-destroy', 'bulkDestroy')->name('quotes.bulk-destroy');
+    });
+
+    // ===== PIUTANG & UTANG (AR / AP) =====
     Route::get('/receivables', function () {
         $user = Auth::user();
         $company = $user->company;
-
         return view('receivables.index', compact('user', 'company'));
     })->name('receivables.index');
 
     Route::get('/payables', function () {
         $user = Auth::user();
         $company = $user->company;
-
         return view('payables.index', compact('user', 'company'));
     })->name('payables.index');
 
-    Route::get('/aging-report', function () {
+    Route::get('/aging', function () {
         $user = Auth::user();
         $company = $user->company;
-
         return view('aging.index', compact('user', 'company'));
     })->name('aging.index');
 
-    // Pembelian & Biaya
+    // ===== PEMBELIAN & BIAYA =====
     Route::get('/expenses', function () {
         $user = Auth::user();
         $company = $user->company;
-
         return view('expenses.index', compact('user', 'company'));
     })->name('expenses.index');
 
     Route::get('/expense-categories', function () {
         $user = Auth::user();
         $company = $user->company;
-
         return view('expense-categories.index', compact('user', 'company'));
     })->name('expense-categories.index');
 
-    // Bank & Reconciliation
-    Route::get('/bank-mutations', function () {
-        $user = Auth::user();
-        $company = $user->company;
-
-        return view('bank-mutations.index', compact('user', 'company'));
-    })->name('bank-mutations.index');
-
+    // ===== PERBANKAN =====
     Route::get('/reconciliation', function () {
         $user = Auth::user();
         $company = $user->company;
-
         return view('reconciliation.index', compact('user', 'company'));
     })->name('reconciliation.index');
+
+    Route::get('/bank-mutations', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('bank-mutations.index', compact('user', 'company'));
+    })->name('bank-mutations.index');
+
+    // ===== LAPORAN =====
+
+    // Laba Rugi
+    Route::resource('laba-rugi', LabaRugiController::class)->except('show');
+
+    // Neraca
+    Route::resource('neraca', NeracaController::class)->except('show');
+
+    // Arus Kas
+    Route::resource('cash-flow', CashFlowController::class)->except('show');
+
+    // Buku Besar
+    Route::resource('ledger', LedgerController::class)->except('show');
+
+    // ===== INVENTARIS =====
+    Route::get('/inventory', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('inventory.index', compact('user', 'company'));
+    })->name('inventory.index');
+
+    Route::get('/cogs', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('cogs.index', compact('user', 'company'));
+    })->name('cogs.index');
+
+    // ===== PAYROLL =====
+    Route::get('/payroll', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('payroll.index', compact('user', 'company'));
+    })->name('payroll.index');
+
+    Route::get('/employees', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('employees.index', compact('user', 'company'));
+    })->name('employees.index');
+
+    // ===== PAJAK =====
+    Route::get('/taxes/pph', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('taxes.pph', compact('user', 'company'));
+    })->name('taxes.pph');
+
+    Route::get('/taxes/ppn', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('taxes.ppn', compact('user', 'company'));
+    })->name('taxes.ppn');
+
+    Route::get('/tax-calendar', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('tax-calendar.index', compact('user', 'company'));
+    })->name('tax-calendar.index');
+
+    // ===== BUDGETING =====
+    Route::get('/budgets', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('budgets.index', compact('user', 'company'));
+    })->name('budgets.index');
+
+    // ===== PENGATURAN =====
+    Route::get('/users', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('users.index', compact('user', 'company'));
+    })->name('users.index');
+
+    Route::get('/integrations', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('integrations.index', compact('user', 'company'));
+    })->name('integrations.index');
+
+    Route::get('/security', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('security.index', compact('user', 'company'));
+    })->name('security.index');
+
+    Route::get('/profile', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('profile.edit', compact('user', 'company'));
+    })->name('profile.edit');
 });
