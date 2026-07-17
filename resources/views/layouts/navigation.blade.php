@@ -6,16 +6,6 @@
     Artha<span class="dot">jaya</span>
   </div>
 
-  @php
-    // Helper lokal: kembalikan URL kalau route ada, atau '#' kalau belum dibuat.
-    // Juga tandai link yang belum aktif supaya user tahu fitur belum tersedia.
-    if (!function_exists('sb_url')) {
-        function sb_url(string $name, array $params = []): string {
-            return \Route::has($name) ? route($name, $params) : '#';
-        }
-    }
-  @endphp
-
   {{-- ===== DASHBOARD ===== --}}
   <div class="sb-group-label">Menu</div>
   <a href="{{ route('dashboard') }}" class="sb-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -32,9 +22,9 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ sb_url('invoices.index') }}" class="sb-sublink {{ request()->routeIs('invoices.*') ? 'active' : '' }} {{ \Route::has('invoices.index') ? '' : 'soon' }}">Semua Faktur</a>
-        <a href="{{ sb_url('quotes.index') }}" class="sb-sublink {{ request()->routeIs('quotes.*') ? 'active' : '' }} {{ \Route::has('quotes.index') ? '' : 'soon' }}">Penawaran / Quotation</a>
-        <a href="{{ sb_url('clients.index') }}" class="sb-sublink {{ request()->routeIs('clients.*') ? 'active' : '' }} {{ \Route::has('clients.index') ? '' : 'soon' }}">Klien</a>
+        <a href="{{ route('invoices.index') }}" class="sb-sublink {{ request()->routeIs('invoices.*') ? 'active' : '' }}">Semua Faktur</a>
+        <a href="{{ route('quotes.index') }}" class="sb-sublink {{ request()->routeIs('quotes.*') ? 'active' : '' }}">Penawaran / Quotation</a>
+        <a href="{{ route('clients.index') }}" class="sb-sublink {{ request()->routeIs('clients.*') ? 'active' : '' }}">Klien</a>
       </div>
     </div>
   </div>
@@ -48,9 +38,9 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ sb_url('receivables.index') }}" class="sb-sublink {{ request()->routeIs('receivables.*') ? 'active' : '' }} {{ \Route::has('receivables.index') ? '' : 'soon' }}">Piutang Usaha (AR)</a>
-        <a href="{{ sb_url('payables.index') }}" class="sb-sublink {{ request()->routeIs('payables.*') ? 'active' : '' }} {{ \Route::has('payables.index') ? '' : 'soon' }}">Utang Usaha (AP)</a>
-        <a href="{{ sb_url('aging.index') }}" class="sb-sublink {{ request()->routeIs('aging.*') ? 'active' : '' }} {{ \Route::has('aging.index') ? '' : 'soon' }}">Aging Report (30/60/90 hari)</a>
+        <a href="{{ route('receivables.index') }}" class="sb-sublink {{ request()->routeIs('receivables.*') ? 'active' : '' }}">Piutang Usaha (AR)</a>
+        <a href="{{ route('payables.index') }}" class="sb-sublink {{ request()->routeIs('payables.*') ? 'active' : '' }}">Utang Usaha (AP)</a>
+        <a href="{{ route('aging.index') }}" class="sb-sublink {{ request()->routeIs('aging.*') ? 'active' : '' }}">Aging Report (30/60/90 hari)</a>
       </div>
     </div>
   </div>
@@ -64,8 +54,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ sb_url('expenses.index') }}" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }} {{ \Route::has('expenses.index') ? '' : 'soon' }}">Pengeluaran</a>
-        <a href="{{ sb_url('expense-categories.index') }}" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }} {{ \Route::has('expense-categories.index') ? '' : 'soon' }}">Kategori Biaya</a>
+        <a href="{{ route('expenses.index') }}" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }}">Pengeluaran</a>
+        <a href="{{ route('expense-categories.index') }}" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">Kategori Biaya</a>
       </div>
     </div>
   </div>
@@ -79,14 +69,14 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ sb_url('reconciliation.index') }}" class="sb-sublink {{ request()->routeIs('reconciliation.*') ? 'active' : '' }} {{ \Route::has('reconciliation.index') ? '' : 'soon' }}">Rekonsiliasi Bank</a>
-        <a href="{{ sb_url('bank-mutations.index') }}" class="sb-sublink {{ request()->routeIs('bank-mutations.*') ? 'active' : '' }} {{ \Route::has('bank-mutations.index') ? '' : 'soon' }}">Mutasi Rekening</a>
+        <a href="{{ route('reconciliation.index') }}" class="sb-sublink {{ request()->routeIs('reconciliation.*') ? 'active' : '' }}">Rekonsiliasi Bank</a>
+        <a href="{{ route('bank-mutations.index') }}" class="sb-sublink {{ request()->routeIs('bank-mutations.*') ? 'active' : '' }}">Mutasi Rekening</a>
       </div>
     </div>
   </div>
 
   {{-- ===== LAPORAN (dropdown) ===== --}}
-  @php $g5 = request()->routeIs(['reports.*']); @endphp
+  @php $g5 = request()->routeIs(['laba-rugi.*', 'neraca.*', 'cash-flow.*', 'ledger.*']); @endphp
   <div class="sb-accordion {{ $g5 ? 'open' : '' }}">
     <button type="button" class="sb-link sb-parent" data-acc-toggle>
       <svg class="icon"><use href="#ic-trending"/></svg> Laporan
@@ -94,10 +84,10 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ sb_url('reports.profit-loss') }}" class="sb-sublink {{ request()->routeIs('reports.profit-loss') ? 'active' : '' }} {{ \Route::has('reports.profit-loss') ? '' : 'soon' }}">Laba Rugi</a>
-        <a href="{{ sb_url('reports.balance-sheet') }}" class="sb-sublink {{ request()->routeIs('reports.balance-sheet') ? 'active' : '' }} {{ \Route::has('reports.balance-sheet') ? '' : 'soon' }}">Neraca</a>
-        <a href="{{ sb_url('reports.cash-flow') }}" class="sb-sublink {{ request()->routeIs('reports.cash-flow') ? 'active' : '' }} {{ \Route::has('reports.cash-flow') ? '' : 'soon' }}">Arus Kas</a>
-        <a href="{{ sb_url('reports.general-ledger') }}" class="sb-sublink {{ request()->routeIs('reports.general-ledger') ? 'active' : '' }} {{ \Route::has('reports.general-ledger') ? '' : 'soon' }}">Buku Besar</a>
+        <a href="{{ route('laba-rugi.index') }}" class="sb-sublink {{ request()->routeIs('laba-rugi.*') ? 'active' : '' }}">Laba Rugi</a>
+        <a href="{{ route('neraca.index') }}" class="sb-sublink {{ request()->routeIs('neraca.*') ? 'active' : '' }}">Neraca</a>
+        <a href="{{ route('cash-flow.index') }}" class="sb-sublink {{ request()->routeIs('cash-flow.*') ? 'active' : '' }}">Arus Kas</a>
+        <a href="{{ route('ledger.index') }}" class="sb-sublink {{ request()->routeIs('ledger.*') ? 'active' : '' }}">Buku Besar</a>
       </div>
     </div>
   </div>
@@ -111,8 +101,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ sb_url('inventory.index') }}" class="sb-sublink {{ request()->routeIs('inventory.*') ? 'active' : '' }} {{ \Route::has('inventory.index') ? '' : 'soon' }}">Stok Barang</a>
-        <a href="{{ sb_url('cogs.index') }}" class="sb-sublink {{ request()->routeIs('cogs.*') ? 'active' : '' }} {{ \Route::has('cogs.index') ? '' : 'soon' }}">Harga Pokok Penjualan (HPP)</a>
+        <a href="{{ route('inventory.index') }}" class="sb-sublink {{ request()->routeIs('inventory.*') ? 'active' : '' }}">Stok Barang</a>
+        <a href="{{ route('cogs.index') }}" class="sb-sublink {{ request()->routeIs('cogs.*') ? 'active' : '' }}">Harga Pokok Penjualan (HPP)</a>
       </div>
     </div>
   </div>
@@ -126,8 +116,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ sb_url('payroll.index') }}" class="sb-sublink {{ request()->routeIs('payroll.*') ? 'active' : '' }} {{ \Route::has('payroll.index') ? '' : 'soon' }}">Slip Gaji</a>
-        <a href="{{ sb_url('employees.index') }}" class="sb-sublink {{ request()->routeIs('employees.*') ? 'active' : '' }} {{ \Route::has('employees.index') ? '' : 'soon' }}">Data Karyawan</a>
+        <a href="{{ route('payroll.index') }}" class="sb-sublink {{ request()->routeIs('payroll.*') ? 'active' : '' }}">Slip Gaji</a>
+        <a href="{{ route('employees.index') }}" class="sb-sublink {{ request()->routeIs('employees.*') ? 'active' : '' }}">Data Karyawan</a>
       </div>
     </div>
   </div>
@@ -142,24 +132,22 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ sb_url('taxes.pph') }}" class="sb-sublink {{ request()->routeIs('taxes.pph') ? 'active' : '' }} {{ \Route::has('taxes.pph') ? '' : 'soon' }}">PPh</a>
-        <a href="{{ sb_url('taxes.ppn') }}" class="sb-sublink {{ request()->routeIs('taxes.ppn') ? 'active' : '' }} {{ \Route::has('taxes.ppn') ? '' : 'soon' }}">PPN</a>
-        <a href="{{ sb_url('tax-calendar.index') }}" class="sb-sublink {{ request()->routeIs('tax-calendar.*') ? 'active' : '' }} {{ \Route::has('tax-calendar.index') ? '' : 'soon' }}">Kalender Pajak</a>
+        <a href="{{ route('taxes.pph') }}" class="sb-sublink {{ request()->routeIs('taxes.pph') ? 'active' : '' }}">PPh</a>
+        <a href="{{ route('taxes.ppn') }}" class="sb-sublink {{ request()->routeIs('taxes.ppn') ? 'active' : '' }}">PPN</a>
+        <a href="{{ route('tax-calendar.index') }}" class="sb-sublink {{ request()->routeIs('tax-calendar.*') ? 'active' : '' }}">Kalender Pajak</a>
       </div>
     </div>
   </div>
 
   {{-- ===== BUDGETING (single link) ===== --}}
   <div class="sb-group-label">Keuangan</div>
-  <a href="{{ sb_url('budgets.index') }}" class="sb-link {{ request()->routeIs('budgets.*') ? 'active' : '' }} {{ \Route::has('budgets.index') ? '' : 'soon' }}">
+  <a href="{{ route('budgets.index') }}" class="sb-link {{ request()->routeIs('budgets.*') ? 'active' : '' }}">
     <svg class="icon"><use href="#ic-target"/></svg> Anggaran &amp; Forecasting
   </a>
 
   {{-- ===== LAINNYA ===== --}}
   <div class="sb-group-label">Lainnya</div>
-  {{-- CATATAN: menu "Multi-User & Hak Akses" memakai route 'team-members.*',
-       bukan 'users.*', sesuai nama resource yang sudah dibuat. --}}
-  @php $g9 = request()->routeIs(['team-members.*','integrations.*','security.*','profile.*']); @endphp
+  @php $g9 = request()->routeIs(['users.*','integrations.*','security.*','profile.*']); @endphp
   <div class="sb-accordion {{ $g9 ? 'open' : '' }}">
     <button type="button" class="sb-link sb-parent" data-acc-toggle>
       <svg class="icon"><use href="#ic-shield"/></svg> Pengaturan
@@ -167,10 +155,10 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ sb_url('team-members.index') }}" class="sb-sublink {{ request()->routeIs('team-members.*') ? 'active' : '' }} {{ \Route::has('team-members.index') ? '' : 'soon' }}">Multi-User &amp; Hak Akses</a>
-        <a href="{{ sb_url('integrations.index') }}" class="sb-sublink {{ request()->routeIs('integrations.*') ? 'active' : '' }} {{ \Route::has('integrations.index') ? '' : 'soon' }}">Integrasi</a>
-        <a href="{{ sb_url('security.index') }}" class="sb-sublink {{ request()->routeIs('security.*') ? 'active' : '' }} {{ \Route::has('security.index') ? '' : 'soon' }}">Keamanan</a>
-        <a href="{{ sb_url('profile.edit') }}" class="sb-sublink {{ request()->routeIs('profile.edit') ? 'active' : '' }} {{ \Route::has('profile.edit') ? '' : 'soon' }}">Profil Saya</a>
+        <a href="{{ route('users.index') }}" class="sb-sublink {{ request()->routeIs('users.*') ? 'active' : '' }}">Multi-User &amp; Hak Akses</a>
+        <a href="{{ route('integrations.index') }}" class="sb-sublink {{ request()->routeIs('integrations.*') ? 'active' : '' }}">Integrasi</a>
+        <a href="{{ route('security.index') }}" class="sb-sublink {{ request()->routeIs('security.*') ? 'active' : '' }}">Keamanan</a>
+        <a href="{{ route('profile.edit') }}" class="sb-sublink {{ request()->routeIs('profile.edit') ? 'active' : '' }}">Profil Saya</a>
       </div>
     </div>
   </div>
@@ -244,29 +232,9 @@
     color:var(--text-mute);
     transition: all .2s ease;
     margin:1px 0;
-    position:relative;
   }
   .sb-sublink:hover{ color:var(--text); background:var(--surface); }
   .sb-sublink.active{ color:var(--emerald); background:rgba(var(--emerald-rgb),0.1); font-weight:600; }
-
-  /* Link ke fitur yang route-nya belum dibuat: nonaktifkan klik & beri label "Segera" */
-  .sb-sublink.soon{
-    color: var(--text-faint);
-    cursor: default;
-    pointer-events: none;
-  }
-  .sb-sublink.soon::after{
-    content: "Segera";
-    float: right;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .03em;
-    color: var(--text-faint);
-    background: var(--surface-strong);
-    padding: 2px 7px;
-    border-radius: 100px;
-  }
 </style>
 
 <script>

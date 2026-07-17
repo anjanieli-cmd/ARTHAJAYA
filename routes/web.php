@@ -9,32 +9,17 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\NeracaController;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\TeamMemberController;
-use App\Http\Controllers\IntegrationController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\CashFlowController;
 use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\CogsController;
 
-// ============================================================
-// ROUTE RESOURCE (diletakkan di luar middleware auth agar
-// tidak bentrok dengan route lain)
-// ============================================================
-Route::resource('team-members', TeamMemberController::class);
-Route::resource('integrations', IntegrationController::class);
-
-// ============================================================
-// HOMEPAGE
-// ============================================================
+// Homepage
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// ============================================================
-// AUTH ROUTES (guest only)
-// ============================================================
+// Auth routes (guest only)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
@@ -42,23 +27,17 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
-// ============================================================
-// ONBOARDING ROUTES (auth required)
-// ============================================================
+// Onboarding routes (auth required)
 Route::middleware('auth')->group(function () {
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
     Route::post('/onboarding/update', [OnboardingController::class, 'update'])->name('onboarding.update');
 });
 
-// ============================================================
-// LOGOUT
-// ============================================================
+// Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ============================================================
-// DASHBOARD & PROTECTED ROUTES (auth + onboarding complete)
-// ============================================================
+// Dashboard & Protected routes (auth + onboarding complete)
 Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
     // ===== DASHBOARD =====
@@ -143,6 +122,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     })->name('bank-mutations.index');
 
     // ===== LAPORAN =====
+
     // Laba Rugi
     Route::resource('laba-rugi', LabaRugiController::class)->except('show');
 
@@ -156,6 +136,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::resource('ledger', LedgerController::class)->except('show');
 
     // ===== INVENTARIS =====
+    
     // Inventaris - Stok Barang
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
@@ -163,14 +144,15 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::get('/inventory/{item}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
     Route::put('/inventory/{item}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::delete('/inventory/{item}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
-
-    // Inventaris - Harga Pokok Penjualan (HPP / COGS)
+ 
+    // Inventaris - Harga Pokok Penjualan (HPP)
     Route::get('/cogs', [CogsController::class, 'index'])->name('cogs.index');
     Route::get('/cogs/create', [CogsController::class, 'create'])->name('cogs.create');
     Route::post('/cogs', [CogsController::class, 'store'])->name('cogs.store');
     Route::get('/cogs/{entry}/edit', [CogsController::class, 'edit'])->name('cogs.edit');
     Route::put('/cogs/{entry}', [CogsController::class, 'update'])->name('cogs.update');
     Route::delete('/cogs/{entry}', [CogsController::class, 'destroy'])->name('cogs.destroy');
+
 
     // ===== PAYROLL =====
     Route::get('/payroll', function () {
@@ -211,35 +193,28 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return view('budgets.index', compact('user', 'company'));
     })->name('budgets.index');
 
-    // ============================================================
-    // PENGATURAN (SETTINGS)
-    // ============================================================
-
-    // === Multi-User & Hak Akses ===
-    // Route::resource('team-members', TeamMemberController::class);
-    // SUDAH DIPINDAHKAN KE LUAR MIDDLEWARE (di bagian atas)
-
-    // === Integrasi ===
-    // Route::resource('integrations', IntegrationController::class);
-    // SUDAH DIPINDAHKAN KE LUAR MIDDLEWARE (di bagian atas)
-
-    // === Keamanan ===
-    Route::get('/security', [SecurityController::class, 'index'])->name('security.index');
-    Route::put('/security/password', [SecurityController::class, 'updatePassword'])->name('security.password.update');
-    Route::post('/security/two-factor/toggle', [SecurityController::class, 'toggleTwoFactor'])->name('security.two-factor.toggle');
-    Route::delete('/security/sessions/{sessionId}', [SecurityController::class, 'revokeSession'])->name('security.sessions.revoke');
-    Route::post('/security/sessions/revoke-others', [SecurityController::class, 'revokeOtherSessions'])->name('security.sessions.revoke-others');
-
-    // === Profil Saya ===
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // === Users (legacy, biarkan sebagai fallback) ===
+    // ===== PENGATURAN =====
     Route::get('/users', function () {
         $user = Auth::user();
         $company = $user->company;
         return view('users.index', compact('user', 'company'));
     })->name('users.index');
 
+    Route::get('/integrations', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('integrations.index', compact('user', 'company'));
+    })->name('integrations.index');
+
+    Route::get('/security', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('security.index', compact('user', 'company'));
+    })->name('security.index');
+
+    Route::get('/profile', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        return view('profile.edit', compact('user', 'company'));
+    })->name('profile.edit');
 });
