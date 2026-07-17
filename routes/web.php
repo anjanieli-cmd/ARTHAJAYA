@@ -11,6 +11,8 @@ use App\Http\Controllers\NeracaController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\CashFlowController;
 use App\Http\Controllers\LedgerController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\CogsController;
 
 // Homepage
 Route::get('/', function () {
@@ -134,17 +136,23 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::resource('ledger', LedgerController::class)->except('show');
 
     // ===== INVENTARIS =====
-    Route::get('/inventory', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('inventory.index', compact('user', 'company'));
-    })->name('inventory.index');
+    
+    // Inventaris - Stok Barang
+    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
+    Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+    Route::get('/inventory/{item}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
+    Route::put('/inventory/{item}', [InventoryController::class, 'update'])->name('inventory.update');
+    Route::delete('/inventory/{item}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+ 
+    // Inventaris - Harga Pokok Penjualan (HPP)
+    Route::get('/cogs', [CogsController::class, 'index'])->name('cogs.index');
+    Route::get('/cogs/create', [CogsController::class, 'create'])->name('cogs.create');
+    Route::post('/cogs', [CogsController::class, 'store'])->name('cogs.store');
+    Route::get('/cogs/{entry}/edit', [CogsController::class, 'edit'])->name('cogs.edit');
+    Route::put('/cogs/{entry}', [CogsController::class, 'update'])->name('cogs.update');
+    Route::delete('/cogs/{entry}', [CogsController::class, 'destroy'])->name('cogs.destroy');
 
-    Route::get('/cogs', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('cogs.index', compact('user', 'company'));
-    })->name('cogs.index');
 
     // ===== PAYROLL =====
     Route::get('/payroll', function () {
