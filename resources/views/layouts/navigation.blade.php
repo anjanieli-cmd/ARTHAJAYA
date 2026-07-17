@@ -54,13 +54,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-<<<<<<< HEAD
-        <a href="{{ Route::has('expenses.index') ? route('expenses.index') : '#' }}" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }}">Pengeluaran</a>
-        <a href="{{ Route::has('expense-categories.index') ? route('expense-categories.index') : '#' }}" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">Kategori Biaya</a>
-=======
         <a href="{{ route('expenses.index') }}" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }}">Pengeluaran</a>
         <a href="{{ route('expense-categories.index') }}" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }}">Kategori Biaya</a>
->>>>>>> 70d67f7 (fix pengeluaran)
       </div>
     </div>
   </div>
@@ -74,8 +69,8 @@
     </button>
     <div class="sb-submenu">
       <div class="sb-submenu-inner">
-        <a href="{{ Route::has('reconciliation.index') ? route('reconciliation.index') : '#' }}" class="sb-sublink {{ request()->routeIs('reconciliation.*') ? 'active' : '' }}">Rekonsiliasi Bank</a>
-        <a href="{{ Route::has('bank-mutations.index') ? route('bank-mutations.index') : '#' }}" class="sb-sublink {{ request()->routeIs('bank-mutations.*') ? 'active' : '' }}">Mutasi Rekening</a>
+        <a href="{{ route('reconciliation.index') }}" class="sb-sublink {{ request()->routeIs('reconciliation.*') ? 'active' : '' }}">Rekonsiliasi Bank</a>
+        <a href="{{ route('bank-mutations.index') }}" class="sb-sublink {{ request()->routeIs('bank-mutations.*') ? 'active' : '' }}">Mutasi Rekening</a>
       </div>
     </div>
   </div>

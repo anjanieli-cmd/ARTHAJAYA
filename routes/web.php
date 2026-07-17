@@ -38,8 +38,6 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         return view('dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
-<<<<<<< HEAD
-=======
 
     // Piutang & Utang (AR / AP)
     Route::get('/receivables', function () {
@@ -77,5 +75,19 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         return view('expense-categories.index', compact('user', 'company'));
     })->name('expense-categories.index');
->>>>>>> 70d67f7 (fix pengeluaran)
+
+    // Bank & Reconciliation
+    Route::get('/bank-mutations', function () {
+        $user = Auth::user();
+        $company = $user->company;
+
+        return view('bank-mutations.index', compact('user', 'company'));
+    })->name('bank-mutations.index');
+
+    Route::get('/reconciliation', function () {
+        $user = Auth::user();
+        $company = $user->company;
+
+        return view('reconciliation.index', compact('user', 'company'));
+    })->name('reconciliation.index');
 });

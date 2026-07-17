@@ -1,29 +1,28 @@
 <x-app-layout>
-  <x-slot name="title">Pengeluaran</x-slot>
+  <x-slot name="title">Rekonsiliasi Bank</x-slot>
 
   @php
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-    // DUMMY - ganti dengan query Expense model nanti
-    $expenses = [
-        ['desc' => 'Beli kain mori 50 meter',            'kategori' => 'Bahan Baku',     'date' => '2026-07-01', 'status' => 'lunas',   'amount' => 2500000],
-        ['desc' => 'Ongkir bahan dari Solo',              'kategori' => 'Transportasi',   'date' => '2026-07-03', 'status' => 'lunas',   'amount' => 350000],
-        ['desc' => 'Tagihan listrik workshop',            'kategori' => 'Utilitas',       'date' => '2026-07-06', 'status' => 'pending', 'amount' => 820000],
-        ['desc' => 'Upah pengrajin batik tulis',          'kategori' => 'Produksi',       'date' => '2026-07-08', 'status' => 'lunas',   'amount' => 4200000],
-        ['desc' => 'Iklan Instagram koleksi baru',        'kategori' => 'Marketing',      'date' => '2026-07-10', 'status' => 'pending', 'amount' => 600000],
-        ['desc' => 'Beli pewarna alami indigo',           'kategori' => 'Bahan Baku',     'date' => '2026-07-12', 'status' => 'lunas',   'amount' => 975000],
+    // DUMMY - ganti dengan query Reconciliation model nanti
+    $items = [
+        ['desc' => 'Transfer masuk dari Nusantara Logistik', 'date' => '2026-07-02', 'bank' => 18400000, 'buku' => 18400000, 'status' => 'cocok'],
+        ['desc' => 'Pembayaran listrik workshop',            'date' => '2026-07-06', 'bank' => 820000,    'buku' => 820000,    'status' => 'cocok'],
+        ['desc' => 'Setoran tunai penjualan',                'date' => '2026-07-09', 'bank' => 1500000,   'buku' => 0,          'status' => 'belum'],
+        ['desc' => 'Biaya admin bank',                       'date' => '2026-07-10', 'bank' => 25000,     'buku' => 0,          'status' => 'belum'],
+        ['desc' => 'Transfer masuk dari Ruang Kriya Studio',  'date' => '2026-07-12', 'bank' => 6200000,   'buku' => 6200000,   'status' => 'cocok'],
     ];
 
-    $expensesCollection = collect($expenses);
-    $statusLabel = ['lunas' => 'Lunas', 'pending' => 'Pending'];
-    $statusPill  = ['lunas' => 'lunas', 'pending' => 'pending'];
+    $itemsCollection = collect($items);
+    $statusLabel = ['cocok' => 'Cocok', 'belum' => 'Belum Rekon'];
+    $statusPill  = ['cocok' => 'cocok', 'belum' => 'belum'];
 
-    $totalPengeluaran = $expensesCollection->sum('amount');
-    $totalLunas       = $expensesCollection->where('status', 'lunas')->sum('amount');
-    $totalPending     = $expensesCollection->where('status', 'pending')->sum('amount');
-    $countPending     = $expensesCollection->where('status', 'pending')->count();
-    $countLunas       = $expensesCollection->where('status', 'lunas')->count();
+    $saldoBank   = $itemsCollection->sum('bank');
+    $saldoBuku   = $itemsCollection->sum('buku');
+    $selisih     = $saldoBank - $saldoBuku;
+    $countBelum  = $itemsCollection->where('status', 'belum')->count();
+    $countCocok  = $itemsCollection->where('status', 'cocok')->count();
     
     // Fungsi helper untuk format tanggal
     function formatTanggal($date) {
@@ -38,10 +37,10 @@
 
   <style>
     /* ============================================
-       PENGELUARAN - Clean & Minimalist Design
+       REKONSILIASI BANK - Modern Design
        ============================================ */
     
-    .exp-modern {
+    .rek-modern {
       --theme-primary: var(--emerald);
       --theme-light: var(--emerald);
       --theme-dark: var(--emerald-dim);
@@ -73,11 +72,11 @@
       color: var(--text-primary);
     }
 
-    .exp-modern * {
+    .rek-modern * {
       box-sizing: border-box;
     }
 
-    .exp-modern .mono {
+    .rek-modern .mono {
       font-family: 'IBM Plex Mono', monospace;
       font-variant-numeric: tabular-nums;
       letter-spacing: -0.02em;
@@ -100,13 +99,13 @@
       50% { opacity: 0.6; }
     }
 
-    .exp-modern .animate-in {
+    .rek-modern .animate-in {
       animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       opacity: 0;
     }
 
     /* ----- SVG ICON BASE ----- */
-    .exp-modern .icon {
+    .rek-modern .icon {
       width: 18px;
       height: 18px;
       flex-shrink: 0;
@@ -120,7 +119,7 @@
     }
 
     /* ----- HEADER SECTION ----- */
-    .exp-header {
+    .rek-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
@@ -130,12 +129,12 @@
       padding: 0 4px;
     }
 
-    .exp-header-left {
+    .rek-header-left {
       flex: 1;
       min-width: 200px;
     }
 
-    .exp-badge {
+    .rek-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -151,7 +150,7 @@
       margin-bottom: 12px;
     }
 
-    .exp-badge .dot {
+    .rek-badge .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
@@ -159,7 +158,7 @@
       animation: pulseGlow 2s ease-in-out infinite;
     }
 
-    .exp-header h1 {
+    .rek-header h1 {
       font-size: 28px;
       font-weight: 700;
       margin: 0 0 6px;
@@ -170,25 +169,25 @@
       letter-spacing: -0.02em;
     }
 
-    .exp-header .subtitle {
+    .rek-header .subtitle {
       font-size: 14px;
       color: var(--text-secondary);
       margin: 0;
     }
 
-    .exp-header .subtitle strong {
+    .rek-header .subtitle strong {
       color: var(--text-primary);
       font-weight: 600;
     }
 
-    .exp-header-actions {
+    .rek-header-actions {
       display: flex;
       gap: 10px;
       flex-shrink: 0;
       flex-wrap: wrap;
     }
 
-    .exp-btn {
+    .rek-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -206,44 +205,44 @@
       overflow: hidden;
     }
 
-    .exp-btn .icon {
+    .rek-btn .icon {
       width: 16px;
       height: 16px;
     }
 
-    .exp-btn:hover {
+    .rek-btn:hover {
       transform: translateY(-2px);
     }
 
-    .exp-btn:active {
+    .rek-btn:active {
       transform: translateY(0) scale(0.97);
     }
 
-    .exp-btn-primary {
+    .rek-btn-primary {
       background: var(--theme-gradient);
       color: #fff;
       box-shadow: 0 4px 16px var(--theme-glow);
     }
 
-    .exp-btn-primary:hover {
+    .rek-btn-primary:hover {
       box-shadow: 0 8px 28px var(--theme-glow);
       transform: translateY(-2px);
       color: #fff;
     }
 
-    .exp-btn-ghost {
+    .rek-btn-ghost {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
     }
 
-    .exp-btn-ghost:hover {
+    .rek-btn-ghost:hover {
       background: var(--bg-card-hover);
       border-color: var(--border-hover);
       color: var(--text-primary);
     }
 
-    .exp-btn .ripple {
+    .rek-btn .ripple {
       position: absolute;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
@@ -260,14 +259,14 @@
     }
 
     /* ----- STATS ROW ----- */
-    .exp-stats {
+    .rek-stats {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
       margin-bottom: 28px;
     }
 
-    .exp-stat-card {
+    .rek-stat-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
@@ -277,7 +276,7 @@
       overflow: hidden;
     }
 
-    .exp-stat-card::before {
+    .rek-stat-card::before {
       content: '';
       position: absolute;
       top: 0;
@@ -289,24 +288,24 @@
       transition: opacity 0.3s ease;
     }
 
-    .exp-stat-card:hover {
+    .rek-stat-card:hover {
       background: var(--bg-card-hover);
       border-color: var(--border-hover);
       transform: translateY(-2px);
     }
 
-    .exp-stat-card:hover::before {
+    .rek-stat-card:hover::before {
       opacity: 1;
     }
 
-    .exp-stat-card .stat-head {
+    .rek-stat-card .stat-head {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
-    .exp-stat-card .stat-head .ic {
+    .rek-stat-card .stat-head .ic {
       width: 38px;
       height: 38px;
       border-radius: 10px;
@@ -317,12 +316,12 @@
       color: var(--theme-primary);
     }
 
-    .exp-stat-card .stat-head .ic .icon {
+    .rek-stat-card .stat-head .ic .icon {
       width: 17px;
       height: 17px;
     }
 
-    .exp-stat-card .stat-head .badge {
+    .rek-stat-card .stat-head .badge {
       font-size: 11px;
       font-weight: 600;
       padding: 4px 10px;
@@ -331,12 +330,12 @@
       color: var(--warning);
     }
 
-    .exp-stat-card .stat-head .badge.success {
+    .rek-stat-card .stat-head .badge.success {
       background: var(--success-soft);
       color: var(--success);
     }
 
-    .exp-stat-card .stat-label {
+    .rek-stat-card .stat-label {
       font-size: 12px;
       color: var(--text-tertiary);
       text-transform: uppercase;
@@ -344,33 +343,33 @@
       margin-bottom: 4px;
     }
 
-    .exp-stat-card .stat-value {
+    .rek-stat-card .stat-value {
       font-size: 26px;
       font-weight: 700;
       letter-spacing: -0.02em;
       color: var(--text-primary);
     }
 
-    .exp-stat-card .stat-value.primary {
+    .rek-stat-card .stat-value.primary {
       color: var(--theme-primary);
     }
 
-    .exp-stat-card .stat-value.success {
+    .rek-stat-card .stat-value.success {
       color: var(--success);
     }
 
-    .exp-stat-card .stat-value.warning {
+    .rek-stat-card .stat-value.warning {
       color: var(--warning);
     }
 
-    .exp-stat-card .stat-sub {
+    .rek-stat-card .stat-sub {
       font-size: 12px;
       color: var(--text-tertiary);
       margin-top: 4px;
     }
 
     /* ----- TABLE CARD ----- */
-    .exp-card {
+    .rek-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
@@ -378,11 +377,11 @@
       transition: border-color 0.22s ease;
     }
 
-    .exp-card:hover {
+    .rek-card:hover {
       border-color: var(--border-hover);
     }
 
-    .exp-card-header {
+    .rek-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -390,14 +389,14 @@
       border-bottom: 1px solid var(--border-color);
     }
 
-    .exp-card-header h3 {
+    .rek-card-header h3 {
       font-size: 15px;
       font-weight: 600;
       color: var(--text-primary);
       margin: 0;
     }
 
-    .exp-card-header .link {
+    .rek-card-header .link {
       font-size: 12.5px;
       color: var(--theme-primary);
       text-decoration: none;
@@ -407,28 +406,28 @@
       font-weight: 500;
     }
 
-    .exp-card-header .link .icon {
+    .rek-card-header .link .icon {
       width: 13px;
       height: 13px;
     }
 
-    .exp-card-header .link:hover {
+    .rek-card-header .link:hover {
       text-decoration: underline;
     }
 
     /* ----- TABLE ----- */
-    .exp-table-wrap {
+    .rek-table-wrap {
       overflow-x: auto;
       padding: 0 4px;
     }
 
-    .exp-table {
+    .rek-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13.5px;
     }
 
-    .exp-table th {
+    .rek-table th {
       text-align: left;
       font-size: 11px;
       font-weight: 600;
@@ -439,33 +438,33 @@
       border-bottom: 1px solid var(--border-color);
     }
 
-    .exp-table td {
+    .rek-table td {
       padding: 14px 16px;
       border-bottom: 1px solid var(--border-color);
       color: var(--text-primary);
       vertical-align: middle;
     }
 
-    .exp-table tbody tr {
+    .rek-table tbody tr {
       transition: background 0.2s ease;
     }
 
-    .exp-table tbody tr:hover {
+    .rek-table tbody tr:hover {
       background: var(--bg-card-hover);
     }
 
-    .exp-table tbody tr:last-child td {
+    .rek-table tbody tr:last-child td {
       border-bottom: none;
     }
 
     /* ----- DESCRIPTION ----- */
-    .exp-desc {
+    .rek-desc {
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    .exp-desc .icon-wrap {
+    .rek-desc .icon-wrap {
       width: 34px;
       height: 34px;
       border-radius: 9px;
@@ -477,30 +476,31 @@
       flex-shrink: 0;
     }
 
-    .exp-desc .icon-wrap .icon {
+    .rek-desc .icon-wrap .icon {
       width: 15px;
       height: 15px;
     }
 
-    .exp-desc .text {
+    .rek-desc .text {
       font-weight: 500;
       color: var(--text-primary);
     }
 
-    /* ----- CATEGORY TAG ----- */
-    .exp-category {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 4px 12px;
-      border-radius: 100px;
-      background: var(--bg-card-active);
-      color: var(--text-secondary);
-      display: inline-block;
-      border: 1px solid var(--border-color);
+    /* ----- AMOUNT CELL ----- */
+    .rek-amount {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 13.5px;
+      text-align: right;
+      color: var(--text-primary);
+    }
+
+    .rek-amount.different {
+      color: var(--warning);
     }
 
     /* ----- STATUS PILL ----- */
-    .exp-status {
+    .rek-status {
       font-size: 11px;
       font-weight: 600;
       padding: 4px 12px;
@@ -510,27 +510,18 @@
       letter-spacing: 0.04em;
     }
 
-    .exp-status.lunas {
+    .rek-status.cocok {
       background: var(--success-soft);
       color: var(--success);
     }
 
-    .exp-status.pending {
+    .rek-status.belum {
       background: var(--warning-soft);
       color: var(--warning);
     }
 
-    /* ----- AMOUNT ----- */
-    .exp-amount {
-      font-family: 'IBM Plex Mono', monospace;
-      font-weight: 600;
-      font-size: 13.5px;
-      text-align: right;
-      color: var(--text-primary);
-    }
-
     /* ----- ROW ACTIONS ----- */
-    .exp-actions {
+    .rek-actions {
       display: flex;
       gap: 8px;
       justify-content: flex-end;
@@ -538,37 +529,32 @@
       transition: opacity 0.2s ease;
     }
 
-    .exp-table tbody tr:hover .exp-actions {
+    .rek-table tbody tr:hover .rek-actions {
       opacity: 1;
     }
 
-    .exp-actions a {
+    .rek-actions a {
       font-size: 12px;
       color: var(--text-tertiary);
       text-decoration: none;
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 6px;
       transition: all 0.2s ease;
     }
 
-    .exp-actions a:hover {
+    .rek-actions a:hover {
       color: var(--theme-primary);
       background: var(--theme-soft);
     }
 
-    .exp-actions a.danger:hover {
-      color: #E85A5A;
-      background: rgba(232, 90, 90, 0.12);
-    }
-
     /* ----- EMPTY STATE ----- */
-    .exp-empty {
+    .rek-empty {
       text-align: center;
       padding: 60px 20px;
       color: var(--text-tertiary);
     }
 
-    .exp-empty .empty-icon {
+    .rek-empty .empty-icon {
       width: 56px;
       height: 56px;
       margin: 0 auto 16px;
@@ -576,14 +562,14 @@
       opacity: 0.5;
     }
 
-    .exp-empty h3 {
+    .rek-empty h3 {
       font-size: 18px;
       font-weight: 600;
       margin: 0 0 6px;
       color: var(--text-primary);
     }
 
-    .exp-empty p {
+    .rek-empty p {
       color: var(--text-secondary);
       margin: 0 0 20px;
       font-size: 14px;
@@ -593,22 +579,22 @@
        RESPONSIVE
        ============================================ */
     @media (max-width: 992px) {
-      .exp-stats {
+      .rek-stats {
         grid-template-columns: repeat(2, 1fr);
       }
     }
 
     @media (max-width: 768px) {
-      .exp-table {
+      .rek-table {
         font-size: 12.5px;
       }
 
-      .exp-table th,
-      .exp-table td {
+      .rek-table th,
+      .rek-table td {
         padding: 10px 12px;
       }
 
-      .exp-card-header {
+      .rek-card-header {
         padding: 14px 16px;
         flex-direction: column;
         gap: 8px;
@@ -617,181 +603,182 @@
     }
 
     @media (max-width: 640px) {
-      .exp-header {
+      .rek-header {
         flex-direction: column;
       }
       
-      .exp-header-actions {
+      .rek-header-actions {
         width: 100%;
       }
       
-      .exp-header-actions .exp-btn {
+      .rek-header-actions .rek-btn {
         flex: 1;
         justify-content: center;
       }
 
-      .exp-stats {
+      .rek-stats {
         grid-template-columns: 1fr;
         gap: 12px;
       }
 
-      .exp-stat-card .stat-value {
+      .rek-stat-card .stat-value {
         font-size: 22px;
       }
 
-      .exp-desc .text {
-        font-size: 12.5px;
-      }
-
-      .exp-actions {
+      .rek-actions {
         opacity: 1;
         flex-direction: column;
         gap: 4px;
       }
 
-      .exp-actions a {
+      .rek-actions a {
         font-size: 11px;
         padding: 2px 6px;
+      }
+
+      .rek-desc .text {
+        font-size: 12.5px;
       }
     }
 
     @media (max-width: 380px) {
-      .exp-header h1 {
+      .rek-header h1 {
         font-size: 22px;
       }
-      .exp-btn {
+      .rek-btn {
         font-size: 12px;
         padding: 8px 14px;
       }
-      .exp-btn .icon {
+      .rek-btn .icon {
         width: 14px;
         height: 14px;
       }
     }
   </style>
 
-  <div class="exp-modern">
+  <div class="rek-modern">
 
     <!-- ===== HEADER ===== -->
-    <div class="exp-header animate-in" style="animation-delay: 0.05s;">
-      <div class="exp-header-left">
-        <div class="exp-badge">
+    <div class="rek-header animate-in" style="animation-delay: 0.05s;">
+      <div class="rek-header-left">
+        <div class="rek-badge">
           <span class="dot"></span>
-          Pembelian &amp; Biaya
+          Perbankan
         </div>
-        <h1>Pengeluaran</h1>
+        <h1>Rekonsiliasi Bank</h1>
         <p class="subtitle">
-          Catatan seluruh biaya dan pembelian usaha — 
-          <strong>{{ $expensesCollection->count() }}</strong> transaksi
+          Cocokkan mutasi rekening bank dengan catatan pembukuan — 
+          <strong>{{ $itemsCollection->count() }}</strong> transaksi
         </p>
       </div>
-      <div class="exp-header-actions">
-        <a href="{{ Route::has('expense-categories.index') ? route('expense-categories.index') : '#' }}" 
-           class="exp-btn exp-btn-ghost">
-          <svg class="icon"><use href="#ic-briefcase"/></svg>
-          Kategori Biaya
+      <div class="rek-header-actions">
+        <a href="{{ Route::has('bank-mutations.index') ? route('bank-mutations.index') : '#' }}" 
+           class="rek-btn rek-btn-ghost">
+          <svg class="icon"><use href="#ic-bank"/></svg>
+          Mutasi Rekening
         </a>
-        <a href="#" class="exp-btn exp-btn-primary">
+        <a href="#" class="rek-btn rek-btn-primary">
           <svg class="icon"><use href="#ic-plus"/></svg>
-          Catat Pengeluaran
+          Tambah Rekonsiliasi
         </a>
       </div>
     </div>
 
     <!-- ===== STATS ===== -->
-    <div class="exp-stats">
-      <div class="exp-stat-card animate-in" style="animation-delay: 0.10s;">
+    <div class="rek-stats">
+      <div class="rek-stat-card animate-in" style="animation-delay: 0.10s;">
         <div class="stat-head">
-          <div class="ic"><svg class="icon"><use href="#ic-trending-down"/></svg></div>
+          <div class="ic"><svg class="icon"><use href="#ic-bank"/></svg></div>
         </div>
-        <div class="stat-label">Total Pengeluaran</div>
-        <div class="stat-value primary mono">{{ $currencySymbol }}{{ number_format($totalPengeluaran, 0, ',', '.') }}</div>
-        <div class="stat-sub">{{ $countLunas + $countPending }} transaksi total</div>
+        <div class="stat-label">Saldo Bank</div>
+        <div class="stat-value primary mono">{{ $currencySymbol }}{{ number_format($saldoBank, 0, ',', '.') }}</div>
+        <div class="stat-sub">{{ $countCocok }} transaksi tercocokkan</div>
       </div>
 
-      <div class="exp-stat-card animate-in" style="animation-delay: 0.15s;">
+      <div class="rek-stat-card animate-in" style="animation-delay: 0.15s;">
         <div class="stat-head">
           <div class="ic"><svg class="icon"><use href="#ic-invoice"/></svg></div>
-          <span class="badge success">{{ $countLunas }} transaksi</span>
         </div>
-        <div class="stat-label">Sudah Dibayar</div>
-        <div class="stat-value success mono">{{ $currencySymbol }}{{ number_format($totalLunas, 0, ',', '.') }}</div>
-        <div class="stat-sub">{{ $totalPengeluaran > 0 ? round(($totalLunas / $totalPengeluaran) * 100) : 0 }}% dari total</div>
+        <div class="stat-label">Saldo Buku</div>
+        <div class="stat-value success mono">{{ $currencySymbol }}{{ number_format($saldoBuku, 0, ',', '.') }}</div>
+        <div class="stat-sub">Catatan pembukuan</div>
       </div>
 
-      <div class="exp-stat-card animate-in" style="animation-delay: 0.20s;">
+      <div class="rek-stat-card animate-in" style="animation-delay: 0.20s;">
         <div class="stat-head">
-          <div class="ic"><svg class="icon"><use href="#ic-briefcase"/></svg></div>
-          <span class="badge">{{ $countPending }} transaksi</span>
+          <div class="ic"><svg class="icon"><use href="#ic-trending-down"/></svg></div>
+          <span class="badge">{{ $countBelum }} transaksi</span>
         </div>
-        <div class="stat-label">Menunggu Pembayaran</div>
-        <div class="stat-value warning mono">{{ $currencySymbol }}{{ number_format($totalPending, 0, ',', '.') }}</div>
-        <div class="stat-sub">{{ $totalPengeluaran > 0 ? round(($totalPending / $totalPengeluaran) * 100) : 0 }}% dari total</div>
+        <div class="stat-label">Selisih Belum Rekon</div>
+        <div class="stat-value warning mono">{{ $currencySymbol }}{{ number_format($selisih, 0, ',', '.') }}</div>
+        <div class="stat-sub">Perlu ditelusuri</div>
       </div>
     </div>
 
     <!-- ===== TABLE ===== -->
-    <div class="exp-card animate-in" style="animation-delay: 0.25s;">
-      <div class="exp-card-header">
-        <h3>Daftar Pengeluaran</h3>
+    <div class="rek-card animate-in" style="animation-delay: 0.25s;">
+      <div class="rek-card-header">
+        <h3>Daftar Rekonsiliasi</h3>
         <a href="{{ Route::has('reports.general-ledger') ? route('reports.general-ledger') : '#' }}" class="link">
-          Buku besar biaya
+          Buku besar bank
           <svg class="icon"><use href="#ic-arrow-right"/></svg>
         </a>
       </div>
 
-      <div class="exp-table-wrap">
-        <table class="exp-table">
+      <div class="rek-table-wrap">
+        <table class="rek-table">
           <thead>
             <tr>
-              <th>Deskripsi</th>
-              <th>Kategori</th>
+              <th>Keterangan</th>
               <th>Tanggal</th>
+              <th style="text-align:right">Jumlah Bank</th>
+              <th style="text-align:right">Jumlah Buku</th>
               <th>Status</th>
-              <th style="text-align:right">Jumlah</th>
               <th style="width:80px;"></th>
             </tr>
           </thead>
           <tbody>
-            @forelse($expenses as $e)
+            @forelse($items as $i)
               <tr>
                 <td>
-                  <div class="exp-desc">
+                  <div class="rek-desc">
                     <div class="icon-wrap">
-                      <svg class="icon"><use href="#ic-invoice"/></svg>
+                      <svg class="icon"><use href="#ic-bank"/></svg>
                     </div>
-                    <span class="text">{{ $e['desc'] }}</span>
+                    <span class="text">{{ $i['desc'] }}</span>
                   </div>
                 </td>
-                <td>
-                  <span class="exp-category">{{ $e['kategori'] }}</span>
+                <td>{{ formatTanggal($i['date']) }}</td>
+                <td class="rek-amount mono">
+                  {{ $currencySymbol }}{{ number_format($i['bank'], 0, ',', '.') }}
                 </td>
-                <td>{{ formatTanggal($e['date']) }}</td>
+                <td class="rek-amount mono {{ $i['bank'] != $i['buku'] ? 'different' : '' }}">
+                  {{ $currencySymbol }}{{ number_format($i['buku'], 0, ',', '.') }}
+                  @if($i['bank'] != $i['buku'])
+                    <span style="font-size:10px; color: var(--warning);">(!)</span>
+                  @endif
+                </td>
                 <td>
-                  <span class="exp-status {{ $statusPill[$e['status']] }}">
-                    {{ $statusLabel[$e['status']] }}
+                  <span class="rek-status {{ $statusPill[$i['status']] }}">
+                    {{ $statusLabel[$i['status']] }}
                   </span>
                 </td>
-                <td class="exp-amount mono">
-                  {{ $currencySymbol }}{{ number_format($e['amount'], 0, ',', '.') }}
-                </td>
                 <td>
-                  <div class="exp-actions">
-                    <a href="#">Edit</a>
-                    <a href="#" class="danger">Hapus</a>
+                  <div class="rek-actions">
+                    <a href="#">Cocokkan</a>
                   </div>
                 </td>
               </tr>
             @empty
               <tr>
                 <td colspan="6">
-                  <div class="exp-empty">
-                    <svg class="empty-icon"><use href="#ic-invoice"/></svg>
-                    <h3>Belum Ada Pengeluaran</h3>
-                    <p>Belum ada pengeluaran yang tercatat di sistem.</p>
-                    <a href="#" class="exp-btn exp-btn-primary" style="display: inline-flex;">
+                  <div class="rek-empty">
+                    <svg class="empty-icon"><use href="#ic-bank"/></svg>
+                    <h3>Belum Ada Data Rekonsiliasi</h3>
+                    <p>Belum ada transaksi yang direkonsiliasi.</p>
+                    <a href="#" class="rek-btn rek-btn-primary" style="display: inline-flex;">
                       <svg class="icon"><use href="#ic-plus"/></svg>
-                      Catat Pengeluaran Pertama
+                      Mulai Rekonsiliasi
                     </a>
                   </div>
                 </td>
@@ -807,7 +794,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Ripple effect untuk tombol
-      const buttons = document.querySelectorAll('.exp-btn');
+      const buttons = document.querySelectorAll('.rek-btn');
       buttons.forEach(btn => {
         btn.addEventListener('click', function(e) {
           const rect = this.getBoundingClientRect();
