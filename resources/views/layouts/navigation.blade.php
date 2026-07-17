@@ -1,7 +1,7 @@
 <aside class="sidebar" id="sidebar">
   <div class="sb-logo">
     <span class="logo-mark">
-      <img src="{{ asset('logo.png') }}" alt="{{ $company->name ?? 'Arthajaya' }}">
+      <img src="{{ asset('logos.png') }}" alt="{{ $company->name ?? 'Arthajaya' }}">
     </span>
     Artha<span class="dot">jaya</span>
   </div>
