@@ -76,7 +76,7 @@
   </div>
 
   {{-- ===== LAPORAN (dropdown) ===== --}}
-  @php $g5 = request()->routeIs(['reports.*', 'laba-rugi.*', 'neraca.*']); @endphp
+  @php $g5 = request()->routeIs(['laba-rugi.*', 'neraca.*', 'cash-flow.*', 'ledger.*']); @endphp
   <div class="sb-accordion {{ $g5 ? 'open' : '' }}">
     <button type="button" class="sb-link sb-parent" data-acc-toggle>
       <svg class="icon"><use href="#ic-trending"/></svg> Laporan
@@ -86,8 +86,8 @@
       <div class="sb-submenu-inner">
         <a href="{{ route('laba-rugi.index') }}" class="sb-sublink {{ request()->routeIs('laba-rugi.*') ? 'active' : '' }}">Laba Rugi</a>
         <a href="{{ route('neraca.index') }}" class="sb-sublink {{ request()->routeIs('neraca.*') ? 'active' : '' }}">Neraca</a>
-        <a href="{{ route('reports.cash-flow') }}" class="sb-sublink {{ request()->routeIs('reports.cash-flow') ? 'active' : '' }}">Arus Kas</a>
-        <a href="{{ route('reports.general-ledger') }}" class="sb-sublink {{ request()->routeIs('reports.general-ledger') ? 'active' : '' }}">Buku Besar</a>
+        <a href="{{ route('cash-flow.index') }}" class="sb-sublink {{ request()->routeIs('cash-flow.*') ? 'active' : '' }}">Arus Kas</a>
+        <a href="{{ route('ledger.index') }}" class="sb-sublink {{ request()->routeIs('ledger.*') ? 'active' : '' }}">Buku Besar</a>
       </div>
     </div>
   </div>

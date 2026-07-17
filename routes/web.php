@@ -9,6 +9,8 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\NeracaController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\CashFlowController;
+use App\Http\Controllers\LedgerController;
 
 // Homepage
 Route::get('/', function () {
@@ -125,17 +127,11 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     // Neraca
     Route::resource('neraca', NeracaController::class)->except('show');
 
-    Route::get('/reports/cash-flow', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('reports.cash-flow', compact('user', 'company'));
-    })->name('reports.cash-flow');
+    // Arus Kas
+    Route::resource('cash-flow', CashFlowController::class)->except('show');
 
-    Route::get('/reports/general-ledger', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('reports.general-ledger', compact('user', 'company'));
-    })->name('reports.general-ledger');
+    // Buku Besar
+    Route::resource('ledger', LedgerController::class)->except('show');
 
     // ===== INVENTARIS =====
     Route::get('/inventory', function () {
