@@ -5,8 +5,8 @@
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-    // DUMMY - ganti dengan query Budget model nanti
-    $budgets = [
+    // Data dari session (sudah passing $budgets dari controller)
+    $budgets = $budgets ?? [
         ['category' => 'Pendapatan', 'period' => '2026', 'target' => 850000000, 'actual' => 785000000, 'progress' => 92, 'status' => 'on_track'],
         ['category' => 'Bahan Baku', 'period' => '2026', 'target' => 120000000, 'actual' => 98000000, 'progress' => 82, 'status' => 'on_track'],
         ['category' => 'Biaya Produksi', 'period' => '2026', 'target' => 95000000, 'actual' => 102000000, 'progress' => 107, 'status' => 'over_budget'],
@@ -97,6 +97,28 @@
 
     .budget-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
     .budget-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* SUCCESS MESSAGE */
+    .budget-success {
+      background: var(--success-soft);
+      border: 1px solid var(--success);
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .budget-success .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .budget-success .message {
+      font-weight: 500;
+    }
 
     /* HEADER */
     .budget-header {
@@ -597,16 +619,24 @@
         </p>
       </div>
       <div class="budget-actions">
-        <a href="#" class="budget-btn budget-btn-ghost">
+        <a href="{{ route('budgets.export') }}" class="budget-btn budget-btn-ghost">
           <svg class="icon"><use href="#ic-doc"/></svg>
           Ekspor
         </a>
-        <a href="#" class="budget-btn budget-btn-primary">
+        <a href="{{ route('budgets.create') }}" class="budget-btn budget-btn-primary">
           <svg class="icon"><use href="#ic-plus"/></svg>
           Buat Anggaran
         </a>
       </div>
     </div>
+
+    <!-- ===== SUCCESS MESSAGE ===== -->
+    @if(session('success'))
+      <div class="budget-success animate-in" style="animation-delay: 0.08s;">
+        <svg class="icon"><use href="#ic-shield"/></svg>
+        <span class="message">{{ session('success') }}</span>
+      </div>
+    @endif
 
     <!-- TABS -->
     <div class="budget-tabs animate-in" style="animation-delay: 0.10s;">
@@ -679,7 +709,7 @@
           <svg class="empty-icon"><use href="#ic-target"/></svg>
           <h3>Belum Ada Anggaran</h3>
           <p>Belum ada anggaran yang tercatat di sistem.</p>
-          <a href="#" class="budget-btn budget-btn-primary" style="display: inline-flex;">
+          <a href="{{ route('budgets.create') }}" class="budget-btn budget-btn-primary" style="display: inline-flex;">
             <svg class="icon"><use href="#ic-plus"/></svg>
             Buat Anggaran Pertama
           </a>
@@ -773,11 +803,9 @@
 
       tabs.forEach(tab => {
         tab.addEventListener('click', function() {
-          // Update tabs
           tabs.forEach(t => t.classList.remove('active'));
           this.classList.add('active');
 
-          // Update panels
           const target = this.dataset.tab;
           panels.forEach(panel => {
             panel.classList.toggle('active', panel.dataset.panel === target);

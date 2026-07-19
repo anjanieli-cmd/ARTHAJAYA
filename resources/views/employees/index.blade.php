@@ -5,8 +5,8 @@
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-    // DUMMY - ganti dengan query Employee model nanti
-    $employees = [
+    // Data dari session (sudah passing $employees dari controller)
+    $employees = $employees ?? [
         ['name' => 'Budi Santoso',      'position' => 'Pengrajin Batik', 'department' => 'Produksi', 'email' => 'budi@arthajaya.com', 'phone' => '0812-3456-7890', 'salary' => 4500000, 'status' => 'active', 'joined' => '2023-01-15'],
         ['name' => 'Siti Rahayu',        'position' => 'Desainer',        'department' => 'Kreatif',  'email' => 'siti@arthajaya.com', 'phone' => '0813-4567-8901', 'salary' => 5200000, 'status' => 'active', 'joined' => '2023-03-01'],
         ['name' => 'Agus Wijaya',        'position' => 'Marketing',       'department' => 'Marketing', 'email' => 'agus@arthajaya.com', 'phone' => '0814-5678-9012', 'salary' => 4800000, 'status' => 'active', 'joined' => '2023-06-10'],
@@ -26,6 +26,16 @@
     $avgSalary      = $totalEmployees > 0 ? round($totalSalary / $totalEmployees) : 0;
     
     $departments = $employeesCollection->pluck('department')->unique()->values();
+    
+    // Fungsi helper untuk format tanggal
+    function formatTanggal($date) {
+        if (empty($date)) return '-';
+        try {
+            return \Carbon\Carbon::parse($date)->translatedFormat('d M Y');
+        } catch (\Exception $e) {
+            return $date;
+        }
+    }
   @endphp
 
   <style>
@@ -80,6 +90,28 @@
 
     .emp-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
     .emp-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* SUCCESS MESSAGE */
+    .emp-success {
+      background: var(--success-soft);
+      border: 1px solid var(--success);
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .emp-success .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .emp-success .message {
+      font-weight: 500;
+    }
 
     /* HEADER */
     .emp-header {
@@ -570,12 +602,20 @@
           <svg class="icon"><use href="#ic-invoice"/></svg>
           Slip Gaji
         </a>
-        <a href="#" class="emp-btn emp-btn-primary">
+        <a href="{{ route('employees.create') }}" class="emp-btn emp-btn-primary">
           <svg class="icon"><use href="#ic-plus"/></svg>
           Tambah Karyawan
         </a>
       </div>
     </div>
+
+    <!-- ===== SUCCESS MESSAGE ===== -->
+    @if(session('success'))
+      <div class="emp-success animate-in" style="animation-delay: 0.08s;">
+        <svg class="icon"><use href="#ic-shield"/></svg>
+        <span class="message">{{ session('success') }}</span>
+      </div>
+    @endif
 
     <!-- STATS -->
     <div class="emp-stats animate-in" style="animation-delay: 0.10s;">
@@ -639,7 +679,7 @@
           $statusClass = $e['status'] == 'active' ? 'status-active' : 'status-inactive';
           
           // Format tanggal join
-          $joined = \Carbon\Carbon::parse($e['joined'])->translatedFormat('d M Y');
+          $joined = formatTanggal($e['joined']);
         @endphp
         <div class="emp-profile {{ $statusClass }} animate-in" style="animation-delay: {{ 0.20 + ($loop->index * 0.04) }}s;">
           <div class="avatar-lg" style="background: {{ $color }};">
@@ -676,7 +716,7 @@
           <svg class="empty-icon"><use href="#ic-users"/></svg>
           <h3>Belum Ada Data Karyawan</h3>
           <p>Belum ada karyawan yang tercatat di sistem.</p>
-          <a href="#" class="emp-btn emp-btn-primary" style="display: inline-flex;">
+          <a href="{{ route('employees.create') }}" class="emp-btn emp-btn-primary" style="display: inline-flex;">
             <svg class="icon"><use href="#ic-plus"/></svg>
             Tambah Karyawan Pertama
           </a>

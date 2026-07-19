@@ -5,14 +5,14 @@
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-    // DUMMY - ganti dengan query BankMutation model nanti
-    $mutations = [
-        ['desc' => 'Transfer masuk - Nusantara Logistik',   'date' => '02 Jul 2026', 'type' => 'masuk',  'amount' => 18400000, 'saldo' => 24650000],
-        ['desc' => 'Pembayaran listrik workshop',            'date' => '06 Jul 2026', 'type' => 'keluar', 'amount' => 820000,   'saldo' => 23830000],
-        ['desc' => 'Setoran tunai penjualan',                'date' => '09 Jul 2026', 'type' => 'masuk',  'amount' => 1500000,  'saldo' => 25330000],
-        ['desc' => 'Biaya admin bank',                       'date' => '10 Jul 2026', 'type' => 'keluar', 'amount' => 25000,    'saldo' => 25305000],
-        ['desc' => 'Transfer masuk - Ruang Kriya Studio',    'date' => '12 Jul 2026', 'type' => 'masuk',  'amount' => 6200000,  'saldo' => 31505000],
-        ['desc' => 'Beli kain mori 50 meter',                'date' => '01 Jul 2026', 'type' => 'keluar', 'amount' => 2500000,  'saldo' => 22150000],
+    // Data dari session (sudah passing $mutations dari controller)
+    $mutations = $mutations ?? [
+        ['desc' => 'Transfer masuk - Nusantara Logistik',   'date' => '2026-07-02', 'type' => 'masuk',  'amount' => 18400000, 'saldo' => 24650000],
+        ['desc' => 'Pembayaran listrik workshop',            'date' => '2026-07-06', 'type' => 'keluar', 'amount' => 820000,   'saldo' => 23830000],
+        ['desc' => 'Setoran tunai penjualan',                'date' => '2026-07-09', 'type' => 'masuk',  'amount' => 1500000,  'saldo' => 25330000],
+        ['desc' => 'Biaya admin bank',                       'date' => '2026-07-10', 'type' => 'keluar', 'amount' => 25000,    'saldo' => 25305000],
+        ['desc' => 'Transfer masuk - Ruang Kriya Studio',    'date' => '2026-07-12', 'type' => 'masuk',  'amount' => 6200000,  'saldo' => 31505000],
+        ['desc' => 'Beli kain mori 50 meter',                'date' => '2026-07-01', 'type' => 'keluar', 'amount' => 2500000,  'saldo' => 22150000],
     ];
 
     $mutationsCollection = collect($mutations);
@@ -28,6 +28,16 @@
 
     $jumlahMasuk = $mutationsCollection->where('type', 'masuk')->count();
     $jumlahKeluar = $mutationsCollection->where('type', 'keluar')->count();
+    
+    // Fungsi helper untuk format tanggal
+    function formatTanggal($date) {
+        if (empty($date)) return '-';
+        try {
+            return \Carbon\Carbon::parse($date)->translatedFormat('d M Y');
+        } catch (\Exception $e) {
+            return $date;
+        }
+    }
   @endphp
 
   <style>
@@ -52,6 +62,9 @@
       --bg-card-active: rgba(255, 255, 255, 0.04);
       --border-color: var(--border);
       --border-hover: var(--border-hover);
+      
+      --success: #34B583;
+      --success-soft: rgba(52, 181, 131, 0.14);
       
       --radius-sm: 10px;
       --radius-md: 16px;
@@ -119,6 +132,28 @@
     .mut-modern .icon-lg {
       width: 22px;
       height: 22px;
+    }
+
+    /* ----- SUCCESS MESSAGE ----- */
+    .mut-success {
+      background: var(--success-soft);
+      border: 1px solid var(--success);
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mut-success .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .mut-success .message {
+      font-weight: 500;
     }
 
     /* ----- HEADER SECTION ----- */
@@ -837,17 +872,24 @@
         </p>
       </div>
       <div class="mut-header-actions">
-        <a href="{{ Route::has('reconciliation.index') ? route('reconciliation.index') : '#' }}" 
-           class="mut-btn mut-btn-ghost">
+        <a href="{{ route('reconciliation.index') }}" class="mut-btn mut-btn-ghost">
           <svg class="icon"><use href="#ic-refresh"/></svg>
           Rekonsiliasi
         </a>
-        <a href="#" class="mut-btn mut-btn-primary">
+        <a href="{{ route('bank-mutations.create') }}" class="mut-btn mut-btn-primary">
           <svg class="icon"><use href="#ic-plus"/></svg>
           Tambah Mutasi
         </a>
       </div>
     </div>
+
+    <!-- ===== SUCCESS MESSAGE ===== -->
+    @if(session('success'))
+      <div class="mut-success animate-in" style="animation-delay: 0.08s;">
+        <svg class="icon"><use href="#ic-shield"/></svg>
+        <span class="message">{{ session('success') }}</span>
+      </div>
+    @endif
 
     <!-- ===== STATS ===== -->
     <div class="mut-stats">
@@ -939,7 +981,7 @@
               <div class="tx-meta">
                 <span class="tag {{ $m['type'] }}">{{ $typeLabel[$m['type']] }}</span>
                 <span>•</span>
-                <span>{{ \Carbon\Carbon::parse($m['date'])->translatedFormat('H:i') }}</span>
+                <span>{{ formatTanggal($m['date']) }}</span>
                 <span>•</span>
                 <span style="font-family: monospace; font-size: 11px;">#{{ str_pad($loop->parent->index + $loop->index + 1, 4, '0', STR_PAD_LEFT) }}</span>
               </div>
@@ -961,7 +1003,7 @@
         <svg class="empty-icon"><use href="#ic-bank"/></svg>
         <h3>Belum Ada Mutasi</h3>
         <p>Belum ada transaksi yang tercatat di rekening ini.</p>
-        <a href="#" class="mut-btn mut-btn-primary" style="display: inline-flex;">
+        <a href="{{ route('bank-mutations.create') }}" class="mut-btn mut-btn-primary" style="display: inline-flex;">
           <svg class="icon"><use href="#ic-plus"/></svg>
           Tambah Transaksi Pertama
         </a>
