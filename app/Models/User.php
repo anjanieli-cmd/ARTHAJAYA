@@ -17,11 +17,6 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -31,10 +26,10 @@ class User extends Authenticatable
     }
 
     protected $fillable = [
-    'name', 'email', 'password', 'company_id',
-    'phone', 'position', 'avatar',
-    'two_factor_enabled', 'password_changed_at',
-];
+        'name', 'email', 'password', 'company_id',
+        'phone', 'position', 'avatar',
+        'two_factor_enabled', 'password_changed_at',
+    ];
 
     /**
      * Relasi ke Company

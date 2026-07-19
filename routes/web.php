@@ -13,6 +13,7 @@ use App\Http\Controllers\CashFlowController;
 use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\CogsController;
+use App\Http\Controllers\NotificationController;
 
 // Homepage
 Route::get('/', function () {
@@ -48,6 +49,13 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         return view('dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
+
+    // ===== NOTIFIKASI =====
+    Route::controller(NotificationController::class)->group(function () {
+        Route::get('/notifications', 'index')->name('notifications.index');
+        Route::post('/notifications/{id}/read', 'markAsRead')->name('notifications.read');
+        Route::post('/notifications/read-all', 'markAllAsRead')->name('notifications.readAll');
+    });
 
     // ===== INVOICES =====
     Route::controller(InvoiceController::class)->group(function () {
@@ -122,37 +130,25 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     })->name('bank-mutations.index');
 
     // ===== LAPORAN =====
-
-    // Laba Rugi
     Route::resource('laba-rugi', LabaRugiController::class)->except('show');
-
-    // Neraca
     Route::resource('neraca', NeracaController::class)->except('show');
-
-    // Arus Kas
     Route::resource('cash-flow', CashFlowController::class)->except('show');
-
-    // Buku Besar
     Route::resource('ledger', LedgerController::class)->except('show');
 
     // ===== INVENTARIS =====
-    
-    // Inventaris - Stok Barang
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
     Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory/{item}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
     Route::put('/inventory/{item}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::delete('/inventory/{item}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
- 
-    // Inventaris - Harga Pokok Penjualan (HPP)
+
     Route::get('/cogs', [CogsController::class, 'index'])->name('cogs.index');
     Route::get('/cogs/create', [CogsController::class, 'create'])->name('cogs.create');
     Route::post('/cogs', [CogsController::class, 'store'])->name('cogs.store');
     Route::get('/cogs/{entry}/edit', [CogsController::class, 'edit'])->name('cogs.edit');
     Route::put('/cogs/{entry}', [CogsController::class, 'update'])->name('cogs.update');
     Route::delete('/cogs/{entry}', [CogsController::class, 'destroy'])->name('cogs.destroy');
-
 
     // ===== PAYROLL =====
     Route::get('/payroll', function () {

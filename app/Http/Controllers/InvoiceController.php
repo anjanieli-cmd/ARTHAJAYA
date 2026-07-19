@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Notifications\PaymentReceivedNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class InvoiceController extends Controller
 {
@@ -142,6 +144,8 @@ class InvoiceController extends Controller
         $subtotal = (float) $data['subtotal'];
         $tax = (float) ($data['tax_amount'] ?? 0);
 
+        $statusBefore = $invoice->status;
+
         $invoice->update([
             'client_id'  => $data['client_id'],
             'issue_date' => $data['issue_date'],
@@ -152,6 +156,15 @@ class InvoiceController extends Controller
             'total'      => $subtotal + $tax,
             'notes'      => $data['notes'] ?? null,
         ]);
+
+        // Kirim notifikasi kalau status baru saja berubah jadi "paid"
+        if ($statusBefore !== 'paid' && $invoice->status === 'paid') {
+            $recipients = $invoice->company->users;
+
+            if ($recipients->isNotEmpty()) {
+                Notification::send($recipients, new PaymentReceivedNotification($invoice));
+            }
+        }
 
         return redirect()->route('invoices.show', $invoice)->with('updated', true);
     }
