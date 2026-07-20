@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>{{ isset($title) ? $title.' — ' : '' }}{{ $company->name ?? config('app.name', 'Arthajaya') }}</title>
+<title>{{ isset($title) ? $title.' — ' : '' }}{{ $company->name ?? config('app.name', 'Arvessa') }}</title>
 
 <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logos.png') }}">
 <link rel="apple-touch-icon" href="{{ asset('logos.png') }}">
@@ -88,10 +88,10 @@
   .app-shell{ display:grid; grid-template-columns:250px 1fr; min-height:100vh; position:relative; z-index:1; }
 
   .sidebar{ background:var(--nav-bg); backdrop-filter:blur(16px); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:22px 16px; position:sticky; top:0; height:100vh; overflow-y:auto; transition: background .35s ease, border-color .35s ease; }
-  .sb-logo{ display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:18px; padding:6px 8px 26px; }
-  .sb-logo .logo-mark{ width:30px; height:30px; border-radius:9px; background:var(--surface-strong); border:1px solid var(--border-hover); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; padding:3px; }
+  .sb-logo{ display:flex; align-items:center; gap:11px; font-family:'Space Grotesk'; font-weight:700; font-size:18px; padding:6px 8px 26px; }
+  .sb-logo .logo-mark{ width:38px; height:38px; border-radius:11px; background:var(--surface-strong); border:1px solid var(--border-hover); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; padding:4px; }
   .sb-logo .logo-mark img{ width:100%; height:100%; object-fit:contain; }
-  .sb-logo .dot{ color:var(--emerald); }
+  .sb-logo .grad{ background:linear-gradient(90deg,var(--emerald),var(--emerald-dim)); -webkit-background-clip:text; background-clip:text; color:transparent; }
 
   .sb-group-label{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); padding:16px 12px 8px; }
   .sb-link{ display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:12px; font-size:14px; color:var(--text-mute); margin-bottom:2px; transition: all .2s ease; position:relative; }
@@ -131,7 +131,9 @@
 
   .dropdown{ position:absolute; top:calc(100% + 10px); right:0; width:230px; background:var(--modal-bg); border:1px solid var(--border); border-radius:16px; padding:8px; box-shadow:0 30px 70px rgba(0,0,0,0.4); opacity:0; visibility:hidden; transform: translateY(8px) scale(.97); transition: all .2s ease; z-index:60; }
   .dropdown.open{ opacity:1; visibility:visible; transform: translateY(0) scale(1); }
-  .dropdown-head{ padding:10px 12px 12px; border-bottom:1px solid var(--border); margin-bottom:6px; }
+  .dropdown-head{ padding:10px 12px 12px; border-bottom:1px solid var(--border); margin-bottom:6px; display:flex; align-items:center; gap:10px; }
+  .dropdown-head-avatar{ width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--emerald),var(--emerald-dim)); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk'; font-weight:700; font-size:13px; color:#052117; flex-shrink:0; overflow:hidden; }
+  .dropdown-head-avatar img{ width:100%; height:100%; object-fit:cover; }
   .dropdown-head .n{ font-size:13.5px; font-weight:600; }
   .dropdown-head .e{ font-size:11.5px; color:var(--text-faint); margin-top:2px; }
   .dropdown a, .dropdown button{ display:flex; align-items:center; gap:10px; width:100%; padding:9px 12px; border-radius:10px; font-size:13px; color:var(--text-mute); background:none; border:none; text-align:left; cursor:pointer; transition: all .15s ease; }
@@ -382,15 +384,28 @@
         <div class="user-menu">
           <div class="user-trigger" id="userTrigger">
             <div class="user-avatar">
-              {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+              @if(Auth::user()->avatar ?? false)
+                <img src="{{ asset('storage/'.Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
+              @else
+                {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+              @endif
             </div>
             <span class="name">{{ Auth::user()->name ?? 'Pengguna' }}</span>
             <svg class="icon"><use href="#ic-chevron"/></svg>
           </div>
           <div class="dropdown" id="userDropdown">
             <div class="dropdown-head">
-              <div class="n">{{ Auth::user()->name ?? 'Pengguna' }}</div>
-              <div class="e">{{ Auth::user()->email ?? '' }}</div>
+              <div class="dropdown-head-avatar">
+                @if(Auth::user()->avatar ?? false)
+                  <img src="{{ asset('storage/'.Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
+                @else
+                  {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+                @endif
+              </div>
+              <div>
+                <div class="n">{{ Auth::user()->name ?? 'Pengguna' }}</div>
+                <div class="e">{{ Auth::user()->email ?? '' }}</div>
+              </div>
             </div>
             <a href="{{ Route::has('profile.edit') ? route('profile.edit') : '#' }}"><svg class="icon"><use href="#ic-user"/></svg> Profil Saya</a>
             <a href="#"><svg class="icon"><use href="#ic-settings"/></svg> Pengaturan</a>

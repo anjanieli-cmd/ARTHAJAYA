@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arthajaya — Akuntansi Bisnis, Secepat Langkahmu</title>
+<title>Arvessa — Akuntansi Bisnis, Secepat Langkahmu</title>
 
 <!-- Favicon menggunakan logos.png -->
 <link rel="icon" type="image/png" sizes="32x32" href="logos.png">
@@ -110,11 +110,11 @@
   .nav-inner{ display:flex; align-items:center; justify-content:space-between; padding:18px 32px; max-width:1220px; margin:0 auto; }
   .logo{ display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:19px; }
   .logo-mark{
-    width:30px; height:30px; border-radius:9px;
+    width:40px; height:40px; border-radius:12px;
     background:var(--surface-strong);
     border:1px solid var(--border-hover);
     display:flex; align-items:center; justify-content:center;
-    overflow:hidden; flex-shrink:0; padding:3px;
+    overflow:hidden; flex-shrink:0; padding:6px;
     transition:border-color .25s ease, transform .25s ease;
   }
   .logo-mark img{
@@ -125,6 +125,16 @@
   }
   .logo:hover .logo-mark, a:hover .logo-mark{ border-color:var(--emerald); }
   .logo .dot{ color:var(--emerald); }
+  .logo .wordmark{
+    font-family:'Inter', sans-serif;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    white-space:nowrap;
+    word-spacing:0;
+    display:inline-flex;
+    align-items:baseline;
+  }
+  .logo .wordmark .dot{ margin:0; padding:0; letter-spacing:inherit; }
   .nav-links{ display:flex; gap:34px; font-size:14.5px; color:var(--text-mute); }
   .nav-links a{ display:flex; align-items:center; gap:5px; position:relative; padding:4px 0; transition: color .2s ease; }
   .nav-links a::after{ content:''; position:absolute; left:0; bottom:0; width:0; height:1.5px; background:var(--emerald); transition: width .25s ease; }
@@ -643,7 +653,7 @@
 
 <nav>
   <div class="nav-inner">
-    <div class="logo"><span class="logo-mark"><img src="logos.png" alt="Arthajaya"></span>Artha<span class="dot">jaya</span></div>
+    <div class="logo"><span class="logo-mark"><img src="logos.png" alt="Arvessa"></span><span class="wordmark">Arves<span class="dot">sa</span></span></div>
     <div class="nav-links">
       <a href="#fitur"><span data-i18n-en="Features">Fitur</span></a>
       <a href="#manfaat"><span data-i18n-en="Benefits">Manfaat</span></a>
@@ -662,7 +672,7 @@
 <div class="menu-backdrop" id="menuBackdrop"></div>
 <div class="mobile-menu" id="mobileMenu">
   <div class="mobile-menu-head">
-    <div class="logo"><span class="logo-mark"><img src="logos.png" alt="Arthajaya"></span>Artha<span class="dot">jaya</span></div>
+    <div class="logo"><span class="logo-mark"><img src="logos.png" alt="Arvessa"></span><span class="wordmark">Arves<span class="dot">sa</span></span></div>
     <div class="mobile-menu-close" id="menuClose"><svg class="icon"><use href="#ic-close"/></svg></div>
   </div>
   <a href="#fitur" class="mlink"><span data-i18n-en="Features">Fitur</span></a>
@@ -683,7 +693,7 @@
     <div>
       <div class="eyebrow" data-i18n-en="Modern Accounting, For Your Business">Akuntansi Modern, Untuk Bisnismu</div>
       <h1><span data-i18n-en="Accounting that moves ">Akuntansi yang bergerak </span><span class="accent" data-i18n-en="as fast as your business">secepat bisnismu</span></h1>
-      <p class="sub" data-i18n-en="Arthajaya is a business accounting platform that helps you create invoices, record transactions, and manage financial reports hassle-free.">Arthajaya adalah platform akuntansi bisnis yang membantu kamu membuat faktur, mencatat transaksi, dan mengelola laporan keuangan tanpa ribet.</p>
+      <p class="sub" data-i18n-en="Arvessa is a business accounting platform that helps you create invoices, record transactions, and manage financial reports hassle-free.">Arvessa adalah platform akuntansi bisnis yang membantu kamu membuat faktur, mencatat transaksi, dan mengelola laporan keuangan tanpa ribet.</p>
       <div class="hero-cta">
         <a href="{{ route('register') }}" class="btn btn-primary"><span data-i18n-en="Open a Business Account">Buka Akun Bisnis</span> <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
         <a href="#" class="btn btn-outline"><svg class="icon"><use href="#ic-play"/></svg> <span data-i18n-en="See How It Works">Lihat Cara Kerja</span></a>
@@ -710,7 +720,7 @@
           <div class="window">
             <div class="laptop-topbar">
               <div class="tl-dot r"></div><div class="tl-dot y"></div><div class="tl-dot g"></div>
-              <div class="laptop-tab">Arthajaya — Dashboard</div>
+              <div class="laptop-tab">Arvessa — Dashboard</div>
             </div>
             <div class="dash-shell">
               <aside class="dash-side">
@@ -834,7 +844,7 @@
   <section class="testimonials reveal" id="manfaat">
     <div class="testimonials-head">
       <span class="tag" data-i18n-en="Trusted by Indonesian companies">Dipercaya perusahaan Indonesia</span>
-      <h2 data-i18n-en="What people who use Arthajaya say">Kata mereka yang sudah pakai Arthajaya</h2>
+      <h2 data-i18n-en="What people who use Arvessa say">Kata mereka yang sudah pakai Arvessa</h2>
     </div>
     <div class="testi-scroll">
     <div class="testi-grid">
@@ -862,7 +872,7 @@
         <div class="testi-stars">
           <svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg>
         </div>
-        <p class="testi-quote" data-i18n-en="Migrating from spreadsheets to Arthajaya took just one week. Support is also super responsive whenever we have questions.">Migrasi dari spreadsheet ke Arthajaya cuma butuh satu minggu. Support-nya juga responsif banget setiap kali kami ada pertanyaan.</p>
+        <p class="testi-quote" data-i18n-en="Migrating from spreadsheets to Arvessa took just one week. Support is also super responsive whenever we have questions.">Migrasi dari spreadsheet ke Arvessa cuma butuh satu minggu. Support-nya juga responsif banget setiap kali kami ada pertanyaan.</p>
         <div class="testi-person">
           <div class="testi-avatar">DH</div>
           <div><div class="testi-name">Dimas Hartono</div><div class="testi-role" data-i18n-en="CFO, Nusantara Logistik">CFO, Nusantara Logistik</div></div>
@@ -882,7 +892,7 @@
         <div class="testi-stars">
           <svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg>
         </div>
-        <p class="testi-quote" data-i18n-en="As a small business, we needed something simple yet tidy. Arthajaya is a perfect fit, and the price is reasonable for a startup like us.">Sebagai bisnis kecil, kami butuh yang simpel tapi tetap rapi. Arthajaya pas banget, harganya juga masuk akal untuk startup seperti kami.</p>
+        <p class="testi-quote" data-i18n-en="As a small business, we needed something simple yet tidy. Arvessa is a perfect fit, and the price is reasonable for a startup like us.">Sebagai bisnis kecil, kami butuh yang simpel tapi tetap rapi. Arvessa pas banget, harganya juga masuk akal untuk startup seperti kami.</p>
         <div class="testi-person">
           <div class="testi-avatar">YW</div>
           <div><div class="testi-name">Yoga Wicaksono</div><div class="testi-role" data-i18n-en="Founder, Ruang Kriya Studio">Founder, Ruang Kriya Studio</div></div>
@@ -1000,11 +1010,11 @@
       </div>
       <div class="faq-item">
         <button class="faq-q"><span data-i18n-en="Can it integrate with the bank I use?">Apakah bisa terintegrasi dengan bank yang saya pakai?</span><span class="faq-q-icon"><svg class="icon"><use href="#ic-chevron"/></svg></span></button>
-        <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a" data-i18n-en="Arthajaya already integrates with most major banks in Indonesia for automatic reconciliation. Just connect your account and transactions will sync on their own.">Arthajaya sudah terintegrasi dengan mayoritas bank besar di Indonesia untuk rekonsiliasi otomatis. Kamu tinggal hubungkan rekening dan transaksi akan tersinkron dengan sendirinya.</p></div></div>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a" data-i18n-en="Arvessa already integrates with most major banks in Indonesia for automatic reconciliation. Just connect your account and transactions will sync on their own.">Arvessa sudah terintegrasi dengan mayoritas bank besar di Indonesia untuk rekonsiliasi otomatis. Kamu tinggal hubungkan rekening dan transaksi akan tersinkron dengan sendirinya.</p></div></div>
       </div>
       <div class="faq-item">
         <button class="faq-q"><span data-i18n-en="What if my team isn't familiar with accounting software yet?">Bagaimana kalau tim saya belum familiar dengan software akuntansi?</span><span class="faq-q-icon"><svg class="icon"><use href="#ic-chevron"/></svg></span></button>
-        <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a" data-i18n-en="No worries, Arthajaya is designed to be as simple as possible. We also provide free onboarding and a complete help center with step-by-step guides for every feature.">Tenang, tampilan Arthajaya dirancang sesederhana mungkin. Kami juga menyediakan onboarding gratis dan pusat bantuan lengkap dengan panduan langkah demi langkah untuk setiap fitur.</p></div></div>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a" data-i18n-en="No worries, Arvessa is designed to be as simple as possible. We also provide free onboarding and a complete help center with step-by-step guides for every feature.">Tenang, tampilan Arvessa dirancang sesederhana mungkin. Kami juga menyediakan onboarding gratis dan pusat bantuan lengkap dengan panduan langkah demi langkah untuk setiap fitur.</p></div></div>
       </div>
       <div class="faq-item">
         <button class="faq-q"><span data-i18n-en="Can I cancel my subscription anytime?">Apakah saya bisa berhenti berlangganan kapan saja?</span><span class="faq-q-icon"><svg class="icon"><use href="#ic-chevron"/></svg></span></button>
@@ -1016,7 +1026,7 @@
   <!-- CTA -->
   <section class="cta-banner reveal">
     <div class="cta-banner-left">
-      <span class="logo-mark"><img src="logos.png" alt="Arthajaya"></span>
+      <span class="logo-mark"><img src="logos.png" alt="Arvessa"></span>
       <div>
         <h2 data-i18n-en="Ready to take control of your business finances?">Siap kendalikan keuangan bisnismu?</h2>
         <div class="cta-checks">
@@ -1033,7 +1043,7 @@
   <footer>
     <div class="footer-grid reveal">
       <div>
-        <div class="logo"><span class="logo-mark"><img src="logos.png" alt="Arthajaya"></span>Artha<span class="dot">jaya</span></div>
+        <div class="logo"><span class="logo-mark"><img src="logos.png" alt="Arvessa"></span><span class="wordmark">Arves<span class="dot">sa</span></span></div>
         <p data-i18n-en="Business accounting platform for mid-size to large companies in Indonesia.">Platform akuntansi bisnis untuk perusahaan menengah hingga besar di Indonesia.</p>
       </div>
       <div class="footer-col"><h4 data-i18n-en="Product">Produk</h4><a href="#" data-i18n-en="Invoicing">Faktur</a><a href="#" data-i18n-en="Financial Reports">Laporan Keuangan</a><a href="#" data-i18n-en="Bank Reconciliation">Rekonsiliasi Bank</a></div>
@@ -1041,7 +1051,7 @@
       <div class="footer-col"><h4 data-i18n-en="Support">Dukungan</h4><a href="#" data-i18n-en="Help Center">Pusat Bantuan</a><a href="#" data-i18n-en="Contact Sales">Kontak Sales</a><a href="#" data-i18n-en="System Status">Status Sistem</a></div>
     </div>
     <div class="footer-bottom">
-      <span data-i18n-en="© 2026 Arthajaya. All rights reserved.">© 2026 Arthajaya. Semua hak dilindungi.</span>
+      <span data-i18n-en="© 2026 Arvessa. All rights reserved.">© 2026 Arvessa. Semua hak dilindungi.</span>
       <span data-i18n-en="Made for Indonesian businesses">Dibuat untuk bisnis Indonesia</span>
     </div>
   </footer>

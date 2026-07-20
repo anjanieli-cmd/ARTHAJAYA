@@ -1,53 +1,47 @@
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
-        </h2>
+    <h2>Profile Information</h2>
+    <div class="desc">Perbarui nama, email, jabatan, dan nomor teleponmu.</div>
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
-    </header>
-
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6">
         @csrf
         @method('patch')
 
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+        <div class="form-group">
+            <label for="name">Nama Lengkap</label>
+            <input id="name" name="name" type="text" class="form-control" value="{{ old('name', $user->name) }}" required autofocus autocomplete="name">
+            @error('name')<div class="form-error">{{ $message }}</div>@enderror
         </div>
 
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" class="form-control" value="{{ old('email', $user->email) }}" required autocomplete="username">
+            @error('email')<div class="form-error">{{ $message }}</div>@enderror
         </div>
 
-        <div>
-            <x-input-label for="position" :value="__('Jabatan')" />
-            <x-text-input id="position" name="position" type="text" class="mt-1 block w-full" :value="old('position', $user->position)" autocomplete="organization-title" placeholder="Misal: Owner, Finance Manager" />
-            <x-input-error class="mt-2" :messages="$errors->get('position')" />
+        <div class="form-group">
+            <label for="position">Jabatan</label>
+            @php
+              $positionOptions = ['Owner', 'Direktur', 'Manager', 'Finance Manager', 'Akuntan', 'Staff Administrasi', 'Staff Operasional', 'Lainnya'];
+            @endphp
+            <select id="position" name="position" class="form-control">
+                <option value="">Pilih Jabatan</option>
+                @foreach($positionOptions as $opt)
+                    <option value="{{ $opt }}" {{ old('position', $user->position) == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                @endforeach
+            </select>
+            @error('position')<div class="form-error">{{ $message }}</div>@enderror
         </div>
 
-        <div>
-            <x-input-label for="phone" :value="__('Nomor Telepon')" />
-            <x-text-input id="phone" name="phone" type="text" class="mt-1 block w-full" :value="old('phone', $user->phone)" autocomplete="tel" placeholder="08xx-xxxx-xxxx" />
-            <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+        <div class="form-group">
+            <label for="phone">Nomor Telepon</label>
+            <input id="phone" name="phone" type="text" class="form-control" value="{{ old('phone', $user->phone) }}" autocomplete="tel" placeholder="08xx-xxxx-xxxx">
+            @error('phone')<div class="form-error">{{ $message }}</div>@enderror
         </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
-
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
             @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
+                <span class="form-status">Tersimpan.</span>
             @endif
         </div>
     </form>

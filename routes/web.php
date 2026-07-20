@@ -13,6 +13,10 @@ use App\Http\Controllers\CashFlowController;
 use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\CogsController;
+use App\Http\Controllers\TeamMemberController;
+use App\Http\Controllers\IntegrationController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SecurityController;
 
 // Homepage
 Route::get('/', function () {
@@ -136,7 +140,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::resource('ledger', LedgerController::class)->except('show');
 
     // ===== INVENTARIS =====
-    
+
     // Inventaris - Stok Barang
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
@@ -144,7 +148,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::get('/inventory/{item}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
     Route::put('/inventory/{item}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::delete('/inventory/{item}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
- 
+
     // Inventaris - Harga Pokok Penjualan (HPP)
     Route::get('/cogs', [CogsController::class, 'index'])->name('cogs.index');
     Route::get('/cogs/create', [CogsController::class, 'create'])->name('cogs.create');
@@ -152,7 +156,6 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::get('/cogs/{entry}/edit', [CogsController::class, 'edit'])->name('cogs.edit');
     Route::put('/cogs/{entry}', [CogsController::class, 'update'])->name('cogs.update');
     Route::delete('/cogs/{entry}', [CogsController::class, 'destroy'])->name('cogs.destroy');
-
 
     // ===== PAYROLL =====
     Route::get('/payroll', function () {
@@ -194,27 +197,22 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     })->name('budgets.index');
 
     // ===== PENGATURAN =====
-    Route::get('/users', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('users.index', compact('user', 'company'));
-    })->name('users.index');
 
-    Route::get('/integrations', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('integrations.index', compact('user', 'company'));
-    })->name('integrations.index');
+    // Multi-User & Hak Akses
+    Route::resource('team-members', TeamMemberController::class);
 
-    Route::get('/security', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('security.index', compact('user', 'company'));
-    })->name('security.index');
+    // Integrasi
+    Route::resource('integrations', IntegrationController::class);
 
-    Route::get('/profile', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('profile.edit', compact('user', 'company'));
-    })->name('profile.edit');
+    // Keamanan
+    Route::get('/security', [SecurityController::class, 'index'])->name('security.index');
+    Route::put('/security/password', [SecurityController::class, 'updatePassword'])->name('security.password.update');
+    Route::post('/security/two-factor/toggle', [SecurityController::class, 'toggleTwoFactor'])->name('security.two-factor.toggle');
+    Route::delete('/security/sessions/{sessionId}', [SecurityController::class, 'revokeSession'])->name('security.sessions.revoke');
+    Route::post('/security/sessions/revoke-others', [SecurityController::class, 'revokeOtherSessions'])->name('security.sessions.revoke-others');
+
+    // Profil Saya
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
