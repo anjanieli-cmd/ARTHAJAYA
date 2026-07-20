@@ -2,21 +2,29 @@
   <x-slot name="title">Edit HPP</x-slot>
 
 <style>
-  .cg-page-head{ text-align:center; max-width:560px; margin:0 auto 24px; }
+  .cg-page-head{ margin-bottom:24px; }
   .cg-page-head h1{ font-size:24px; margin-bottom:6px; }
   .cg-page-head p{ font-size:13.5px; color:var(--text-mute); }
 
-  .cg-wrap{ max-width:560px; margin:0 auto; }
+  .cg-wrap{ display:grid; grid-template-columns:1fr 320px; gap:24px; align-items:start; }
+  @media (max-width:900px){ .cg-wrap{ grid-template-columns:1fr; } }
 
+  .cg-summary{ position:sticky; top:24px; }
   .cg-total-ticker{
     background: linear-gradient(160deg, rgba(var(--emerald-rgb),0.12), var(--surface) 60%);
-    border:1px solid rgba(var(--emerald-rgb),0.25); border-radius:16px; padding:20px 24px; text-align:center; margin-bottom:20px;
+    border:1px solid rgba(var(--emerald-rgb),0.25); border-radius:16px; padding:22px; margin-bottom:16px;
   }
   .cg-total-ticker .lbl{ font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:6px; }
-  .cg-total-ticker .amt{ font-family:'Space Grotesk'; font-size:32px; font-weight:700; }
+  .cg-total-ticker .amt{ font-family:'Space Grotesk'; font-size:30px; font-weight:700; }
   .cg-total-ticker .sub{ font-size:12px; color:var(--text-mute); margin-top:4px; }
 
-  .cg-panel{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:26px; }
+  .cg-tips{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px; }
+  .cg-tips h4{ font-size:12.5px; font-weight:600; margin-bottom:10px; }
+  .cg-tips ul{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:9px; }
+  .cg-tips li{ font-size:12.5px; color:var(--text-mute); padding-left:16px; position:relative; }
+  .cg-tips li::before{ content:'•'; position:absolute; left:0; color:var(--emerald); }
+
+  .cg-panel{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:30px; }
   .cg-field{ margin-bottom:16px; }
   .cg-field label{ display:block; font-size:12.5px; font-weight:600; color:var(--text); margin-bottom:6px; }
   .cg-field label .req{ color:var(--danger); }
@@ -45,12 +53,6 @@
 </div>
 
 <div class="cg-wrap">
-  <div class="cg-total-ticker">
-    <div class="lbl">Total HPP Transaksi Ini</div>
-    <div class="amt mono" id="totalTicker">Rp0</div>
-    <div class="sub" id="totalSub">0 unit × Rp0</div>
-  </div>
-
   <div class="cg-panel">
     <form method="POST" action="{{ route('cogs.update', $entry) }}" id="cogsForm">
       @csrf
@@ -61,6 +63,22 @@
         <a href="{{ route('cogs.index') }}" class="cg-btn cg-btn-outline">Batal</a>
       </div>
     </form>
+  </div>
+
+  <div class="cg-summary">
+    <div class="cg-total-ticker">
+      <div class="lbl">Total HPP Transaksi Ini</div>
+      <div class="amt mono" id="totalTicker">Rp0</div>
+      <div class="sub" id="totalSub">0 unit × Rp0</div>
+    </div>
+    <div class="cg-tips">
+      <h4>Tips pencatatan HPP</h4>
+      <ul>
+        <li>Mengubah jumlah terjual akan otomatis menyesuaikan stok barang terkait.</li>
+        <li>Harga pokok per unit diambil dari harga beli, bukan harga jual.</li>
+        <li>Total dihitung otomatis: jumlah terjual × harga pokok per unit.</li>
+      </ul>
+    </div>
   </div>
 </div>
 

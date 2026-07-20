@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">Faktur {{ $invoice->invoice_number }}</x-slot>
+    <x-slot name="title">Penawaran {{ $quote->quote_number }}</x-slot>
 
 <style>
     .page-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:14px; }
@@ -19,15 +19,18 @@
     .status-badge .sdot{ width:6px; height:6px; border-radius:50%; }
     .status-draft{ background:var(--surface-strong); color:var(--text-mute); } .status-draft .sdot{ background:var(--text-faint); }
     .status-sent{ background:rgba(var(--info-rgb),0.12); color:var(--info); } .status-sent .sdot{ background:var(--info); }
-    .status-paid{ background:rgba(var(--emerald-rgb),0.12); color:var(--emerald); } .status-paid .sdot{ background:var(--emerald); }
-    .status-overdue{ background:rgba(var(--danger-rgb),0.12); color:var(--danger); } .status-overdue .sdot{ background:var(--danger); }
-    .status-cancelled{ background:var(--surface-strong); color:var(--text-faint); text-decoration:line-through; } .status-cancelled .sdot{ background:var(--text-faint); }
+    .status-accepted{ background:rgba(var(--emerald-rgb),0.12); color:var(--emerald); } .status-accepted .sdot{ background:var(--emerald); }
+    .status-rejected{ background:rgba(var(--danger-rgb),0.12); color:var(--danger); } .status-rejected .sdot{ background:var(--danger); }
+    .status-expired{ background:rgba(232,162,58,0.12); color:var(--warning); } .status-expired .sdot{ background:var(--warning); }
     .detail-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px 24px; }
     .detail-grid .item .k{ font-size:11.5px; color:var(--text-faint); margin-bottom:4px; }
     .detail-grid .item .v{ font-size:14.5px; font-weight:600; }
     .amount-hero{ font-family:'Space Grotesk', sans-serif; font-size:32px; font-weight:700; margin:6px 0 2px; }
     .notes-box{ background:var(--surface-strong); border:1px solid var(--border); border-radius:12px; padding:16px; font-size:13.5px; color:var(--text-mute); margin-top:4px; }
     .mono{ font-family:'IBM Plex Mono', monospace; }
+
+    .expiry-note{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--warning); margin-top:10px; }
+    .expiry-note .icon{ width:14px; height:14px; }
 
     .modal-overlay{ position:fixed; inset:0; background:rgba(3,6,12,0.6); backdrop-filter:blur(4px); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; }
     .modal-overlay.open{ display:flex; }
@@ -43,44 +46,51 @@
 </style>
 
 @php
-    $statusMap = [
-        'draft'     => ['label' => 'Draft', 'class' => 'status-draft'],
-        'sent'      => ['label' => 'Terkirim', 'class' => 'status-sent'],
-        'paid'      => ['label' => 'Lunas', 'class' => 'status-paid'],
-        'cancelled' => ['label' => 'Dibatalkan', 'class' => 'status-cancelled'],
+    $statusLabelsShow = [
+        'draft'    => 'Draft',
+        'sent'     => 'Terkirim',
+        'accepted' => 'Diterima',
+        'rejected' => 'Ditolak',
+        'expired'  => 'Kedaluwarsa',
     ];
-    $isOverdue = $invoice->status === 'sent' && $invoice->due_date && $invoice->due_date->isPast();
-    $st = $isOverdue ? ['label' => 'Jatuh Tempo', 'class' => 'status-overdue'] : ($statusMap[$invoice->status] ?? $statusMap['draft']);
+    $isExpired = $quote->status === 'sent' && $quote->valid_until && $quote->valid_until->isPast();
+    $displayStatus = $isExpired ? 'expired' : $quote->status;
 @endphp
 
 <div class="page-head">
     <div>
-        <h1>Faktur {{ $invoice->invoice_number }}</h1>
-        <p>Dibuat untuk {{ $invoice->client->name ?? 'klien terhapus' }}</p>
+        <h1>Penawaran {{ $quote->quote_number }}</h1>
+        <p>Dibuat untuk {{ $quote->client->name ?? 'klien terhapus' }}</p>
     </div>
     <div class="head-actions">
-        <a href="{{ route('invoices.index') }}" class="btn btn-outline">Kembali</a>
-        <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-primary">Edit Faktur</a>
+        <a href="{{ route('quotes.index') }}" class="btn btn-outline">Kembali</a>
+        <a href="{{ route('quotes.edit', $quote) }}" class="btn btn-primary">Edit Penawaran</a>
         <button type="button" class="btn btn-danger-ghost" onclick="document.getElementById('deleteModal').classList.add('open')">Hapus</button>
     </div>
 </div>
 
 <div class="panel">
-    <span class="status-badge {{ $st['class'] }}"><span class="sdot"></span>{{ $st['label'] }}</span>
-    <div class="amount-hero mono">Rp{{ number_format($invoice->total, 0, ',', '.') }}</div>
+    <span class="status-badge status-{{ $displayStatus }}"><span class="sdot"></span>{{ $statusLabelsShow[$displayStatus] ?? ucfirst($displayStatus) }}</span>
+    <div class="amount-hero mono">Rp{{ number_format($quote->total, 0, ',', '.') }}</div>
+
+    @if($isExpired)
+        <div class="expiry-note">
+            <svg class="icon"><use href="#ic-alert"/></svg> Penawaran ini sudah melewati masa berlaku.
+        </div>
+    @endif
 
     <div class="detail-grid" style="margin-top:24px;">
-        <div class="item"><div class="k">Klien</div><div class="v">{{ $invoice->client->name ?? '—' }}</div></div>
-        <div class="item"><div class="k">Perusahaan klien</div><div class="v">{{ $invoice->client->company_name ?? '—' }}</div></div>
-        <div class="item"><div class="k">Tanggal terbit</div><div class="v">{{ $invoice->issue_date->translatedFormat('d M Y') }}</div></div>
-        <div class="item"><div class="k">Jatuh tempo</div><div class="v">{{ $invoice->due_date->translatedFormat('d M Y') }}</div></div>
-        <div class="item"><div class="k">Subtotal</div><div class="v mono">Rp{{ number_format($invoice->subtotal, 0, ',', '.') }}</div></div>
-        <div class="item"><div class="k">Pajak</div><div class="v mono">Rp{{ number_format($invoice->tax_amount, 0, ',', '.') }}</div></div>
+        <div class="item"><div class="k">Klien</div><div class="v">{{ $quote->client->name ?? '—' }}</div></div>
+        <div class="item"><div class="k">Perusahaan klien</div><div class="v">{{ $quote->client->company_name ?? '—' }}</div></div>
+        <div class="item"><div class="k">Tanggal penawaran</div><div class="v">{{ $quote->issue_date->translatedFormat('d M Y') }}</div></div>
+        <div class="item"><div class="k">Berlaku sampai</div><div class="v">{{ $quote->valid_until->translatedFormat('d M Y') }}</div></div>
+        <div class="item"><div class="k">Subtotal</div><div class="v mono">Rp{{ number_format($quote->subtotal, 0, ',', '.') }}</div></div>
+        <div class="item"><div class="k">Pajak</div><div class="v mono">Rp{{ number_format($quote->tax_amount, 0, ',', '.') }}</div></div>
     </div>
 
-    @if($invoice->notes)
+    @if($quote->notes)
         <div class="panel-title" style="margin-top:24px;">Catatan</div>
-        <div class="notes-box">{{ $invoice->notes }}</div>
+        <div class="notes-box">{{ $quote->notes }}</div>
     @endif
 </div>
 
@@ -88,9 +98,9 @@
 <div class="modal-overlay" id="deleteModal">
     <div class="modal-box">
         <div class="modal-ic"><svg class="icon"><use href="#ic-alert"/></svg></div>
-        <h3>Hapus faktur ini?</h3>
-        <p>Faktur <b>{{ $invoice->invoice_number }}</b> akan dihapus permanen dan tidak bisa dikembalikan.</p>
-        <form method="POST" action="{{ route('invoices.destroy', $invoice) }}">
+        <h3>Hapus penawaran ini?</h3>
+        <p>Penawaran <b>{{ $quote->quote_number }}</b> akan dihapus permanen dan tidak bisa dikembalikan.</p>
+        <form method="POST" action="{{ route('quotes.destroy', $quote) }}">
             @csrf
             @method('DELETE')
             <div class="modal-actions">

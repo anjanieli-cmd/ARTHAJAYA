@@ -139,7 +139,7 @@
 
   <div class="cg-pagination">
     <div class="cg-pg-info">Menampilkan {{ $entries->firstItem() }}–{{ $entries->lastItem() }} dari {{ $entries->total() }} transaksi</div>
-    <div>{{ $entries->onEachSide(1)->links('pagination::simple-default') }}</div>
+    <div>{{ $entries->links() }}</div>
   </div>
 @else
   <div class="cg-empty">

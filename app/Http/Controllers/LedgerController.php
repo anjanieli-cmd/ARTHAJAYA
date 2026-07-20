@@ -69,6 +69,11 @@ class LedgerController extends Controller
             ->with('success', 'Transaksi buku besar berhasil ditambahkan.');
     }
 
+    public function show(LedgerEntry $ledger)
+    {
+        return view('ledger.show', ['item' => $ledger]);
+    }
+
     public function edit(LedgerEntry $ledger)
     {
         return view('ledger.edit', ['item' => $ledger]);

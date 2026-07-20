@@ -12,7 +12,6 @@
     .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 8px 26px rgba(var(--emerald-rgb),0.45); }
     .btn-outline{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
     .btn-outline:hover{ background:var(--surface-strong); }
-    .btn-xs{ padding:5px 10px; font-size:11.5px; border-radius:8px; }
 
     .alert-success{ background:rgba(var(--emerald-rgb),0.1); border:1px solid rgba(var(--emerald-rgb),0.3); color:var(--emerald); padding:12px 16px; border-radius:12px; font-size:13.5px; margin-bottom:18px; }
 
@@ -24,7 +23,7 @@
         background-repeat:no-repeat; background-position:right 12px center; background-size:13px; padding-right:34px; appearance:none;
     }
 
-    /* ===== STATEMENT LAYOUT (beda dari table) ===== */
+    /* ===== STATEMENT LAYOUT ===== */
     .statement{ max-width:820px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:36px 40px; }
     .statement-header{ text-align:center; margin-bottom:30px; padding-bottom:20px; border-bottom:1px dashed var(--border); }
     .statement-header h2{ font-family:'Space Grotesk', sans-serif; font-size:19px; margin-bottom:4px; }
@@ -37,14 +36,9 @@
 
     .stmt-group{ margin-bottom:14px; }
     .stmt-group-title{ font-size:12.5px; color:var(--text-faint); margin-bottom:6px; padding-left:2px; }
-    .stmt-row{ display:flex; align-items:center; justify-content:space-between; padding:8px 2px 8px 14px; font-size:13.5px; border-bottom:1px solid var(--border); gap:10px; }
-    .stmt-row-name{ flex:1; }
-    .stmt-row-actions{ display:flex; gap:4px; opacity:0; transition:opacity .15s ease; }
-    .stmt-row:hover .stmt-row-actions{ opacity:1; }
-    .stmt-row-actions a, .stmt-row-actions button{ font-size:11px; color:var(--text-faint); background:none; border:none; cursor:pointer; padding:2px 6px; }
-    .stmt-row-actions a:hover{ color:var(--emerald); }
-    .stmt-row-actions button:hover{ color:var(--danger); }
-    .stmt-amount{ font-family:'IBM Plex Mono', monospace; font-weight:500; }
+    .stmt-row{ display:flex; align-items:center; justify-content:space-between; padding:9px 2px 9px 14px; font-size:13.5px; border-bottom:1px solid var(--border); gap:14px; }
+    .stmt-row-name{ flex:1; min-width:0; }
+    .stmt-amount{ font-family:'IBM Plex Mono', monospace; font-weight:500; white-space:nowrap; }
     .stmt-subtotal{ display:flex; justify-content:space-between; padding:8px 2px; font-size:13px; font-weight:600; color:var(--text-mute); }
     .stmt-subtotal .stmt-amount{ font-family:'IBM Plex Mono', monospace; }
 
@@ -62,11 +56,25 @@
 
     .stmt-empty{ text-align:center; padding:24px; color:var(--text-faint); font-size:13px; }
 
+    /* ===== ACTION BUTTONS (baru, lebih jelas) ===== */
+    .row-actions{ display:flex; gap:6px; flex-shrink:0; }
+    .row-action-btn{
+        display:inline-flex; align-items:center; justify-content:center; padding:6px 12px; border-radius:8px;
+        font-size:12px; font-weight:600; text-decoration:none; border:1px solid var(--border);
+        background:var(--surface-strong); color:var(--text-mute); transition:all .15s ease; cursor:pointer; white-space:nowrap;
+    }
+    .row-action-btn:hover{ background:var(--surface); border-color:var(--border-hover); color:var(--text); }
+    .row-action-btn.view:hover{ color:var(--info); border-color:rgba(var(--info-rgb),0.4); }
+    .row-action-btn.edit:hover{ color:var(--emerald); border-color:rgba(var(--emerald-rgb),0.4); }
+    .row-action-btn.delete{ color:var(--danger); border-color:rgba(var(--danger-rgb),0.25); }
+    .row-action-btn.delete:hover{ background:rgba(var(--danger-rgb),0.1); border-color:rgba(var(--danger-rgb),0.4); }
+
     @media (max-width:640px){
         .statement{ padding:24px 20px; }
         .page-head{ flex-direction:column; }
         .head-actions{ width:100%; }
         .head-actions .btn{ flex:1; }
+        .stmt-row{ flex-wrap:wrap; }
     }
 </style>
 
@@ -113,13 +121,14 @@
                 <div class="stmt-row">
                     <span class="stmt-row-name">{{ $item->name }}</span>
                     <span class="stmt-amount">Rp{{ number_format($item->amount, 0, ',', '.') }}</span>
-                    <span class="stmt-row-actions">
-                        <a href="{{ route('laba-rugi.edit', $item) }}">Edit</a>
+                    <div class="row-actions">
+                        <a href="{{ route('laba-rugi.show', $item) }}" class="row-action-btn view">Lihat</a>
+                        <a href="{{ route('laba-rugi.edit', $item) }}" class="row-action-btn edit">Edit</a>
                         <form method="POST" action="{{ route('laba-rugi.destroy', $item) }}" onsubmit="return confirm('Hapus pos ini?')" style="display:inline;">
                             @csrf @method('DELETE')
-                            <button type="submit">Hapus</button>
+                            <button type="submit" class="row-action-btn delete">Hapus</button>
                         </form>
-                    </span>
+                    </div>
                 </div>
             @endforeach
             <div class="stmt-subtotal">
@@ -143,13 +152,14 @@
                 <div class="stmt-row">
                     <span class="stmt-row-name">{{ $item->name }}</span>
                     <span class="stmt-amount">Rp{{ number_format($item->amount, 0, ',', '.') }}</span>
-                    <span class="stmt-row-actions">
-                        <a href="{{ route('laba-rugi.edit', $item) }}">Edit</a>
+                    <div class="row-actions">
+                        <a href="{{ route('laba-rugi.show', $item) }}" class="row-action-btn view">Lihat</a>
+                        <a href="{{ route('laba-rugi.edit', $item) }}" class="row-action-btn edit">Edit</a>
                         <form method="POST" action="{{ route('laba-rugi.destroy', $item) }}" onsubmit="return confirm('Hapus pos ini?')" style="display:inline;">
                             @csrf @method('DELETE')
-                            <button type="submit">Hapus</button>
+                            <button type="submit" class="row-action-btn delete">Hapus</button>
                         </form>
-                    </span>
+                    </div>
                 </div>
             @endforeach
             <div class="stmt-subtotal">

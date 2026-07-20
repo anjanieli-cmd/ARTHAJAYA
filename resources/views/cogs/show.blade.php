@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="title">Faktur {{ $invoice->invoice_number }}</x-slot>
+    <x-slot name="title">HPP {{ $entry->item_name }}</x-slot>
 
 <style>
     .page-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; gap:14px; }
@@ -17,15 +17,13 @@
     .panel-title{ font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:18px; }
     .status-badge{ display:inline-flex; align-items:center; gap:6px; padding:6px 13px; border-radius:100px; font-size:12.5px; font-weight:600; }
     .status-badge .sdot{ width:6px; height:6px; border-radius:50%; }
-    .status-draft{ background:var(--surface-strong); color:var(--text-mute); } .status-draft .sdot{ background:var(--text-faint); }
-    .status-sent{ background:rgba(var(--info-rgb),0.12); color:var(--info); } .status-sent .sdot{ background:var(--info); }
-    .status-paid{ background:rgba(var(--emerald-rgb),0.12); color:var(--emerald); } .status-paid .sdot{ background:var(--emerald); }
-    .status-overdue{ background:rgba(var(--danger-rgb),0.12); color:var(--danger); } .status-overdue .sdot{ background:var(--danger); }
-    .status-cancelled{ background:var(--surface-strong); color:var(--text-faint); text-decoration:line-through; } .status-cancelled .sdot{ background:var(--text-faint); }
+    .status-linked{ background:rgba(var(--info-rgb),0.12); color:var(--info); } .status-linked .sdot{ background:var(--info); }
+    .status-manual{ background:var(--surface-strong); color:var(--text-mute); } .status-manual .sdot{ background:var(--text-faint); }
     .detail-grid{ display:grid; grid-template-columns:1fr 1fr; gap:18px 24px; }
     .detail-grid .item .k{ font-size:11.5px; color:var(--text-faint); margin-bottom:4px; }
     .detail-grid .item .v{ font-size:14.5px; font-weight:600; }
     .amount-hero{ font-family:'Space Grotesk', sans-serif; font-size:32px; font-weight:700; margin:6px 0 2px; }
+    .amount-hero-sub{ font-size:12.5px; color:var(--text-faint); }
     .notes-box{ background:var(--surface-strong); border:1px solid var(--border); border-radius:12px; padding:16px; font-size:13.5px; color:var(--text-mute); margin-top:4px; }
     .mono{ font-family:'IBM Plex Mono', monospace; }
 
@@ -42,45 +40,46 @@
     @media (max-width:900px){ .detail-grid{ grid-template-columns:1fr; } }
 </style>
 
-@php
-    $statusMap = [
-        'draft'     => ['label' => 'Draft', 'class' => 'status-draft'],
-        'sent'      => ['label' => 'Terkirim', 'class' => 'status-sent'],
-        'paid'      => ['label' => 'Lunas', 'class' => 'status-paid'],
-        'cancelled' => ['label' => 'Dibatalkan', 'class' => 'status-cancelled'],
-    ];
-    $isOverdue = $invoice->status === 'sent' && $invoice->due_date && $invoice->due_date->isPast();
-    $st = $isOverdue ? ['label' => 'Jatuh Tempo', 'class' => 'status-overdue'] : ($statusMap[$invoice->status] ?? $statusMap['draft']);
-@endphp
-
 <div class="page-head">
     <div>
-        <h1>Faktur {{ $invoice->invoice_number }}</h1>
-        <p>Dibuat untuk {{ $invoice->client->name ?? 'klien terhapus' }}</p>
+        <h1>{{ $entry->item_name }}</h1>
+        <p>Dijual pada {{ $entry->sale_date->translatedFormat('d M Y') }}</p>
     </div>
     <div class="head-actions">
-        <a href="{{ route('invoices.index') }}" class="btn btn-outline">Kembali</a>
-        <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-primary">Edit Faktur</a>
+        <a href="{{ route('cogs.index') }}" class="btn btn-outline">Kembali</a>
+        <a href="{{ route('cogs.edit', $entry) }}" class="btn btn-primary">Edit Catatan</a>
         <button type="button" class="btn btn-danger-ghost" onclick="document.getElementById('deleteModal').classList.add('open')">Hapus</button>
     </div>
 </div>
 
 <div class="panel">
-    <span class="status-badge {{ $st['class'] }}"><span class="sdot"></span>{{ $st['label'] }}</span>
-    <div class="amount-hero mono">Rp{{ number_format($invoice->total, 0, ',', '.') }}</div>
+    <span class="status-badge {{ $entry->inventoryItem ? 'status-linked' : 'status-manual' }}">
+        <span class="sdot"></span>{{ $entry->inventoryItem ? 'Terhubung ke Inventaris' : 'Input Manual' }}
+    </span>
+
+    <div class="amount-hero mono">Rp{{ number_format($entry->total_cogs, 0, ',', '.') }}</div>
+    <div class="amount-hero-sub">Total harga pokok penjualan</div>
 
     <div class="detail-grid" style="margin-top:24px;">
-        <div class="item"><div class="k">Klien</div><div class="v">{{ $invoice->client->name ?? '—' }}</div></div>
-        <div class="item"><div class="k">Perusahaan klien</div><div class="v">{{ $invoice->client->company_name ?? '—' }}</div></div>
-        <div class="item"><div class="k">Tanggal terbit</div><div class="v">{{ $invoice->issue_date->translatedFormat('d M Y') }}</div></div>
-        <div class="item"><div class="k">Jatuh tempo</div><div class="v">{{ $invoice->due_date->translatedFormat('d M Y') }}</div></div>
-        <div class="item"><div class="k">Subtotal</div><div class="v mono">Rp{{ number_format($invoice->subtotal, 0, ',', '.') }}</div></div>
-        <div class="item"><div class="k">Pajak</div><div class="v mono">Rp{{ number_format($invoice->tax_amount, 0, ',', '.') }}</div></div>
+        <div class="item"><div class="k">Nama barang</div><div class="v">{{ $entry->item_name }}</div></div>
+        <div class="item"><div class="k">Barang di inventaris</div>
+            <div class="v">
+                @if($entry->inventoryItem)
+                    <a href="{{ route('inventory.show', $entry->inventoryItem) }}" style="color:var(--emerald);">{{ $entry->inventoryItem->name }}</a>
+                @else
+                    &mdash;
+                @endif
+            </div>
+        </div>
+        <div class="item"><div class="k">Jumlah terjual</div><div class="v">{{ number_format($entry->quantity_sold, 0, ',', '.') }} unit</div></div>
+        <div class="item"><div class="k">Harga pokok per unit</div><div class="v mono">Rp{{ number_format($entry->unit_cost, 0, ',', '.') }}</div></div>
+        <div class="item"><div class="k">Tanggal jual</div><div class="v">{{ $entry->sale_date->translatedFormat('d M Y') }}</div></div>
+        <div class="item"><div class="k">Dicatat pada</div><div class="v">{{ $entry->created_at->translatedFormat('d M Y, H:i') }}</div></div>
     </div>
 
-    @if($invoice->notes)
+    @if($entry->notes)
         <div class="panel-title" style="margin-top:24px;">Catatan</div>
-        <div class="notes-box">{{ $invoice->notes }}</div>
+        <div class="notes-box">{{ $entry->notes }}</div>
     @endif
 </div>
 
@@ -88,9 +87,11 @@
 <div class="modal-overlay" id="deleteModal">
     <div class="modal-box">
         <div class="modal-ic"><svg class="icon"><use href="#ic-alert"/></svg></div>
-        <h3>Hapus faktur ini?</h3>
-        <p>Faktur <b>{{ $invoice->invoice_number }}</b> akan dihapus permanen dan tidak bisa dikembalikan.</p>
-        <form method="POST" action="{{ route('invoices.destroy', $invoice) }}">
+        <h3>Hapus catatan HPP ini?</h3>
+        <p>Catatan untuk <b>{{ $entry->item_name }}</b> akan dihapus permanen.
+            @if($entry->inventoryItem) Stok barang terkait akan dikembalikan otomatis. @endif
+        </p>
+        <form method="POST" action="{{ route('cogs.destroy', $entry) }}">
             @csrf
             @method('DELETE')
             <div class="modal-actions">

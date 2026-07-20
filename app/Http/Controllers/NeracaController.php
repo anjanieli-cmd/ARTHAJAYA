@@ -55,6 +55,11 @@ class NeracaController extends Controller
             ->with('success', 'Pos neraca berhasil ditambahkan.');
     }
 
+    public function show(NeracaItem $neraca)
+    {
+        return view('neraca.show', ['item' => $neraca]);
+    }
+
     public function edit(NeracaItem $neraca)
     {
         return view('neraca.edit', ['item' => $neraca]);

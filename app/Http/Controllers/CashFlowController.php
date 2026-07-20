@@ -71,6 +71,11 @@ class CashFlowController extends Controller
             ->with('success', 'Transaksi arus kas berhasil ditambahkan.');
     }
 
+    public function show(CashFlowItem $cash_flow)
+    {
+        return view('cash-flow.show', ['item' => $cash_flow]);
+    }
+
     public function edit(CashFlowItem $cash_flow)
     {
         return view('cash-flow.edit', ['item' => $cash_flow]);

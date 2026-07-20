@@ -172,7 +172,8 @@
                     <td class="text-right mono">{{ $client->invoices_count ?? 0 }}</td>
                     <td class="text-right">
                         <div class="flex items-center justify-end gap-2" style="justify-content:flex-end;">
-                            <a href="{{ route('clients.edit', $client) }}" class="btn btn-outline btn-sm">Edit</a>
+                        <a href="{{ route('clients.show', $client) }}" class="btn btn-outline btn-sm">Lihat</a>
+                        <a href="{{ route('clients.edit', $client) }}" class="btn btn-outline btn-sm">Edit</a>
                             <form action="{{ route('clients.destroy', $client) }}" method="POST" onsubmit="return confirm('Hapus klien ini?')" style="display:inline;">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger);">Hapus</button>
@@ -202,7 +203,7 @@
                 Menampilkan {{ $clients->firstItem() }}–{{ $clients->lastItem() }} dari {{ $clients->total() }} klien
             </div>
             <div>
-                {{ $clients->onEachSide(1)->links('pagination::simple-default') }}
+            {{ $clients->onEachSide(1)->links() }}
             </div>
         </div>
     @endif
