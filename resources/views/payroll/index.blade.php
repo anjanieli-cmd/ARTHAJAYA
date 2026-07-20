@@ -5,8 +5,8 @@
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-    // DUMMY - ganti dengan query Payroll model nanti
-    $payrolls = [
+    // Data dari session (sudah passing $payrolls dari controller)
+    $payrolls = $payrolls ?? [
         ['employee' => 'Budi Santoso',      'position' => 'Pengrajin Batik', 'period' => 'Juli 2026', 'basic_salary' => 4500000, 'allowance' => 500000, 'deduction' => 150000, 'total' => 4850000, 'status' => 'paid'],
         ['employee' => 'Siti Rahayu',        'position' => 'Desainer',        'period' => 'Juli 2026', 'basic_salary' => 5200000, 'allowance' => 750000, 'deduction' => 200000, 'total' => 5750000, 'status' => 'paid'],
         ['employee' => 'Agus Wijaya',        'position' => 'Marketing',       'period' => 'Juli 2026', 'basic_salary' => 4800000, 'allowance' => 600000, 'deduction' => 180000, 'total' => 5220000, 'status' => 'pending'],
@@ -58,6 +58,9 @@
       --warning: #F0A83C;
       --warning-soft: rgba(240, 168, 60, 0.14);
       
+      --danger: #E85A5A;
+      --danger-soft: rgba(232, 90, 90, 0.12);
+      
       --radius-sm: 10px;
       --radius-md: 16px;
       --radius-lg: 24px;
@@ -81,6 +84,28 @@
 
     .payroll-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
     .payroll-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* SUCCESS MESSAGE */
+    .pay-success {
+      background: var(--success-soft);
+      border: 1px solid var(--success);
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pay-success .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .pay-success .message {
+      font-weight: 500;
+    }
 
     /* HEADER */
     .pay-header {
@@ -544,12 +569,20 @@
           <svg class="icon"><use href="#ic-users"/></svg>
           Data Karyawan
         </a>
-        <a href="#" class="pay-btn pay-btn-primary">
+        <a href="{{ route('payroll.create') }}" class="pay-btn pay-btn-primary">
           <svg class="icon"><use href="#ic-plus"/></svg>
           Buat Payroll
         </a>
       </div>
     </div>
+
+    <!-- ===== SUCCESS MESSAGE ===== -->
+    @if(session('success'))
+      <div class="pay-success animate-in" style="animation-delay: 0.08s;">
+        <svg class="icon"><use href="#ic-shield"/></svg>
+        <span class="message">{{ session('success') }}</span>
+      </div>
+    @endif
 
     <!-- HERO -->
     <div class="pay-hero animate-in" style="animation-delay: 0.10s;">
@@ -649,7 +682,7 @@
           <svg class="empty-icon"><use href="#ic-invoice"/></svg>
           <h3>Belum Ada Slip Gaji</h3>
           <p>Belum ada slip gaji yang tercatat di sistem.</p>
-          <a href="#" class="pay-btn pay-btn-primary" style="display: inline-flex;">
+          <a href="{{ route('payroll.create') }}" class="pay-btn pay-btn-primary" style="display: inline-flex;">
             <svg class="icon"><use href="#ic-plus"/></svg>
             Buat Slip Gaji Pertama
           </a>

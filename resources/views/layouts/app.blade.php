@@ -143,6 +143,24 @@
   .dropdown .danger:hover{ background:rgba(232,90,90,0.1); color:var(--danger); }
   .dropdown hr{ border:none; border-top:1px solid var(--border); margin:6px 0; }
 
+  /* ===== NOTIFIKASI PANEL ===== */
+  .notif-panel{ position:absolute; top:calc(100% + 10px); right:0; width:340px; max-height:420px; background:var(--modal-bg); border:1px solid var(--border); border-radius:16px; box-shadow:0 30px 70px rgba(0,0,0,0.4); opacity:0; visibility:hidden; transform: translateY(8px) scale(.97); transition: all .2s ease; z-index:60; overflow:hidden; display:flex; flex-direction:column; }
+  .notif-panel.open{ opacity:1; visibility:visible; transform: translateY(0) scale(1); }
+  .notif-panel-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .notif-panel-head h4{ margin:0; font-size:13.5px; font-weight:600; }
+  .notif-panel-head button{ background:none; border:none; color:var(--emerald); font-size:12px; font-weight:600; cursor:pointer; padding:0; }
+  .notif-list{ overflow-y:auto; max-height:340px; }
+  .notif-item{ display:flex; gap:10px; padding:12px 16px; border-top:1px solid var(--border); cursor:pointer; transition: background .15s ease; }
+  .notif-item:first-child{ border-top:none; }
+  .notif-item:hover{ background:var(--surface-strong); }
+  .notif-item.unread{ background:rgba(var(--emerald-rgb),0.05); }
+  .notif-item .n-ic{ width:34px; height:34px; border-radius:10px; background:var(--surface-strong); display:flex; align-items:center; justify-content:center; color:var(--text-mute); flex-shrink:0; }
+  .notif-item .n-ic .icon{ width:15px; height:15px; }
+  .notif-item .n-title{ font-size:13px; font-weight:600; margin-bottom:2px; }
+  .notif-item .n-msg{ font-size:12px; color:var(--text-mute); line-height:1.4; }
+  .notif-item .n-time{ font-size:11px; color:var(--text-faint); margin-top:4px; }
+  .notif-empty{ padding:32px 16px; text-align:center; font-size:13px; color:var(--text-faint); }
+
   .sb-toggle{ display:none; width:38px; height:38px; border-radius:11px; background:var(--surface); border:1px solid var(--border); align-items:center; justify-content:center; color:var(--text); cursor:pointer; flex-shrink:0; }
   .sb-toggle .icon{ width:17px; height:17px; }
 
@@ -289,6 +307,7 @@
     .company-card-inner{ flex-direction:column; }
     .company-details{ grid-template-columns:1fr 1fr; }
     .company-edit-btn{ width:100%; }
+    .notif-panel{ width:calc(100vw - 32px); right:-8px; }
   }
 
   .menu-backdrop{ display:none; position:fixed; inset:0; background:rgba(4,7,12,0.6); backdrop-filter:blur(2px); z-index:90; opacity:0; transition:opacity .3s ease; }
@@ -377,9 +396,20 @@
         </div>
       </div>
       <div class="topbar-right">
-        <div class="icon-btn" id="notifBtn" aria-label="Notifikasi">
-          <svg class="icon"><use href="#ic-bell"/></svg>
-          <span class="dot-alert"></span>
+        <div class="user-menu">
+          <div class="icon-btn" id="notifBtn" aria-label="Notifikasi">
+            <svg class="icon"><use href="#ic-bell"/></svg>
+            <span class="dot-alert" id="notifDot" style="display:none;"></span>
+          </div>
+          <div class="notif-panel" id="notifPanel">
+            <div class="notif-panel-head">
+              <h4>Notifikasi</h4>
+              <button type="button" id="notifMarkAll">Tandai semua dibaca</button>
+            </div>
+            <div class="notif-list" id="notifList">
+              <div class="notif-empty">Memuat notifikasi...</div>
+            </div>
+          </div>
         </div>
         <div class="user-menu">
           <div class="user-trigger" id="userTrigger">
@@ -477,6 +507,100 @@
       }
     });
   }
+
+  // ===== notifikasi dropdown =====
+  (function(){
+    const notifBtn   = document.getElementById('notifBtn');
+    const notifPanel = document.getElementById('notifPanel');
+    const notifDot   = document.getElementById('notifDot');
+    const notifList  = document.getElementById('notifList');
+    const markAllBtn = document.getElementById('notifMarkAll');
+
+    if(!notifBtn || !notifPanel) return;
+
+    async function loadNotifications(){
+      try{
+        const res = await fetch('{{ route('notifications.index') }}', {
+          headers: { 'Accept': 'application/json' }
+        });
+        if(!res.ok) throw new Error('Gagal fetch: ' + res.status);
+        const data = await res.json();
+        renderDot(data.unread_count);
+        renderList(data.notifications);
+      }catch(err){
+        console.error('Gagal memuat notifikasi:', err);
+        notifList.innerHTML = '<div class="notif-empty">Gagal memuat notifikasi.</div>';
+      }
+    }
+
+    function renderDot(count){
+      notifDot.style.display = count > 0 ? 'block' : 'none';
+    }
+
+    function renderList(items){
+      if(!items.length){
+        notifList.innerHTML = '<div class="notif-empty">Tidak ada notifikasi.</div>';
+        return;
+      }
+      notifList.innerHTML = items.map(n => `
+        <div class="notif-item ${n.is_read ? '' : 'unread'}" data-id="${n.id}" data-url="${n.url}">
+          <div class="n-ic"><svg class="icon"><use href="#ic-${n.icon}"/></svg></div>
+          <div>
+            <div class="n-title">${n.title}</div>
+            <div class="n-msg">${n.message}</div>
+            <div class="n-time">${n.created_at}</div>
+          </div>
+        </div>
+      `).join('');
+
+      notifList.querySelectorAll('.notif-item').forEach(el => {
+        el.addEventListener('click', async () => {
+          const id = el.dataset.id;
+          try{
+            const res = await fetch(`/notifications/${id}/read`, {
+              method: 'POST',
+              headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+              }
+            });
+            const d = await res.json();
+            renderDot(d.unread_count);
+          }catch(err){ console.error('Gagal tandai dibaca:', err); }
+
+          window.location.href = el.dataset.url;
+        });
+      });
+    }
+
+    notifBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      notifPanel.classList.toggle('open');
+    });
+    document.addEventListener('click', (e) => {
+      if(notifPanel.classList.contains('open') && !notifPanel.contains(e.target) && e.target !== notifBtn && !notifBtn.contains(e.target)){
+        notifPanel.classList.remove('open');
+      }
+    });
+
+    if(markAllBtn){
+      markAllBtn.addEventListener('click', async () => {
+        try{
+          await fetch('{{ route('notifications.readAll') }}', {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+              'Accept': 'application/json'
+            }
+          });
+          loadNotifications();
+        }catch(err){ console.error('Gagal tandai semua:', err); }
+      });
+    }
+
+    loadNotifications();
+    setInterval(loadNotifications, 30000);
+  })();
 
   // ===== mobile sidebar toggle =====
   const sbToggle = document.getElementById('sbToggle');

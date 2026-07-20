@@ -429,7 +429,8 @@
                     </td>
                     <td class="text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <a href="{{ route('quotes.edit', $quote) }}" class="btn btn-outline btn-sm">Edit</a>
+                        <a href="{{ route('quotes.show', $quote) }}" class="btn btn-outline btn-sm">Lihat</a>
+                        <a href="{{ route('quotes.edit', $quote) }}" class="btn btn-outline btn-sm">Edit</a>
                             <form action="{{ route('quotes.destroy', $quote) }}" method="POST" onsubmit="return confirm('Hapus penawaran ini?')" class="inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-outline btn-sm" style="color:var(--danger);">Hapus</button>
@@ -459,7 +460,7 @@
                 Menampilkan {{ $quotes->firstItem() }}–{{ $quotes->lastItem() }} dari {{ $quotes->total() }} penawaran
             </div>
             <div class="pg-nav">
-                {{ $quotes->onEachSide(1)->links('pagination::simple-default') }}
+                {{ $quotes->onEachSide(1)->links() }}
             </div>
         </div>
     @endif

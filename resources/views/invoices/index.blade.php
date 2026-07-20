@@ -270,18 +270,9 @@
                         </td>
                         <td>
                             <div class="row-actions">
-                                <a href="{{ route('invoices.show', $invoice) }}" class="ra-btn" title="Lihat"><svg class="icon"><use href="#ic-eye"/></svg></a>
-                                <a href="{{ route('invoices.edit', $invoice) }}" class="ra-btn" title="Edit"><svg class="icon"><use href="#ic-edit"/></svg></a>
-                                <button type="button" class="ra-btn" title="Lainnya" data-row-menu-toggle="{{ $invoice->id }}"><svg class="icon"><use href="#ic-dots-v"/></svg></button>
-                                <div class="row-menu" id="rowMenu-{{ $invoice->id }}">
-                                    <button type="button" class="rm-item"><svg class="icon"><use href="#ic-send"/></svg> Kirim ke klien</button>
-                                    <button type="button" class="rm-item"><svg class="icon"><use href="#ic-download"/></svg> Unduh PDF</button>
-                                    <button type="button" class="rm-item"><svg class="icon"><use href="#ic-copy"/></svg> Duplikat</button>
-                                    <div class="rm-divider"></div>
-                                    <button type="button" class="rm-item danger" onclick="openDeleteModal('{{ $invoice->id }}', '{{ $invoice->invoice_number }}')">
-                                        <svg class="icon"><use href="#ic-trash"/></svg> Hapus faktur
-                                    </button>
-                                </div>
+                                <a href="{{ route('invoices.show', $invoice) }}" class="btn btn-outline btn-sm">Lihat</a>
+                                <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-outline btn-sm">Edit</a>
+                                <button type="button" class="btn btn-outline btn-sm" style="color:var(--danger);" onclick="openDeleteModal('{{ $invoice->id }}', '{{ $invoice->invoice_number }}')">Hapus</button>
                             </div>
                         </td>
                     </tr>
@@ -307,7 +298,7 @@
                 Menampilkan {{ $invoices->firstItem() }}–{{ $invoices->lastItem() }} dari {{ $invoices->total() }} faktur
             </div>
             <div>
-                {{ $invoices->onEachSide(1)->links('pagination::simple-default') }}
+                {{ $invoices->onEachSide(1)->links() }}
             </div>
         </div>
     @endif

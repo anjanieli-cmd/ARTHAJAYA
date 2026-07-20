@@ -559,7 +559,52 @@
 .back-home:hover{ color:var(--text); }
 .auth-error{ background:rgba(232,90,90,0.08); border:1px solid rgba(232,90,90,0.35); color:#E85A5A; border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:13px; }
 .auth-error ul{ padding-left:18px; list-style:disc; }
-@media (max-width: 480px){ .auth-card{ padding:26px 20px 22px; border-radius:18px; } }
+
+/* ===== RESPONSIVE AUTH PAGE ===== */
+@media (max-width: 640px){
+  .auth-page{ padding:20px 16px; }
+  .auth-card{ padding:24px 20px 20px; border-radius:18px; }
+  .auth-head h2{ font-size:19px; }
+  .auth-head p{ font-size:13px; }
+  .field-input{ padding:10px 12px; }
+  .field-input input{ font-size:15px; } /* biar ga auto-zoom di iOS */
+  .btn{ font-size:14px; padding:12px 16px; }
+  .auth-submit{ padding:14px 16px; }
+  .auth-social{ font-size:14px; padding:12px 16px; }
+  .auth-switch{ font-size:13px; }
+  .back-home{ font-size:12px; margin-bottom:16px; }
+  .field-row{ flex-direction:column; align-items:flex-start; gap:6px; }
+}
+
+@media (max-width: 480px){
+  .auth-card{ padding:20px 16px 18px; border-radius:16px; }
+  .auth-head .logo{ margin-bottom:14px; }
+  .auth-head h2{ font-size:18px; }
+  .auth-head p{ font-size:12.5px; }
+  .field > span{ font-size:12px; }
+  .field-input{ padding:10px 12px; border-radius:10px; }
+  .field-input input{ font-size:14px; }
+  .btn{ font-size:13px; padding:11px 14px; border-radius:10px; }
+  .auth-social{ font-size:13px; padding:11px 14px; }
+  .checkbox{ font-size:12px; }
+  .auth-link{ font-size:12px; }
+  .auth-switch{ font-size:12.5px; }
+  .settings-fab{ right:12px; bottom:12px; width:42px; height:42px; }
+  .settings-fab .icon{ width:18px; height:18px; }
+}
+
+@media (max-width: 380px){
+  .auth-page{ padding:12px 10px; }
+  .auth-card{ padding:16px 12px 14px; border-radius:14px; }
+  .auth-head h2{ font-size:16px; }
+  .field-input input{ font-size:13px; }
+  .btn{ font-size:12px; padding:10px 12px; }
+}
+
+/* Settings panel responsive */
+@media (max-width: 480px){
+  .settings-panel{ right:12px; bottom:66px; width:calc(100vw - 24px); max-width:280px; }
+}
 </style>
 </head>
 <body>

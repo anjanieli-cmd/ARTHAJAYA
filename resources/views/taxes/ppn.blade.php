@@ -5,8 +5,8 @@
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-    // DUMMY - ganti dengan query Tax model nanti
-    $ppnData = [
+    // Data dari session (sudah passing $ppnData dari controller)
+    $ppnData = $ppnData ?? [
         ['period' => 'Januari 2026', 'output' => 4500000, 'input' => 1200000, 'ppn' => 3300000, 'status' => 'paid', 'due' => '2026-02-28'],
         ['period' => 'Februari 2026', 'output' => 4800000, 'input' => 1500000, 'ppn' => 3300000, 'status' => 'paid', 'due' => '2026-03-31'],
         ['period' => 'Maret 2026', 'output' => 5200000, 'input' => 1800000, 'ppn' => 3400000, 'status' => 'paid', 'due' => '2026-04-30'],
@@ -70,6 +70,28 @@
 
     .ppn-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
     .ppn-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* SUCCESS MESSAGE */
+    .ppn-success {
+      background: var(--success-soft);
+      border: 1px solid var(--success);
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ppn-success .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .ppn-success .message {
+      font-weight: 500;
+    }
 
     /* HEADER */
     .ppn-header {
@@ -445,12 +467,20 @@
           <svg class="icon"><use href="#ic-calendar"/></svg>
           Kalender Pajak
         </a>
-        <a href="#" class="ppn-btn ppn-btn-primary">
+        <a href="{{ route('taxes.ppn.create') }}" class="ppn-btn ppn-btn-primary">
           <svg class="icon"><use href="#ic-plus"/></svg>
           Tambah PPN
         </a>
       </div>
     </div>
+
+    <!-- ===== SUCCESS MESSAGE ===== -->
+    @if(session('success'))
+      <div class="ppn-success animate-in" style="animation-delay: 0.08s;">
+        <svg class="icon"><use href="#ic-shield"/></svg>
+        <span class="message">{{ session('success') }}</span>
+      </div>
+    @endif
 
     <!-- STATS -->
     <div class="ppn-stats animate-in" style="animation-delay: 0.10s;">
@@ -522,7 +552,7 @@
                     <svg class="empty-icon"><use href="#ic-building"/></svg>
                     <h3>Belum Ada Data PPN</h3>
                     <p>Belum ada data PPN yang tercatat di sistem.</p>
-                    <a href="#" class="ppn-btn ppn-btn-primary" style="display: inline-flex;">
+                    <a href="{{ route('taxes.ppn.create') }}" class="ppn-btn ppn-btn-primary" style="display: inline-flex;">
                       <svg class="icon"><use href="#ic-plus"/></svg>
                       Tambah PPN
                     </a>

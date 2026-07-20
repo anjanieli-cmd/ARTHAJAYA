@@ -5,8 +5,8 @@
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-    // DUMMY - ganti dengan query Reconciliation model nanti
-    $items = [
+    // Data dari session (sudah passing $reconciliations dari controller)
+    $items = $reconciliations ?? [
         ['desc' => 'Transfer masuk dari Nusantara Logistik', 'date' => '2026-07-02', 'bank' => 18400000, 'buku' => 18400000, 'status' => 'cocok'],
         ['desc' => 'Pembayaran listrik workshop',            'date' => '2026-07-06', 'bank' => 820000,    'buku' => 820000,    'status' => 'cocok'],
         ['desc' => 'Setoran tunai penjualan',                'date' => '2026-07-09', 'bank' => 1500000,   'buku' => 0,          'status' => 'belum'],
@@ -256,6 +256,28 @@
         transform: scale(4);
         opacity: 0;
       }
+    }
+
+    /* ----- SUCCESS MESSAGE ----- */
+    .rek-success {
+      background: var(--success-soft);
+      border: 1px solid var(--success);
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rek-success .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .rek-success .message {
+      font-weight: 500;
     }
 
     /* ----- STATS ROW ----- */
@@ -672,17 +694,24 @@
         </p>
       </div>
       <div class="rek-header-actions">
-        <a href="{{ Route::has('bank-mutations.index') ? route('bank-mutations.index') : '#' }}" 
-           class="rek-btn rek-btn-ghost">
+        <a href="{{ route('bank-mutations.index') }}" class="rek-btn rek-btn-ghost">
           <svg class="icon"><use href="#ic-bank"/></svg>
           Mutasi Rekening
         </a>
-        <a href="#" class="rek-btn rek-btn-primary">
+        <a href="{{ route('reconciliation.create') }}" class="rek-btn rek-btn-primary">
           <svg class="icon"><use href="#ic-plus"/></svg>
           Tambah Rekonsiliasi
         </a>
       </div>
     </div>
+
+    <!-- ===== SUCCESS MESSAGE ===== -->
+    @if(session('success'))
+      <div class="rek-success animate-in" style="animation-delay: 0.08s;">
+        <svg class="icon"><use href="#ic-shield"/></svg>
+        <span class="message">{{ session('success') }}</span>
+      </div>
+    @endif
 
     <!-- ===== STATS ===== -->
     <div class="rek-stats">
@@ -776,7 +805,7 @@
                     <svg class="empty-icon"><use href="#ic-bank"/></svg>
                     <h3>Belum Ada Data Rekonsiliasi</h3>
                     <p>Belum ada transaksi yang direkonsiliasi.</p>
-                    <a href="#" class="rek-btn rek-btn-primary" style="display: inline-flex;">
+                    <a href="{{ route('reconciliation.create') }}" class="rek-btn rek-btn-primary" style="display: inline-flex;">
                       <svg class="icon"><use href="#ic-plus"/></svg>
                       Mulai Rekonsiliasi
                     </a>

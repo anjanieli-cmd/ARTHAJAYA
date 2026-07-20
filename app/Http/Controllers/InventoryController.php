@@ -45,6 +45,13 @@ class InventoryController extends Controller
         return view('inventory.index', compact('items', 'stats', 'company', 'categories'));
     }
 
+    public function show(InventoryItem $item)
+    {
+        $company = Auth::user()->company;
+
+        return view('inventory.show', compact('item', 'company'));
+    }
+
     public function create()
     {
         $company = Auth::user()->company;

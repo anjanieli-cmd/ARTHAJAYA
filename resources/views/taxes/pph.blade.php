@@ -5,8 +5,8 @@
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-    // DUMMY - ganti dengan query Tax model nanti
-    $pphData = [
+    // Data dari session (sudah passing $pphData dari controller)
+    $pphData = $pphData ?? [
         ['period' => 'Januari 2026', 'gross' => 45000000, 'deduction' => 5000000, 'taxable' => 40000000, 'tax' => 1250000, 'status' => 'paid', 'due' => '2026-02-15'],
         ['period' => 'Februari 2026', 'gross' => 48000000, 'deduction' => 5200000, 'taxable' => 42800000, 'tax' => 1350000, 'status' => 'paid', 'due' => '2026-03-15'],
         ['period' => 'Maret 2026', 'gross' => 52000000, 'deduction' => 5500000, 'taxable' => 46500000, 'tax' => 1500000, 'status' => 'paid', 'due' => '2026-04-15'],
@@ -74,6 +74,28 @@
 
     .pph-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
     .pph-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* SUCCESS MESSAGE */
+    .pph-success {
+      background: var(--success-soft);
+      border: 1px solid var(--success);
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pph-success .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .pph-success .message {
+      font-weight: 500;
+    }
 
     /* HEADER */
     .pph-header {
@@ -500,12 +522,20 @@
           <svg class="icon"><use href="#ic-calendar"/></svg>
           Kalender Pajak
         </a>
-        <a href="#" class="pph-btn pph-btn-primary">
+        <a href="{{ route('taxes.pph.create') }}" class="pph-btn pph-btn-primary">
           <svg class="icon"><use href="#ic-plus"/></svg>
           Tambah PPh
         </a>
       </div>
     </div>
+
+    <!-- ===== SUCCESS MESSAGE ===== -->
+    @if(session('success'))
+      <div class="pph-success animate-in" style="animation-delay: 0.08s;">
+        <svg class="icon"><use href="#ic-shield"/></svg>
+        <span class="message">{{ session('success') }}</span>
+      </div>
+    @endif
 
     <!-- TABS -->
     <div class="pph-tabs animate-in" style="animation-delay: 0.10s;">
@@ -586,7 +616,7 @@
           <svg class="empty-icon"><use href="#ic-building"/></svg>
           <h3>Belum Ada Data PPh</h3>
           <p>Belum ada data PPh yang tercatat.</p>
-          <a href="#" class="pph-btn pph-btn-primary" style="display: inline-flex;">
+          <a href="{{ route('taxes.pph.create') }}" class="pph-btn pph-btn-primary" style="display: inline-flex;">
             <svg class="icon"><use href="#ic-plus"/></svg>
             Tambah PPh
           </a>

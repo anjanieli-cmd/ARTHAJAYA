@@ -44,7 +44,7 @@
 
     .table-card{ background:var(--surface); border:1px solid var(--border); border-radius:0 0 18px 18px; overflow:hidden; }
     .table-scroll{ overflow-x:auto; }
-    table{ width:100%; border-collapse:collapse; min-width:720px; }
+    table{ width:100%; border-collapse:collapse; min-width:760px; }
     thead th{
         text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint);
         font-weight:600; padding:12px 18px; border-bottom:1px solid var(--border); white-space:nowrap; background:var(--surface-strong);
@@ -57,16 +57,25 @@
     .text-right{ text-align:right; }
     .ld-debit{ color:var(--emerald); }
     .ld-credit{ color:var(--danger); }
-    .ld-actions{ display:flex; gap:10px; justify-content:flex-end; }
-    .ld-actions a, .ld-actions button{ font-size:11.5px; color:var(--text-faint); background:none; border:none; cursor:pointer; }
-    .ld-actions a:hover{ color:var(--emerald); }
-    .ld-actions button:hover{ color:var(--danger); }
 
     .empty-state{ text-align:center; padding:60px 30px; }
     .empty-ic{ width:56px; height:56px; border-radius:16px; background:var(--surface-strong); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-faint); margin:0 auto 16px; }
     .empty-ic .icon{ width:24px; height:24px; }
     .empty-state h3{ font-size:16px; margin-bottom:6px; }
     .empty-state p{ font-size:13px; color:var(--text-mute); max-width:320px; margin:0 auto; }
+
+    /* ===== ACTION BUTTONS (baru, lebih jelas) ===== */
+    .ld-actions{ display:flex; gap:5px; justify-content:flex-end; }
+    .row-action-btn{
+        display:inline-flex; align-items:center; justify-content:center; padding:5px 10px; border-radius:7px;
+        font-size:11px; font-weight:600; text-decoration:none; border:1px solid var(--border);
+        background:var(--surface-strong); color:var(--text-mute); transition:all .15s ease; cursor:pointer; white-space:nowrap;
+    }
+    .row-action-btn:hover{ background:var(--surface); border-color:var(--border-hover); color:var(--text); }
+    .row-action-btn.view:hover{ color:var(--info); border-color:rgba(var(--info-rgb),0.4); }
+    .row-action-btn.edit:hover{ color:var(--emerald); border-color:rgba(var(--emerald-rgb),0.4); }
+    .row-action-btn.delete{ color:var(--danger); border-color:rgba(var(--danger-rgb),0.25); }
+    .row-action-btn.delete:hover{ background:rgba(var(--danger-rgb),0.1); border-color:rgba(var(--danger-rgb),0.4); }
 
     @media (max-width:640px){
         .page-head{ flex-direction:column; }
@@ -147,10 +156,11 @@
                             <td class="text-right mono">Rp{{ number_format($entry->running_balance, 0, ',', '.') }}</td>
                             <td>
                                 <div class="ld-actions">
-                                    <a href="{{ route('ledger.edit', $entry) }}">Edit</a>
+                                    <a href="{{ route('ledger.show', $entry) }}" class="row-action-btn view">Lihat</a>
+                                    <a href="{{ route('ledger.edit', $entry) }}" class="row-action-btn edit">Edit</a>
                                     <form method="POST" action="{{ route('ledger.destroy', $entry) }}" onsubmit="return confirm('Hapus transaksi ini?')" style="display:inline;">
                                         @csrf @method('DELETE')
-                                        <button type="submit">Hapus</button>
+                                        <button type="submit" class="row-action-btn delete">Hapus</button>
                                     </form>
                                 </div>
                             </td>
