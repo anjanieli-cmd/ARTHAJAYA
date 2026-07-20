@@ -1,14 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\NeracaController;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\CashFlowController;
 use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\InventoryController;
@@ -16,8 +17,12 @@ use App\Http\Controllers\CogsController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReceivableController;
+// === dari Teman B ===
+use App\Http\Controllers\TeamMemberController;
+use App\Http\Controllers\IntegrationController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SecurityController;
 
-// Homepage
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
@@ -51,6 +56,13 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         return view('dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
+
+    // ===== NOTIFIKASI =====
+    Route::controller(NotificationController::class)->group(function () {
+        Route::get('/notifications', 'index')->name('notifications.index');
+        Route::post('/notifications/{id}/read', 'markAsRead')->name('notifications.read');
+        Route::post('/notifications/read-all', 'markAllAsRead')->name('notifications.readAll');
+    });
 
     // ===== INVOICES =====
     Route::get('/invoices', function () {
@@ -224,7 +236,11 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
     // ===== PIUTANG & UTANG (AR / AP) =====
     Route::get('/receivables', [ReceivableController::class, 'index'])->name('receivables.index');
+    Route::get('/receivables/create', [ReceivableController::class, 'create'])->name('receivables.create');
+    Route::post('/receivables', [ReceivableController::class, 'store'])->name('receivables.store');
     Route::get('/receivables/{id}', [ReceivableController::class, 'show'])->name('receivables.show');
+    Route::get('/receivables/{id}/edit', [ReceivableController::class, 'edit'])->name('receivables.edit');
+    Route::put('/receivables/{id}', [ReceivableController::class, 'update'])->name('receivables.update');
     Route::delete('/receivables/{id}', [ReceivableController::class, 'destroy'])->name('receivables.destroy');
 
     // ===== PAYABLES =====
@@ -709,6 +725,63 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('reconciliation.index')->with('success', 'Rekonsiliasi berhasil ditambahkan!');
     })->name('reconciliation.store');
 
+    Route::get('/reconciliation/show/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $reconciliations = session('reconciliations', []);
+
+        if (!isset($reconciliations[$index])) {
+            abort(404, 'Rekonsiliasi tidak ditemukan');
+        }
+
+        $reconciliation = $reconciliations[$index];
+        return view('reconciliation.show', compact('user', 'company', 'reconciliation', 'index'));
+    })->name('reconciliation.show');
+
+    Route::get('/reconciliation/edit/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $reconciliations = session('reconciliations', []);
+
+        if (!isset($reconciliations[$index])) {
+            abort(404, 'Rekonsiliasi tidak ditemukan');
+        }
+
+        $reconciliation = $reconciliations[$index];
+        return view('reconciliation.edit', compact('user', 'company', 'reconciliation', 'index'));
+    })->name('reconciliation.edit');
+
+    Route::put('/reconciliation/update/{index}', function ($index) {
+        $reconciliations = session('reconciliations', []);
+
+        if (!isset($reconciliations[$index])) {
+            abort(404, 'Rekonsiliasi tidak ditemukan');
+        }
+
+        $reconciliations[$index]['desc']   = request('desc', $reconciliations[$index]['desc']);
+        $reconciliations[$index]['date']   = request('date', $reconciliations[$index]['date']);
+        $reconciliations[$index]['bank']   = request('bank', $reconciliations[$index]['bank']);
+        $reconciliations[$index]['buku']   = request('buku', $reconciliations[$index]['buku']);
+        $reconciliations[$index]['status'] = request('status', $reconciliations[$index]['status']);
+        $reconciliations[$index]['notes']  = request('notes', $reconciliations[$index]['notes'] ?? '');
+
+        session(['reconciliations' => $reconciliations]);
+
+        return redirect()->route('reconciliation.index')->with('success', 'Rekonsiliasi berhasil diupdate!');
+    })->name('reconciliation.update');
+
+    Route::delete('/reconciliation/delete/{index}', function ($index) {
+        $reconciliations = session('reconciliations', []);
+
+        if (isset($reconciliations[$index])) {
+            unset($reconciliations[$index]);
+        }
+
+        session(['reconciliations' => array_values($reconciliations)]);
+
+        return redirect()->route('reconciliation.index')->with('success', 'Rekonsiliasi berhasil dihapus!');
+    })->name('reconciliation.destroy');
+
     Route::get('/bank-mutations', function () {
         $user = Auth::user();
         $company = $user->company;
@@ -759,6 +832,64 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         return redirect()->route('bank-mutations.index')->with('success', 'Mutasi berhasil ditambahkan!');
     })->name('bank-mutations.store');
+
+    Route::get('/bank-mutations/show/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $mutations = session('bank_mutations', []);
+
+        if (!isset($mutations[$index])) {
+            abort(404, 'Mutasi tidak ditemukan');
+        }
+
+        $mutation = $mutations[$index];
+        return view('bank-mutations.show', compact('user', 'company', 'mutation', 'index'));
+    })->name('bank-mutations.show');
+
+    Route::get('/bank-mutations/edit/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $mutations = session('bank_mutations', []);
+
+        if (!isset($mutations[$index])) {
+            abort(404, 'Mutasi tidak ditemukan');
+        }
+
+        $mutation = $mutations[$index];
+        return view('bank-mutations.edit', compact('user', 'company', 'mutation', 'index'));
+    })->name('bank-mutations.edit');
+
+    Route::put('/bank-mutations/update/{index}', function ($index) {
+        $mutations = session('bank_mutations', []);
+
+        if (!isset($mutations[$index])) {
+            abort(404, 'Mutasi tidak ditemukan');
+        }
+
+        $mutations[$index]['desc']     = request('desc', $mutations[$index]['desc']);
+        $mutations[$index]['date']     = request('date', $mutations[$index]['date']);
+        $mutations[$index]['type']     = request('type', $mutations[$index]['type']);
+        $mutations[$index]['amount']   = request('amount', $mutations[$index]['amount']);
+        $mutations[$index]['saldo']    = request('saldo', $mutations[$index]['saldo']);
+        $mutations[$index]['category'] = request('category', $mutations[$index]['category'] ?? '');
+        $mutations[$index]['notes']    = request('notes', $mutations[$index]['notes'] ?? '');
+
+        session(['bank_mutations' => $mutations]);
+
+        return redirect()->route('bank-mutations.index')->with('success', 'Mutasi berhasil diupdate!');
+    })->name('bank-mutations.update');
+
+    Route::delete('/bank-mutations/delete/{index}', function ($index) {
+        $mutations = session('bank_mutations', []);
+
+        if (isset($mutations[$index])) {
+            unset($mutations[$index]);
+        }
+
+        session(['bank_mutations' => array_values($mutations)]);
+
+        return redirect()->route('bank-mutations.index')->with('success', 'Mutasi berhasil dihapus!');
+    })->name('bank-mutations.destroy');
 
     // ===== LAPORAN =====
     Route::resource('laba-rugi', LabaRugiController::class)->except('show');
@@ -844,6 +975,70 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dibuat!');
     })->name('payroll.store');
 
+    Route::get('/payroll/show/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $payrolls = session('payrolls', []);
+
+        if (!isset($payrolls[$index])) {
+            abort(404, 'Payroll tidak ditemukan');
+        }
+
+        $payroll = $payrolls[$index];
+        return view('payroll.show', compact('user', 'company', 'payroll', 'index'));
+    })->name('payroll.show');
+
+    Route::get('/payroll/edit/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $payrolls = session('payrolls', []);
+
+        if (!isset($payrolls[$index])) {
+            abort(404, 'Payroll tidak ditemukan');
+        }
+
+        $payroll = $payrolls[$index];
+        return view('payroll.edit', compact('user', 'company', 'payroll', 'index'));
+    })->name('payroll.edit');
+
+    Route::put('/payroll/update/{index}', function ($index) {
+        $payrolls = session('payrolls', []);
+
+        if (!isset($payrolls[$index])) {
+            abort(404, 'Payroll tidak ditemukan');
+        }
+
+        $basic_salary = request('basic_salary', $payrolls[$index]['basic_salary']);
+        $allowance = request('allowance', $payrolls[$index]['allowance']);
+        $deduction = request('deduction', $payrolls[$index]['deduction']);
+
+        $payrolls[$index]['employee']     = request('employee', $payrolls[$index]['employee']);
+        $payrolls[$index]['position']     = request('position', $payrolls[$index]['position']);
+        $payrolls[$index]['period']       = request('period', $payrolls[$index]['period']);
+        $payrolls[$index]['basic_salary'] = (int) $basic_salary;
+        $payrolls[$index]['allowance']    = (int) $allowance;
+        $payrolls[$index]['deduction']    = (int) $deduction;
+        $payrolls[$index]['total']        = (int) $basic_salary + (int) $allowance - (int) $deduction;
+        $payrolls[$index]['status']       = request('status', $payrolls[$index]['status']);
+        $payrolls[$index]['notes']        = request('notes', $payrolls[$index]['notes'] ?? '');
+
+        session(['payrolls' => $payrolls]);
+
+        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil diupdate!');
+    })->name('payroll.update');
+
+    Route::delete('/payroll/delete/{index}', function ($index) {
+        $payrolls = session('payrolls', []);
+
+        if (isset($payrolls[$index])) {
+            unset($payrolls[$index]);
+        }
+
+        session(['payrolls' => array_values($payrolls)]);
+
+        return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dihapus!');
+    })->name('payroll.destroy');
+
     Route::get('/employees', function () {
         $user = Auth::user();
         $company = $user->company;
@@ -898,6 +1093,66 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('employees.index')->with('success', 'Karyawan berhasil ditambahkan!');
     })->name('employees.store');
 
+    Route::get('/employees/show/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $employees = session('employees', []);
+
+        if (!isset($employees[$index])) {
+            abort(404, 'Karyawan tidak ditemukan');
+        }
+
+        $employee = $employees[$index];
+        return view('employees.show', compact('user', 'company', 'employee', 'index'));
+    })->name('employees.show');
+
+    Route::get('/employees/edit/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $employees = session('employees', []);
+
+        if (!isset($employees[$index])) {
+            abort(404, 'Karyawan tidak ditemukan');
+        }
+
+        $employee = $employees[$index];
+        return view('employees.edit', compact('user', 'company', 'employee', 'index'));
+    })->name('employees.edit');
+
+    Route::put('/employees/update/{index}', function ($index) {
+        $employees = session('employees', []);
+
+        if (!isset($employees[$index])) {
+            abort(404, 'Karyawan tidak ditemukan');
+        }
+
+        $employees[$index]['name']       = request('name', $employees[$index]['name']);
+        $employees[$index]['position']   = request('position', $employees[$index]['position']);
+        $employees[$index]['department'] = request('department', $employees[$index]['department']);
+        $employees[$index]['email']      = request('email', $employees[$index]['email']);
+        $employees[$index]['phone']      = request('phone', $employees[$index]['phone']);
+        $employees[$index]['joined']     = request('joined', $employees[$index]['joined']);
+        $employees[$index]['salary']     = (int) request('salary', $employees[$index]['salary']);
+        $employees[$index]['status']     = request('status', $employees[$index]['status']);
+        $employees[$index]['address']    = request('address', $employees[$index]['address'] ?? '');
+
+        session(['employees' => $employees]);
+
+        return redirect()->route('employees.index')->with('success', 'Karyawan berhasil diupdate!');
+    })->name('employees.update');
+
+    Route::delete('/employees/delete/{index}', function ($index) {
+        $employees = session('employees', []);
+
+        if (isset($employees[$index])) {
+            unset($employees[$index]);
+        }
+
+        session(['employees' => array_values($employees)]);
+
+        return redirect()->route('employees.index')->with('success', 'Karyawan berhasil dihapus!');
+    })->name('employees.destroy');
+
     // ===== PAJAK =====
     Route::get('/taxes/pph', function () {
         $user = Auth::user();
@@ -949,6 +1204,68 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('taxes.pph')->with('success', 'PPh berhasil ditambahkan!');
     })->name('taxes.pph.store');
 
+    Route::get('/taxes/pph/show/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $pphData = session('pph_data', []);
+
+        if (!isset($pphData[$index])) {
+            abort(404, 'Data PPh tidak ditemukan');
+        }
+
+        $pph = $pphData[$index];
+        return view('taxes.show_pph', compact('user', 'company', 'pph', 'index'));
+    })->name('taxes.pph.show');
+
+    Route::get('/taxes/pph/edit/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $pphData = session('pph_data', []);
+
+        if (!isset($pphData[$index])) {
+            abort(404, 'Data PPh tidak ditemukan');
+        }
+
+        $pph = $pphData[$index];
+        return view('taxes.edit_pph', compact('user', 'company', 'pph', 'index'));
+    })->name('taxes.pph.edit');
+
+    Route::put('/taxes/pph/update/{index}', function ($index) {
+        $pphData = session('pph_data', []);
+
+        if (!isset($pphData[$index])) {
+            abort(404, 'Data PPh tidak ditemukan');
+        }
+
+        $gross = request('gross', $pphData[$index]['gross']);
+        $deduction = request('deduction', $pphData[$index]['deduction']);
+
+        $pphData[$index]['period']    = request('period', $pphData[$index]['period']);
+        $pphData[$index]['gross']     = (int) $gross;
+        $pphData[$index]['deduction'] = (int) $deduction;
+        $pphData[$index]['taxable']   = (int) $gross - (int) $deduction;
+        $pphData[$index]['tax']       = (int) request('tax', $pphData[$index]['tax']);
+        $pphData[$index]['status']    = request('status', $pphData[$index]['status']);
+        $pphData[$index]['due']       = request('due', $pphData[$index]['due']);
+        $pphData[$index]['notes']     = request('notes', $pphData[$index]['notes'] ?? '');
+
+        session(['pph_data' => $pphData]);
+
+        return redirect()->route('taxes.pph')->with('success', 'PPh berhasil diupdate!');
+    })->name('taxes.pph.update');
+
+    Route::delete('/taxes/pph/delete/{index}', function ($index) {
+        $pphData = session('pph_data', []);
+
+        if (isset($pphData[$index])) {
+            unset($pphData[$index]);
+        }
+
+        session(['pph_data' => array_values($pphData)]);
+
+        return redirect()->route('taxes.pph')->with('success', 'Data PPh berhasil dihapus!');
+    })->name('taxes.pph.destroy');
+
     Route::get('/taxes/ppn', function () {
         $user = Auth::user();
         $company = $user->company;
@@ -997,6 +1314,67 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('taxes.ppn')->with('success', 'PPN berhasil ditambahkan!');
     })->name('taxes.ppn.store');
 
+    Route::get('/taxes/ppn/show/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $ppnData = session('ppn_data', []);
+
+        if (!isset($ppnData[$index])) {
+            abort(404, 'Data PPN tidak ditemukan');
+        }
+
+        $ppn = $ppnData[$index];
+        return view('taxes.show_ppn', compact('user', 'company', 'ppn', 'index'));
+    })->name('taxes.ppn.show');
+
+    Route::get('/taxes/ppn/edit/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $ppnData = session('ppn_data', []);
+
+        if (!isset($ppnData[$index])) {
+            abort(404, 'Data PPN tidak ditemukan');
+        }
+
+        $ppn = $ppnData[$index];
+        return view('taxes.edit_ppn', compact('user', 'company', 'ppn', 'index'));
+    })->name('taxes.ppn.edit');
+
+    Route::put('/taxes/ppn/update/{index}', function ($index) {
+        $ppnData = session('ppn_data', []);
+
+        if (!isset($ppnData[$index])) {
+            abort(404, 'Data PPN tidak ditemukan');
+        }
+
+        $output = request('output', $ppnData[$index]['output']);
+        $input = request('input', $ppnData[$index]['input']);
+
+        $ppnData[$index]['period'] = request('period', $ppnData[$index]['period']);
+        $ppnData[$index]['output'] = (int) $output;
+        $ppnData[$index]['input']  = (int) $input;
+        $ppnData[$index]['ppn']    = (int) $output - (int) $input;
+        $ppnData[$index]['status'] = request('status', $ppnData[$index]['status']);
+        $ppnData[$index]['due']    = request('due', $ppnData[$index]['due']);
+        $ppnData[$index]['notes']  = request('notes', $ppnData[$index]['notes'] ?? '');
+
+        session(['ppn_data' => $ppnData]);
+
+        return redirect()->route('taxes.ppn')->with('success', 'PPN berhasil diupdate!');
+    })->name('taxes.ppn.update');
+
+    Route::delete('/taxes/ppn/delete/{index}', function ($index) {
+        $ppnData = session('ppn_data', []);
+
+        if (isset($ppnData[$index])) {
+            unset($ppnData[$index]);
+        }
+
+        session(['ppn_data' => array_values($ppnData)]);
+
+        return redirect()->route('taxes.ppn')->with('success', 'Data PPN berhasil dihapus!');
+    })->name('taxes.ppn.destroy');
+
     Route::get('/tax-calendar', function () {
         $user = Auth::user();
         $company = $user->company;
@@ -1041,6 +1419,62 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         return redirect()->route('tax-calendar.index')->with('success', 'Event berhasil ditambahkan!');
     })->name('tax-calendar.store');
+
+    Route::get('/tax-calendar/show/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $calendarEvents = session('calendar_events', []);
+
+        if (!isset($calendarEvents[$index])) {
+            abort(404, 'Event tidak ditemukan');
+        }
+
+        $event = $calendarEvents[$index];
+        return view('tax-calendar.show', compact('user', 'company', 'event', 'index'));
+    })->name('tax-calendar.show');
+
+    Route::get('/tax-calendar/edit/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $calendarEvents = session('calendar_events', []);
+
+        if (!isset($calendarEvents[$index])) {
+            abort(404, 'Event tidak ditemukan');
+        }
+
+        $event = $calendarEvents[$index];
+        return view('tax-calendar.edit', compact('user', 'company', 'event', 'index'));
+    })->name('tax-calendar.edit');
+
+    Route::put('/tax-calendar/update/{index}', function ($index) {
+        $calendarEvents = session('calendar_events', []);
+
+        if (!isset($calendarEvents[$index])) {
+            abort(404, 'Event tidak ditemukan');
+        }
+
+        $calendarEvents[$index]['title']  = request('title', $calendarEvents[$index]['title']);
+        $calendarEvents[$index]['date']   = request('date', $calendarEvents[$index]['date']);
+        $calendarEvents[$index]['type']   = request('type', $calendarEvents[$index]['type']);
+        $calendarEvents[$index]['status'] = request('status', $calendarEvents[$index]['status']);
+        $calendarEvents[$index]['desc']   = request('desc', $calendarEvents[$index]['desc']);
+
+        session(['calendar_events' => $calendarEvents]);
+
+        return redirect()->route('tax-calendar.index')->with('success', 'Event berhasil diupdate!');
+    })->name('tax-calendar.update');
+
+    Route::delete('/tax-calendar/delete/{index}', function ($index) {
+        $calendarEvents = session('calendar_events', []);
+
+        if (isset($calendarEvents[$index])) {
+            unset($calendarEvents[$index]);
+        }
+
+        session(['calendar_events' => array_values($calendarEvents)]);
+
+        return redirect()->route('tax-calendar.index')->with('success', 'Event berhasil dihapus!');
+    })->name('tax-calendar.destroy');
 
     // ===== BUDGETING =====
     Route::get('/budgets', function () {
@@ -1096,6 +1530,68 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         return redirect()->route('budgets.index')->with('success', 'Anggaran berhasil dibuat!');
     })->name('budgets.store');
+
+    Route::get('/budgets/show/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $budgets = session('budgets', []);
+
+        if (!isset($budgets[$index])) {
+            abort(404, 'Anggaran tidak ditemukan');
+        }
+
+        $budget = $budgets[$index];
+        return view('budgets.show', compact('user', 'company', 'budget', 'index'));
+    })->name('budgets.show');
+
+    Route::get('/budgets/edit/{index}', function ($index) {
+        $user = Auth::user();
+        $company = $user->company;
+        $budgets = session('budgets', []);
+
+        if (!isset($budgets[$index])) {
+            abort(404, 'Anggaran tidak ditemukan');
+        }
+
+        $budget = $budgets[$index];
+        return view('budgets.edit', compact('user', 'company', 'budget', 'index'));
+    })->name('budgets.edit');
+
+    Route::put('/budgets/update/{index}', function ($index) {
+        $budgets = session('budgets', []);
+
+        if (!isset($budgets[$index])) {
+            abort(404, 'Anggaran tidak ditemukan');
+        }
+
+        $target = request('target', $budgets[$index]['target']);
+        $actual = request('actual', $budgets[$index]['actual']);
+        $progress = $target > 0 ? round(($actual / $target) * 100) : 0;
+
+        $budgets[$index]['category'] = request('category', $budgets[$index]['category']);
+        $budgets[$index]['period']   = request('period', $budgets[$index]['period']);
+        $budgets[$index]['target']   = (int) $target;
+        $budgets[$index]['actual']   = (int) $actual;
+        $budgets[$index]['progress'] = $progress;
+        $budgets[$index]['status']   = request('status', $budgets[$index]['status']);
+        $budgets[$index]['notes']    = request('notes', $budgets[$index]['notes'] ?? '');
+
+        session(['budgets' => $budgets]);
+
+        return redirect()->route('budgets.index')->with('success', 'Anggaran berhasil diupdate!');
+    })->name('budgets.update');
+
+    Route::delete('/budgets/delete/{index}', function ($index) {
+        $budgets = session('budgets', []);
+
+        if (isset($budgets[$index])) {
+            unset($budgets[$index]);
+        }
+
+        session(['budgets' => array_values($budgets)]);
+
+        return redirect()->route('budgets.index')->with('success', 'Anggaran berhasil dihapus!');
+    })->name('budgets.destroy');
 
     Route::get('/budgets/export', function () {
         $budgets = session('budgets', [
@@ -1257,28 +1753,32 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
             ->header('Expires', '0');
     })->name('budgets.export');
 
+
     // ===== PENGATURAN =====
+
+    // Users (halaman manajemen user)
     Route::get('/users', function () {
         $user = Auth::user();
         $company = $user->company;
         return view('users.index', compact('user', 'company'));
     })->name('users.index');
 
-    Route::get('/integrations', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('integrations.index', compact('user', 'company'));
-    })->name('integrations.index');
+    // Multi-User & Hak Akses (Teman B)
+    Route::resource('team-members', TeamMemberController::class);
 
-    Route::get('/security', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('security.index', compact('user', 'company'));
-    })->name('security.index');
+    // Integrasi (Teman B — pakai resource controller)
+    Route::resource('integrations', IntegrationController::class);
 
-    Route::get('/profile', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('profile.edit', compact('user', 'company'));
-    })->name('profile.edit');
+    // Keamanan (Teman B — lengkap dengan password, 2FA, session)
+    Route::get('/security', [SecurityController::class, 'index'])->name('security.index');
+    Route::put('/security/password', [SecurityController::class, 'updatePassword'])->name('security.password.update');
+    Route::post('/security/two-factor/toggle', [SecurityController::class, 'toggleTwoFactor'])->name('security.two-factor.toggle');
+    Route::delete('/security/sessions/{sessionId}', [SecurityController::class, 'revokeSession'])->name('security.sessions.revoke');
+    Route::post('/security/sessions/revoke-others', [SecurityController::class, 'revokeOtherSessions'])->name('security.sessions.revoke-others');
+
+    // Profil (Teman B — pakai controller proper dengan update & delete)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
 });
