@@ -155,7 +155,7 @@
 @if($items->total() > 0)
   <div class="inv-pagination">
     <div class="inv-pg-info">Menampilkan {{ $items->firstItem() }}–{{ $items->lastItem() }} dari {{ $items->total() }} barang</div>
-    <div>{{ $items->onEachSide(1)->links('pagination::simple-default') }}</div>
+    <div>{{ $items->links() }}</div>
   </div>
 @endif
 

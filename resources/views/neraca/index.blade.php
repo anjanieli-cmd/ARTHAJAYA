@@ -33,14 +33,9 @@
 
     .nr-group-title{ font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-faint); margin:16px 0 8px; }
     .nr-group-title:first-of-type{ margin-top:0; }
-    .nr-row{ display:flex; justify-content:space-between; align-items:center; padding:7px 0; font-size:13.5px; border-bottom:1px solid var(--border); gap:8px; }
-    .nr-row-name{ flex:1; }
-    .nr-row-actions{ display:flex; gap:4px; opacity:0; transition:opacity .15s ease; }
-    .nr-row:hover .nr-row-actions{ opacity:1; }
-    .nr-row-actions a, .nr-row-actions button{ font-size:11px; color:var(--text-faint); background:none; border:none; cursor:pointer; padding:2px 5px; }
-    .nr-row-actions a:hover{ color:var(--emerald); }
-    .nr-row-actions button:hover{ color:var(--danger); }
-    .nr-amount{ font-family:'IBM Plex Mono', monospace; }
+    .nr-row{ display:flex; justify-content:space-between; align-items:center; padding:8px 0; font-size:13.5px; border-bottom:1px solid var(--border); gap:10px; }
+    .nr-row-name{ flex:1; min-width:0; }
+    .nr-amount{ font-family:'IBM Plex Mono', monospace; white-space:nowrap; }
     .nr-subtotal{ display:flex; justify-content:space-between; padding:6px 0 12px; font-size:12.5px; color:var(--text-mute); font-weight:600; }
     .nr-empty{ font-size:12.5px; color:var(--text-faint); padding:6px 0 14px; }
 
@@ -56,11 +51,27 @@
     .balance-bar.warn .balance-bar-label{ color:var(--danger); }
     .balance-bar-detail{ font-size:12.5px; color:var(--text-mute); font-family:'IBM Plex Mono', monospace; }
 
+    /* ===== ACTION BUTTONS (baru, lebih jelas) ===== */
+    .row-actions{ display:flex; gap:5px; flex-shrink:0; }
+    .row-action-btn{
+        display:inline-flex; align-items:center; justify-content:center; padding:5px 10px; border-radius:7px;
+        font-size:11px; font-weight:600; text-decoration:none; border:1px solid var(--border);
+        background:var(--surface-strong); color:var(--text-mute); transition:all .15s ease; cursor:pointer; white-space:nowrap;
+    }
+    .row-action-btn:hover{ background:var(--surface); border-color:var(--border-hover); color:var(--text); }
+    .row-action-btn.view:hover{ color:var(--info); border-color:rgba(var(--info-rgb),0.4); }
+    .row-action-btn.edit:hover{ color:var(--emerald); border-color:rgba(var(--emerald-rgb),0.4); }
+    .row-action-btn.delete{ color:var(--danger); border-color:rgba(var(--danger-rgb),0.25); }
+    .row-action-btn.delete:hover{ background:rgba(var(--danger-rgb),0.1); border-color:rgba(var(--danger-rgb),0.4); }
+
     @media (max-width:900px){
         .neraca-grid{ grid-template-columns:1fr; }
         .page-head{ flex-direction:column; }
         .head-actions{ width:100%; }
         .head-actions .btn{ flex:1; }
+    }
+    @media (max-width:560px){
+        .nr-row{ flex-wrap:wrap; }
     }
 </style>
 
@@ -97,13 +108,14 @@
                 <div class="nr-row">
                     <span class="nr-row-name">{{ $item->name }}</span>
                     <span class="nr-amount">Rp{{ number_format($item->amount, 0, ',', '.') }}</span>
-                    <span class="nr-row-actions">
-                        <a href="{{ route('neraca.edit', $item) }}">Edit</a>
+                    <div class="row-actions">
+                        <a href="{{ route('neraca.show', $item) }}" class="row-action-btn view">Lihat</a>
+                        <a href="{{ route('neraca.edit', $item) }}" class="row-action-btn edit">Edit</a>
                         <form method="POST" action="{{ route('neraca.destroy', $item) }}" onsubmit="return confirm('Hapus pos ini?')" style="display:inline;">
                             @csrf @method('DELETE')
-                            <button type="submit">Hapus</button>
+                            <button type="submit" class="row-action-btn delete">Hapus</button>
                         </form>
-                    </span>
+                    </div>
                 </div>
             @endforeach
             <div class="nr-subtotal">
@@ -134,13 +146,14 @@
                 <div class="nr-row">
                     <span class="nr-row-name">{{ $item->name }}</span>
                     <span class="nr-amount">Rp{{ number_format($item->amount, 0, ',', '.') }}</span>
-                    <span class="nr-row-actions">
-                        <a href="{{ route('neraca.edit', $item) }}">Edit</a>
+                    <div class="row-actions">
+                        <a href="{{ route('neraca.show', $item) }}" class="row-action-btn view">Lihat</a>
+                        <a href="{{ route('neraca.edit', $item) }}" class="row-action-btn edit">Edit</a>
                         <form method="POST" action="{{ route('neraca.destroy', $item) }}" onsubmit="return confirm('Hapus pos ini?')" style="display:inline;">
                             @csrf @method('DELETE')
-                            <button type="submit">Hapus</button>
+                            <button type="submit" class="row-action-btn delete">Hapus</button>
                         </form>
-                    </span>
+                    </div>
                 </div>
             @endforeach
             <div class="nr-subtotal">
@@ -162,13 +175,14 @@
                 <div class="nr-row">
                     <span class="nr-row-name">{{ $item->name }}</span>
                     <span class="nr-amount">Rp{{ number_format($item->amount, 0, ',', '.') }}</span>
-                    <span class="nr-row-actions">
-                        <a href="{{ route('neraca.edit', $item) }}">Edit</a>
+                    <div class="row-actions">
+                        <a href="{{ route('neraca.show', $item) }}" class="row-action-btn view">Lihat</a>
+                        <a href="{{ route('neraca.edit', $item) }}" class="row-action-btn edit">Edit</a>
                         <form method="POST" action="{{ route('neraca.destroy', $item) }}" onsubmit="return confirm('Hapus pos ini?')" style="display:inline;">
                             @csrf @method('DELETE')
-                            <button type="submit">Hapus</button>
+                            <button type="submit" class="row-action-btn delete">Hapus</button>
                         </form>
-                    </span>
+                    </div>
                 </div>
             @endforeach
             <div class="nr-subtotal">

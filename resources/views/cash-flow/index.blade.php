@@ -52,23 +52,18 @@
     .cf-activity.pendanaan .cf-activity-net{ background:rgba(var(--warning-rgb),0.1); color:var(--warning); }
 
     .cf-card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-    .cf-row{ display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); }
+    .cf-row{ display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
     .cf-row:last-child{ border-bottom:none; }
     .cf-row-icon{ width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .cf-row.masuk .cf-row-icon{ background:rgba(var(--emerald-rgb),0.12); color:var(--emerald); }
     .cf-row.keluar .cf-row-icon{ background:rgba(var(--danger-rgb),0.12); color:var(--danger); }
     .cf-row-icon .icon{ width:14px; height:14px; }
-    .cf-row-body{ flex:1; min-width:0; }
+    .cf-row-body{ flex:1; min-width:120px; }
     .cf-row-name{ font-size:13.5px; font-weight:600; }
     .cf-row-cat{ font-size:11.5px; color:var(--text-faint); }
     .cf-row-amount{ font-family:'IBM Plex Mono', monospace; font-size:13.5px; font-weight:600; white-space:nowrap; }
     .cf-row.masuk .cf-row-amount{ color:var(--emerald); }
     .cf-row.keluar .cf-row-amount{ color:var(--danger); }
-    .cf-row-actions{ display:flex; gap:2px; opacity:0; transition:opacity .15s ease; }
-    .cf-row:hover .cf-row-actions{ opacity:1; }
-    .cf-row-actions a, .cf-row-actions button{ font-size:11px; color:var(--text-faint); background:none; border:none; cursor:pointer; padding:2px 6px; }
-    .cf-row-actions a:hover{ color:var(--emerald); }
-    .cf-row-actions button:hover{ color:var(--danger); }
     .cf-empty{ padding:18px 16px; font-size:12.5px; color:var(--text-faint); text-align:center; }
 
     .cf-final{ max-width:920px; margin-top:10px; padding:20px 24px; border-radius:14px; display:flex; align-items:center; justify-content:space-between; }
@@ -78,6 +73,19 @@
     .cf-final-value{ font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; }
     .cf-final.positive .cf-final-value{ color:var(--emerald); }
     .cf-final.negative .cf-final-value{ color:var(--danger); }
+
+    /* ===== ACTION BUTTONS (baru, lebih jelas) ===== */
+    .cf-row-actions{ display:flex; gap:5px; flex-shrink:0; }
+    .row-action-btn{
+        display:inline-flex; align-items:center; justify-content:center; padding:5px 10px; border-radius:7px;
+        font-size:11px; font-weight:600; text-decoration:none; border:1px solid var(--border);
+        background:var(--surface-strong); color:var(--text-mute); transition:all .15s ease; cursor:pointer; white-space:nowrap;
+    }
+    .row-action-btn:hover{ background:var(--surface); border-color:var(--border-hover); color:var(--text); }
+    .row-action-btn.view:hover{ color:var(--info); border-color:rgba(var(--info-rgb),0.4); }
+    .row-action-btn.edit:hover{ color:var(--emerald); border-color:rgba(var(--emerald-rgb),0.4); }
+    .row-action-btn.delete{ color:var(--danger); border-color:rgba(var(--danger-rgb),0.25); }
+    .row-action-btn.delete:hover{ background:rgba(var(--danger-rgb),0.1); border-color:rgba(var(--danger-rgb),0.4); }
 
     @media (max-width:640px){
         .cf-summary{ grid-template-columns:1fr; }
@@ -153,10 +161,11 @@
                         </div>
                         <div class="cf-row-amount">{{ $item->direction === 'masuk' ? '+' : '-' }}Rp{{ number_format($item->amount, 0, ',', '.') }}</div>
                         <div class="cf-row-actions">
-                            <a href="{{ route('cash-flow.edit', $item) }}">Edit</a>
+                            <a href="{{ route('cash-flow.show', $item) }}" class="row-action-btn view">Lihat</a>
+                            <a href="{{ route('cash-flow.edit', $item) }}" class="row-action-btn edit">Edit</a>
                             <form method="POST" action="{{ route('cash-flow.destroy', $item) }}" onsubmit="return confirm('Hapus transaksi ini?')" style="display:inline;">
                                 @csrf @method('DELETE')
-                                <button type="submit">Hapus</button>
+                                <button type="submit" class="row-action-btn delete">Hapus</button>
                             </form>
                         </div>
                     </div>

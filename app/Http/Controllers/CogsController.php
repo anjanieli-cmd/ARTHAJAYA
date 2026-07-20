@@ -44,6 +44,14 @@ class CogsController extends Controller
         return view('cogs.index', compact('entries', 'groupedEntries', 'stats', 'company'));
     }
 
+    public function show(CogsEntry $entry)
+    {
+        $company = Auth::user()->company;
+        $entry->load('inventoryItem');
+
+        return view('cogs.show', compact('entry', 'company'));
+    }
+
     public function create()
     {
         $company = Auth::user()->company;

@@ -53,6 +53,11 @@ class LabaRugiController extends Controller
             ->with('success', 'Pos laba rugi berhasil ditambahkan.');
     }
 
+    public function show(LabaRugiItem $laba_rugi)
+    {
+        return view('laba-rugi.show', ['item' => $laba_rugi]);
+    }
+
     public function edit(LabaRugiItem $laba_rugi)
     {
         return view('laba-rugi.edit', ['item' => $laba_rugi]);
