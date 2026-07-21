@@ -1,15 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OnboardingController;
-use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\LabaRugiController;
 use App\Http\Controllers\NeracaController;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\CashFlowController;
 use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\InventoryController;
@@ -17,12 +16,12 @@ use App\Http\Controllers\CogsController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReceivableController;
-// === dari Teman B ===
-use App\Http\Controllers\TeamMemberController;
-use App\Http\Controllers\IntegrationController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\SecurityController;
 
+// Homepage
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
@@ -64,160 +63,18 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         Route::post('/notifications/read-all', 'markAllAsRead')->name('notifications.readAll');
     });
 
-    // ===== INVOICES =====
-    Route::get('/invoices', function () {
-        $user = Auth::user();
-        $company = $user->company;
 
-        if (!session()->has('invoices')) {
-            session(['invoices' => [
-                ['id' => 1, 'client' => 'PT Andalas Maju Bersama', 'invoice' => 'INV-2026-0001', 'date' => '2026-06-10', 'due' => '2026-07-10', 'status' => 'sent', 'amount' => 5750000],
-                ['id' => 2, 'client' => 'Nusantara Logistik',      'invoice' => 'INV-2026-0002', 'date' => '2026-06-15', 'due' => '2026-06-25', 'status' => 'sent', 'amount' => 18400000],
-                ['id' => 3, 'client' => 'Ruang Kriya Studio',      'invoice' => 'INV-2026-0003', 'date' => '2026-06-18', 'due' => '2026-06-28', 'status' => 'sent', 'amount' => 6200000],
-                ['id' => 4, 'client' => 'Bumi Retail Group',       'invoice' => 'INV-2026-0004', 'date' => '2026-05-25', 'due' => '2026-06-02', 'status' => 'overdue', 'amount' => 9200000],
-                ['id' => 5, 'client' => 'Kopi Kenangan Senja',     'invoice' => 'INV-2026-0005', 'date' => '2026-06-01', 'due' => '2026-06-15', 'status' => 'paid', 'amount' => 2800000],
-                ['id' => 6, 'client' => 'Warung Sinar Abadi',      'invoice' => 'INV-2026-0006', 'date' => '2026-05-20', 'due' => '2026-05-28', 'status' => 'paid', 'amount' => 4100000],
-                ['id' => 7, 'client' => 'Toko Elektronik Jaya',    'invoice' => 'INV-2026-0007', 'date' => '2026-05-10', 'due' => '2026-06-10', 'status' => 'overdue', 'amount' => 6100000],
-                ['id' => 8, 'client' => 'CV Bangun Perkasa',       'invoice' => 'INV-2026-0008', 'date' => '2026-04-01', 'due' => '2026-05-01', 'status' => 'overdue', 'amount' => 3400000],
-            ]]);
-        }
-
-        $invoices = session('invoices');
-
-        return view('invoices.index', compact('user', 'company', 'invoices'));
-    })->name('invoices.index');
-
-    Route::get('/invoices/create', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('invoices.create', compact('user', 'company'));
-    })->name('invoices.create');
-
-    Route::post('/invoices', function () {
-        $client_id = request('client_id');
-        $number = request('number');
-        $date = request('date');
-        $notes = request('notes');
-        $items = request('items');
-        $status = request('status');
-
-        $clients = [
-            1 => 'PT Andalas Maju Bersama',
-            2 => 'Nusantara Logistik',
-            3 => 'Ruang Kriya Studio',
-            4 => 'Bumi Retail Group',
-        ];
-
-        $subtotal = 0;
-        if ($items) {
-            foreach ($items as $item) {
-                $subtotal += $item['quantity'] * $item['price'];
-            }
-        }
-
-        $invoiceStatus = $status;
-        $dueDate = date('Y-m-d', strtotime($date . ' +14 days'));
-        $isOverdue = strtotime($dueDate) < strtotime(date('Y-m-d'));
-
-        if ($invoiceStatus == 'paid') {
-            $finalStatus = 'paid';
-        } elseif ($isOverdue) {
-            $finalStatus = 'overdue';
-        } else {
-            $finalStatus = 'sent';
-        }
-
-        $invoices = session('invoices', []);
-        $newInvoice = [
-            'id' => count($invoices) + 1,
-            'client' => $clients[$client_id] ?? 'Unknown Client',
-            'invoice' => $number,
-            'date' => $date,
-            'due' => $dueDate,
-            'status' => $finalStatus,
-            'amount' => $subtotal,
-            'notes' => $notes,
-            'items' => $items,
-        ];
-
-        array_unshift($invoices, $newInvoice);
-        session(['invoices' => $invoices]);
-
-        return redirect()->route('invoices.index')->with('success', 'Faktur berhasil dibuat!');
-    })->name('invoices.store');
-
-    Route::get('/invoices/{id}', function ($id) {
-        $user = Auth::user();
-        $company = $user->company;
-
-        try {
-            $invoice = App\Models\Invoice::findOrFail($id);
-            return view('invoices.show', compact('user', 'company', 'invoice'));
-        } catch (\Exception $e) {
-            $invoices = session('invoices', []);
-            $invoiceData = collect($invoices)->firstWhere('id', (int)$id);
-
-            if (!$invoiceData) {
-                abort(404, 'Faktur tidak ditemukan');
-            }
-
-            $invoice = (object) $invoiceData;
-            return view('invoices.show', compact('user', 'company', 'invoice'));
-        }
-    })->name('invoices.show');
-
-    Route::get('/invoices/{id}/edit', function ($id) {
-        $user = Auth::user();
-        $company = $user->company;
-
-        $invoices = session('invoices', []);
-        $invoice = collect($invoices)->firstWhere('id', (int)$id);
-
-        if (!$invoice) {
-            abort(404, 'Faktur tidak ditemukan');
-        }
-
-        return view('invoices.edit', compact('user', 'company', 'invoice'));
-    })->name('invoices.edit');
-
-    Route::put('/invoices/{id}', function ($id) {
-        $invoices = session('invoices', []);
-
-        foreach ($invoices as $key => $inv) {
-            if ($inv['id'] == (int)$id) {
-                $invoices[$key]['client'] = request('client', $inv['client']);
-                $invoices[$key]['date'] = request('date', $inv['date']);
-                $invoices[$key]['due'] = request('due', $inv['due']);
-                $invoices[$key]['status'] = request('status', $inv['status']);
-                $invoices[$key]['amount'] = request('amount', $inv['amount']);
-                $invoices[$key]['notes'] = request('notes', $inv['notes']);
-                break;
-            }
-        }
-
-        session(['invoices' => $invoices]);
-
-        return redirect()->route('invoices.index')->with('success', 'Faktur berhasil diupdate!');
-    })->name('invoices.update');
-
-    Route::delete('/invoices/{id}', function ($id) {
-        $invoices = session('invoices', []);
-
-        foreach ($invoices as $key => $inv) {
-            if ($inv['id'] == (int)$id) {
-                unset($invoices[$key]);
-                break;
-            }
-        }
-
-        session(['invoices' => array_values($invoices)]);
-
-        return redirect()->route('invoices.index')->with('success', 'Faktur berhasil dihapus!');
-    })->name('invoices.destroy');
-
-    Route::delete('/invoices/bulk-destroy', function () {
-        return redirect()->route('invoices.index')->with('success', 'Faktur berhasil dihapus!');
-    })->name('invoices.bulk-destroy');
+    // ===== INVOICES (pakai InvoiceController — database) =====
+    Route::controller(InvoiceController::class)->group(function () {
+        Route::get('/invoices', 'index')->name('invoices.index');
+        Route::get('/invoices/create', 'create')->name('invoices.create');
+        Route::post('/invoices', 'store')->name('invoices.store');
+        Route::get('/invoices/{invoice}', 'show')->name('invoices.show');
+        Route::get('/invoices/{invoice}/edit', 'edit')->name('invoices.edit');
+        Route::put('/invoices/{invoice}', 'update')->name('invoices.update');
+        Route::delete('/invoices/{invoice}', 'destroy')->name('invoices.destroy');
+        Route::delete('/invoices/bulk-destroy', 'bulkDestroy')->name('invoices.bulk-destroy');
+    });
 
     // ===== CLIENTS =====
     Route::resource('clients', ClientController::class);
@@ -892,10 +749,10 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     })->name('bank-mutations.destroy');
 
     // ===== LAPORAN =====
-    Route::resource('laba-rugi', LabaRugiController::class)->except('show');
-    Route::resource('neraca', NeracaController::class)->except('show');
-    Route::resource('cash-flow', CashFlowController::class)->except('show');
-    Route::resource('ledger', LedgerController::class)->except('show');
+    Route::resource('laba-rugi', LabaRugiController::class);
+    Route::resource('neraca', NeracaController::class);
+    Route::resource('cash-flow', CashFlowController::class);
+    Route::resource('ledger', LedgerController::class);
 
     // ===== INVENTARIS =====
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
@@ -1753,32 +1610,25 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
             ->header('Expires', '0');
     })->name('budgets.export');
 
-
     // ===== PENGATURAN =====
-
-    // Users (halaman manajemen user)
     Route::get('/users', function () {
         $user = Auth::user();
         $company = $user->company;
         return view('users.index', compact('user', 'company'));
     })->name('users.index');
 
-    // Multi-User & Hak Akses (Teman B)
-    Route::resource('team-members', TeamMemberController::class);
-
-    // Integrasi (Teman B — pakai resource controller)
+    // Integrasi (pakai IntegrationController)
     Route::resource('integrations', IntegrationController::class);
 
-    // Keamanan (Teman B — lengkap dengan password, 2FA, session)
+    // Keamanan (pakai SecurityController — lengkap dengan password, 2FA, session)
     Route::get('/security', [SecurityController::class, 'index'])->name('security.index');
     Route::put('/security/password', [SecurityController::class, 'updatePassword'])->name('security.password.update');
     Route::post('/security/two-factor/toggle', [SecurityController::class, 'toggleTwoFactor'])->name('security.two-factor.toggle');
     Route::delete('/security/sessions/{sessionId}', [SecurityController::class, 'revokeSession'])->name('security.sessions.revoke');
     Route::post('/security/sessions/revoke-others', [SecurityController::class, 'revokeOtherSessions'])->name('security.sessions.revoke-others');
 
-    // Profil (Teman B — pakai controller proper dengan update & delete)
+    // Profile (pakai ProfileController — butuh route update & destroy)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 });
