@@ -15,6 +15,7 @@
         ['desc' => 'Beli kain mori 50 meter',                'date' => '2026-07-01', 'type' => 'keluar', 'amount' => 2500000,  'saldo' => 22150000],
     ];
 
+    // Collection dengan key asli dipertahankan (dipakai buat route show/edit/delete)
     $mutationsCollection = collect($mutations);
     $typeLabel = ['masuk' => 'Masuk', 'keluar' => 'Keluar'];
 
@@ -23,6 +24,7 @@
     $saldoAkhir  = $mutationsCollection->sortBy('date')->last()['saldo'] ?? 0;
     $arus        = $totalMasuk + $totalKeluar;
 
+    // sortByDesc & groupBy tetap mempertahankan key/index asli dari $mutations
     $sorted  = $mutationsCollection->sortByDesc('date');
     $byDate  = $sorted->groupBy('date');
 
@@ -62,6 +64,9 @@
       --bg-card-active: rgba(255, 255, 255, 0.04);
       --border-color: var(--border);
       --border-hover: var(--border-hover);
+      
+      --danger: #E85A5A;
+      --danger-soft: rgba(232, 90, 90, 0.12);
       
       --success: #34B583;
       --success-soft: rgba(52, 181, 131, 0.14);
@@ -103,6 +108,22 @@
     @keyframes pulseGlow {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.6; }
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     .mut-modern .animate-in {
@@ -661,6 +682,62 @@
       margin-top: 2px;
     }
 
+    /* ----- ROW ACTIONS (show / edit / delete) ----- */
+    .mut-tx .tx-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+      margin-left: 4px;
+    }
+
+    .mut-tx .tx-actions .btn-action {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      color: var(--text-tertiary);
+      background: transparent;
+      border: 1px solid var(--border-color);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .mut-tx .tx-actions .btn-action .icon {
+      width: 14px;
+      height: 14px;
+    }
+
+    .mut-tx .tx-actions .btn-action.show {
+      color: var(--theme-primary);
+    }
+
+    .mut-tx .tx-actions .btn-action.show:hover {
+      background: var(--theme-soft);
+      border-color: var(--theme-primary);
+    }
+
+    .mut-tx .tx-actions .btn-action.edit {
+      color: #4FA6E8;
+    }
+
+    .mut-tx .tx-actions .btn-action.edit:hover {
+      background: rgba(79, 166, 232, 0.12);
+      border-color: #4FA6E8;
+    }
+
+    .mut-tx .tx-actions .btn-action.danger {
+      color: var(--danger);
+    }
+
+    .mut-tx .tx-actions .btn-action.danger:hover {
+      background: var(--danger-soft);
+      border-color: var(--danger);
+    }
+
     /* ----- EMPTY STATE ----- */
     .mut-empty {
       text-align: center;
@@ -747,6 +824,122 @@
       color: var(--text-primary);
     }
 
+    /* ----- MODAL DELETE ----- */
+    .mut-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: modalFadeIn 0.3s ease;
+    }
+    .mut-modal-overlay.active {
+      display: flex;
+    }
+    .mut-modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      max-width: 440px;
+      width: 100%;
+      padding: 32px 36px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+      animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: center;
+    }
+    [data-theme="light"] .mut-modal-box {
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+    }
+    .mut-modal-box .icon-danger {
+      width: 56px;
+      height: 56px;
+      color: var(--danger);
+      margin: 0 auto 16px;
+      background: var(--danger-soft);
+      border-radius: 50%;
+      padding: 12px;
+    }
+    .mut-modal-box h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+    .mut-modal-box p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      line-height: 1.6;
+    }
+    .mut-modal-box .mutation-desc {
+      font-weight: 600;
+      color: var(--text-primary);
+      background: var(--bg-card-active);
+      padding: 2px 12px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    .mut-modal-box .warning-text {
+      font-size: 13px;
+      color: var(--danger);
+      font-weight: 500;
+      margin-top: 12px;
+      padding: 10px 16px;
+      background: var(--danger-soft);
+      border-radius: var(--radius-sm);
+      display: inline-block;
+    }
+    .mut-modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+    .mut-modal-actions .btn {
+      min-width: 100px;
+      justify-content: center;
+      padding: 10px 22px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s ease;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mut-modal-actions .btn .icon {
+      width: 16px;
+      height: 16px;
+    }
+    .mut-modal-actions .btn-outline {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+    .mut-modal-actions .btn-outline:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      color: var(--text-primary);
+    }
+    .mut-modal-actions .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .mut-modal-actions .btn-danger:hover {
+      background: #d14a4a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(232, 90, 90, 0.4);
+    }
+
     /* ============================================
        RESPONSIVE
        ============================================ */
@@ -826,6 +1019,14 @@
 
       .mut-tx .tx-right {
         margin-left: auto;
+      }
+
+      .mut-tx .tx-actions {
+        order: 2;
+        flex-basis: 100%;
+        justify-content: flex-end;
+        margin-left: 0;
+        margin-top: 4px;
       }
 
       .mut-footer {
@@ -968,7 +1169,10 @@
       </div>
 
       <div class="mut-transactions">
-        @foreach($rows as $m)
+        {{-- $originalIndex adalah key asli dari array $mutations di session,
+             dipertahankan lewat sortByDesc()/groupBy() sehingga aman dipakai
+             untuk route show/edit/delete --}}
+        @foreach($rows as $originalIndex => $m)
           <div class="mut-tx type-{{ $m['type'] }} animate-in" 
                style="animation-delay: {{ 0.35 + ($loop->parent->index * 0.05) + ($loop->index * 0.03) }}s;">
             
@@ -983,7 +1187,7 @@
                 <span>•</span>
                 <span>{{ formatTanggal($m['date']) }}</span>
                 <span>•</span>
-                <span style="font-family: monospace; font-size: 11px;">#{{ str_pad($loop->parent->index + $loop->index + 1, 4, '0', STR_PAD_LEFT) }}</span>
+                <span style="font-family: monospace; font-size: 11px;">#{{ str_pad($originalIndex + 1, 4, '0', STR_PAD_LEFT) }}</span>
               </div>
             </div>
 
@@ -994,6 +1198,31 @@
               <div class="tx-balance num">
                 Saldo {{ $currencySymbol }}{{ number_format($m['saldo'], 0, ',', '.') }}
               </div>
+            </div>
+
+            <div class="tx-actions">
+              <a href="/bank-mutations/show/{{ $originalIndex }}" class="btn-action show" title="Lihat Detail">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </a>
+              <a href="/bank-mutations/edit/{{ $originalIndex }}" class="btn-action edit" title="Edit">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                  <path d="M15 5l4 4"/>
+                </svg>
+              </a>
+              <button type="button" class="btn-action danger" title="Hapus"
+                      onclick="openDeleteModal('{{ $originalIndex }}', '{{ $m['desc'] }}')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 6h18"/>
+                  <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  <path d="M10 11v6"/>
+                  <path d="M14 11v6"/>
+                </svg>
+              </button>
             </div>
           </div>
         @endforeach
@@ -1034,7 +1263,71 @@
 
   </div>
 
+  <!-- ===== MODAL DELETE ===== -->
+  <div class="mut-modal-overlay" id="deleteModal">
+    <div class="mut-modal-box">
+      <svg class="icon-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <h3>Hapus Mutasi?</h3>
+      <p>
+        Anda yakin ingin menghapus transaksi
+        <br>
+        <span class="mutation-desc" id="deleteMutationDesc">-</span>
+      </p>
+      <div class="warning-text">
+        Data yang dihapus tidak dapat dikembalikan!
+      </div>
+      <div class="mut-modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">
+          Batal
+        </button>
+        <form id="deleteForm" action="" method="POST" style="display:inline;">
+          @csrf
+          @method('DELETE')
+          <button type="submit" class="btn btn-danger">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+              <path d="M3 6h18"/>
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              <path d="M10 11v6"/>
+              <path d="M14 11v6"/>
+            </svg>
+            Ya, Hapus!
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
+    function openDeleteModal(index, description) {
+      document.getElementById('deleteMutationDesc').textContent = description;
+      var url = '/bank-mutations/delete/' + index;
+      document.getElementById('deleteForm').action = url;
+      document.getElementById('deleteModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeDeleteModal();
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeDeleteModal();
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
       const buttons = document.querySelectorAll('.mut-btn');
       buttons.forEach(btn => {

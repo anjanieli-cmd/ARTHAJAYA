@@ -1,13 +1,23 @@
 <x-app-layout>
-  <x-slot name="title">Tambah PPh</x-slot>
+  <x-slot name="title">Tambah PPN</x-slot>
 
   @php
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
+
+    $months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    $currentMonth = $months[date('n') - 1] . ' ' . date('Y');
   @endphp
 
   <style>
-    .tax-create-wrap {
+    /* ============================================
+       PPN CREATE - Premium Design
+       ============================================ */
+    
+    .ppn-create-wrap {
       --theme-primary: var(--emerald);
       --theme-light: var(--emerald);
       --theme-dark: var(--emerald-dim);
@@ -27,6 +37,10 @@
       
       --danger: #E85A5A;
       --danger-soft: rgba(232, 90, 90, 0.12);
+      --success: #34B583;
+      --success-soft: rgba(52, 181, 131, 0.14);
+      --warning: #F0A83C;
+      --warning-soft: rgba(240, 168, 60, 0.14);
       
       --radius-sm: 10px;
       --radius-md: 16px;
@@ -36,35 +50,40 @@
       color: var(--text-primary);
     }
 
-    .tax-create-wrap * { box-sizing: border-box; }
-    .tax-create-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .ppn-create-wrap * { box-sizing: border-box; }
+    .ppn-create-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .tax-create-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
-    .tax-create-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .ppn-create-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .ppn-create-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     /* HEADER */
-    .tch-header {
+    .pn-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 24px;
       flex-wrap: wrap;
-      margin-bottom: 28px;
+      margin-bottom: 32px;
       padding: 0 4px;
     }
 
-    .tch-header-left { flex: 1; min-width: 200px; }
+    .pn-header-left { flex: 1; min-width: 200px; }
 
-    .tch-badge {
+    .pn-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px 6px 10px;
+      padding: 6px 16px 6px 12px;
       background: var(--theme-glow);
       border: 1px solid var(--theme-glow);
       border-radius: 100px;
@@ -76,7 +95,7 @@
       margin-bottom: 12px;
     }
 
-    .tch-badge .dot {
+    .pn-badge .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
@@ -84,7 +103,7 @@
       animation: pulseGlow 2s ease-in-out infinite;
     }
 
-    .tch-header h1 {
+    .pn-header h1 {
       font-size: 28px;
       font-weight: 700;
       margin: 0 0 6px;
@@ -95,20 +114,25 @@
       letter-spacing: -0.02em;
     }
 
-    .tch-header .subtitle {
+    .pn-header .subtitle {
       font-size: 14px;
       color: var(--text-secondary);
       margin: 0;
     }
 
-    .tch-actions {
+    .pn-header .subtitle strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .pn-actions {
       display: flex;
       gap: 10px;
       flex-shrink: 0;
       flex-wrap: wrap;
     }
 
-    .tch-btn {
+    .pn-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -126,35 +150,35 @@
       overflow: hidden;
     }
 
-    .tch-btn .icon { width: 16px; height: 16px; }
-    .tch-btn:hover { transform: translateY(-2px); }
-    .tch-btn:active { transform: translateY(0) scale(0.97); }
+    .pn-btn .icon { width: 16px; height: 16px; }
+    .pn-btn:hover { transform: translateY(-2px); }
+    .pn-btn:active { transform: translateY(0) scale(0.97); }
 
-    .tch-btn-primary {
+    .pn-btn-primary {
       background: var(--theme-gradient);
       color: #fff;
       box-shadow: 0 4px 16px var(--theme-glow);
     }
 
-    .tch-btn-primary:hover {
+    .pn-btn-primary:hover {
       box-shadow: 0 8px 28px var(--theme-glow);
       transform: translateY(-2px);
       color: #fff;
     }
 
-    .tch-btn-ghost {
+    .pn-btn-ghost {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
     }
 
-    .tch-btn-ghost:hover {
+    .pn-btn-ghost:hover {
       background: var(--bg-card-hover);
       border-color: var(--border-hover);
       color: var(--text-primary);
     }
 
-    .tch-btn .ripple {
+    .pn-btn .ripple {
       position: absolute;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
@@ -167,53 +191,73 @@
       to { transform: scale(4); opacity: 0; }
     }
 
-    /* FORM */
-    .tch-form {
-      max-width: 700px;
+    /* FORM LAYOUT */
+    .pn-form {
+      max-width: 800px;
       margin: 0 auto;
     }
 
-    .tch-card {
+    .pn-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       padding: 28px 32px;
-      transition: border-color 0.22s ease;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .tch-card:hover { border-color: var(--border-hover); }
+    .pn-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
 
-    .tch-card .title {
+    .pn-card .title {
       font-size: 15px;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .tch-form-group {
+    .pn-card .title .icon {
+      width: 18px;
+      height: 18px;
+      color: var(--theme-primary);
+    }
+
+    .pn-card .title .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-color), transparent);
+    }
+
+    /* FORM GROUP */
+    .pn-form-group {
       margin-bottom: 18px;
     }
 
-    .tch-form-group:last-child { margin-bottom: 0; }
+    .pn-form-group:last-child { margin-bottom: 0; }
 
-    .tch-form-group label {
+    .pn-form-group label {
       display: block;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--text-tertiary);
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 5px;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
     }
 
-    .tch-form-group .required {
+    .pn-form-group .required {
       color: var(--danger);
       margin-left: 2px;
     }
 
-    .tch-form-group input,
-    .tch-form-group select,
-    .tch-form-group textarea {
+    .pn-form-group input,
+    .pn-form-group select,
+    .pn-form-group textarea {
       width: 100%;
       padding: 10px 14px;
       background: var(--bg-card-active);
@@ -222,170 +266,242 @@
       color: var(--text-primary);
       font-size: 13px;
       font-family: 'Inter', sans-serif;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       outline: none;
     }
 
-    .tch-form-group input:focus,
-    .tch-form-group select:focus,
-    .tch-form-group textarea:focus {
+    .pn-form-group input:focus,
+    .pn-form-group select:focus,
+    .pn-form-group textarea:focus {
       border-color: var(--theme-primary);
       background: var(--bg-card-hover);
+      box-shadow: 0 0 0 4px var(--theme-glow);
     }
 
-    .tch-form-group input::placeholder,
-    .tch-form-group textarea::placeholder {
+    .pn-form-group input::placeholder,
+    .pn-form-group textarea::placeholder {
       color: var(--text-tertiary);
     }
 
-    .tch-form-group textarea {
+    .pn-form-group textarea {
       resize: vertical;
       min-height: 80px;
     }
 
-    .tch-form-group select option {
-      background: var(--bg-card);
+    .pn-form-group select {
+      cursor: pointer;
+      appearance: auto;
+      -webkit-appearance: auto;
+      color-scheme: dark;
+    }
+
+    .pn-form-group select option {
+      background-color: #12181f;
+      color: #f2f4f7;
+      padding: 10px 14px;
+      font-size: 13px;
+    }
+
+    .pn-form-group select option:checked,
+    .pn-form-group select option:hover {
+      background-color: #17352c;
+      color: #34d399;
+    }
+
+    .pn-form-group select option:disabled {
+      color: #6b7280;
+    }
+
+    .pn-form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* INFO BOX */
+    .pn-info-box {
+      background: var(--theme-soft);
+      border: 1px solid var(--theme-glow);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .pn-info-box .icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      color: var(--theme-primary);
+    }
+
+    .pn-info-box .message {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .pn-info-box .message strong {
       color: var(--text-primary);
     }
 
-    .tch-form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .tch-form-actions {
+    /* FORM ACTIONS */
+    .pn-form-actions {
       display: flex;
       gap: 10px;
       margin-top: 24px;
     }
 
-    .tch-form-actions .tch-btn {
+    .pn-form-actions .pn-btn {
       flex: 1;
       justify-content: center;
+      padding: 12px 20px;
     }
 
-    .tch-info-box {
-      background: var(--theme-soft);
-      border: 1px solid var(--theme-primary);
-      border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--theme-primary);
-    }
-
-    .tch-info-box .icon {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-
-    .tch-info-box .message {
-      font-size: 13px;
-      font-weight: 500;
-    }
-
+    /* RESPONSIVE */
     @media (max-width: 768px) {
-      .tch-form-row { grid-template-columns: 1fr; }
-      .tch-card { padding: 20px; }
+      .pn-form-row { 
+        grid-template-columns: 1fr; 
+      }
+      .pn-card { 
+        padding: 20px; 
+      }
     }
 
     @media (max-width: 640px) {
-      .tch-header { flex-direction: column; }
-      .tch-actions { width: 100%; }
-      .tch-actions .tch-btn { flex: 1; justify-content: center; }
+      .pn-header { 
+        flex-direction: column; 
+      }
+      .pn-actions { 
+        width: 100%; 
+      }
+      .pn-actions .pn-btn { 
+        flex: 1; 
+        justify-content: center; 
+      }
+      .pn-form-actions { 
+        flex-direction: column; 
+      }
+      .pn-form-actions .pn-btn { 
+        flex: none; 
+      }
+    }
+
+    @media (max-width: 380px) {
+      .pn-header h1 { 
+        font-size: 22px; 
+      }
+      .pn-btn { 
+        font-size: 12px; 
+        padding: 8px 14px; 
+      }
+      .pn-btn .icon { 
+        width: 14px; 
+        height: 14px; 
+      }
     }
   </style>
 
-  <div class="tax-create-wrap">
+  <div class="ppn-create-wrap">
 
-    <div class="tch-header animate-in" style="animation-delay: 0.05s;">
-      <div class="tch-header-left">
-        <div class="tch-badge">
+    <!-- ===== HEADER ===== -->
+    <div class="pn-header animate-in" style="animation-delay: 0.05s;">
+      <div class="pn-header-left">
+        <div class="pn-badge">
           <span class="dot"></span>
           Pajak
         </div>
-        <h1>Tambah PPh</h1>
-        <p class="subtitle">Catat Pajak Penghasilan (PPh) baru</p>
+        <h1>Tambah PPN</h1>
+        <p class="subtitle">
+          Catat Pajak Pertambahan Nilai (PPN) — <strong>periode {{ $currentMonth }}</strong>
+        </p>
       </div>
-      <div class="tch-actions">
-        <a href="{{ route('taxes.pph') }}" class="tch-btn tch-btn-ghost">
+      <div class="pn-actions">
+        <a href="{{ route('taxes.ppn') }}" class="pn-btn pn-btn-ghost">
           <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow-right"/></svg>
           Kembali
         </a>
       </div>
     </div>
 
-    <form action="{{ route('taxes.pph.store') }}" method="POST" class="tch-form">
+    <!-- ===== FORM ===== -->
+    <form action="{{ route('taxes.ppn.store') }}" method="POST" class="pn-form">
       @csrf
 
-      <div class="tch-card animate-in" style="animation-delay: 0.10s;">
-        <div class="title">Informasi PPh</div>
-
-        <div class="tch-info-box">
-          <svg class="icon"><use href="#ic-building"/></svg>
-          <span class="message">Catat PPh terutang untuk setiap periode</span>
+      <div class="pn-card animate-in" style="animation-delay: 0.10s;">
+        <div class="title">
+          <svg class="icon"><use href="#ic-tax"/></svg>
+          Informasi PPN
+          <span class="line"></span>
         </div>
 
-        <div class="tch-form-group">
+        <!-- Info Box -->
+        <div class="pn-info-box">
+          <svg class="icon"><use href="#ic-info"/></svg>
+          <div class="message">
+            <strong>Perhatian:</strong> Catat PPN Keluaran dan PPN Masukan untuk setiap periode. 
+            Selisih antara keduanya akan menentukan PPN yang harus dibayar.
+          </div>
+        </div>
+
+        <!-- Period -->
+        <div class="pn-form-group">
           <label>Periode <span class="required">*</span></label>
           <select name="period" required>
-            <option value="Januari 2026">Januari 2026</option>
-            <option value="Februari 2026">Februari 2026</option>
-            <option value="Maret 2026">Maret 2026</option>
-            <option value="April 2026">April 2026</option>
-            <option value="Mei 2026">Mei 2026</option>
-            <option value="Juni 2026">Juni 2026</option>
-            <option value="Juli 2026" selected>Juli 2026</option>
-            <option value="Agustus 2026">Agustus 2026</option>
-            <option value="September 2026">September 2026</option>
-            <option value="Oktober 2026">Oktober 2026</option>
-            <option value="November 2026">November 2026</option>
-            <option value="Desember 2026">Desember 2026</option>
+            @foreach($months as $month)
+              @php
+                $year = date('Y');
+                $value = $month . ' ' . $year;
+                $selected = ($month == $months[date('n') - 1]) ? 'selected' : '';
+              @endphp
+              <option value="{{ $value }}" {{ $selected }}>
+                {{ $month }} {{ $year }}
+              </option>
+            @endforeach
           </select>
         </div>
 
-        <div class="tch-form-row">
-          <div class="tch-form-group">
-            <label>Penghasilan Bruto <span class="required">*</span></label>
-            <input type="number" name="gross" placeholder="0" min="0" step="1000" required>
+        <!-- Output & Input -->
+        <div class="pn-form-row">
+          <div class="pn-form-group">
+            <label>PPN Keluaran <span class="required">*</span></label>
+            <input type="number" name="output" placeholder="0" min="0" step="1000" required>
           </div>
-          <div class="tch-form-group">
-            <label>Pengurang <span class="required">*</span></label>
-            <input type="number" name="deduction" placeholder="0" min="0" step="1000" required>
+          <div class="pn-form-group">
+            <label>PPN Masukan <span class="required">*</span></label>
+            <input type="number" name="input" placeholder="0" min="0" step="1000" required>
           </div>
         </div>
 
-        <div class="tch-form-group">
-          <label>PPh Terutang <span class="required">*</span></label>
-          <input type="number" name="tax" placeholder="0" min="0" step="1000" required>
+        <!-- Due Date & Status -->
+        <div class="pn-form-row">
+          <div class="pn-form-group">
+            <label>Jatuh Tempo <span class="required">*</span></label>
+            <input type="date" name="due" value="{{ date('Y-m-d', strtotime('+30 days')) }}" required>
+          </div>
+          <div class="pn-form-group">
+            <label>Status <span class="required">*</span></label>
+            <select name="status" required>
+              <option value="pending">Pending</option>
+              <option value="paid">Dibayar</option>
+            </select>
+          </div>
         </div>
 
-        <div class="tch-form-group">
-          <label>Jatuh Tempo <span class="required">*</span></label>
-          <input type="date" name="due" value="{{ date('Y-m-d', strtotime('+30 days')) }}" required>
-        </div>
-
-        <div class="tch-form-group">
-          <label>Status <span class="required">*</span></label>
-          <select name="status" required>
-            <option value="pending">Pending</option>
-            <option value="paid">Dibayar</option>
-          </select>
-        </div>
-
-        <div class="tch-form-group">
+        <!-- Notes -->
+        <div class="pn-form-group">
           <label>Catatan</label>
-          <textarea name="notes" placeholder="Catatan PPh..."></textarea>
+          <textarea name="notes" placeholder="Catatan PPN..."></textarea>
         </div>
 
-        <div class="tch-form-actions">
-          <button type="submit" class="tch-btn tch-btn-primary">
+        <!-- Actions -->
+        <div class="pn-form-actions">
+          <button type="submit" class="pn-btn pn-btn-primary">
             <svg class="icon"><use href="#ic-check"/></svg>
-            Simpan PPh
+            Simpan PPN
           </button>
         </div>
       </div>
@@ -394,9 +510,18 @@
 
   </div>
 
+  <!-- SVG Icons -->
+  <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="ic-tax" viewBox="0 0 24 24"><path d="M12 2L2 7v4c0 5.52 3.12 10.56 10 11 6.88-.44 10-5.48 10-11V7L12 2z"/><polyline points="12 11 12 17 16 17"/><line x1="8" y1="17" x2="16" y2="17"/></symbol>
+  </svg>
+
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const buttons = document.querySelectorAll('.tch-btn');
+      // Ripple effect
+      const buttons = document.querySelectorAll('.pn-btn');
       buttons.forEach(btn => {
         btn.addEventListener('click', function(e) {
           const rect = this.getBoundingClientRect();

@@ -18,6 +18,7 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReceivableController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TeamMemberController;
 use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\SecurityController;
 
@@ -902,10 +903,10 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         if (!session()->has('employees')) {
             session(['employees' => [
-                ['name' => 'Budi Santoso', 'position' => 'Pengrajin Batik', 'department' => 'Produksi', 'email' => 'budi@arthajaya.com', 'phone' => '0812-3456-7890', 'salary' => 4500000, 'status' => 'active', 'joined' => '2023-01-15'],
-                ['name' => 'Siti Rahayu', 'position' => 'Desainer', 'department' => 'Kreatif', 'email' => 'siti@arthajaya.com', 'phone' => '0813-4567-8901', 'salary' => 5200000, 'status' => 'active', 'joined' => '2023-03-01'],
-                ['name' => 'Agus Wijaya', 'position' => 'Marketing', 'department' => 'Marketing', 'email' => 'agus@arthajaya.com', 'phone' => '0814-5678-9012', 'salary' => 4800000, 'status' => 'active', 'joined' => '2023-06-10'],
-                ['name' => 'Dewi Lestari', 'position' => 'Admin', 'department' => 'Operasional', 'email' => 'dewi@arthajaya.com', 'phone' => '0815-6789-0123', 'salary' => 4000000, 'status' => 'active', 'joined' => '2023-08-20'],
+                ['name' => 'Budi Santoso', 'position' => 'Pengrajin Batik', 'department' => 'Produksi', 'email' => 'budi@arvessa.com', 'phone' => '0812-3456-7890', 'salary' => 4500000, 'status' => 'active', 'joined' => '2023-01-15'],
+                ['name' => 'Siti Rahayu', 'position' => 'Desainer', 'department' => 'Kreatif', 'email' => 'siti@arvessa.com', 'phone' => '0813-4567-8901', 'salary' => 5200000, 'status' => 'active', 'joined' => '2023-03-01'],
+                ['name' => 'Agus Wijaya', 'position' => 'Marketing', 'department' => 'Marketing', 'email' => 'agus@arvessa.com', 'phone' => '0814-5678-9012', 'salary' => 4800000, 'status' => 'active', 'joined' => '2023-06-10'],
+                ['name' => 'Dewi Lestari', 'position' => 'Admin', 'department' => 'Operasional', 'email' => 'dewi@arvessa.com', 'phone' => '0815-6789-0123', 'salary' => 4000000, 'status' => 'active', 'joined' => '2023-08-20'],
             ]]);
         }
 
@@ -1596,7 +1597,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
             </table>
 
             <div class="footer">
-                Laporan ini dihasilkan secara otomatis oleh Arthajaya System
+                Laporan ini dihasilkan secara otomatis oleh Arvessa System
             </div>
         </body>
         </html>';
@@ -1616,6 +1617,9 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $company = $user->company;
         return view('users.index', compact('user', 'company'));
     })->name('users.index');
+
+    // Multi-User & Hak Akses (pakai TeamMemberController)
+    Route::resource('team-members', TeamMemberController::class);
 
     // Integrasi (pakai IntegrationController)
     Route::resource('integrations', IntegrationController::class);

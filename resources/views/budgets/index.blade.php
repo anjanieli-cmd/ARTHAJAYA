@@ -16,6 +16,14 @@
         ['category' => 'Pengembangan', 'period' => '2026', 'target' => 35000000, 'actual' => 21000000, 'progress' => 60, 'status' => 'under_budget'],
     ];
 
+    // Tambahkan ID ke setiap budget jika belum ada
+    $budgets = array_map(function($item, $index) {
+        if (!isset($item['id'])) {
+            $item['id'] = $index + 1;
+        }
+        return $item;
+    }, $budgets, array_keys($budgets));
+
     $budgetsCollection = collect($budgets);
     $statusLabel = ['on_track' => 'On Track', 'over_budget' => 'Over Budget', 'under_budget' => 'Under Budget'];
     $statusColor = ['on_track' => 'var(--success)', 'over_budget' => 'var(--danger)', 'under_budget' => 'var(--warning)'];
@@ -46,6 +54,11 @@
     
     $forecastCollection = collect($forecast);
     $maxValue = $forecastCollection->max('target') * 1.2;
+
+    // Cek apakah route exists
+    $hasEditRoute = Route::has('budgets.edit');
+    $hasShowRoute = Route::has('budgets.show');
+    $hasDestroyRoute = Route::has('budgets.destroy');
   @endphp
 
   <style>
@@ -80,6 +93,12 @@
       
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
+      
+      /* BACKGROUND SOLID */
+      background: var(--surface);
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      min-height: 100vh;
     }
 
     .budget-wrap * { box-sizing: border-box; }
@@ -195,10 +214,11 @@
       border: none;
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      background: transparent;
+      background: var(--bg-card);
       color: var(--text-secondary);
       position: relative;
       overflow: hidden;
+      border: 1px solid var(--border-color);
     }
 
     .budget-btn .icon { width: 16px; height: 16px; }
@@ -209,6 +229,7 @@
       background: var(--theme-gradient);
       color: #fff;
       box-shadow: 0 4px 16px var(--theme-glow);
+      border: none;
     }
 
     .budget-btn-primary:hover {
@@ -323,6 +344,7 @@
       padding: 20px 22px;
       margin-bottom: 12px;
       transition: all 0.3s ease;
+      position: relative;
     }
 
     .budget-card:hover {
@@ -342,10 +364,23 @@
       margin-bottom: 10px;
     }
 
+    .budget-card .top .left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
     .budget-card .top .category {
       font-size: 15px;
       font-weight: 600;
       color: var(--text-primary);
+    }
+
+    .budget-card .top .right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .budget-card .top .status {
@@ -370,6 +405,102 @@
     .budget-card .top .status.under-budget {
       background: var(--warning-soft);
       color: var(--warning);
+    }
+
+    /* DROPDOWN */
+    .budget-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .budget-dropdown .dropdown-toggle {
+      background: transparent;
+      border: none;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .budget-dropdown .dropdown-toggle:hover {
+      background: var(--bg-card-active);
+      color: var(--text-primary);
+    }
+
+    .budget-dropdown .dropdown-toggle .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .budget-dropdown .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 4px);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 6px 0;
+      min-width: 180px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px) scale(0.96);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      transform-origin: top right;
+    }
+
+    .budget-dropdown .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .budget-dropdown .dropdown-menu .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .budget-dropdown .dropdown-menu .dropdown-item:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .budget-dropdown .dropdown-menu .dropdown-item .icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .budget-dropdown .dropdown-menu .dropdown-item.text-danger {
+      color: var(--danger);
+    }
+
+    .budget-dropdown .dropdown-menu .dropdown-item.text-danger:hover {
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .budget-dropdown .dropdown-menu .divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 4px 12px;
     }
 
     .budget-card .progress-wrap {
@@ -576,6 +707,73 @@
       font-size: 14px;
     }
 
+    /* Delete Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-overlay .modal-box {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      max-width: 440px;
+      width: 90%;
+      animation: fadeSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid var(--border-color);
+    }
+
+    .modal-overlay .modal-box .modal-icon {
+      width: 48px;
+      height: 48px;
+      color: var(--danger);
+      margin: 0 auto 16px;
+      display: block;
+    }
+
+    .modal-overlay .modal-box h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 8px;
+      text-align: center;
+      color: var(--text-primary);
+    }
+
+    .modal-overlay .modal-box p {
+      color: var(--text-secondary);
+      text-align: center;
+      margin: 0 0 24px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .modal-overlay .modal-box .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .modal-overlay .modal-box .modal-actions .budget-btn {
+      min-width: 100px;
+      justify-content: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
     @media (max-width: 992px) {
       .budget-stats { grid-template-columns: 1fr 1fr; }
       .budget-card .bottom { grid-template-columns: 1fr 1fr; }
@@ -670,8 +868,58 @@
       @forelse($budgets as $b)
         <div class="budget-card animate-in" style="animation-delay: {{ 0.20 + ($loop->index * 0.04) }}s;">
           <div class="top">
-            <span class="category">{{ $b['category'] }}</span>
-            <span class="status {{ $statusPill[$b['status']] }}">{{ $statusLabel[$b['status']] }}</span>
+            <div class="left">
+              <span class="category">{{ $b['category'] }}</span>
+            </div>
+            <div class="right">
+              <span class="status {{ $statusPill[$b['status']] }}">{{ $statusLabel[$b['status']] }}</span>
+              
+              <!-- Dropdown -->
+              <div class="budget-dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown(event, this)" aria-label="Actions">
+                  <svg class="icon"><use href="#ic-more"/></svg>
+                </button>
+                <div class="dropdown-menu">
+                  @if(Route::has('budgets.show'))
+                    <a href="{{ route('budgets.show', $b['id']) }}" class="dropdown-item">
+                      <svg class="icon"><use href="#ic-eye"/></svg>
+                      Lihat Detail
+                    </a>
+                  @else
+                    <a href="{{ url('/budgets/'.$b['id']) }}" class="dropdown-item">
+                      <svg class="icon"><use href="#ic-eye"/></svg>
+                      Lihat Detail
+                    </a>
+                  @endif
+
+                  @if(Route::has('budgets.edit'))
+                    <a href="{{ route('budgets.edit', $b['id']) }}" class="dropdown-item">
+                      <svg class="icon"><use href="#ic-edit"/></svg>
+                      Edit Anggaran
+                    </a>
+                  @else
+                    <a href="{{ url('/budgets/'.$b['id'].'/edit') }}" class="dropdown-item">
+                      <svg class="icon"><use href="#ic-edit"/></svg>
+                      Edit Anggaran
+                    </a>
+                  @endif
+
+                  <div class="divider"></div>
+                  
+                  @if(Route::has('budgets.destroy'))
+                    <button class="dropdown-item text-danger" onclick="confirmDelete({{ $b['id'] }}, '{{ addslashes($b['category']) }}', '{{ route('budgets.destroy', $b['id']) }}')">
+                      <svg class="icon"><use href="#ic-trash"/></svg>
+                      Hapus
+                    </button>
+                  @else
+                    <button class="dropdown-item text-danger" onclick="confirmDelete({{ $b['id'] }}, '{{ addslashes($b['category']) }}', '{{ url('/budgets/'.$b['id']) }}')">
+                      <svg class="icon"><use href="#ic-trash"/></svg>
+                      Hapus
+                    </button>
+                  @endif
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="progress-wrap">
@@ -779,6 +1027,37 @@
 
   </div>
 
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+      <svg class="modal-icon"><use href="#ic-trash"/></svg>
+      <h3>Hapus Anggaran</h3>
+      <p>Apakah Anda yakin ingin menghapus anggaran <strong id="deleteItemName"></strong>? Tindakan ini tidak dapat dibatalkan.</p>
+      <div class="modal-actions">
+        <button class="budget-btn budget-btn-ghost" onclick="closeDeleteModal()">Batal</button>
+        <form id="deleteForm" method="POST" style="display:inline;">
+          @csrf
+          @method('DELETE')
+          <button type="submit" class="budget-btn" style="background:var(--danger);color:#fff;border:none;box-shadow:0 4px 16px rgba(232,90,90,0.3);">
+            Hapus
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- SVG Icons -->
+  <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="ic-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="ic-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></symbol>
+    <symbol id="ic-more" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></symbol>
+    <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+    <symbol id="ic-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></symbol>
+    <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+  </svg>
+
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Ripple effect
@@ -812,6 +1091,49 @@
           });
         });
       });
+
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.budget-dropdown')) {
+          document.querySelectorAll('.budget-dropdown .dropdown-menu.show').forEach(menu => {
+            menu.classList.remove('show');
+          });
+        }
+      });
+    });
+
+    // Toggle dropdown
+    function toggleDropdown(event, button) {
+      event.stopPropagation();
+      const menu = button.parentElement.querySelector('.dropdown-menu');
+      const isOpen = menu.classList.contains('show');
+      
+      // Close all other dropdowns
+      document.querySelectorAll('.budget-dropdown .dropdown-menu.show').forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+      });
+      
+      menu.classList.toggle('show');
+    }
+
+    // Confirm delete
+    function confirmDelete(id, name, actionUrl) {
+      document.getElementById('deleteItemName').textContent = name;
+      const form = document.getElementById('deleteForm');
+      form.action = actionUrl;
+      document.getElementById('deleteModal').classList.add('show');
+    }
+
+    // Close delete modal
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.remove('show');
+    }
+
+    // Close modal on overlay click
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeDeleteModal();
+      }
     });
   </script>
 </x-app-layout>

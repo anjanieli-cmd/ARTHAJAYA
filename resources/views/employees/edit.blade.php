@@ -6,7 +6,7 @@
        HPP EDIT - Premium Design
        ============================================ */
     
-    .hpp-edit-wrap {
+    .hpp-wrap {
       --theme-primary: var(--emerald);
       --theme-light: var(--emerald);
       --theme-dark: var(--emerald-dim);
@@ -37,10 +37,11 @@
       
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
+      max-width: 100%;
+      padding: 0 24px;
     }
 
-    .hpp-edit-wrap * { box-sizing: border-box; }
-    .hpp-edit-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .hpp-wrap * { box-sizing: border-box; }
 
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(16px); }
@@ -52,27 +53,27 @@
       50% { opacity: 0.6; }
     }
 
-    .hpp-edit-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
-    .hpp-edit-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .hpp-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .hpp-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     /* HEADER */
-    .he-header {
+    .hpp-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 24px;
       flex-wrap: wrap;
-      margin-bottom: 28px;
+      margin-bottom: 32px;
       padding: 0 4px;
     }
 
-    .he-header-left { flex: 1; min-width: 200px; }
+    .hpp-header-left { flex: 1; min-width: 200px; }
 
-    .he-badge {
+    .hpp-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px 6px 10px;
+      padding: 6px 16px 6px 12px;
       background: var(--theme-glow);
       border: 1px solid var(--theme-glow);
       border-radius: 100px;
@@ -84,7 +85,7 @@
       margin-bottom: 12px;
     }
 
-    .he-badge .dot {
+    .hpp-badge .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
@@ -92,7 +93,7 @@
       animation: pulseGlow 2s ease-in-out infinite;
     }
 
-    .he-header h1 {
+    .hpp-header h1 {
       font-size: 28px;
       font-weight: 700;
       margin: 0 0 6px;
@@ -103,25 +104,25 @@
       letter-spacing: -0.02em;
     }
 
-    .he-header .subtitle {
+    .hpp-header .subtitle {
       font-size: 14px;
       color: var(--text-secondary);
       margin: 0;
     }
 
-    .he-header .subtitle strong {
+    .hpp-header .subtitle strong {
       color: var(--text-primary);
       font-weight: 600;
     }
 
-    .he-actions {
+    .hpp-actions {
       display: flex;
       gap: 10px;
       flex-shrink: 0;
       flex-wrap: wrap;
     }
 
-    .he-btn {
+    .hpp-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -139,35 +140,35 @@
       overflow: hidden;
     }
 
-    .he-btn .icon { width: 16px; height: 16px; }
-    .he-btn:hover { transform: translateY(-2px); }
-    .he-btn:active { transform: translateY(0) scale(0.97); }
+    .hpp-btn .icon { width: 16px; height: 16px; }
+    .hpp-btn:hover { transform: translateY(-2px); }
+    .hpp-btn:active { transform: translateY(0) scale(0.97); }
 
-    .he-btn-primary {
+    .hpp-btn-primary {
       background: var(--theme-gradient);
       color: #fff;
       box-shadow: 0 4px 16px var(--theme-glow);
     }
 
-    .he-btn-primary:hover {
+    .hpp-btn-primary:hover {
       box-shadow: 0 8px 28px var(--theme-glow);
       transform: translateY(-2px);
       color: #fff;
     }
 
-    .he-btn-ghost {
+    .hpp-btn-ghost {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
     }
 
-    .he-btn-ghost:hover {
+    .hpp-btn-ghost:hover {
       background: var(--bg-card-hover);
       border-color: var(--border-hover);
       color: var(--text-primary);
     }
 
-    .he-btn .ripple {
+    .hpp-btn .ripple {
       position: absolute;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
@@ -180,8 +181,10 @@
       to { transform: scale(4); opacity: 0; }
     }
 
-    /* FORM LAYOUT - Grid */
-    .he-form-wrap {
+    /* FORM LAYOUT - FULL WIDTH */
+    .hpp-form {
+      width: 100%;
+      max-width: 100%;
       display: grid;
       grid-template-columns: 1fr 340px;
       gap: 24px;
@@ -189,157 +192,179 @@
     }
 
     @media (max-width: 1024px) {
-      .he-form-wrap {
+      .hpp-form {
         grid-template-columns: 1fr;
         gap: 24px;
       }
     }
 
-    .he-card {
+    .hpp-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 28px 32px;
-      transition: border-color 0.22s ease;
+      padding: 32px 40px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 100%;
     }
 
-    .he-card:hover { border-color: var(--border-hover); }
+    .hpp-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
 
-    .he-card .title {
-      font-size: 15px;
+    .hpp-card .title {
+      font-size: 16px;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .he-card .title .icon {
-      width: 18px;
-      height: 18px;
+    .hpp-card .title .icon {
+      width: 20px;
+      height: 20px;
       color: var(--theme-primary);
-      margin-right: 8px;
-      vertical-align: middle;
+    }
+
+    .hpp-card .title .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-color), transparent);
     }
 
     /* FORM GROUP */
-    .he-form-group {
-      margin-bottom: 18px;
+    .hpp-form-group {
+      margin-bottom: 20px;
     }
 
-    .he-form-group:last-child { margin-bottom: 0; }
+    .hpp-form-group:last-child { margin-bottom: 0; }
 
-    .he-form-group label {
+    .hpp-form-group label {
       display: block;
       font-size: 12px;
       font-weight: 600;
       color: var(--text-tertiary);
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 5px;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
     }
 
-    .he-form-group .required {
+    .hpp-form-group .required {
       color: var(--danger);
       margin-left: 2px;
     }
 
-    .he-form-group input,
-    .he-form-group select,
-    .he-form-group textarea {
+    .hpp-form-group input,
+    .hpp-form-group select,
+    .hpp-form-group textarea {
       width: 100%;
-      padding: 10px 14px;
+      padding: 12px 16px;
       background: var(--bg-card-active);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       color: var(--text-primary);
-      font-size: 13px;
+      font-size: 14px;
       font-family: 'Inter', sans-serif;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       outline: none;
     }
 
-    .he-form-group input:focus,
-    .he-form-group select:focus,
-    .he-form-group textarea:focus {
+    .hpp-form-group input:focus,
+    .hpp-form-group select:focus,
+    .hpp-form-group textarea:focus {
       border-color: var(--theme-primary);
       background: var(--bg-card-hover);
+      box-shadow: 0 0 0 4px var(--theme-glow);
     }
 
-    .he-form-group input::placeholder,
-    .he-form-group textarea::placeholder {
+    .hpp-form-group input::placeholder,
+    .hpp-form-group textarea::placeholder {
       color: var(--text-tertiary);
     }
 
-    .he-form-group textarea {
+    .hpp-form-group textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 90px;
     }
 
-    .he-form-group select {
+    .hpp-form-group select {
       cursor: pointer;
       appearance: auto;
       -webkit-appearance: auto;
       color-scheme: dark;
     }
 
-    .he-form-group select option {
+    .hpp-form-group select option {
       background-color: #12181f;
       color: #f2f4f7;
       padding: 10px 14px;
-      font-size: 13px;
+      font-size: 14px;
     }
 
-    .he-form-group select option:checked,
-    .he-form-group select option:hover {
+    .hpp-form-group select option:checked,
+    .hpp-form-group select option:hover {
       background-color: #17352c;
       color: #34d399;
     }
 
-    .he-form-row {
+    .hpp-form-group select option:disabled {
+      color: #6b7280;
+    }
+
+    .hpp-form-row {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 14px;
+      gap: 20px;
     }
 
     @media (max-width: 768px) {
-      .he-form-row {
+      .hpp-form-row {
         grid-template-columns: 1fr 1fr;
         gap: 14px;
       }
     }
 
     @media (max-width: 480px) {
-      .he-form-row {
+      .hpp-form-row {
         grid-template-columns: 1fr;
         gap: 0;
       }
     }
 
     /* INFO BOX */
-    .he-info-box {
+    .hpp-info-box {
       background: var(--theme-soft);
-      border: 1px solid var(--theme-primary);
+      border: 1px solid var(--theme-glow);
       border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      margin-bottom: 18px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
       display: flex;
-      align-items: center;
-      gap: 10px;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .hpp-info-box .icon {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      margin-top: 1px;
       color: var(--theme-primary);
     }
 
-    .he-info-box .icon {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
+    .hpp-info-box .message {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
     }
 
-    .he-info-box .message {
-      font-size: 13px;
-      font-weight: 500;
+    .hpp-info-box .message strong {
+      color: var(--text-primary);
     }
 
     /* SIDEBAR - Summary & Tips */
-    .he-sidebar {
+    .hpp-sidebar {
       position: sticky;
       top: 24px;
       display: flex;
@@ -347,7 +372,7 @@
       gap: 16px;
     }
 
-    .he-total-ticker {
+    .hpp-total-ticker {
       background: linear-gradient(160deg, rgba(var(--emerald-rgb), 0.12), var(--surface) 60%);
       border: 1px solid var(--theme-glow);
       border-radius: var(--radius-md);
@@ -355,13 +380,12 @@
       transition: all 0.3s ease;
     }
 
-    .he-total-ticker:hover {
+    .hpp-total-ticker:hover {
       border-color: var(--theme-primary);
-      transform: translateY(-2px);
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     }
 
-    .he-total-ticker .lbl {
+    .hpp-total-ticker .lbl {
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -370,7 +394,7 @@
       margin-bottom: 8px;
     }
 
-    .he-total-ticker .amt {
+    .hpp-total-ticker .amt {
       font-family: 'Space Grotesk', 'Inter', sans-serif;
       font-size: 32px;
       font-weight: 700;
@@ -378,25 +402,25 @@
       line-height: 1.2;
     }
 
-    .he-total-ticker .sub {
+    .hpp-total-ticker .sub {
       font-size: 13px;
       color: var(--text-secondary);
       margin-top: 6px;
     }
 
-    .he-total-ticker .sub strong {
+    .hpp-total-ticker .sub strong {
       color: var(--text-primary);
       font-weight: 600;
     }
 
-    .he-tips {
+    .hpp-tips {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       padding: 20px 24px;
     }
 
-    .he-tips h4 {
+    .hpp-tips h4 {
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -405,7 +429,7 @@
       margin: 0 0 12px;
     }
 
-    .he-tips ul {
+    .hpp-tips ul {
       list-style: none;
       padding: 0;
       margin: 0;
@@ -414,7 +438,7 @@
       gap: 10px;
     }
 
-    .he-tips li {
+    .hpp-tips li {
       font-size: 13px;
       color: var(--text-secondary);
       padding-left: 18px;
@@ -422,7 +446,7 @@
       line-height: 1.5;
     }
 
-    .he-tips li::before {
+    .hpp-tips li::before {
       content: '✦';
       position: absolute;
       left: 0;
@@ -432,53 +456,78 @@
     }
 
     /* FORM ACTIONS */
-    .he-form-actions {
+    .hpp-form-actions {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
     }
 
-    .he-form-actions .he-btn {
+    .hpp-form-actions .hpp-btn {
       flex: 1;
       justify-content: center;
+      padding: 14px 24px;
+      font-size: 14px;
     }
 
     /* RESPONSIVE */
     @media (max-width: 992px) {
-      .he-card { padding: 24px 28px; }
+      .hpp-wrap { padding: 0 16px; }
+      .hpp-card { padding: 24px 28px; }
     }
 
     @media (max-width: 768px) {
-      .he-header h1 { font-size: 24px; }
-      .he-sidebar { position: relative; top: 0; }
-      .he-total-ticker .amt { font-size: 28px; }
-      .he-card { padding: 20px; }
+      .hpp-wrap { padding: 0 12px; }
+      .hpp-card { padding: 20px; }
+      .hpp-header h1 { font-size: 24px; }
+      .hpp-sidebar { position: relative; top: 0; }
+      .hpp-total-ticker .amt { font-size: 28px; }
     }
 
     @media (max-width: 640px) {
-      .he-header { flex-direction: column; }
-      .he-actions { width: 100%; }
-      .he-actions .he-btn { flex: 1; justify-content: center; }
-      .he-form-actions { flex-direction: column; }
-      .he-form-actions .he-btn { flex: none; }
-      .he-card { padding: 16px; }
-      .he-total-ticker { padding: 20px; }
+      .hpp-header { 
+        flex-direction: column; 
+      }
+      .hpp-actions { 
+        width: 100%; 
+      }
+      .hpp-actions .hpp-btn { 
+        flex: 1; 
+        justify-content: center; 
+      }
+      .hpp-form-actions { 
+        flex-direction: column; 
+      }
+      .hpp-form-actions .hpp-btn { 
+        flex: none; 
+      }
+      .hpp-card { padding: 16px; }
+      .hpp-total-ticker { padding: 20px; }
     }
 
     @media (max-width: 380px) {
-      .he-header h1 { font-size: 20px; }
-      .he-btn { font-size: 12px; padding: 8px 14px; }
-      .he-btn .icon { width: 14px; height: 14px; }
-      .he-card { padding: 12px; }
+      .hpp-header h1 { 
+        font-size: 20px; 
+      }
+      .hpp-btn { 
+        font-size: 12px; 
+        padding: 8px 14px; 
+      }
+      .hpp-btn .icon { 
+        width: 14px; 
+        height: 14px; 
+      }
+      .hpp-card { padding: 12px; }
     }
   </style>
 
-  <div class="hpp-edit-wrap">
+  <div class="hpp-wrap">
 
     <!-- ===== HEADER ===== -->
-    <div class="he-header animate-in" style="animation-delay: 0.05s;">
-      <div class="he-header-left">
-        <div class="he-badge">
+    <div class="hpp-header animate-in" style="animation-delay: 0.05s;">
+      <div class="hpp-header-left">
+        <div class="hpp-badge">
           <span class="dot"></span>
           Inventory &amp; COGS
         </div>
@@ -487,8 +536,8 @@
           Perbarui data transaksi HPP untuk — <strong>{{ $entry->item_name }}</strong>
         </p>
       </div>
-      <div class="he-actions">
-        <a href="{{ route('cogs.index') }}" class="he-btn he-btn-ghost">
+      <div class="hpp-actions">
+        <a href="{{ route('cogs.index') }}" class="hpp-btn hpp-btn-ghost">
           <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow-right"/></svg>
           Kembali
         </a>
@@ -496,40 +545,44 @@
     </div>
 
     <!-- ===== FORM ===== -->
-    <form method="POST" action="{{ route('cogs.update', $entry) }}" class="he-form-wrap" id="cogsForm">
+    <form method="POST" action="{{ route('cogs.update', $entry) }}" class="hpp-form" id="cogsForm">
       @csrf
       @method('PUT')
 
       <!-- Main Form -->
-      <div class="he-card animate-in" style="animation-delay: 0.10s;">
+      <div class="hpp-card animate-in" style="animation-delay: 0.10s;">
         <div class="title">
           <svg class="icon"><use href="#ic-box"/></svg>
           Data Transaksi HPP
+          <span class="line"></span>
         </div>
 
         <!-- Info Box -->
-        <div class="he-info-box">
+        <div class="hpp-info-box">
           <svg class="icon"><use href="#ic-info"/></svg>
-          <span class="message">Mengubah jumlah terjual akan otomatis menyesuaikan stok barang terkait.</span>
+          <div class="message">
+            <strong>Perhatian:</strong> Mengubah jumlah terjual akan otomatis menyesuaikan stok barang terkait. 
+            Harga pokok per unit diambil dari harga beli, bukan harga jual.
+          </div>
         </div>
 
         <!-- Item Name -->
-        <div class="he-form-group">
+        <div class="hpp-form-group">
           <label>Nama Item <span class="required">*</span></label>
           <input type="text" name="item_name" value="{{ $entry->item_name }}" placeholder="Contoh: Batik Tulis Klasik" required>
         </div>
 
         <!-- Qty, Cost, Total -->
-        <div class="he-form-row">
-          <div class="he-form-group">
+        <div class="hpp-form-row">
+          <div class="hpp-form-group">
             <label>Jumlah Terjual <span class="required">*</span></label>
             <input type="number" name="quantity" id="qtyInput" value="{{ $entry->quantity }}" placeholder="0" min="0" step="1" required>
           </div>
-          <div class="he-form-group">
+          <div class="hpp-form-group">
             <label>Harga Pokok / Unit <span class="required">*</span></label>
             <input type="number" name="unit_cost" id="costInput" value="{{ $entry->unit_cost }}" placeholder="0" min="0" step="100" required>
           </div>
-          <div class="he-form-group">
+          <div class="hpp-form-group">
             <label>Total HPP (Otomatis)</label>
             <input type="text" id="totalDisplay" value="Rp0" readonly style="background: var(--bg-card-active); cursor: default; font-weight: 600; color: var(--theme-primary);">
           </div>
@@ -539,32 +592,32 @@
         <input type="hidden" name="total_cost" id="totalInput" value="{{ $entry->total_cost }}">
 
         <!-- Notes -->
-        <div class="he-form-group">
+        <div class="hpp-form-group">
           <label>Catatan</label>
           <textarea name="notes" placeholder="Tambahkan catatan untuk transaksi ini...">{{ $entry->notes }}</textarea>
         </div>
 
         <!-- Actions -->
-        <div class="he-form-actions">
-          <button type="submit" class="he-btn he-btn-primary">
+        <div class="hpp-form-actions">
+          <button type="submit" class="hpp-btn hpp-btn-primary">
             <svg class="icon"><use href="#ic-check"/></svg>
             Simpan Perubahan
           </button>
-          <a href="{{ route('cogs.index') }}" class="he-btn he-btn-ghost">
+          <a href="{{ route('cogs.index') }}" class="hpp-btn hpp-btn-ghost">
             Batal
           </a>
         </div>
       </div>
 
       <!-- Sidebar -->
-      <div class="he-sidebar animate-in" style="animation-delay: 0.15s;">
-        <div class="he-total-ticker">
+      <div class="hpp-sidebar animate-in" style="animation-delay: 0.15s;">
+        <div class="hpp-total-ticker">
           <div class="lbl">Total HPP Transaksi Ini</div>
           <div class="amt" id="totalTicker">Rp0</div>
           <div class="sub" id="totalSub">0 unit × <strong>Rp0</strong></div>
         </div>
 
-        <div class="he-tips">
+        <div class="hpp-tips">
           <h4>Tips Pencatatan HPP</h4>
           <ul>
             <li>Mengubah jumlah terjual akan otomatis menyesuaikan stok barang terkait.</li>
@@ -613,7 +666,7 @@
       setTimeout(updateTicker, 50);
 
       // Ripple effect
-      const buttons = document.querySelectorAll('.he-btn');
+      const buttons = document.querySelectorAll('.hpp-btn');
       buttons.forEach(btn => {
         btn.addEventListener('click', function(e) {
           const rect = this.getBoundingClientRect();

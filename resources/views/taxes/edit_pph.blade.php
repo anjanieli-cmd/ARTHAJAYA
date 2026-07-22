@@ -1,17 +1,34 @@
 <x-app-layout>
-  <x-slot name="title">Tambah Event Kalender Pajak</x-slot>
+  <x-slot name="title">Edit PPh</x-slot>
 
   @php
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
+
+    // DUMMY data - nanti diganti dengan data dari database
+    $tax = [
+        'id' => 1,
+        'period' => 'Juli 2026',
+        'gross' => 25000000,
+        'deduction' => 5000000,
+        'tax' => 2000000,
+        'due' => '2026-08-20',
+        'status' => 'pending',
+        'notes' => 'PPh Pasal 21 untuk karyawan',
+    ];
+
+    $months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
   @endphp
 
   <style>
     /* ============================================
-       KALENDER PAJAK CREATE - Premium Design
+       PPH EDIT - Premium Design
        ============================================ */
     
-    .cal-create-wrap {
+    .pe-wrap {
       --theme-primary: var(--emerald);
       --theme-light: var(--emerald);
       --theme-dark: var(--emerald-dim);
@@ -42,9 +59,12 @@
       
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
+      max-width: 100%;
+      padding: 0 24px;
     }
 
-    .cal-create-wrap * { box-sizing: border-box; }
+    .pe-wrap * { box-sizing: border-box; }
+    .pe-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(16px); }
@@ -56,11 +76,11 @@
       50% { opacity: 0.6; }
     }
 
-    .cal-create-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
-    .cal-create-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .pe-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .pe-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     /* HEADER */
-    .cc-header {
+    .pe-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
@@ -70,9 +90,9 @@
       padding: 0 4px;
     }
 
-    .cc-header-left { flex: 1; min-width: 200px; }
+    .pe-header-left { flex: 1; min-width: 200px; }
 
-    .cc-badge {
+    .pe-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -88,7 +108,7 @@
       margin-bottom: 12px;
     }
 
-    .cc-badge .dot {
+    .pe-badge .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
@@ -96,7 +116,7 @@
       animation: pulseGlow 2s ease-in-out infinite;
     }
 
-    .cc-header h1 {
+    .pe-header h1 {
       font-size: 28px;
       font-weight: 700;
       margin: 0 0 6px;
@@ -107,25 +127,25 @@
       letter-spacing: -0.02em;
     }
 
-    .cc-header .subtitle {
+    .pe-header .subtitle {
       font-size: 14px;
       color: var(--text-secondary);
       margin: 0;
     }
 
-    .cc-header .subtitle strong {
+    .pe-header .subtitle strong {
       color: var(--text-primary);
       font-weight: 600;
     }
 
-    .cc-actions {
+    .pe-actions {
       display: flex;
       gap: 10px;
       flex-shrink: 0;
       flex-wrap: wrap;
     }
 
-    .cc-btn {
+    .pe-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -143,35 +163,35 @@
       overflow: hidden;
     }
 
-    .cc-btn .icon { width: 16px; height: 16px; }
-    .cc-btn:hover { transform: translateY(-2px); }
-    .cc-btn:active { transform: translateY(0) scale(0.97); }
+    .pe-btn .icon { width: 16px; height: 16px; }
+    .pe-btn:hover { transform: translateY(-2px); }
+    .pe-btn:active { transform: translateY(0) scale(0.97); }
 
-    .cc-btn-primary {
+    .pe-btn-primary {
       background: var(--theme-gradient);
       color: #fff;
       box-shadow: 0 4px 16px var(--theme-glow);
     }
 
-    .cc-btn-primary:hover {
+    .pe-btn-primary:hover {
       box-shadow: 0 8px 28px var(--theme-glow);
       transform: translateY(-2px);
       color: #fff;
     }
 
-    .cc-btn-ghost {
+    .pe-btn-ghost {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
     }
 
-    .cc-btn-ghost:hover {
+    .pe-btn-ghost:hover {
       background: var(--bg-card-hover);
       border-color: var(--border-hover);
       color: var(--text-primary);
     }
 
-    .cc-btn .ripple {
+    .pe-btn .ripple {
       position: absolute;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
@@ -184,58 +204,58 @@
       to { transform: scale(4); opacity: 0; }
     }
 
-    /* FORM LAYOUT */
-    .cc-form {
-      max-width: 800px;
-      margin: 0 auto;
+    /* FORM LAYOUT - FULL WIDTH */
+    .pe-form {
+      width: 100%;
+      max-width: 100%;
     }
 
-    .cc-card {
+    .pe-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 28px 32px;
+      padding: 32px 40px;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 100%;
     }
 
-    .cc-card:hover {
+    .pe-card:hover {
       border-color: var(--border-hover);
-      transform: translateY(-2px);
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     }
 
-    .cc-card .title {
-      font-size: 15px;
+    .pe-card .title {
+      font-size: 16px;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .cc-card .title .icon {
-      width: 18px;
-      height: 18px;
+    .pe-card .title .icon {
+      width: 20px;
+      height: 20px;
       color: var(--theme-primary);
     }
 
-    .cc-card .title .line {
+    .pe-card .title .line {
       flex: 1;
       height: 1px;
       background: linear-gradient(90deg, var(--border-color), transparent);
     }
 
     /* FORM GROUP */
-    .cc-form-group {
-      margin-bottom: 18px;
+    .pe-form-group {
+      margin-bottom: 20px;
     }
 
-    .cc-form-group:last-child { margin-bottom: 0; }
+    .pe-form-group:last-child { margin-bottom: 0; }
 
-    .cc-form-group label {
+    .pe-form-group label {
       display: block;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--text-tertiary);
       text-transform: uppercase;
@@ -243,177 +263,190 @@
       margin-bottom: 6px;
     }
 
-    .cc-form-group .required {
+    .pe-form-group .required {
       color: var(--danger);
       margin-left: 2px;
     }
 
-    .cc-form-group input,
-    .cc-form-group select,
-    .cc-form-group textarea {
+    .pe-form-group input,
+    .pe-form-group select,
+    .pe-form-group textarea {
       width: 100%;
-      padding: 10px 14px;
+      padding: 12px 16px;
       background: var(--bg-card-active);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       color: var(--text-primary);
-      font-size: 13px;
+      font-size: 14px;
       font-family: 'Inter', sans-serif;
       transition: all 0.3s ease;
       outline: none;
     }
 
-    .cc-form-group input:focus,
-    .cc-form-group select:focus,
-    .cc-form-group textarea:focus {
+    .pe-form-group input:focus,
+    .pe-form-group select:focus,
+    .pe-form-group textarea:focus {
       border-color: var(--theme-primary);
       background: var(--bg-card-hover);
       box-shadow: 0 0 0 4px var(--theme-glow);
     }
 
-    .cc-form-group input::placeholder,
-    .cc-form-group textarea::placeholder {
+    .pe-form-group input::placeholder,
+    .pe-form-group textarea::placeholder {
       color: var(--text-tertiary);
     }
 
-    .cc-form-group textarea {
+    .pe-form-group textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 90px;
     }
 
-    .cc-form-group select {
+    .pe-form-group select {
       cursor: pointer;
       appearance: auto;
       -webkit-appearance: auto;
       color-scheme: dark;
     }
 
-    .cc-form-group select option {
+    .pe-form-group select option {
       background-color: #12181f;
       color: #f2f4f7;
       padding: 10px 14px;
-      font-size: 13px;
+      font-size: 14px;
     }
 
-    .cc-form-group select option:checked,
-    .cc-form-group select option:hover {
+    .pe-form-group select option:checked,
+    .pe-form-group select option:hover {
       background-color: #17352c;
       color: #34d399;
     }
 
-    .cc-form-group select option:disabled {
+    .pe-form-group select option:disabled {
       color: #6b7280;
     }
 
-    .cc-form-row {
+    .pe-form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 20px;
     }
 
     /* INFO BOX */
-    .cc-info-box {
+    .pe-info-box {
       background: var(--theme-soft);
       border: 1px solid var(--theme-glow);
       border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      margin-bottom: 18px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
       display: flex;
       align-items: flex-start;
-      gap: 10px;
+      gap: 12px;
     }
 
-    .cc-info-box .icon {
-      width: 20px;
-      height: 20px;
+    .pe-info-box .icon {
+      width: 22px;
+      height: 22px;
       flex-shrink: 0;
       margin-top: 1px;
       color: var(--theme-primary);
     }
 
-    .cc-info-box .message {
+    .pe-info-box .message {
       font-size: 13px;
       color: var(--text-secondary);
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
-    .cc-info-box .message strong {
+    .pe-info-box .message strong {
       color: var(--text-primary);
     }
 
     /* FORM ACTIONS */
-    .cc-form-actions {
+    .pe-form-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 24px;
+      gap: 12px;
+      margin-top: 28px;
     }
 
-    .cc-form-actions .cc-btn {
+    .pe-form-actions .pe-btn {
       flex: 1;
       justify-content: center;
-      padding: 12px 20px;
+      padding: 14px 24px;
+      font-size: 14px;
     }
 
     /* RESPONSIVE */
+    @media (max-width: 992px) {
+      .pe-wrap { padding: 0 16px; }
+      .pe-card { padding: 24px 28px; }
+    }
+
     @media (max-width: 768px) {
-      .cc-form-row { 
+      .pe-wrap { padding: 0 12px; }
+      .pe-card { padding: 20px; }
+      .pe-form-row { 
         grid-template-columns: 1fr; 
+        gap: 0;
       }
-      .cc-card { 
-        padding: 20px; 
-      }
+      .pe-header h1 { font-size: 24px; }
     }
 
     @media (max-width: 640px) {
-      .cc-header { 
+      .pe-header { 
         flex-direction: column; 
       }
-      .cc-actions { 
+      .pe-actions { 
         width: 100%; 
       }
-      .cc-actions .cc-btn { 
+      .pe-actions .pe-btn { 
         flex: 1; 
         justify-content: center; 
       }
-      .cc-form-actions { 
+      .pe-form-actions { 
         flex-direction: column; 
       }
-      .cc-form-actions .cc-btn { 
+      .pe-form-actions .pe-btn { 
         flex: none; 
       }
+      .pe-card { padding: 16px; }
     }
 
     @media (max-width: 380px) {
-      .cc-header h1 { 
-        font-size: 22px; 
+      .pe-header h1 { 
+        font-size: 20px; 
       }
-      .cc-btn { 
+      .pe-btn { 
         font-size: 12px; 
         padding: 8px 14px; 
       }
-      .cc-btn .icon { 
+      .pe-btn .icon { 
         width: 14px; 
         height: 14px; 
       }
+      .pe-card { padding: 12px; }
     }
   </style>
 
-  <div class="cal-create-wrap">
+  <div class="pe-wrap">
 
     <!-- ===== HEADER ===== -->
-    <div class="cc-header animate-in" style="animation-delay: 0.05s;">
-      <div class="cc-header-left">
-        <div class="cc-badge">
+    <div class="pe-header animate-in" style="animation-delay: 0.05s;">
+      <div class="pe-header-left">
+        <div class="pe-badge">
           <span class="dot"></span>
           Pajak
         </div>
-        <h1>Tambah Event Kalender Pajak</h1>
+        <h1>Edit PPh</h1>
         <p class="subtitle">
-          Tambahkan event pajak baru ke kalender — <strong>kelola jadwal pajak dengan mudah</strong>
+          Edit Pajak Penghasilan — <strong>periode {{ $tax['period'] }}</strong>
         </p>
       </div>
-      <div class="cc-actions">
-        <a href="{{ route('tax-calendar.index') }}" class="cc-btn cc-btn-ghost">
+      <div class="pe-actions">
+        <a href="{{ route('taxes.pph.show', $tax['id']) }}" class="pe-btn pe-btn-ghost">
+          <svg class="icon"><use href="#ic-eye"/></svg>
+          Batal
+        </a>
+        <a href="{{ route('taxes.pph') }}" class="pe-btn pe-btn-ghost">
           <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow-right"/></svg>
           Kembali
         </a>
@@ -421,68 +454,87 @@
     </div>
 
     <!-- ===== FORM ===== -->
-    <form action="{{ route('tax-calendar.store') }}" method="POST" class="cc-form">
+    <form action="{{ route('taxes.pph.update', $tax['id']) }}" method="POST" class="pe-form">
       @csrf
+      @method('PUT')
 
-      <div class="cc-card animate-in" style="animation-delay: 0.10s;">
+      <div class="pe-card animate-in" style="animation-delay: 0.10s;">
         <div class="title">
-          <svg class="icon"><use href="#ic-calendar"/></svg>
-          Informasi Event
+          <svg class="icon"><use href="#ic-tax"/></svg>
+          Informasi PPh
           <span class="line"></span>
         </div>
 
         <!-- Info Box -->
-        <div class="cc-info-box">
+        <div class="pe-info-box">
           <svg class="icon"><use href="#ic-info"/></svg>
           <div class="message">
-            <strong>Perhatian:</strong> Tambahkan event pajak seperti PPh, PPN, atau event pajak lainnya. 
-            Event akan muncul di kalender pajak dan pengingat.
+            <strong>Perhatian:</strong> Pastikan data PPh diisi dengan benar. 
+            Penghasilan bruto dikurangi pengurang akan menghasilkan PPh terutang.
           </div>
         </div>
 
-        <!-- Title -->
-        <div class="cc-form-group">
-          <label>Judul Event <span class="required">*</span></label>
-          <input type="text" name="title" placeholder="Contoh: PPh Pasal 21 / PPN Masa Juli" required>
+        <!-- Period -->
+        <div class="pe-form-group">
+          <label>Periode <span class="required">*</span></label>
+          <select name="period" required>
+            @foreach($months as $month)
+              @php
+                $year = date('Y');
+                $value = $month . ' ' . $year;
+                $selected = ($value == $tax['period']) ? 'selected' : '';
+              @endphp
+              <option value="{{ $value }}" {{ $selected }}>
+                {{ $month }} {{ $year }}
+              </option>
+            @endforeach
+          </select>
         </div>
 
-        <!-- Date & Type -->
-        <div class="cc-form-row">
-          <div class="cc-form-group">
-            <label>Tanggal <span class="required">*</span></label>
-            <input type="date" name="date" value="{{ date('Y-m-d', strtotime('+14 days')) }}" required>
+        <!-- Gross & Deduction -->
+        <div class="pe-form-row">
+          <div class="pe-form-group">
+            <label>Penghasilan Bruto <span class="required">*</span></label>
+            <input type="number" name="gross" value="{{ $tax['gross'] }}" placeholder="0" min="0" step="1000" required>
           </div>
-          <div class="cc-form-group">
-            <label>Tipe <span class="required">*</span></label>
-            <select name="type" required>
-              <option value="pph">PPh</option>
-              <option value="ppn">PPN</option>
-              <option value="other">Lainnya</option>
+          <div class="pe-form-group">
+            <label>Pengurang <span class="required">*</span></label>
+            <input type="number" name="deduction" value="{{ $tax['deduction'] }}" placeholder="0" min="0" step="1000" required>
+          </div>
+        </div>
+
+        <!-- Tax Amount -->
+        <div class="pe-form-group">
+          <label>PPh Terutang <span class="required">*</span></label>
+          <input type="number" name="tax" value="{{ $tax['tax'] }}" placeholder="0" min="0" step="1000" required>
+        </div>
+
+        <!-- Due Date & Status -->
+        <div class="pe-form-row">
+          <div class="pe-form-group">
+            <label>Jatuh Tempo <span class="required">*</span></label>
+            <input type="date" name="due" value="{{ $tax['due'] }}" required>
+          </div>
+          <div class="pe-form-group">
+            <label>Status <span class="required">*</span></label>
+            <select name="status" required>
+              <option value="pending" {{ $tax['status'] == 'pending' ? 'selected' : '' }}>Pending</option>
+              <option value="paid" {{ $tax['status'] == 'paid' ? 'selected' : '' }}>Dibayar</option>
             </select>
           </div>
         </div>
 
-        <!-- Description -->
-        <div class="cc-form-group">
-          <label>Deskripsi <span class="required">*</span></label>
-          <textarea name="desc" placeholder="Deskripsi event (contoh: Pembayaran PPh Pasal 21 periode Juli)" required></textarea>
-        </div>
-
-        <!-- Status -->
-        <div class="cc-form-group">
-          <label>Status <span class="required">*</span></label>
-          <select name="status" required>
-            <option value="upcoming">Akan Datang</option>
-            <option value="overdue">Lewat Jatuh Tempo</option>
-            <option value="done">Selesai</option>
-          </select>
+        <!-- Notes -->
+        <div class="pe-form-group">
+          <label>Catatan</label>
+          <textarea name="notes" placeholder="Catatan PPh...">{{ $tax['notes'] }}</textarea>
         </div>
 
         <!-- Actions -->
-        <div class="cc-form-actions">
-          <button type="submit" class="cc-btn cc-btn-primary">
+        <div class="pe-form-actions">
+          <button type="submit" class="pe-btn pe-btn-primary">
             <svg class="icon"><use href="#ic-check"/></svg>
-            Simpan Event
+            Update PPh
           </button>
         </div>
       </div>
@@ -496,13 +548,14 @@
     <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
     <symbol id="ic-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
     <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
-    <symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+    <symbol id="ic-tax" viewBox="0 0 24 24"><path d="M12 2L2 7v4c0 5.52 3.12 10.56 10 11 6.88-.44 10-5.48 10-11V7L12 2z"/><polyline points="12 11 12 17 16 17"/><line x1="8" y1="17" x2="16" y2="17"/></symbol>
+    <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
   </svg>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Ripple effect
-      const buttons = document.querySelectorAll('.cc-btn');
+      const buttons = document.querySelectorAll('.pe-btn');
       buttons.forEach(btn => {
         btn.addEventListener('click', function(e) {
           const rect = this.getBoundingClientRect();

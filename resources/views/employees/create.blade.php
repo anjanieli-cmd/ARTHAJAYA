@@ -1,13 +1,12 @@
 <x-app-layout>
-  <x-slot name="title">Tambah Karyawan</x-slot>
-
-  @php
-    $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
-    $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
-  @endphp
+  <x-slot name="title">Edit HPP</x-slot>
 
   <style>
-    .emp-create-wrap {
+    /* ============================================
+       HPP EDIT - Premium Design
+       ============================================ */
+    
+    .hpp-edit-wrap {
       --theme-primary: var(--emerald);
       --theme-light: var(--emerald);
       --theme-dark: var(--emerald-dim);
@@ -27,6 +26,10 @@
       
       --danger: #E85A5A;
       --danger-soft: rgba(232, 90, 90, 0.12);
+      --success: #34B583;
+      --success-soft: rgba(52, 181, 131, 0.14);
+      --warning: #F0A83C;
+      --warning-soft: rgba(240, 168, 60, 0.14);
       
       --radius-sm: 10px;
       --radius-md: 16px;
@@ -36,34 +39,39 @@
       color: var(--text-primary);
     }
 
-    .emp-create-wrap * { box-sizing: border-box; }
+    .hpp-edit-wrap * { box-sizing: border-box; }
 
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .emp-create-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
-    .emp-create-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .hpp-edit-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .hpp-edit-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     /* HEADER */
-    .ec-header {
+    .he-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 24px;
       flex-wrap: wrap;
-      margin-bottom: 28px;
+      margin-bottom: 32px;
       padding: 0 4px;
     }
 
-    .ec-header-left { flex: 1; min-width: 200px; }
+    .he-header-left { flex: 1; min-width: 200px; }
 
-    .ec-badge {
+    .he-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px 6px 10px;
+      padding: 6px 16px 6px 12px;
       background: var(--theme-glow);
       border: 1px solid var(--theme-glow);
       border-radius: 100px;
@@ -75,7 +83,7 @@
       margin-bottom: 12px;
     }
 
-    .ec-badge .dot {
+    .he-badge .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
@@ -83,7 +91,7 @@
       animation: pulseGlow 2s ease-in-out infinite;
     }
 
-    .ec-header h1 {
+    .he-header h1 {
       font-size: 28px;
       font-weight: 700;
       margin: 0 0 6px;
@@ -94,20 +102,25 @@
       letter-spacing: -0.02em;
     }
 
-    .ec-header .subtitle {
+    .he-header .subtitle {
       font-size: 14px;
       color: var(--text-secondary);
       margin: 0;
     }
 
-    .ec-actions {
+    .he-header .subtitle strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .he-actions {
       display: flex;
       gap: 10px;
       flex-shrink: 0;
       flex-wrap: wrap;
     }
 
-    .ec-btn {
+    .he-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -125,35 +138,35 @@
       overflow: hidden;
     }
 
-    .ec-btn .icon { width: 16px; height: 16px; }
-    .ec-btn:hover { transform: translateY(-2px); }
-    .ec-btn:active { transform: translateY(0) scale(0.97); }
+    .he-btn .icon { width: 16px; height: 16px; }
+    .he-btn:hover { transform: translateY(-2px); }
+    .he-btn:active { transform: translateY(0) scale(0.97); }
 
-    .ec-btn-primary {
+    .he-btn-primary {
       background: var(--theme-gradient);
       color: #fff;
       box-shadow: 0 4px 16px var(--theme-glow);
     }
 
-    .ec-btn-primary:hover {
+    .he-btn-primary:hover {
       box-shadow: 0 8px 28px var(--theme-glow);
       transform: translateY(-2px);
       color: #fff;
     }
 
-    .ec-btn-ghost {
+    .he-btn-ghost {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
     }
 
-    .ec-btn-ghost:hover {
+    .he-btn-ghost:hover {
       background: var(--bg-card-hover);
       border-color: var(--border-hover);
       color: var(--text-primary);
     }
 
-    .ec-btn .ripple {
+    .he-btn .ripple {
       position: absolute;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
@@ -166,53 +179,82 @@
       to { transform: scale(4); opacity: 0; }
     }
 
-    /* FORM */
-    .ec-form {
-      max-width: 700px;
-      margin: 0 auto;
+    /* FORM LAYOUT - Grid */
+    .he-form-wrap {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
     }
 
-    .ec-card {
+    @media (max-width: 1024px) {
+      .he-form-wrap {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }
+
+    .he-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       padding: 28px 32px;
-      transition: border-color 0.22s ease;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .ec-card:hover { border-color: var(--border-hover); }
+    .he-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
 
-    .ec-card .title {
+    .he-card .title {
       font-size: 15px;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .ec-form-group {
+    .he-card .title .icon {
+      width: 18px;
+      height: 18px;
+      color: var(--theme-primary);
+    }
+
+    .he-card .title .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-color), transparent);
+    }
+
+    /* FORM GROUP */
+    .he-form-group {
       margin-bottom: 18px;
     }
 
-    .ec-form-group:last-child { margin-bottom: 0; }
+    .he-form-group:last-child { margin-bottom: 0; }
 
-    .ec-form-group label {
+    .he-form-group label {
       display: block;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--text-tertiary);
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 5px;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
     }
 
-    .ec-form-group .required {
+    .he-form-group .required {
       color: var(--danger);
       margin-left: 2px;
     }
 
-    .ec-form-group input,
-    .ec-form-group select,
-    .ec-form-group textarea {
+    .he-form-group input,
+    .he-form-group select,
+    .he-form-group textarea {
       width: 100%;
       padding: 10px 14px;
       background: var(--bg-card-active);
@@ -221,151 +263,361 @@
       color: var(--text-primary);
       font-size: 13px;
       font-family: 'Inter', sans-serif;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       outline: none;
     }
 
-    .ec-form-group input:focus,
-    .ec-form-group select:focus,
-    .ec-form-group textarea:focus {
+    .he-form-group input:focus,
+    .he-form-group select:focus,
+    .he-form-group textarea:focus {
       border-color: var(--theme-primary);
       background: var(--bg-card-hover);
+      box-shadow: 0 0 0 4px var(--theme-glow);
     }
 
-    .ec-form-group input::placeholder,
-    .ec-form-group textarea::placeholder {
+    .he-form-group input::placeholder,
+    .he-form-group textarea::placeholder {
       color: var(--text-tertiary);
     }
 
-    .ec-form-group textarea {
+    .he-form-group textarea {
       resize: vertical;
       min-height: 80px;
     }
 
-    .ec-form-group select option {
-      background: var(--bg-card);
-      color: var(--text-primary);
+    .he-form-group select {
+      cursor: pointer;
+      appearance: auto;
+      -webkit-appearance: auto;
+      color-scheme: dark;
     }
 
-    .ec-form-row {
+    .he-form-group select option {
+      background-color: #12181f;
+      color: #f2f4f7;
+      padding: 10px 14px;
+      font-size: 13px;
+    }
+
+    .he-form-group select option:checked,
+    .he-form-group select option:hover {
+      background-color: #17352c;
+      color: #34d399;
+    }
+
+    .he-form-group select option:disabled {
+      color: #6b7280;
+    }
+
+    .he-form-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .ec-form-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 24px;
-    }
-
-    .ec-form-actions .ec-btn {
-      flex: 1;
-      justify-content: center;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
     }
 
     @media (max-width: 768px) {
-      .ec-form-row { grid-template-columns: 1fr; }
-      .ec-card { padding: 20px; }
+      .he-form-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .he-form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+
+    /* INFO BOX */
+    .he-info-box {
+      background: var(--theme-soft);
+      border: 1px solid var(--theme-glow);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .he-info-box .icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 1px;
+      color: var(--theme-primary);
+    }
+
+    .he-info-box .message {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .he-info-box .message strong {
+      color: var(--text-primary);
+    }
+
+    /* SIDEBAR - Summary & Tips */
+    .he-sidebar {
+      position: sticky;
+      top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .he-total-ticker {
+      background: linear-gradient(160deg, rgba(var(--emerald-rgb), 0.12), var(--surface) 60%);
+      border: 1px solid var(--theme-glow);
+      border-radius: var(--radius-md);
+      padding: 24px 28px;
+      transition: all 0.3s ease;
+    }
+
+    .he-total-ticker:hover {
+      border-color: var(--theme-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .he-total-ticker .lbl {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .he-total-ticker .amt {
+      font-family: 'Space Grotesk', 'Inter', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--theme-primary);
+      line-height: 1.2;
+    }
+
+    .he-total-ticker .sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    .he-total-ticker .sub strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .he-tips {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+    }
+
+    .he-tips h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      font-weight: 600;
+      margin: 0 0 12px;
+    }
+
+    .he-tips ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .he-tips li {
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding-left: 18px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .he-tips li::before {
+      content: '✦';
+      position: absolute;
+      left: 0;
+      color: var(--theme-primary);
+      font-size: 10px;
+      top: 1px;
+    }
+
+    /* FORM ACTIONS */
+    .he-form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .he-form-actions .he-btn {
+      flex: 1;
+      justify-content: center;
+      padding: 12px 20px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 992px) {
+      .he-card { padding: 24px 28px; }
+    }
+
+    @media (max-width: 768px) {
+      .he-header h1 { font-size: 24px; }
+      .he-sidebar { position: relative; top: 0; }
+      .he-total-ticker .amt { font-size: 28px; }
+      .he-card { padding: 20px; }
     }
 
     @media (max-width: 640px) {
-      .ec-header { flex-direction: column; }
-      .ec-actions { width: 100%; }
-      .ec-actions .ec-btn { flex: 1; justify-content: center; }
+      .he-header { 
+        flex-direction: column; 
+      }
+      .he-actions { 
+        width: 100%; 
+      }
+      .he-actions .he-btn { 
+        flex: 1; 
+        justify-content: center; 
+      }
+      .he-form-actions { 
+        flex-direction: column; 
+      }
+      .he-form-actions .he-btn { 
+        flex: none; 
+      }
+      .he-card { padding: 16px; }
+      .he-total-ticker { padding: 20px; }
+    }
+
+    @media (max-width: 380px) {
+      .he-header h1 { 
+        font-size: 20px; 
+      }
+      .he-btn { 
+        font-size: 12px; 
+        padding: 8px 14px; 
+      }
+      .he-btn .icon { 
+        width: 14px; 
+        height: 14px; 
+      }
+      .he-card { padding: 12px; }
     }
   </style>
 
-  <div class="emp-create-wrap">
+  <div class="hpp-edit-wrap">
 
-    <div class="ec-header animate-in" style="animation-delay: 0.05s;">
-      <div class="ec-header-left">
-        <div class="ec-badge">
+    <!-- ===== HEADER ===== -->
+    <div class="he-header animate-in" style="animation-delay: 0.05s;">
+      <div class="he-header-left">
+        <div class="he-badge">
           <span class="dot"></span>
-          HR &amp; Payroll
+          Inventory &amp; COGS
         </div>
-        <h1>Tambah Karyawan</h1>
-        <p class="subtitle">Tambahkan data karyawan baru</p>
+        <h1>Edit HPP</h1>
+        <p class="subtitle">
+          Perbarui data transaksi HPP untuk — <strong>{{ $entry->item_name }}</strong>
+        </p>
       </div>
-      <div class="ec-actions">
-        <a href="{{ route('employees.index') }}" class="ec-btn ec-btn-ghost">
+      <div class="he-actions">
+        <a href="{{ route('cogs.index') }}" class="he-btn he-btn-ghost">
           <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow-right"/></svg>
           Kembali
         </a>
       </div>
     </div>
 
-    <form action="{{ route('employees.store') }}" method="POST" class="ec-form">
+    <!-- ===== FORM ===== -->
+    <form method="POST" action="{{ route('cogs.update', $entry) }}" class="he-form-wrap" id="cogsForm">
       @csrf
+      @method('PUT')
 
-      <div class="ec-card animate-in" style="animation-delay: 0.10s;">
-        <div class="title">Data Karyawan</div>
-
-        <div class="ec-form-group">
-          <label>Nama Lengkap <span class="required">*</span></label>
-          <input type="text" name="name" placeholder="Contoh: Budi Santoso" required>
+      <!-- Main Form -->
+      <div class="he-card animate-in" style="animation-delay: 0.10s;">
+        <div class="title">
+          <svg class="icon"><use href="#ic-box"/></svg>
+          Data Transaksi HPP
+          <span class="line"></span>
         </div>
 
-        <div class="ec-form-row">
-          <div class="ec-form-group">
-            <label>Posisi <span class="required">*</span></label>
-            <input type="text" name="position" placeholder="Contoh: Pengrajin Batik" required>
-          </div>
-          <div class="ec-form-group">
-            <label>Departemen <span class="required">*</span></label>
-            <select name="department" required>
-              <option value="">Pilih Departemen...</option>
-              <option value="Produksi">Produksi</option>
-              <option value="Kreatif">Kreatif</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Operasional">Operasional</option>
-              <option value="Keuangan">Keuangan</option>
-              <option value="HRD">HRD</option>
-              <option value="IT">IT</option>
-            </select>
+        <!-- Info Box -->
+        <div class="he-info-box">
+          <svg class="icon"><use href="#ic-info"/></svg>
+          <div class="message">
+            <strong>Perhatian:</strong> Mengubah jumlah terjual akan otomatis menyesuaikan stok barang terkait. 
+            Harga pokok per unit diambil dari harga beli, bukan harga jual.
           </div>
         </div>
 
-        <div class="ec-form-row">
-          <div class="ec-form-group">
-            <label>Email <span class="required">*</span></label>
-            <input type="email" name="email" placeholder="email@perusahaan.com" required>
+        <!-- Item Name -->
+        <div class="he-form-group">
+          <label>Nama Item <span class="required">*</span></label>
+          <input type="text" name="item_name" value="{{ $entry->item_name }}" placeholder="Contoh: Batik Tulis Klasik" required>
+        </div>
+
+        <!-- Qty, Cost, Total -->
+        <div class="he-form-row">
+          <div class="he-form-group">
+            <label>Jumlah Terjual <span class="required">*</span></label>
+            <input type="number" name="quantity" id="qtyInput" value="{{ $entry->quantity }}" placeholder="0" min="0" step="1" required>
           </div>
-          <div class="ec-form-group">
-            <label>Telepon <span class="required">*</span></label>
-            <input type="text" name="phone" placeholder="0812-3456-7890" required>
+          <div class="he-form-group">
+            <label>Harga Pokok / Unit <span class="required">*</span></label>
+            <input type="number" name="unit_cost" id="costInput" value="{{ $entry->unit_cost }}" placeholder="0" min="0" step="100" required>
+          </div>
+          <div class="he-form-group">
+            <label>Total HPP (Otomatis)</label>
+            <input type="text" id="totalDisplay" value="Rp0" readonly style="background: var(--bg-card-active); cursor: default; font-weight: 600; color: var(--theme-primary);">
           </div>
         </div>
 
-        <div class="ec-form-row">
-          <div class="ec-form-group">
-            <label>Tanggal Bergabung <span class="required">*</span></label>
-            <input type="date" name="joined" value="{{ date('Y-m-d') }}" required>
-          </div>
-          <div class="ec-form-group">
-            <label>Gaji Pokok <span class="required">*</span></label>
-            <input type="number" name="salary" placeholder="0" min="0" step="1000" required>
-          </div>
+        <!-- Hidden total field -->
+        <input type="hidden" name="total_cost" id="totalInput" value="{{ $entry->total_cost }}">
+
+        <!-- Notes -->
+        <div class="he-form-group">
+          <label>Catatan</label>
+          <textarea name="notes" placeholder="Tambahkan catatan untuk transaksi ini...">{{ $entry->notes }}</textarea>
         </div>
 
-        <div class="ec-form-group">
-          <label>Status <span class="required">*</span></label>
-          <select name="status" required>
-            <option value="active">Aktif</option>
-            <option value="inactive">Tidak Aktif</option>
-          </select>
-        </div>
-
-        <div class="ec-form-group">
-          <label>Alamat</label>
-          <textarea name="address" placeholder="Alamat lengkap karyawan..."></textarea>
-        </div>
-
-        <div class="ec-form-actions">
-          <button type="submit" class="ec-btn ec-btn-primary">
+        <!-- Actions -->
+        <div class="he-form-actions">
+          <button type="submit" class="he-btn he-btn-primary">
             <svg class="icon"><use href="#ic-check"/></svg>
-            Simpan Karyawan
+            Simpan Perubahan
           </button>
+          <a href="{{ route('cogs.index') }}" class="he-btn he-btn-ghost">
+            Batal
+          </a>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="he-sidebar animate-in" style="animation-delay: 0.15s;">
+        <div class="he-total-ticker">
+          <div class="lbl">Total HPP Transaksi Ini</div>
+          <div class="amt" id="totalTicker">Rp0</div>
+          <div class="sub" id="totalSub">0 unit × <strong>Rp0</strong></div>
+        </div>
+
+        <div class="he-tips">
+          <h4>Tips Pencatatan HPP</h4>
+          <ul>
+            <li>Mengubah jumlah terjual akan otomatis menyesuaikan stok barang terkait.</li>
+            <li>Harga pokok per unit diambil dari harga beli, bukan harga jual.</li>
+            <li>Total dihitung otomatis: jumlah terjual × harga pokok per unit.</li>
+          </ul>
         </div>
       </div>
 
@@ -373,9 +625,42 @@
 
   </div>
 
+  <!-- SVG Icons -->
+  <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="ic-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
+  </svg>
+
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const buttons = document.querySelectorAll('.ec-btn');
+      function fmtRupiah(n){
+        n = isNaN(n) ? 0 : n;
+        return 'Rp' + n.toLocaleString('id-ID', {maximumFractionDigits:0});
+      }
+
+      function updateTicker(){
+        var qty = parseFloat(document.getElementById('qtyInput')?.value) || 0;
+        var cost = parseFloat(document.getElementById('costInput')?.value) || 0;
+        var total = qty * cost;
+        
+        // Update display
+        document.getElementById('totalTicker').textContent = fmtRupiah(total);
+        document.getElementById('totalSub').innerHTML = qty + ' unit × <strong>' + fmtRupiah(cost) + '</strong>';
+        document.getElementById('totalDisplay').value = fmtRupiah(total);
+        document.getElementById('totalInput').value = total;
+      }
+
+      // Auto update on input
+      const form = document.getElementById('cogsForm');
+      form.addEventListener('input', updateTicker);
+      
+      // Initial update
+      setTimeout(updateTicker, 50);
+
+      // Ripple effect
+      const buttons = document.querySelectorAll('.he-btn');
       buttons.forEach(btn => {
         btn.addEventListener('click', function(e) {
           const rect = this.getBoundingClientRect();

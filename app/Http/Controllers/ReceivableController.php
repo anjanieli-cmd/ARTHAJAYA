@@ -2,58 +2,59 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoice;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class ReceivableController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar piutang usaha (AR).
+     * Sumber data: tabel `invoices` (sama seperti InvoiceController),
+     * BUKAN session — supaya status jatuh tempo selalu sinkron dengan
+     * halaman "Semua Faktur".
      */
     public function index()
     {
-        // Ambil data dari SESSION
-        $invoices = session('invoices', []);
-        
-        // Filter dan mapping untuk tampilan AR
-        $receivables = collect($invoices)->filter(function($invoice) {
-            // Hanya tampilkan yang statusnya 'sent' atau 'overdue'
-            // Kecuali 'paid' tetap muncul tapi statusnya 'lunas'
-            return in_array($invoice['status'], ['sent', 'overdue', 'paid']);
-        })->map(function($invoice) {
-            // Mapping status dari invoice ke AR
+        $company = auth()->user()->company;
+
+        abort_if(! $company, 403, 'Lengkapi setup perusahaan terlebih dahulu.');
+
+        // Hanya faktur yang masih "sent" (belum lunas) atau sudah "paid".
+        // Faktur draft/cancelled tidak relevan untuk piutang.
+        $invoices = Invoice::with('client')
+            ->where('company_id', $company->id)
+            ->whereIn('status', ['sent', 'paid'])
+            ->orderBy('due_date')
+            ->get();
+
+        $receivables = $invoices->map(function (Invoice $invoice) {
+            // Logika overdue SAMA PERSIS dengan InvoiceController@index dan
+            // Invoice::getIsOverdueAttribute() — status "sent" + due_date sudah lewat.
             $arStatus = 'lancar';
-            
-            if ($invoice['status'] === 'overdue') {
-                $arStatus = 'jatuh_tempo';
-            } elseif ($invoice['status'] === 'paid') {
+
+            if ($invoice->status === 'paid') {
                 $arStatus = 'lunas';
-            } else {
-                // Cek apakah sudah overdue (due date < today)
-                $dueDate = strtotime($invoice['due']);
-                $today = strtotime(date('Y-m-d'));
-                if ($dueDate < $today) {
-                    $arStatus = 'jatuh_tempo';
-                }
+            } elseif ($invoice->is_overdue) {
+                $arStatus = 'jatuh_tempo';
             }
-            
+
             return [
-                'id' => $invoice['id'] ?? rand(1, 9999),
-                'client' => $invoice['client'],
-                'invoice' => $invoice['invoice'],
-                'date' => $invoice['date'],
-                'due' => $invoice['due'],
+                'id' => $invoice->id,
+                'client' => $invoice->client->name ?? 'Klien terhapus',
+                'invoice' => $invoice->invoice_number,
+                'date' => optional($invoice->issue_date)->format('Y-m-d'),
+                'due' => optional($invoice->due_date)->format('Y-m-d'),
                 'status' => $arStatus,
-                'amount' => $invoice['amount'],
-                'items' => $invoice['items'] ?? [],
+                'amount' => (float) $invoice->total,
             ];
         })->values()->toArray();
 
-        return view('receivables.index', compact('receivables'));
+        return view('receivables.index', compact('receivables', 'company'));
     }
 
     /**
-     * Display the specified resource.
+     * Detail piutang -> arahkan ke halaman detail faktur aslinya
+     * (satu sumber kebenaran, tidak ada halaman show terpisah untuk AR).
      */
     public function show($id)
     {
@@ -61,21 +62,15 @@ class ReceivableController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus faktur langsung dari halaman Piutang Usaha.
      */
     public function destroy($id)
     {
-        $invoices = session('invoices', []);
-        
-        foreach ($invoices as $key => $inv) {
-            if ($inv['id'] == (int)$id) {
-                unset($invoices[$key]);
-                break;
-            }
-        }
-        
-        session(['invoices' => array_values($invoices)]);
-        
+        $company = auth()->user()->company;
+
+        $invoice = Invoice::where('company_id', $company->id)->findOrFail($id);
+        $invoice->delete();
+
         return redirect()->route('receivables.index')->with('success', 'Faktur berhasil dihapus!');
     }
 }

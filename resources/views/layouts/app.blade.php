@@ -438,7 +438,7 @@
               </div>
             </div>
             <a href="{{ Route::has('profile.edit') ? route('profile.edit') : '#' }}"><svg class="icon"><use href="#ic-user"/></svg> Profil Saya</a>
-            <a href="#"><svg class="icon"><use href="#ic-settings"/></svg> Pengaturan</a>
+            <a href="{{ route('team-members.index') }}"><svg class="icon"><use href="#ic-settings"/></svg> Pengaturan</a>
             <hr>
             <form method="POST" action="{{ route('logout') }}">
               @csrf
