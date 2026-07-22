@@ -108,12 +108,178 @@
   .sb-plan a{ font-size:12px; color:var(--emerald); font-weight:600; }
 
   .topbar{ position:sticky; top:0; z-index:40; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px 28px; background:var(--nav-bg); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); }
-  .search-box{ display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 14px; width:340px; max-width:100%; transition: border-color .2s ease, background .2s ease; }
-  .search-box:focus-within{ border-color:var(--border-hover); background:var(--surface-strong); }
-  .search-box .icon{ width:15px; height:15px; color:var(--text-faint); flex-shrink:0; }
-  .search-box input{ flex:1; min-width:0; background:none; border:none; outline:none; color:var(--text); font-size:13.5px; }
-  .search-box input::placeholder{ color:var(--text-faint); }
-  .search-box .kbd{ font-family:'IBM Plex Mono'; font-size:10.5px; color:var(--text-faint); background:var(--surface-strong); border:1px solid var(--border); border-radius:5px; padding:2px 6px; flex-shrink:0; }
+  
+  /* ===== SEARCH BOX IMPROVED ===== */
+  .search-box{ 
+    display:flex; 
+    align-items:center; 
+    gap:12px; 
+    background:var(--surface); 
+    border:1px solid var(--border); 
+    border-radius:12px; 
+    padding:10px 18px; 
+    width:480px; 
+    max-width:100%; 
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    position:relative;
+  }
+  .search-box:focus-within{ 
+    border-color:var(--border-hover); 
+    background:var(--surface-strong);
+    box-shadow: 0 0 0 4px rgba(var(--emerald-rgb),0.1);
+  }
+  .search-box .icon{ 
+    width:18px; 
+    height:18px; 
+    color:var(--text-faint); 
+    flex-shrink:0; 
+  }
+  .search-box input{ 
+    flex:1; 
+    min-width:0; 
+    background:none; 
+    border:none; 
+    outline:none; 
+    color:var(--text); 
+    font-size:14px; 
+    padding:4px 0;
+  }
+  .search-box input::placeholder{ 
+    color:var(--text-faint); 
+  }
+  .search-box .kbd{ 
+    font-family:'IBM Plex Mono'; 
+    font-size:10.5px; 
+    color:var(--text-faint); 
+    background:var(--surface-strong); 
+    border:1px solid var(--border); 
+    border-radius:5px; 
+    padding:3px 8px; 
+    flex-shrink:0; 
+  }
+  .search-box .clear-btn{
+    display:none;
+    background:none;
+    border:none;
+    color:var(--text-faint);
+    cursor:pointer;
+    padding:4px;
+    border-radius:50%;
+    transition: all .2s ease;
+    flex-shrink:0;
+  }
+  .search-box .clear-btn:hover{
+    background:var(--surface-strong);
+    color:var(--text);
+  }
+  .search-box .clear-btn .icon{
+    width:16px;
+    height:16px;
+  }
+  .search-box.has-value .clear-btn{
+    display:flex;
+  }
+
+  /* ===== SEARCH RESULTS DROPDOWN ===== */
+  .search-results{
+    position:absolute;
+    top:calc(100% + 8px);
+    left:0;
+    right:0;
+    background:var(--modal-bg);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:8px 0;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(8px) scale(.97);
+    transition:all .2s ease;
+    z-index:100;
+    max-height:400px;
+    overflow-y:auto;
+  }
+  .search-results.open{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+  }
+  .search-results .result-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 16px;
+    cursor:pointer;
+    transition:background .15s ease;
+    color:var(--text-mute);
+  }
+  .search-results .result-item:hover{
+    background:var(--surface-strong);
+    color:var(--text);
+  }
+  .search-results .result-item .ri-icon{
+    width:32px;
+    height:32px;
+    border-radius:8px;
+    background:var(--surface-strong);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    color:var(--text-faint);
+  }
+  .search-results .result-item .ri-icon .icon{
+    width:16px;
+    height:16px;
+  }
+  .search-results .result-item .ri-info{
+    flex:1;
+    min-width:0;
+  }
+  .search-results .result-item .ri-title{
+    font-size:13px;
+    font-weight:500;
+    color:var(--text);
+  }
+  .search-results .result-item .ri-desc{
+    font-size:12px;
+    color:var(--text-faint);
+  }
+  .search-results .result-item .ri-badge{
+    font-size:10px;
+    font-weight:600;
+    padding:2px 10px;
+    border-radius:100px;
+    background:var(--surface-strong);
+    color:var(--text-faint);
+    flex-shrink:0;
+  }
+  .search-results .result-empty{
+    padding:24px 16px;
+    text-align:center;
+    color:var(--text-faint);
+    font-size:13px;
+  }
+  .search-results .result-loading{
+    padding:16px;
+    text-align:center;
+    color:var(--text-faint);
+    font-size:13px;
+  }
+  .search-results .result-loading .spinner{
+    display:inline-block;
+    width:20px;
+    height:20px;
+    border:2px solid var(--border);
+    border-top-color:var(--emerald);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+    margin-right:8px;
+    vertical-align:middle;
+  }
+  @keyframes spin{
+    to{ transform:rotate(360deg); }
+  }
 
   .topbar-right{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
   .icon-btn{ width:38px; height:38px; border-radius:11px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-mute); cursor:pointer; transition: all .2s ease; position:relative; flex-shrink:0; }
@@ -178,135 +344,26 @@
   .btn-outline{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
   .btn-outline:hover{ background:var(--surface-strong); border-color:var(--border-hover); }
 
-  .company-card{ background:linear-gradient(135deg, rgba(var(--emerald-rgb),0.08), var(--surface) 55%); border:1px solid var(--border); border-radius:20px; padding:22px 24px; margin-bottom:20px; transition: border-color .22s ease; }
-  .company-card:hover{ border-color:var(--border-hover); }
-  .company-card-inner{ display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap; }
-  .company-logo{ width:64px; height:64px; border-radius:16px; background:var(--surface-strong); border:1px solid var(--border-hover); display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; font-family:'Space Grotesk'; font-weight:700; font-size:20px; color:var(--emerald); }
-  .company-logo img{ width:100%; height:100%; object-fit:cover; }
-  .company-meta{ flex:1; min-width:240px; }
-  .company-meta h2{ font-size:20px; margin-bottom:8px; }
-  .company-tags{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
-  .tag-pill{ font-size:11.5px; font-weight:600; padding:5px 11px; border-radius:100px; background:var(--surface-strong); border:1px solid var(--border); color:var(--text-mute); }
-  .company-details{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px 20px; }
-  .company-details div{ display:flex; flex-direction:column; gap:3px; }
-  .company-details .k{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); }
-  .company-details .v{ font-size:13px; font-weight:600; color:var(--text); }
-  .company-edit-btn{ flex-shrink:0; }
-
-  .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
-  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:20px; transition: border-color .22s ease, transform .22s ease; }
-  .stat-card:hover{ border-color:var(--border-hover); transform:translateY(-3px); }
-  .stat-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
-  .stat-head .ic{ width:36px; height:36px; border-radius:10px; background:rgba(var(--emerald-rgb),0.12); color:var(--emerald); display:flex; align-items:center; justify-content:center; }
-  .stat-head .ic .icon{ width:17px; height:17px; }
-  .stat-head .chg{ font-size:11.5px; font-weight:600; padding:4px 8px; border-radius:100px; display:flex; align-items:center; gap:4px; }
-  .stat-head .chg .icon{ width:11px; height:11px; }
-  .chg.up{ color:var(--emerald); background:rgba(var(--emerald-rgb),0.1); }
-  .chg.down{ color:var(--danger); background:rgba(232,90,90,0.1); }
-  .stat-card .lbl{ font-size:12px; color:var(--text-faint); margin-bottom:5px; }
-  .stat-card .val{ font-family:'Space Grotesk'; font-size:23px; font-weight:700; }
-
-  .dash-layout{ display:grid; grid-template-columns:1.35fr 1fr; gap:16px; align-items:start; }
-  .stack{ display:flex; flex-direction:column; gap:16px; }
-  .card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:22px; transition: border-color .22s ease; }
-  .card:hover{ border-color:var(--border-hover); }
-  .card-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; gap:12px; flex-wrap:wrap; }
-  .card-head h3{ font-size:15.5px; font-weight:600; }
-  .card-head .sub-link{ font-size:12.5px; color:var(--emerald); font-weight:600; display:flex; align-items:center; gap:4px; }
-  .card-head .sub-link .icon{ width:13px; height:13px; }
-
-  .balance-card{ background:linear-gradient(150deg, rgba(var(--emerald-rgb),0.14), var(--surface) 65%); border-color:rgba(var(--emerald-rgb),0.25); }
-  .balance-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
-  .balance-lbl{ font-size:12.5px; color:var(--text-mute); margin-bottom:8px; }
-  .balance-sub{ font-size:11.5px; color:var(--text-faint); margin-top:2px; }
-  .balance-amt{ font-family:'Space Grotesk'; font-size:36px; font-weight:700; }
-  .balance-delta{ font-size:12.5px; color:var(--emerald); margin-top:8px; display:flex; align-items:center; gap:6px; }
-  .balance-delta .icon{ width:13px; height:13px; }
-  .quick-actions{ display:flex; gap:10px; flex-wrap:wrap; }
-  .qa-btn{ display:flex; flex-direction:column; align-items:center; gap:7px; font-size:11px; color:var(--text-mute); cursor:pointer; width:72px; text-align:center; }
-  .qa-btn .ic{ width:42px; height:42px; border-radius:13px; background:var(--surface-strong); display:flex; align-items:center; justify-content:center; color:var(--text); transition: all .2s ease; }
-  .qa-btn .ic .icon{ width:18px; height:18px; }
-  .qa-btn:hover .ic{ background:rgba(var(--emerald-rgb),0.16); color:var(--emerald); transform:translateY(-3px); }
-  .mini-spark{ display:flex; align-items:flex-end; gap:5px; height:60px; margin-top:6px; }
-  .mini-spark i{ flex:1; background:linear-gradient(180deg,var(--emerald),var(--emerald-dim)); border-radius:3px; opacity:.85; height:4%; transition:height 1s cubic-bezier(.16,1,.3,1); }
-
-  .tx-table{ width:100%; border-collapse:collapse; }
-  .tx-table th{ text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-faint); font-weight:600; padding:0 10px 10px; }
-  .tx-table td{ padding:12px 10px; font-size:13.5px; border-top:1px solid var(--border); }
-  .tx-table tr{ transition: background .15s ease; }
-  .tx-table tbody tr:hover{ background:var(--surface-strong); }
-  .tx-who{ display:flex; align-items:center; gap:10px; }
-  .tx-ic{ width:34px; height:34px; border-radius:10px; background:var(--surface-strong); display:flex; align-items:center; justify-content:center; color:var(--text-mute); flex-shrink:0; }
-  .tx-ic .icon{ width:15px; height:15px; }
-  .tx-name{ font-weight:600; font-size:13.5px; }
-  .tx-date{ font-size:11.5px; color:var(--text-faint); }
-  .status-pill{ font-size:11px; font-weight:600; padding:4px 10px; border-radius:100px; display:inline-block; }
-  .status-pill.paid{ background:rgba(var(--emerald-rgb),0.12); color:var(--emerald); }
-  .status-pill.pending{ background:rgba(240,162,90,0.14); color:#F0A25A; }
-  .status-pill.overdue{ background:rgba(232,90,90,0.12); color:var(--danger); }
-  .amt-cell{ font-family:'IBM Plex Mono'; font-size:13px; text-align:right; }
-  .amt-cell.pos{ color:var(--emerald); }
-  .amt-cell.neg{ color:var(--text-mute); }
-
-  .donut-wrap{ display:flex; gap:22px; align-items:center; }
-  .donut{ width:118px; height:118px; position:relative; flex-shrink:0; }
-  .donut svg{ transform:rotate(-90deg); width:100%; height:100%; }
-  .donut circle{ fill:none; stroke-width:13; }
-  .donut-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-  .donut-center .amt{ font-family:'Space Grotesk'; font-size:14px; font-weight:700; }
-  .donut-center .lbl{ font-size:9px; color:var(--text-faint); }
-  .legend{ flex:1; min-width:0; }
-  .legend-row{ display:flex; justify-content:space-between; align-items:center; font-size:12px; padding:6px 4px; color:var(--text-mute); }
-  .legend-row .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:8px; flex-shrink:0; }
-  .legend-row .amt{ font-family:'IBM Plex Mono'; color:var(--text); font-size:11.5px; }
-
-  .progress-bar{ height:8px; border-radius:100px; background:var(--surface-strong); overflow:hidden; margin-top:14px; }
-  .progress-fill{ height:100%; background:linear-gradient(90deg,var(--emerald-dim),var(--emerald)); border-radius:100px; width:0%; transition:width 1.4s cubic-bezier(.16,1,.3,1); }
-  .progress-labels{ display:flex; justify-content:space-between; font-size:11px; color:var(--text-faint); margin-top:8px; }
-
-  .inv-row{ display:flex; align-items:center; gap:12px; padding:11px 4px; border-top:1px solid var(--border); }
-  .inv-row:first-child{ border-top:none; }
-  .inv-row .info{ flex:1; min-width:0; }
-  .inv-row .n{ font-size:13px; font-weight:600; }
-  .inv-row .c{ font-size:11.5px; color:var(--text-faint); }
-  .inv-row .amt{ font-family:'IBM Plex Mono'; font-size:12.5px; text-align:right; }
-
-  .team-row{ display:flex; align-items:center; gap:12px; padding:11px 4px; border-top:1px solid var(--border); }
-  .team-row:first-child{ border-top:none; }
-  .team-avatar{ width:34px; height:34px; border-radius:50%; background:var(--surface-strong); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk'; font-weight:700; font-size:12px; color:var(--emerald); flex-shrink:0; }
-  .team-info{ flex:1; min-width:0; }
-  .team-info .n{ font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .team-info .c{ font-size:11.5px; color:var(--text-faint); }
-  .team-role-pill{ font-size:10.5px; font-weight:600; padding:4px 9px; border-radius:100px; background:var(--surface-strong); color:var(--text-mute); flex-shrink:0; }
-
-  .empty-state{ text-align:center; padding:32px 16px; color:var(--text-faint); font-size:13px; }
-
-  .page-header-simple{ background:var(--surface); border-bottom:1px solid var(--border); padding:18px 28px; }
-  .page-header-simple h2{ font-size:18px; font-weight:600; }
-
+  /* ===== RESPONSIVE ===== */
   @media (max-width: 1180px){
-    .dash-layout{ grid-template-columns:1fr; }
-    .stat-grid{ grid-template-columns:repeat(2,1fr); }
-    .company-details{ grid-template-columns:repeat(2,1fr); }
+    .search-box{ width:360px; }
   }
   @media (max-width: 980px){
     .app-shell{ grid-template-columns:1fr; }
     .sidebar{ position:fixed; left:0; top:0; width:250px; z-index:100; transform:translateX(-100%); transition: transform .3s cubic-bezier(.4,0,.2,1); }
     .sidebar.open{ transform:translateX(0); }
     .sb-toggle{ display:flex; }
-    .search-box{ width:220px; }
+    .search-box{ width:280px; }
+  }
+  @media (max-width: 768px){
+    .search-box{ width:200px; padding:8px 14px; }
+    .search-box input{ font-size:13px; }
+    .search-box .kbd{ display:none; }
   }
   @media (max-width: 640px){
-    .stat-grid{ grid-template-columns:1fr; }
     .search-box{ display:none; }
-    main{ padding:18px; }
     .topbar{ padding:14px 16px; }
-    .balance-amt{ font-size:28px; }
-    .quick-actions{ justify-content:space-between; }
-    .qa-btn{ width:auto; flex:1; }
-    .company-card-inner{ flex-direction:column; }
-    .company-details{ grid-template-columns:1fr 1fr; }
-    .company-edit-btn{ width:100%; }
+    main{ padding:18px; }
     .notif-panel{ width:calc(100vw - 32px); right:-8px; }
   }
 
@@ -387,12 +444,20 @@
   <div>
     <!-- TOPBAR -->
     <header class="topbar">
-      <div style="display:flex; align-items:center; gap:14px;">
+      <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
         <div class="sb-toggle" id="sbToggle" aria-label="Buka menu"><svg class="icon"><use href="#ic-menu"/></svg></div>
-        <div class="search-box">
+        <div class="search-box" id="searchBox">
           <svg class="icon"><use href="#ic-search"/></svg>
-          <input type="text" placeholder="Cari faktur, klien, transaksi...">
+          <input type="text" id="searchInput" placeholder="Cari faktur, klien, transaksi, produk..." autocomplete="off">
+          <button class="clear-btn" id="searchClear" aria-label="Hapus pencarian">
+            <svg class="icon"><use href="#ic-close"/></svg>
+          </button>
           <span class="kbd">⌘K</span>
+          
+          <!-- Search Results -->
+          <div class="search-results" id="searchResults">
+            <div class="result-empty">Mulai ketik untuk mencari...</div>
+          </div>
         </div>
       </div>
       <div class="topbar-right">
@@ -493,6 +558,148 @@
 </div>
 
 <script>
+  // ===== SEARCH FUNCTIONALITY =====
+  (function() {
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const searchClear = document.getElementById('searchClear');
+    const searchBox = document.getElementById('searchBox');
+    let searchTimeout = null;
+    let isOpen = false;
+
+    // Sample data - ini bisa diganti dengan data dari API
+    const searchData = [
+      { type: 'invoice', title: 'INV-2026-001', desc: 'PT Andalas Maju - Rp 5.750.000', url: '/invoices/1' },
+      { type: 'invoice', title: 'INV-2026-002', desc: 'Kopi Kenangan Senja - Rp 2.800.000', url: '/invoices/2' },
+      { type: 'client', title: 'PT Andalas Maju', desc: 'info@andalas.com • Jakarta', url: '/clients/1' },
+      { type: 'client', title: 'Kopi Kenangan Senja', desc: 'hello@kopikenangan.com • Bandung', url: '/clients/2' },
+      { type: 'transaction', title: 'Pembayaran Sewa Kantor', desc: 'Rp 42.900.000 • 20 Jun 2026', url: '/transactions/1' },
+      { type: 'transaction', title: 'Pembayaran Klien', desc: 'Rp 2.800.000 • 18 Jun 2026', url: '/transactions/2' },
+      { type: 'product', title: 'Batik Tulis Klasik', desc: 'Rp 850.000 • Stok: 25', url: '/products/1' },
+      { type: 'product', title: 'Batik Cap Modern', desc: 'Rp 450.000 • Stok: 40', url: '/products/2' },
+    ];
+
+    function getIcon(type) {
+      const icons = {
+        invoice: 'ic-invoice',
+        client: 'ic-user',
+        transaction: 'ic-receive',
+        product: 'ic-box'
+      };
+      return icons[type] || 'ic-doc';
+    }
+
+    function getBadge(type) {
+      const labels = {
+        invoice: 'Faktur',
+        client: 'Klien',
+        transaction: 'Transaksi',
+        product: 'Produk'
+      };
+      return labels[type] || 'Item';
+    }
+
+    function performSearch(query) {
+      if (!query || query.length < 1) {
+        searchResults.innerHTML = '<div class="result-empty">Mulai ketik untuk mencari...</div>';
+        searchResults.classList.remove('open');
+        isOpen = false;
+        searchBox.classList.remove('has-value');
+        return;
+      }
+
+      searchBox.classList.add('has-value');
+      const lowerQuery = query.toLowerCase();
+      const results = searchData.filter(item => 
+        item.title.toLowerCase().includes(lowerQuery) || 
+        item.desc.toLowerCase().includes(lowerQuery)
+      );
+
+      if (results.length === 0) {
+        searchResults.innerHTML = `
+          <div class="result-empty">
+            <div style="font-size:24px;margin-bottom:8px;">🔍</div>
+            Tidak ditemukan hasil untuk "<strong>${query}</strong>"
+          </div>
+        `;
+      } else {
+        searchResults.innerHTML = results.map(item => `
+          <div class="result-item" data-url="${item.url}">
+            <div class="ri-icon">
+              <svg class="icon"><use href="#${getIcon(item.type)}"/></svg>
+            </div>
+            <div class="ri-info">
+              <div class="ri-title">${item.title}</div>
+              <div class="ri-desc">${item.desc}</div>
+            </div>
+            <span class="ri-badge">${getBadge(item.type)}</span>
+          </div>
+        `).join('');
+
+        // Add click listeners to results
+        searchResults.querySelectorAll('.result-item').forEach(el => {
+          el.addEventListener('click', function() {
+            window.location.href = this.dataset.url;
+          });
+        });
+      }
+
+      searchResults.classList.add('open');
+      isOpen = true;
+    }
+
+    // Input event with debounce
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      const query = this.value.trim();
+      searchTimeout = setTimeout(() => performSearch(query), 300);
+    });
+
+    // Clear button
+    searchClear.addEventListener('click', function() {
+      searchInput.value = '';
+      searchBox.classList.remove('has-value');
+      searchResults.innerHTML = '<div class="result-empty">Mulai ketik untuk mencari...</div>';
+      searchResults.classList.remove('open');
+      isOpen = false;
+      searchInput.focus();
+    });
+
+    // Close results on outside click
+    document.addEventListener('click', function(e) {
+      if (!searchBox.contains(e.target)) {
+        searchResults.classList.remove('open');
+        isOpen = false;
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Cmd+K or Ctrl+K to focus search
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+      // Escape to close results and clear
+      if (e.key === 'Escape' && searchInput.value) {
+        searchInput.value = '';
+        searchBox.classList.remove('has-value');
+        searchResults.innerHTML = '<div class="result-empty">Mulai ketik untuk mencari...</div>';
+        searchResults.classList.remove('open');
+        isOpen = false;
+        searchInput.blur();
+      }
+    });
+
+    // Focus on search with animation
+    searchInput.addEventListener('focus', function() {
+      if (this.value.trim()) {
+        performSearch(this.value.trim());
+      }
+    });
+  })();
+
   // ===== user dropdown =====
   const userTrigger = document.getElementById('userTrigger');
   const userDropdown = document.getElementById('userDropdown');
