@@ -70,6 +70,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         Route::get('/invoices', 'index')->name('invoices.index');
         Route::get('/invoices/create', 'create')->name('invoices.create');
         Route::post('/invoices', 'store')->name('invoices.store');
+        Route::get('/invoices/export', 'export')->name('invoices.export');
         Route::get('/invoices/{invoice}', 'show')->name('invoices.show');
         Route::get('/invoices/{invoice}/edit', 'edit')->name('invoices.edit');
         Route::put('/invoices/{invoice}', 'update')->name('invoices.update');
