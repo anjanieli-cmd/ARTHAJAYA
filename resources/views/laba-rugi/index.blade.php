@@ -10,8 +10,6 @@
     .btn .icon{ width:15px; height:15px; }
     .btn-primary{ background:var(--emerald); color:#052117; box-shadow:0 4px 20px rgba(var(--emerald-rgb),0.3); }
     .btn-primary:hover{ transform:translateY(-1px); box-shadow:0 8px 26px rgba(var(--emerald-rgb),0.45); }
-    .btn-outline{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
-    .btn-outline:hover{ background:var(--surface-strong); }
 
     .alert-success{ background:rgba(var(--emerald-rgb),0.1); border:1px solid rgba(var(--emerald-rgb),0.3); color:var(--emerald); padding:12px 16px; border-radius:12px; font-size:13.5px; margin-bottom:18px; }
 
@@ -23,58 +21,80 @@
         background-repeat:no-repeat; background-position:right 12px center; background-size:13px; padding-right:34px; appearance:none;
     }
 
-    /* ===== STATEMENT LAYOUT ===== */
-    .statement{ max-width:820px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:36px 40px; }
-    .statement-header{ text-align:center; margin-bottom:30px; padding-bottom:20px; border-bottom:1px dashed var(--border); }
-    .statement-header h2{ font-family:'Space Grotesk', sans-serif; font-size:19px; margin-bottom:4px; }
-    .statement-header p{ font-size:13px; color:var(--text-mute); }
+    /* ===== 2-COLUMN LAYOUT ===== */
+    .lr-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
+    .lr-col{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:26px 28px; }
 
-    .stmt-section-title{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin:26px 0 12px; }
-    .stmt-section-title.pendapatan{ color:var(--emerald); }
-    .stmt-section-title.beban{ color:var(--danger); }
-    .stmt-section-title .icon{ width:15px; height:15px; }
+    .lr-col-header{ display:flex; align-items:center; gap:10px; margin-bottom:18px; padding-bottom:16px; border-bottom:1px dashed var(--border); }
+    .lr-col-header .ic{ width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .lr-col-header .ic .icon{ width:17px; height:17px; }
+    .lr-col.pendapatan .ic{ background:rgba(var(--emerald-rgb),0.12); color:var(--emerald); }
+    .lr-col.beban .ic{ background:rgba(var(--danger-rgb),0.12); color:var(--danger); }
+    .lr-col-header h3{ font-family:'Space Grotesk', sans-serif; font-size:16px; }
 
-    .stmt-group{ margin-bottom:14px; }
-    .stmt-group-title{ font-size:12.5px; color:var(--text-faint); margin-bottom:6px; padding-left:2px; }
-    .stmt-row{ display:flex; align-items:center; justify-content:space-between; padding:9px 2px 9px 14px; font-size:13.5px; border-bottom:1px solid var(--border); gap:14px; }
-    .stmt-row-name{ flex:1; min-width:0; }
-    .stmt-amount{ font-family:'IBM Plex Mono', monospace; font-weight:500; white-space:nowrap; }
-    .stmt-subtotal{ display:flex; justify-content:space-between; padding:8px 2px; font-size:13px; font-weight:600; color:var(--text-mute); }
-    .stmt-subtotal .stmt-amount{ font-family:'IBM Plex Mono', monospace; }
+    .lr-group-title{ font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-faint); margin:16px 0 6px; }
+    .lr-group-title:first-of-type{ margin-top:0; }
 
-    .stmt-grand{ display:flex; justify-content:space-between; padding:14px 2px; margin-top:8px; border-top:1px solid var(--border); font-size:14.5px; font-weight:700; }
-    .stmt-grand.pendapatan{ color:var(--emerald); }
-    .stmt-grand.beban{ color:var(--danger); }
-
-    .stmt-final{ margin-top:26px; padding:20px 22px; border-radius:14px; display:flex; align-items:center; justify-content:space-between; }
-    .stmt-final.positive{ background:rgba(var(--emerald-rgb),0.1); border:1px solid rgba(var(--emerald-rgb),0.3); }
-    .stmt-final.negative{ background:rgba(var(--danger-rgb),0.1); border:1px solid rgba(var(--danger-rgb),0.3); }
-    .stmt-final-label{ font-size:14px; font-weight:600; }
-    .stmt-final-value{ font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; }
-    .stmt-final.positive .stmt-final-value{ color:var(--emerald); }
-    .stmt-final.negative .stmt-final-value{ color:var(--danger); }
-
-    .stmt-empty{ text-align:center; padding:24px; color:var(--text-faint); font-size:13px; }
-
-    /* ===== ACTION BUTTONS (baru, lebih jelas) ===== */
-    .row-actions{ display:flex; gap:6px; flex-shrink:0; }
-    .row-action-btn{
-        display:inline-flex; align-items:center; justify-content:center; padding:6px 12px; border-radius:8px;
-        font-size:12px; font-weight:600; text-decoration:none; border:1px solid var(--border);
-        background:var(--surface-strong); color:var(--text-mute); transition:all .15s ease; cursor:pointer; white-space:nowrap;
+    /* ROW dengan hover actions */
+    .lr-row{
+        display:flex; align-items:center; padding:9px 10px;
+        border-radius:10px; gap:10px; font-size:13.5px;
+        transition: background .15s ease; position:relative;
     }
-    .row-action-btn:hover{ background:var(--surface); border-color:var(--border-hover); color:var(--text); }
-    .row-action-btn.view:hover{ color:var(--info); border-color:rgba(var(--info-rgb),0.4); }
-    .row-action-btn.edit:hover{ color:var(--emerald); border-color:rgba(var(--emerald-rgb),0.4); }
-    .row-action-btn.delete{ color:var(--danger); border-color:rgba(var(--danger-rgb),0.25); }
-    .row-action-btn.delete:hover{ background:rgba(var(--danger-rgb),0.1); border-color:rgba(var(--danger-rgb),0.4); }
+    .lr-row:hover{ background:var(--surface-strong); }
+    .lr-row-name{ flex:1; min-width:0; }
+    .lr-amount{ font-family:'IBM Plex Mono', monospace; white-space:nowrap; font-size:13px; }
 
-    @media (max-width:640px){
-        .statement{ padding:24px 20px; }
+    /* Actions tersembunyi, muncul saat hover */
+    .lr-row-actions{
+        display:flex; gap:4px; flex-shrink:0;
+        opacity:0; pointer-events:none;
+        transition: opacity .15s ease;
+    }
+    .lr-row:hover .lr-row-actions{ opacity:1; pointer-events:all; }
+
+    .lra-btn{
+        display:inline-flex; align-items:center; justify-content:center;
+        width:28px; height:28px; border-radius:7px; border:1px solid var(--border);
+        background:var(--surface); color:var(--text-faint);
+        cursor:pointer; text-decoration:none; transition:all .15s ease;
+    }
+    .lra-btn .icon{ width:13px; height:13px; }
+    .lra-btn.view:hover{ color:var(--info); border-color:rgba(var(--info-rgb),0.4); background:rgba(var(--info-rgb),0.08); }
+    .lra-btn.edit:hover{ color:var(--emerald); border-color:rgba(var(--emerald-rgb),0.4); background:rgba(var(--emerald-rgb),0.08); }
+    .lra-btn.del{ color:var(--danger); border-color:rgba(var(--danger-rgb),0.2); }
+    .lra-btn.del:hover{ background:rgba(var(--danger-rgb),0.1); border-color:rgba(var(--danger-rgb),0.4); }
+    .lra-btn button{ all:unset; display:flex; align-items:center; justify-content:center; width:100%; height:100%; cursor:pointer; }
+
+    .lr-subtotal{ display:flex; justify-content:space-between; padding:7px 10px; font-size:12.5px; color:var(--text-mute); font-weight:600; }
+    .lr-empty{ font-size:12.5px; color:var(--text-faint); padding:8px 10px 14px; }
+
+    .lr-col-total{ display:flex; justify-content:space-between; margin-top:10px; padding:14px 10px; border-top:1px solid var(--border); font-size:14.5px; font-weight:700; border-radius:0 0 10px 10px; }
+    .lr-col.pendapatan .lr-col-total{ color:var(--emerald); background:rgba(var(--emerald-rgb),0.06); }
+    .lr-col.beban .lr-col-total{ color:var(--danger); background:rgba(var(--danger-rgb),0.06); }
+
+    /* ===== SUMMARY BAR ===== */
+    .lr-summary{ margin-top:18px; padding:20px 28px; border-radius:16px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .lr-summary.positive{ background:rgba(var(--emerald-rgb),0.1); border:1px solid rgba(var(--emerald-rgb),0.3); }
+    .lr-summary.negative{ background:rgba(var(--danger-rgb),0.1); border:1px solid rgba(var(--danger-rgb),0.3); }
+    .lr-summary-left{ display:flex; flex-direction:column; gap:4px; }
+    .lr-summary-label{ font-size:13px; font-weight:600; color:var(--text-mute); }
+    .lr-summary-sublabel{ font-size:12px; color:var(--text-faint); }
+    .lr-summary-value{ font-family:'Space Grotesk', sans-serif; font-size:28px; font-weight:700; }
+    .lr-summary.positive .lr-summary-value{ color:var(--emerald); }
+    .lr-summary.negative .lr-summary-value{ color:var(--danger); }
+    .lr-summary-detail{ display:flex; gap:28px; }
+    .lr-summary-item{ text-align:right; }
+    .lr-summary-item .k{ font-size:11.5px; color:var(--text-faint); margin-bottom:2px; }
+    .lr-summary-item .v{ font-family:'IBM Plex Mono', monospace; font-size:13.5px; font-weight:600; }
+    .lr-summary-item .v.green{ color:var(--emerald); }
+    .lr-summary-item .v.red{ color:var(--danger); }
+
+    @media (max-width:900px){
+        .lr-grid{ grid-template-columns:1fr; }
+        .lr-row-actions{ opacity:1; pointer-events:all; }
         .page-head{ flex-direction:column; }
-        .head-actions{ width:100%; }
         .head-actions .btn{ flex:1; }
-        .stmt-row{ flex-wrap:wrap; }
     }
 </style>
 
@@ -88,7 +108,9 @@
         <p>Ringkasan pendapatan dan beban {{ $company->name ?? 'perusahaanmu' }} per periode.</p>
     </div>
     <div class="head-actions">
-        <a href="{{ route('laba-rugi.create') }}" class="btn btn-primary"><svg class="icon"><use href="#ic-plus"/></svg> Tambah Pos</a>
+        <a href="{{ route('laba-rugi.create') }}" class="btn btn-primary">
+            <svg class="icon"><use href="#ic-plus"/></svg> Tambah Pos
+        </a>
     </div>
 </div>
 
@@ -107,77 +129,114 @@
     </select>
 </form>
 
-<div class="statement">
-    <div class="statement-header">
-        <h2>Laporan Laba Rugi</h2>
-        <p>{{ $company->name ?? 'Perusahaan' }} — Periode {{ \Carbon\Carbon::createFromDate($year, $month, 1)->translatedFormat('F Y') }}</p>
-    </div>
+{{-- ===== 2-COLUMN GRID ===== --}}
+<div class="lr-grid">
 
-    <div class="stmt-section-title pendapatan"><svg class="icon"><use href="#ic-trending"/></svg> Pendapatan</div>
-    @forelse($pendapatan as $category => $groupItems)
-        <div class="stmt-group">
-            <div class="stmt-group-title">{{ $category }}</div>
+    {{-- KIRI: PENDAPATAN --}}
+    <div class="lr-col pendapatan">
+        <div class="lr-col-header">
+            <div class="ic"><svg class="icon"><use href="#ic-trending"/></svg></div>
+            <h3>Pendapatan</h3>
+        </div>
+
+        @forelse($pendapatan as $category => $groupItems)
+            <div class="lr-group-title">{{ $category }}</div>
             @foreach($groupItems as $item)
-                <div class="stmt-row">
-                    <span class="stmt-row-name">{{ $item->name }}</span>
-                    <span class="stmt-amount">Rp{{ number_format($item->amount, 0, ',', '.') }}</span>
-                    <div class="row-actions">
-                        <a href="{{ route('laba-rugi.show', $item) }}" class="row-action-btn view">Lihat</a>
-                        <a href="{{ route('laba-rugi.edit', $item) }}" class="row-action-btn edit">Edit</a>
-                        <form method="POST" action="{{ route('laba-rugi.destroy', $item) }}" onsubmit="return confirm('Hapus pos ini?')" style="display:inline;">
+                <div class="lr-row">
+                    <span class="lr-row-name">{{ $item->name }}</span>
+                    <span class="lr-amount">Rp{{ number_format($item->amount, 0, ',', '.') }}</span>
+                    <div class="lr-row-actions">
+                        <a href="{{ route('laba-rugi.show', $item) }}" class="lra-btn view" title="Lihat">
+                            <svg class="icon"><use href="#ic-eye"/></svg>
+                        </a>
+                        <a href="{{ route('laba-rugi.edit', $item) }}" class="lra-btn edit" title="Edit">
+                            <svg class="icon"><use href="#ic-edit"/></svg>
+                        </a>
+                        <form method="POST" action="{{ route('laba-rugi.destroy', $item) }}" onsubmit="return confirm('Hapus pos ini?')" style="display:contents;">
                             @csrf @method('DELETE')
-                            <button type="submit" class="row-action-btn delete">Hapus</button>
+                            <span class="lra-btn del" title="Hapus">
+                                <button type="submit"><svg class="icon"><use href="#ic-trash"/></svg></button>
+                            </span>
                         </form>
                     </div>
                 </div>
             @endforeach
-            <div class="stmt-subtotal">
+            <div class="lr-subtotal">
                 <span>Subtotal {{ $category }}</span>
-                <span class="stmt-amount">Rp{{ number_format($groupItems->sum('amount'), 0, ',', '.') }}</span>
+                <span class="lr-amount">Rp{{ number_format($groupItems->sum('amount'), 0, ',', '.') }}</span>
             </div>
+        @empty
+            <div class="lr-empty">Belum ada pos pendapatan untuk periode ini.</div>
+        @endforelse
+
+        <div class="lr-col-total">
+            <span>Total Pendapatan</span>
+            <span class="lr-amount">Rp{{ number_format($totalPendapatan, 0, ',', '.') }}</span>
         </div>
-    @empty
-        <div class="stmt-empty">Belum ada pos pendapatan untuk periode ini.</div>
-    @endforelse
-    <div class="stmt-grand pendapatan">
-        <span>Total Pendapatan</span>
-        <span class="stmt-amount">Rp{{ number_format($totalPendapatan, 0, ',', '.') }}</span>
     </div>
 
-    <div class="stmt-section-title beban"><svg class="icon"><use href="#ic-trending-down"/></svg> Beban</div>
-    @forelse($beban as $category => $groupItems)
-        <div class="stmt-group">
-            <div class="stmt-group-title">{{ $category }}</div>
+    {{-- KANAN: BEBAN --}}
+    <div class="lr-col beban">
+        <div class="lr-col-header">
+            <div class="ic"><svg class="icon"><use href="#ic-trending-down"/></svg></div>
+            <h3>Beban</h3>
+        </div>
+
+        @forelse($beban as $category => $groupItems)
+            <div class="lr-group-title">{{ $category }}</div>
             @foreach($groupItems as $item)
-                <div class="stmt-row">
-                    <span class="stmt-row-name">{{ $item->name }}</span>
-                    <span class="stmt-amount">Rp{{ number_format($item->amount, 0, ',', '.') }}</span>
-                    <div class="row-actions">
-                        <a href="{{ route('laba-rugi.show', $item) }}" class="row-action-btn view">Lihat</a>
-                        <a href="{{ route('laba-rugi.edit', $item) }}" class="row-action-btn edit">Edit</a>
-                        <form method="POST" action="{{ route('laba-rugi.destroy', $item) }}" onsubmit="return confirm('Hapus pos ini?')" style="display:inline;">
+                <div class="lr-row">
+                    <span class="lr-row-name">{{ $item->name }}</span>
+                    <span class="lr-amount">Rp{{ number_format($item->amount, 0, ',', '.') }}</span>
+                    <div class="lr-row-actions">
+                        <a href="{{ route('laba-rugi.show', $item) }}" class="lra-btn view" title="Lihat">
+                            <svg class="icon"><use href="#ic-eye"/></svg>
+                        </a>
+                        <a href="{{ route('laba-rugi.edit', $item) }}" class="lra-btn edit" title="Edit">
+                            <svg class="icon"><use href="#ic-edit"/></svg>
+                        </a>
+                        <form method="POST" action="{{ route('laba-rugi.destroy', $item) }}" onsubmit="return confirm('Hapus pos ini?')" style="display:contents;">
                             @csrf @method('DELETE')
-                            <button type="submit" class="row-action-btn delete">Hapus</button>
+                            <span class="lra-btn del" title="Hapus">
+                                <button type="submit"><svg class="icon"><use href="#ic-trash"/></svg></button>
+                            </span>
                         </form>
                     </div>
                 </div>
             @endforeach
-            <div class="stmt-subtotal">
+            <div class="lr-subtotal">
                 <span>Subtotal {{ $category }}</span>
-                <span class="stmt-amount">Rp{{ number_format($groupItems->sum('amount'), 0, ',', '.') }}</span>
+                <span class="lr-amount">Rp{{ number_format($groupItems->sum('amount'), 0, ',', '.') }}</span>
             </div>
+        @empty
+            <div class="lr-empty">Belum ada pos beban untuk periode ini.</div>
+        @endforelse
+
+        <div class="lr-col-total">
+            <span>Total Beban</span>
+            <span class="lr-amount">Rp{{ number_format($totalBeban, 0, ',', '.') }}</span>
         </div>
-    @empty
-        <div class="stmt-empty">Belum ada pos beban untuk periode ini.</div>
-    @endforelse
-    <div class="stmt-grand beban">
-        <span>Total Beban</span>
-        <span class="stmt-amount">Rp{{ number_format($totalBeban, 0, ',', '.') }}</span>
     </div>
 
-    <div class="stmt-final {{ $labaBersih >= 0 ? 'positive' : 'negative' }}">
-        <span class="stmt-final-label">{{ $labaBersih >= 0 ? 'Laba Bersih' : 'Rugi Bersih' }}</span>
-        <span class="stmt-final-value">Rp{{ number_format(abs($labaBersih), 0, ',', '.') }}</span>
+</div>
+
+{{-- ===== SUMMARY BAR ===== --}}
+<div class="lr-summary {{ $labaBersih >= 0 ? 'positive' : 'negative' }}">
+    <div class="lr-summary-left">
+        <div class="lr-summary-label">{{ $labaBersih >= 0 ? '📈 Laba Bersih' : '📉 Rugi Bersih' }}</div>
+        <div class="lr-summary-sublabel">{{ \Carbon\Carbon::createFromDate($year, $month, 1)->translatedFormat('F Y') }} — {{ $company->name ?? 'Perusahaan' }}</div>
+        <div class="lr-summary-value">Rp{{ number_format(abs($labaBersih), 0, ',', '.') }}</div>
+    </div>
+    <div class="lr-summary-detail">
+        <div class="lr-summary-item">
+            <div class="k">Total Pendapatan</div>
+            <div class="v green">Rp{{ number_format($totalPendapatan, 0, ',', '.') }}</div>
+        </div>
+        <div class="lr-summary-item">
+            <div class="k">Total Beban</div>
+            <div class="v red">Rp{{ number_format($totalBeban, 0, ',', '.') }}</div>
+        </div>
     </div>
 </div>
+
 </x-app-layout>
