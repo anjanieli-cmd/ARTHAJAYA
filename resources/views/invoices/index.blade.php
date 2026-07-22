@@ -380,10 +380,10 @@
                 <p>Kelola, kirim, dan pantau status semua faktur penjualan <strong>{{ $company->name ?? 'perusahaanmu' }}</strong> di satu tempat.</p>
             </div>
             <div class="head-actions">
-                <button type="button" class="btn btn-outline">
+                <a href="{{ route('invoices.export', request()->only(['q', 'status', 'from'])) }}" class="btn btn-outline">
                     <svg class="icon"><use href="#ic-download"/></svg> 
                     Ekspor
-                </button>
+                </a>
                 <a href="{{ route('invoices.create') }}" class="btn btn-primary">
                     <svg class="icon"><use href="#ic-plus"/></svg> 
                     Buat Faktur

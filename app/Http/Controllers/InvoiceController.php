@@ -66,6 +66,150 @@ class InvoiceController extends Controller
     }
 
     /**
+     * Ekspor faktur (sesuai filter yang sedang aktif) ke file Excel.
+     */
+    public function export(Request $request)
+    {
+        $company = auth()->user()->company;
+
+        abort_if(! $company, 403, 'Lengkapi setup perusahaan terlebih dahulu.');
+
+        $invoices = Invoice::with('client')
+            ->where('company_id', $company->id)
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('invoice_number', 'like', '%' . $request->q . '%')
+                      ->orWhereHas('client', function ($cq) use ($request) {
+                          $cq->where('name', 'like', '%' . $request->q . '%');
+                      });
+                });
+            })
+            ->when($request->filled('status'), function ($query) use ($request) {
+                if ($request->status === 'overdue') {
+                    $query->where('status', 'sent')->whereDate('due_date', '<', now());
+                } else {
+                    $query->where('status', $request->status);
+                }
+            })
+            ->when($request->filled('from'), fn ($query) => $query->whereDate('issue_date', '>=', $request->from))
+            ->latest('issue_date')
+            ->get();
+
+        $statusLabels = [
+            'draft'     => 'Draft',
+            'sent'      => 'Terkirim',
+            'paid'      => 'Lunas',
+            'cancelled' => 'Dibatalkan',
+        ];
+
+        $html = '
+        <html xmlns:o="urn:schemas-microsoft-com:office:office"
+              xmlns:x="urn:schemas-microsoft-com:office:excel"
+              xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="UTF-8">
+            <!--[if gte mso 9]>
+            <xml>
+                <x:ExcelWorkbook>
+                    <x:ExcelWorksheets>
+                        <x:ExcelWorksheet>
+                            <x:Name>Faktur</x:Name>
+                            <x:WorksheetOptions>
+                                <x:DisplayGridlines/>
+                            </x:WorksheetOptions>
+                        </x:ExcelWorksheet>
+                    </x:ExcelWorksheets>
+                </x:ExcelWorkbook>
+            </xml>
+            <![endif]-->
+            <style>
+                table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
+                th {
+                    background: #34E0A1;
+                    color: #052117;
+                    padding: 10px 12px;
+                    text-align: left;
+                    font-weight: bold;
+                    border: 1px solid #1E8F6B;
+                }
+                td {
+                    padding: 8px 12px;
+                    border: 1px solid #ddd;
+                    text-align: left;
+                }
+                .text-right { text-align: right; }
+                .title { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #1a1a2e; }
+                .subtitle { font-size: 12px; color: #666; margin-bottom: 20px; }
+                .footer { margin-top: 20px; font-size: 11px; color: #999; text-align: center; }
+            </style>
+        </head>
+        <body>
+            <div class="title">Laporan Semua Faktur</div>
+            <div class="subtitle">' . ($company->name ?? 'Perusahaan') . ' | Dicetak: ' . now()->translatedFormat('d F Y H:i') . '</div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>No. Faktur</th>
+                        <th>Klien</th>
+                        <th>Perusahaan Klien</th>
+                        <th>Tanggal Terbit</th>
+                        <th>Jatuh Tempo</th>
+                        <th style="text-align:right">Subtotal</th>
+                        <th style="text-align:right">Pajak</th>
+                        <th style="text-align:right">Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+        $no = 1;
+
+        foreach ($invoices as $invoice) {
+            $isOverdue = $invoice->status === 'sent'
+                && $invoice->due_date
+                && \Carbon\Carbon::parse($invoice->due_date)->isPast();
+
+            $statusLabel = $isOverdue
+                ? 'Jatuh Tempo'
+                : ($statusLabels[$invoice->status] ?? ucfirst($invoice->status));
+
+            $html .= '
+                    <tr>
+                        <td>' . $no++ . '</td>
+                        <td>' . $invoice->invoice_number . '</td>
+                        <td>' . ($invoice->client->name ?? 'Klien terhapus') . '</td>
+                        <td>' . ($invoice->client->company_name ?? '-') . '</td>
+                        <td>' . optional($invoice->issue_date)->format('d/m/Y') . '</td>
+                        <td>' . optional($invoice->due_date)->format('d/m/Y') . '</td>
+                        <td style="text-align:right">Rp ' . number_format((float) $invoice->subtotal, 0, ',', '.') . '</td>
+                        <td style="text-align:right">Rp ' . number_format((float) $invoice->tax_amount, 0, ',', '.') . '</td>
+                        <td style="text-align:right"><strong>Rp ' . number_format((float) $invoice->total, 0, ',', '.') . '</strong></td>
+                        <td>' . $statusLabel . '</td>
+                    </tr>';
+        }
+
+        $html .= '
+                </tbody>
+            </table>
+
+            <div class="footer">
+                Laporan ini dihasilkan secara otomatis oleh ' . config('app.name', 'Arthajaya') . '
+            </div>
+        </body>
+        </html>';
+
+        $filename = 'Faktur_' . now()->format('Y-m-d_His') . '.xls';
+
+        return response($html)
+            ->header('Content-Type', 'application/vnd.ms-excel; charset=UTF-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
+    /**
      * Form buat faktur baru.
      */
     public function create()
