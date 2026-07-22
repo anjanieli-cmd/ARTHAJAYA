@@ -21,6 +21,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamMemberController;
 use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\SecurityController;
+use App\Http\Controllers\CompanyController;
 
 // Homepage
 Route::get('/', function () {
@@ -1621,6 +1622,10 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
     // Multi-User & Hak Akses (pakai TeamMemberController)
     Route::resource('team-members', TeamMemberController::class);
+
+    // Profil Perusahaan (pakai CompanyController)
+    Route::get('/company/edit', [CompanyController::class, 'edit'])->name('company.edit');
+    Route::patch('/company', [CompanyController::class, 'update'])->name('company.update');
 
     // Integrasi (pakai IntegrationController)
     Route::resource('integrations', IntegrationController::class);

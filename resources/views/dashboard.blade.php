@@ -487,7 +487,7 @@
 
     .dash-balance .balance-actions {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
 
@@ -502,6 +502,8 @@
       color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.2s ease;
+      display: block;
+      text-decoration: none;
     }
 
     .dash-balance .balance-actions .qa-btn:hover {
@@ -902,10 +904,10 @@
         </p>
       </div>
       <div class="dash-actions">
-        <a href="#" class="dash-btn dash-btn-ghost">
+        <a href="{{ Route::has('bank-mutations.create') ? route('bank-mutations.create') : '#' }}" class="dash-btn dash-btn-ghost">
           <svg class="icon"><use href="#ic-receive"/></svg> Catat Transaksi
         </a>
-        <a href="#" class="dash-btn dash-btn-primary">
+        <a href="{{ Route::has('invoices.create') ? route('invoices.create') : '#' }}" class="dash-btn dash-btn-primary">
           <svg class="icon"><use href="#ic-plus"/></svg> Faktur Baru
         </a>
       </div>
@@ -937,7 +939,7 @@
           </div>
         </div>
       </div>
-      <a href="#" class="dash-btn dash-btn-ghost" style="flex-shrink:0;">
+      <a href="{{ route('company.edit') }}" class="dash-btn dash-btn-ghost" style="flex-shrink:0;">
         <svg class="icon"><use href="#ic-settings"/></svg> Edit Profil
       </a>
     </div>
@@ -998,22 +1000,18 @@
               </div>
             </div>
             <div class="balance-actions">
-              <div class="qa-btn">
+              <a href="{{ Route::has('invoices.index') ? route('invoices.index') : '#' }}" class="qa-btn">
                 <svg class="icon"><use href="#ic-invoice"/></svg>
                 Faktur
-              </div>
-              <div class="qa-btn">
+              </a>
+              <a href="{{ Route::has('bank-mutations.index') ? route('bank-mutations.index') : '#' }}" class="qa-btn">
                 <svg class="icon"><use href="#ic-receive"/></svg>
                 Terima
-              </div>
-              <div class="qa-btn">
+              </a>
+              <a href="{{ Route::has('reconciliation.index') ? route('reconciliation.index') : '#' }}" class="qa-btn">
                 <svg class="icon"><use href="#ic-bank"/></svg>
                 Rekonsil
-              </div>
-              <div class="qa-btn">
-                <svg class="icon"><use href="#ic-more"/></svg>
-                Lainnya
-              </div>
+              </a>
             </div>
           </div>
           <div class="dash-spark">
@@ -1036,7 +1034,9 @@
         <div class="dash-card animate-in" style="animation-delay: 0.20s;">
           <div class="card-head">
             <h3>Transaksi Terbaru</h3>
-            <a href="#" class="sub-link">Lihat semua <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
+            <a href="{{ Route::has('ledger.index') ? route('ledger.index') : '#' }}" class="sub-link">
+              Lihat semua <svg class="icon"><use href="#ic-arrow-right"/></svg>
+            </a>
           </div>
           <table class="dash-tx-table">
             <thead>
@@ -1076,7 +1076,9 @@
         <div class="dash-card animate-in" style="animation-delay: 0.25s;">
           <div class="card-head">
             <h3>Ringkasan Pengeluaran</h3>
-            <span class="sub-link">Bulan Ini <svg class="icon"><use href="#ic-chevron"/></svg></span>
+            <a href="{{ Route::has('expenses.index') ? route('expenses.index') : '#' }}" class="sub-link">
+              Bulan Ini <svg class="icon"><use href="#ic-chevron"/></svg>
+            </a>
           </div>
           <div class="dash-donut-wrap">
             <div class="dash-donut">
@@ -1133,7 +1135,9 @@
         <div class="dash-card animate-in" style="animation-delay: 0.35s;">
           <div class="card-head">
             <h3>Tim Perusahaan</h3>
-            <a href="#" class="sub-link">Kelola <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
+            <a href="{{ Route::has('team-members.index') ? route('team-members.index') : '#' }}" class="sub-link">
+              Kelola <svg class="icon"><use href="#ic-arrow-right"/></svg>
+            </a>
           </div>
           @if(!empty($teamMembers) && count($teamMembers))
             @foreach($teamMembers as $member)
@@ -1158,7 +1162,9 @@
         <div class="dash-card animate-in" style="animation-delay: 0.40s;">
           <div class="card-head">
             <h3>Faktur Akan Jatuh Tempo</h3>
-            <a href="#" class="sub-link">Semua <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
+            <a href="{{ Route::has('invoices.index') ? route('invoices.index') : '#' }}" class="sub-link">
+              Semua <svg class="icon"><use href="#ic-arrow-right"/></svg>
+            </a>
           </div>
           <div class="dash-inv-row">
             <div class="info">
