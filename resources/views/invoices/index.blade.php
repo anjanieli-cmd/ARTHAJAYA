@@ -22,7 +22,6 @@
         }
     @endphp
 
-    {{-- ===== SVG ICONS ===== --}}
     <svg style="display:none;">
         <defs>
             <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -61,8 +60,11 @@
             <symbol id="ic-inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
             </symbol>
-            <symbol id="ic-loader" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+            <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+            </symbol>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </symbol>
         </defs>
     </svg>
@@ -83,7 +85,27 @@
         @keyframes fadeSlideUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:translateY(0);} }
         @keyframes pulseGlow{ 0%,100%{ opacity:1;} 50%{ opacity:.55;} }
         @keyframes spin{ to{ transform:rotate(360deg);} }
+        @keyframes slideDown{ from{ opacity:0; transform:translateY(-10px) scale(.95);} to{ opacity:1; transform:translateY(0) scale(1);} }
         .inv-wrap .animate-in{ animation:fadeSlideUp .5s cubic-bezier(.16,1,.3,1) forwards; opacity:0; }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast-container{
+            position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; max-width:380px; width:100%;
+        }
+        .toast{
+            background:var(--modal-bg); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 20px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:slideDown .35s cubic-bezier(.16,1,.3,1);
+            display:flex; align-items:center; gap:12px; backdrop-filter:blur(12px);
+        }
+        .toast .toast-icon{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .toast .toast-icon.success{ background:var(--success-soft); color:var(--success); }
+        .toast .toast-icon.error{ background:var(--danger-soft); color:var(--danger); }
+        .toast .toast-icon .icon{ width:18px; height:18px; }
+        .toast .toast-content{ flex:1; }
+        .toast .toast-title{ font-size:13px; font-weight:600; color:var(--text); }
+        .toast .toast-msg{ font-size:12px; color:var(--text-mute); }
+        .toast .toast-close{ background:none; border:none; color:var(--text-faint); cursor:pointer; padding:4px; }
+        .toast .toast-close .icon{ width:14px; height:14px; }
 
         /* ===== HEADER ===== */
         .inv-header{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap; margin-bottom:26px; }
@@ -109,10 +131,11 @@
         .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 28px var(--accent-glow); }
         .btn-outline{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
         .btn-outline:hover{ background:var(--surface-strong); border-color:var(--border-hover); transform:translateY(-2px); }
-        .btn-danger-ghost{ background:none; color:var(--danger); }
         .btn-sm{ padding:8px 14px; font-size:12.5px; }
         .btn-danger{ background:var(--danger); color:#fff; }
         .btn-danger:hover{ background:#d14a4a; transform:translateY(-2px); box-shadow:0 8px 22px rgba(232,90,90,.35); }
+        .btn-success{ background:var(--success); color:#052117; }
+        .btn-success:hover{ transform:translateY(-2px); box-shadow:0 8px 22px rgba(52,181,131,.35); }
 
         /* ===== STAT CARDS ===== */
         .stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
@@ -230,49 +253,22 @@
             color: #34d399;
         }
 
-        /* ===== LOADING OVERLAY ===== */
-        .table-loading {
-            position: relative;
-            opacity: 0.6;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-        }
-        .table-loading .loading-spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            width: 40px;
-            height: 40px;
-            animation: spin 0.8s linear infinite;
-            color: var(--accent);
-        }
-
         .filter-actions{ 
             display:flex; 
             gap:8px; 
             align-items:center; 
         }
 
-        /* ===== BULK BAR ===== */
-        .bulk-bar{ display:none; align-items:center; justify-content:space-between; background:var(--accent-soft); border:1px solid var(--accent-glow); border-radius:14px; padding:12px 18px; margin-bottom:14px; font-size:13.5px; }
-        .bulk-bar.show{ display:flex; }
-        .bulk-bar b{ color:var(--accent); }
-        .bulk-actions{ display:flex; gap:8px; }
-
         /* ===== TABLE CARD ===== */
         .table-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; position:relative; }
         .table-scroll{ overflow-x:auto; }
-        table{ width:100%; border-collapse:collapse; min-width:960px; }
+        table{ width:100%; border-collapse:collapse; min-width:820px; }
         thead th{ text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); font-weight:700; padding:15px 18px; border-bottom:2px solid var(--border); white-space:nowrap; background:var(--surface-hover); }
         tbody tr{ border-bottom:1px solid var(--border); transition:background .18s ease; position:relative; }
         tbody tr:last-child{ border-bottom:none; }
         tbody tr:hover{ background:var(--surface-strong); }
         tbody tr.row-accent td:first-child{ box-shadow: inset 3px 0 0 0 var(--row-color, transparent); }
         tbody td{ padding:15px 18px; font-size:13.5px; vertical-align:middle; }
-        td.chk, th.chk{ width:44px; padding-left:18px; }
-        input[type=checkbox]{ width:17px; height:17px; border-radius:5px; accent-color:var(--accent); cursor:pointer; }
 
         .inv-no{ font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--text); }
         .client-cell{ display:flex; align-items:center; gap:10px; }
@@ -312,6 +308,7 @@
         .icon-action.view:hover{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
         .icon-action.edit:hover{ background:rgba(78,143,240,.14); border-color:var(--blue); color:var(--blue); }
         .icon-action.delete:hover{ background:rgba(232,90,90,.14); border-color:var(--danger); color:var(--danger); }
+        .icon-action.send:hover{ background:rgba(78,143,240,.14); border-color:var(--blue); color:var(--blue); }
 
         .icon-action[data-tip]::after{
             content:attr(data-tip); position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%) translateY(4px);
@@ -334,7 +331,7 @@
         .pagination-bar{ display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-top:1px solid var(--border); flex-wrap:wrap; gap:12px; }
         .pg-info{ font-size:12.5px; color:var(--text-faint); }
 
-        /* ===== MODAL ===== */
+        /* ===== DELETE MODAL ===== */
         .modal-overlay{ position:fixed; inset:0; background:rgba(3,6,12,.65); backdrop-filter:blur(8px); z-index:999; display:none; align-items:center; justify-content:center; padding:20px; }
         .modal-overlay.open{ display:flex; }
         @keyframes modalSlideUp{ from{ opacity:0; transform:translateY(24px) scale(.96);} to{ opacity:1; transform:translateY(0) scale(1);} }
@@ -364,13 +361,13 @@
         @media (max-width: 480px){ 
             .stat-row{ grid-template-columns:1fr; } 
             .inv-header h1{ font-size:22px; }
-            .bulk-bar{ flex-direction:column; align-items:stretch; gap:12px; }
-            .bulk-actions{ justify-content:stretch; }
-            .bulk-actions .btn{ flex:1; }
         }
     </style>
 
     <div class="inv-wrap">
+
+        {{-- ===== TOAST CONTAINER ===== --}}
+        <div class="toast-container" id="toastContainer"></div>
 
         {{-- ===== HEADER ===== --}}
         <div class="inv-header animate-in" style="animation-delay:.05s;">
@@ -432,9 +429,9 @@
             <form method="GET" action="{{ route('invoices.index') }}" id="filterForm">
                 <div class="search-wrap">
                     <svg class="icon"><use href="#ic-search"/></svg>
-                    <input type="text" name="q" id="searchInput" value="{{ request('q') }}" placeholder="Cari nomor faktur atau nama klien..." autocomplete="off">
+                    <input type="text" name="q" id="invoiceSearchInput" value="{{ request('q') }}" placeholder="Cari nomor faktur atau nama klien..." autocomplete="off">
                 </div>
-                <select name="status" id="statusSelect">
+                <select name="status" id="invoiceStatusSelect">
                     <option value="">Semua Status</option>
                     <option value="draft" {{ request('status')==='draft' ? 'selected' : '' }}>Draft</option>
                     <option value="sent" {{ request('status')==='sent' ? 'selected' : '' }}>Terkirim</option>
@@ -451,23 +448,12 @@
             </form>
         </div>
 
-        {{-- ===== BULK ACTIONS ===== --}}
-        <div class="bulk-bar" id="bulkBar">
-            <span><b id="bulkCount">0</b> faktur dipilih</span>
-            <div class="bulk-actions">
-                <button type="button" class="btn btn-outline btn-sm"><svg class="icon"><use href="#ic-send"/></svg> Kirim</button>
-                <button type="button" class="btn btn-outline btn-sm"><svg class="icon"><use href="#ic-download"/></svg> PDF</button>
-                <button type="button" class="btn btn-danger-ghost btn-sm" onclick="openBulkDeleteModal()"><svg class="icon"><use href="#ic-trash"/></svg> Hapus</button>
-            </div>
-        </div>
-
         {{-- ===== TABLE ===== --}}
         <div class="table-card animate-in" style="animation-delay:.32s;" id="tableContainer">
             <div class="table-scroll">
                 <table>
                     <thead>
                         <tr>
-                            <th class="chk"><input type="checkbox" id="checkAll"></th>
                             <th>No. Faktur</th>
                             <th>Klien</th>
                             <th>Tanggal Terbit</th>
@@ -487,8 +473,7 @@
                                 $avColor = $rowColors[$loop->index % count($rowColors)];
                                 $rowAccent = ['draft' => 'var(--text-faint)', 'sent' => 'var(--blue)', 'paid' => 'var(--emerald)', 'overdue' => 'var(--danger)', 'cancelled' => 'var(--text-faint)'][$statusKey] ?? 'transparent';
                             @endphp
-                            <tr class="row-accent" style="--row-color: {{ $rowAccent }};">
-                                <td class="chk"><input type="checkbox" class="rowCheck" value="{{ $invoice->id }}"></td>
+                            <tr class="row-accent" style="--row-color: {{ $rowAccent }};" data-id="{{ $invoice->id }}">
                                 <td><span class="inv-no">{{ $invoice->invoice_number }}</span></td>
                                 <td>
                                     <div class="client-cell">
@@ -514,6 +499,11 @@
                                 </td>
                                 <td>
                                     <div class="row-actions">
+                                        @if($invoice->status === 'draft')
+                                            <button type="button" class="icon-action send" data-tip="Kirim" onclick="sendInvoice('{{ $invoice->id }}', '{{ $invoice->invoice_number }}')">
+                                                <svg class="icon"><use href="#ic-send"/></svg>
+                                            </button>
+                                        @endif
                                         <a href="{{ route('invoices.show', $invoice) }}" class="icon-action view" data-tip="Lihat">
                                             <svg class="icon"><use href="#ic-eye"/></svg>
                                         </a>
@@ -528,7 +518,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8">
+                                <td colspan="7">
                                     <div class="empty-state">
                                         <div class="empty-ic"><svg class="icon"><use href="#ic-inbox"/></svg></div>
                                         <h3>Belum ada faktur</h3>
@@ -575,31 +565,29 @@
     </div>
 
     <script>
-        // ===== CHECK ALL =====
-        var checkAll = document.getElementById('checkAll');
-        var bulkBar = document.getElementById('bulkBar');
-        var bulkCount = document.getElementById('bulkCount');
-
-        function refreshBulkBar(){
-            var checked = document.querySelectorAll('.rowCheck:checked');
-            if(checked.length > 0){
-                bulkBar.classList.add('show');
-                bulkCount.textContent = checked.length;
-            } else {
-                bulkBar.classList.remove('show');
-            }
+        // ===== TOAST SYSTEM =====
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon ${type}">
+                    <svg class="icon"><use href="#${type === 'success' ? 'ic-check-circle' : 'ic-alert-triangle'}"/></svg>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <svg class="icon"><use href="#ic-x"/></svg>
+                </button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 5000);
         }
-
-        if(checkAll){
-            checkAll.addEventListener('change', function(){
-                document.querySelectorAll('.rowCheck').forEach(function(cb){ cb.checked = checkAll.checked; });
-                refreshBulkBar();
-            });
-        }
-
-        document.querySelectorAll('.rowCheck').forEach(function(cb){
-            cb.addEventListener('change', refreshBulkBar);
-        });
 
         // ===== DELETE MODAL =====
         function openDeleteModal(id, invoiceNo){
@@ -614,48 +602,61 @@
             document.body.style.overflow = '';
         }
 
-        function openBulkDeleteModal(){
-            var ids = Array.from(document.querySelectorAll('.rowCheck:checked')).map(function(cb){ return cb.value; });
-            document.getElementById('deleteInvoiceNo').textContent = ids.length + ' faktur terpilih';
-            document.getElementById('deleteForm').action = '{{ route("invoices.bulk-destroy") }}';
-            document.getElementById('deleteModal').classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-
         document.getElementById('deleteModal').addEventListener('click', function(e){
             if(e.target === this) closeDeleteModal();
         });
+
+        // ===== SEND INVOICE (UBAH STATUS JADI SENT) =====
+        function sendInvoice(id, invoiceNo){
+            if (!confirm('Kirim faktur ' + invoiceNo + '? (Status akan berubah menjadi Terkirim)')) return;
+            
+            fetch('{{ url("invoices") }}/' + id + '/send', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Berhasil!', data.message || 'Faktur berhasil dikirim.', 'success');
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    showToast('Gagal', data.message || 'Terjadi kesalahan.', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Error', 'Terjadi kesalahan pada server.', 'error');
+                console.error('Error:', error);
+            });
+        }
 
         // ===== ESC KEY =====
         document.addEventListener('keydown', function(e){
             if(e.key === 'Escape') closeDeleteModal();
         });
 
-        // ===== LIVE SEARCH & FILTER - PAKAI FETCH =====
+        // ===== LIVE SEARCH & FILTER =====
         document.addEventListener('DOMContentLoaded', function() {
-            var form = document.getElementById('filterForm');
-            var searchInput = document.getElementById('searchInput');
-            var statusSelect = document.getElementById('statusSelect');
+            var searchInput = document.getElementById('invoiceSearchInput');
+            var statusSelect = document.getElementById('invoiceStatusSelect');
             var filterBtn = document.getElementById('filterBtn');
-            var resetBtn = document.getElementById('resetBtn');
             var tableContainer = document.getElementById('tableContainer');
             var tableBody = document.getElementById('tableBody');
             var statCards = document.getElementById('statCards');
             var loadingTimeout = null;
 
             function updateResults() {
-                // Tampilkan loading
                 tableContainer.style.opacity = '0.5';
                 tableContainer.style.pointerEvents = 'none';
                 
-                // Ambil nilai filter
                 var q = searchInput ? searchInput.value : '';
                 var status = statusSelect ? statusSelect.value : '';
                 
-                // Buat URL dengan parameter
                 var url = '{{ route("invoices.index") }}?q=' + encodeURIComponent(q) + '&status=' + encodeURIComponent(status);
                 
-                // Fetch data
                 fetch(url, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
@@ -663,62 +664,32 @@
                 })
                 .then(response => response.text())
                 .then(html => {
-                    // Parse HTML response
                     var parser = new DOMParser();
                     var doc = parser.parseFromString(html, 'text/html');
                     
-                    // Update table body
                     var newBody = doc.querySelector('#tableBody');
                     if (newBody) {
                         tableBody.innerHTML = newBody.innerHTML;
                     }
                     
-                    // Update stat cards
                     var newStats = doc.querySelector('#statCards');
                     if (newStats) {
                         statCards.innerHTML = newStats.innerHTML;
                     }
                     
-                    // Update pagination
                     var newPagination = doc.querySelector('.pagination-bar');
                     var oldPagination = document.querySelector('.pagination-bar');
                     if (newPagination && oldPagination) {
                         oldPagination.innerHTML = newPagination.innerHTML;
                     } else if (newPagination && !oldPagination) {
-                        // Jika sebelumnya tidak ada pagination, tambahkan
                         var tableCard = document.querySelector('.table-card');
                         if (tableCard) {
                             tableCard.appendChild(newPagination);
                         }
                     } else if (!newPagination && oldPagination) {
-                        // Jika tidak ada pagination, hapus
                         oldPagination.remove();
                     }
                     
-                    // Update URL tanpa reload
-                    var newUrl = doc.querySelector('meta[name="current-url"]');
-                    if (newUrl) {
-                        window.history.pushState({}, '', newUrl.getAttribute('content'));
-                    }
-                    
-                    // Re-attach event listeners untuk checkbox
-                    document.querySelectorAll('.rowCheck').forEach(function(cb){
-                        cb.addEventListener('change', refreshBulkBar);
-                    });
-                    
-                    // Re-attach check all
-                    var newCheckAll = document.getElementById('checkAll');
-                    if (newCheckAll) {
-                        newCheckAll.addEventListener('change', function(){
-                            document.querySelectorAll('.rowCheck').forEach(function(cb){ cb.checked = newCheckAll.checked; });
-                            refreshBulkBar();
-                        });
-                    }
-                    
-                    // Refresh bulk bar
-                    refreshBulkBar();
-                    
-                    // Sembunyikan loading
                     tableContainer.style.opacity = '1';
                     tableContainer.style.pointerEvents = 'auto';
                 })
@@ -729,7 +700,6 @@
                 });
             }
 
-            // Search: submit dengan debounce 300ms
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
                     if (loadingTimeout) {
@@ -741,7 +711,6 @@
                 });
             }
 
-            // Status: langsung submit saat berubah
             if (statusSelect) {
                 statusSelect.addEventListener('change', function() {
                     if (loadingTimeout) {
@@ -751,7 +720,6 @@
                 });
             }
 
-            // Filter button: manual submit
             if (filterBtn) {
                 filterBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -759,13 +727,6 @@
                         clearTimeout(loadingTimeout);
                     }
                     updateResults();
-                });
-            }
-
-            // Reset button: reload halaman
-            if (resetBtn) {
-                resetBtn.addEventListener('click', function(e) {
-                    // Biarkan default behavior (redirect ke index)
                 });
             }
         });

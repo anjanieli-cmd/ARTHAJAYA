@@ -187,6 +187,86 @@
             stroke-linejoin: round;
         }
 
+        /* TOAST */
+        .toast-container{
+            position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; max-width:380px; width:100%;
+        }
+        .toast{
+            background:var(--modal-bg); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 20px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:fadeSlideUp .35s cubic-bezier(.16,1,.3,1);
+            display:flex; align-items:center; gap:12px; backdrop-filter:blur(12px);
+        }
+        .toast .toast-icon{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .toast .toast-icon.success{ background:var(--success-soft); color:var(--success); }
+        .toast .toast-icon.error{ background:var(--danger-soft); color:var(--danger); }
+        .toast .toast-icon .icon{ width:18px; height:18px; }
+        .toast .toast-content{ flex:1; }
+        .toast .toast-title{ font-size:13px; font-weight:600; color:var(--text); }
+        .toast .toast-msg{ font-size:12px; color:var(--text-mute); }
+        .toast .toast-close{ background:none; border:none; color:var(--text-faint); cursor:pointer; padding:4px; }
+        .toast .toast-close .icon{ width:14px; height:14px; }
+
+        /* FILTER BAR */
+        .filter-bar{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            margin-bottom:20px;
+            flex-wrap:wrap;
+            background:var(--bg-card);
+            padding:16px 20px;
+            border-radius:var(--radius-md);
+            border:1px solid var(--border-color);
+        }
+        .filter-bar form{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+            width:100%;
+        }
+        .search-wrap{
+            position:relative;
+            flex:1;
+            min-width:220px;
+        }
+        .search-wrap .icon{
+            position:absolute;
+            left:14px;
+            top:50%;
+            transform:translateY(-50%);
+            width:16px;
+            height:16px;
+            color:var(--text-muted);
+            pointer-events:none;
+        }
+        .filter-bar input[type=text]{
+            width:100%;
+            padding:10px 16px 10px 42px;
+            border-radius:var(--radius-sm);
+            background:var(--bg-card-active);
+            border:1px solid var(--border-color);
+            color:var(--text-primary);
+            font-size:13px;
+            outline:none;
+            transition:border-color .15s ease, box-shadow .15s ease;
+            font-family:inherit;
+        }
+        .filter-bar input[type=text]:focus{
+            border-color:var(--theme-primary);
+            background:var(--bg-card);
+            box-shadow:0 0 0 3px rgba(var(--emerald-rgb),0.1);
+        }
+        .filter-bar input[type=text]::placeholder{
+            color:var(--text-tertiary);
+        }
+
+        .filter-actions{
+            display:flex;
+            gap:8px;
+            align-items:center;
+        }
+
         .ap-header {
             display: flex;
             justify-content: space-between;
@@ -586,6 +666,12 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+        }
+
+        .ap-list.loading {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
         .ap-item {
@@ -1170,6 +1256,9 @@
 
     <div class="ap-modern">
 
+        <!-- TOAST CONTAINER -->
+        <div class="toast-container" id="toastContainer"></div>
+
         <!-- HEADER -->
         <div class="ap-header animate-in" style="animation-delay: 0.05s;">
             <div class="ap-header-left">
@@ -1180,7 +1269,7 @@
                 <h1>Utang Usaha (AP)</h1>
                 <p class="subtitle">
                     Daftar tagihan dari supplier/vendor yang belum dibayar —
-                    <strong>{{ $payablesCollection->count() }}</strong> tagihan aktif
+                    <strong id="totalCount">{{ $payablesCollection->count() }}</strong> tagihan aktif
                 </p>
             </div>
             <div class="ap-header-actions">
@@ -1197,14 +1286,43 @@
 
         <!-- SUCCESS -->
         @if(session('success'))
-        <div class="ap-alert success" style="border-color:var(--success);color:var(--success);background:var(--success-soft);">
+        <div class="ap-alert success animate-in" style="animation-delay: 0.06s; border-color:var(--success);color:var(--success);background:var(--success-soft);">
             <svg class="icon"><use href="#ic-shield"/></svg>
             <span class="message">{{ session('success') }}</span>
         </div>
         @endif
 
+        @if(session('error'))
+        <div class="ap-alert animate-in" style="animation-delay: 0.06s;">
+            <svg class="icon"><use href="#ic-alert-triangle"/></svg>
+            <span class="message">{{ session('error') }}</span>
+        </div>
+        @endif
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar animate-in" style="animation-delay: 0.28s;">
+            <form method="GET" action="{{ route('payables.index') }}" id="filterForm">
+                <div class="search-wrap">
+                    <svg class="icon"><use href="#ic-search"/></svg>
+                    <input type="text" name="q" id="apSearchInput" value="{{ request('q') }}" placeholder="Cari nama vendor atau nomor tagihan..." autocomplete="off">
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="ap-btn ap-btn-ghost" id="filterBtn" style="padding:10px 20px;">
+                        <svg class="icon"><use href="#ic-search"/></svg>
+                        Filter
+                    </button>
+                    @if(request()->filled('q'))
+                        <a href="{{ route('payables.index') }}" class="ap-btn ap-btn-ghost" id="resetBtn" style="padding:10px 20px;">
+                            <svg class="icon"><use href="#ic-x"/></svg>
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
         <!-- STATS -->
-        <div class="ap-stats-row">
+        <div class="ap-stats-row" id="apStatCards">
             <div class="ap-stat-card animate-in" style="animation-delay: 0.10s;">
                 <div class="stat-label">
                     <svg class="icon"><use href="#ic-building"/></svg>
@@ -1254,7 +1372,7 @@
         <div class="ap-layout">
 
             <!-- SIDEBAR -->
-            <aside class="ap-sidebar animate-in" style="animation-delay: 0.30s;">
+            <aside class="ap-sidebar animate-in" style="animation-delay: 0.30s;" id="apSidebar">
                 <div class="section-title">Ringkasan Utang</div>
 
                 <div class="ap-donut-wrap">
@@ -1284,7 +1402,7 @@
                     </div>
                 </div>
 
-                <div class="ap-legend">
+                <div class="ap-legend" id="apLegend">
                     @foreach($chartData as $key => $data)
                     <div class="ap-legend-item">
                         <span class="dot {{ $key }}"></span>
@@ -1319,7 +1437,7 @@
 
             <!-- LIST -->
             <div>
-                <div class="ap-list">
+                <div class="ap-list" id="apList">
                     @forelse($payables as $index => $p)
                     @php
                     $colors = ['#EC4C93', '#34B583', '#F0A83C', '#4E8FF0', '#9B7BE0', '#E85A5A'];
@@ -1372,21 +1490,18 @@
 
                         <!-- Actions -->
                         <div class="ap-actions" id="{{ $itemId }}">
-                            <!-- Tombol Show - URL MANUAL -->
                             <a href="/payables/{{ $index }}" class="btn-action show" title="Lihat Detail">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/>
                                     <circle cx="12" cy="12" r="3"/>
                                 </svg>
                             </a>
-                            <!-- Tombol Edit - URL MANUAL -->
                             <a href="/payables/{{ $index }}/edit" class="btn-action edit" title="Edit Tagihan">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
                                     <path d="M15 5l4 4"/>
                                 </svg>
                             </a>
-                            <!-- Tombol Delete -->
                             <button type="button" class="btn-action danger" title="Hapus Tagihan"
                                     onclick="openDeleteModal('{{ $index }}', '{{ $p['bill'] }}')">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1415,7 +1530,7 @@
                 <div class="ap-footer animate-in" style="animation-delay: 0.40s;">
                     <div class="info">
                         <svg class="icon"><use href="#ic-building"/></svg>
-                        Total {{ $payablesCollection->count() }} tagihan terdaftar
+                        Total <span id="footerTotalCount">{{ $payablesCollection->count() }}</span> tagihan terdaftar
                     </div>
                     <div class="actions">
                         <a href="{{ Route::has('reports.general-ledger') ? route('reports.general-ledger') : '#' }}">
@@ -1478,6 +1593,30 @@
     </div>
 
     <script>
+        // ===== TOAST SYSTEM =====
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon ${type}">
+                    <svg class="icon"><use href="#${type === 'success' ? 'ic-check-circle' : 'ic-alert-triangle'}"/></svg>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <svg class="icon"><use href="#ic-x"/></svg>
+                </button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 5000);
+        }
+
         function openDeleteModal(id, billNumber) {
             document.getElementById('deleteBillNumber').textContent = billNumber;
             var url = '/payables/' + id;
@@ -1504,47 +1643,141 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Toggle actions
-            const toggleButtons = document.querySelectorAll('.ap-toggle-actions');
+            // ===== LIVE SEARCH =====
+            var searchInput = document.getElementById('apSearchInput');
+            var filterBtn = document.getElementById('filterBtn');
+            var apList = document.getElementById('apList');
+            var apStatCards = document.getElementById('apStatCards');
+            var apSidebar = document.getElementById('apSidebar');
+            var totalCount = document.getElementById('totalCount');
+            var footerTotalCount = document.getElementById('footerTotalCount');
+            var loadingTimeout = null;
 
-            toggleButtons.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    const targetId = this.dataset.target;
-                    const actions = document.getElementById(targetId);
-
-                    if (actions) {
-                        document.querySelectorAll('.ap-actions.active').forEach(el => {
-                            if (el.id !== targetId) {
-                                el.classList.remove('active');
-                                el.style.maxWidth = '0';
-                                el.style.opacity = '0';
-                                el.style.visibility = 'hidden';
-                                const toggleBtn = document.querySelector(
-                                    `.ap-toggle-actions[data-target="${el.id}"]`);
-                                if (toggleBtn) {
-                                    toggleBtn.classList.remove('active');
-                                }
-                            }
-                        });
-
-                        const isActive = actions.classList.contains('active');
-                        if (isActive) {
-                            actions.classList.remove('active');
-                            actions.style.maxWidth = '0';
-                            actions.style.opacity = '0';
-                            actions.style.visibility = 'hidden';
-                            this.classList.remove('active');
-                        } else {
-                            actions.classList.add('active');
-                            actions.style.maxWidth = actions.scrollWidth + 'px';
-                            actions.style.opacity = '1';
-                            actions.style.visibility = 'visible';
-                            this.classList.add('active');
-                        }
+            function updateResults() {
+                apList.classList.add('loading');
+                
+                var q = searchInput ? searchInput.value : '';
+                var url = '{{ route("payables.index") }}?q=' + encodeURIComponent(q);
+                
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(function(html) {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    
+                    var newList = doc.querySelector('#apList');
+                    if (newList) {
+                        apList.innerHTML = newList.innerHTML;
+                    }
+                    
+                    var newStats = doc.querySelector('#apStatCards');
+                    if (newStats) {
+                        apStatCards.innerHTML = newStats.innerHTML;
+                    }
+                    
+                    var newSidebar = doc.querySelector('#apSidebar');
+                    if (newSidebar) {
+                        apSidebar.innerHTML = newSidebar.innerHTML;
+                    }
+                    
+                    // Update total count
+                    var newTotal = doc.querySelector('#totalCount');
+                    if (newTotal && totalCount) {
+                        totalCount.textContent = newTotal.textContent;
+                    }
+                    if (newTotal && footerTotalCount) {
+                        footerTotalCount.textContent = newTotal.textContent;
+                    }
+                    
+                    // Re-initialize toggle buttons
+                    initToggleButtons();
+                    
+                    apList.classList.remove('loading');
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    apList.classList.remove('loading');
+                    showToast('Error', 'Gagal memuat data. Silakan refresh halaman.', 'error');
                 });
-            });
+            }
+
+            function initToggleButtons() {
+                const toggleButtons = document.querySelectorAll('.ap-toggle-actions');
+
+                toggleButtons.forEach(btn => {
+                    btn.removeEventListener('click', toggleHandler);
+                    btn.addEventListener('click', toggleHandler);
+                });
+            }
+
+            function toggleHandler(e) {
+                e.stopPropagation();
+                const targetId = this.dataset.target;
+                const actions = document.getElementById(targetId);
+
+                if (actions) {
+                    document.querySelectorAll('.ap-actions.active').forEach(el => {
+                        if (el.id !== targetId) {
+                            el.classList.remove('active');
+                            el.style.maxWidth = '0';
+                            el.style.opacity = '0';
+                            el.style.visibility = 'hidden';
+                            const toggleBtn = document.querySelector(
+                                `.ap-toggle-actions[data-target="${el.id}"]`);
+                            if (toggleBtn) {
+                                toggleBtn.classList.remove('active');
+                            }
+                        }
+                    });
+
+                    const isActive = actions.classList.contains('active');
+                    if (isActive) {
+                        actions.classList.remove('active');
+                        actions.style.maxWidth = '0';
+                        actions.style.opacity = '0';
+                        actions.style.visibility = 'hidden';
+                        this.classList.remove('active');
+                    } else {
+                        actions.classList.add('active');
+                        actions.style.maxWidth = actions.scrollWidth + 'px';
+                        actions.style.opacity = '1';
+                        actions.style.visibility = 'visible';
+                        this.classList.add('active');
+                    }
+                }
+            }
+
+            // Search: debounce 400ms
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    if (loadingTimeout) {
+                        clearTimeout(loadingTimeout);
+                    }
+                    loadingTimeout = setTimeout(function() {
+                        updateResults();
+                    }, 400);
+                });
+            }
+
+            // Filter button
+            if (filterBtn) {
+                filterBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (loadingTimeout) {
+                        clearTimeout(loadingTimeout);
+                    }
+                    updateResults();
+                });
+            }
 
             // Close actions when clicking outside
             document.addEventListener('click', function(e) {
@@ -1562,6 +1795,9 @@
                     });
                 }
             });
+
+            // Initialize toggle buttons
+            initToggleButtons();
 
             // Ripple effect
             document.querySelectorAll('.ap-btn').forEach(btn => {

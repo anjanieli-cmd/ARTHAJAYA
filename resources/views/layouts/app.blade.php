@@ -109,7 +109,7 @@
 
   .topbar{ position:sticky; top:0; z-index:40; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px 28px; background:var(--nav-bg); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); }
   
-  /* ===== SEARCH BOX IMPROVED ===== */
+  /* ===== SEARCH BOX ===== */
   .search-box{ 
     display:flex; 
     align-items:center; 
@@ -448,7 +448,7 @@
         <div class="sb-toggle" id="sbToggle" aria-label="Buka menu"><svg class="icon"><use href="#ic-menu"/></svg></div>
         <div class="search-box" id="searchBox">
           <svg class="icon"><use href="#ic-search"/></svg>
-          <input type="text" id="searchInput" placeholder="Cari faktur, klien, transaksi, produk..." autocomplete="off">
+          <input type="text" id="searchInput" placeholder="Cari halaman atau menu..." autocomplete="off">
           <button class="clear-btn" id="searchClear" aria-label="Hapus pencarian">
             <svg class="icon"><use href="#ic-close"/></svg>
           </button>
@@ -456,7 +456,7 @@
           
           <!-- Search Results -->
           <div class="search-results" id="searchResults">
-            <div class="result-empty">Mulai ketik untuk mencari...</div>
+            <div class="result-empty">Mulai ketik untuk mencari halaman...</div>
           </div>
         </div>
       </div>
@@ -558,85 +558,80 @@
 </div>
 
 <script>
-  // ===== SEARCH FUNCTIONALITY =====
+  // ===== SEARCH FUNCTIONALITY - CARI HALAMAN/MENU =====
   (function() {
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
     const searchClear = document.getElementById('searchClear');
     const searchBox = document.getElementById('searchBox');
     let searchTimeout = null;
-    let isOpen = false;
 
-    // Sample data - ini bisa diganti dengan data dari API
-    const searchData = [
-      { type: 'invoice', title: 'INV-2026-001', desc: 'PT Andalas Maju - Rp 5.750.000', url: '/invoices/1' },
-      { type: 'invoice', title: 'INV-2026-002', desc: 'Kopi Kenangan Senja - Rp 2.800.000', url: '/invoices/2' },
-      { type: 'client', title: 'PT Andalas Maju', desc: 'info@andalas.com • Jakarta', url: '/clients/1' },
-      { type: 'client', title: 'Kopi Kenangan Senja', desc: 'hello@kopikenangan.com • Bandung', url: '/clients/2' },
-      { type: 'transaction', title: 'Pembayaran Sewa Kantor', desc: 'Rp 42.900.000 • 20 Jun 2026', url: '/transactions/1' },
-      { type: 'transaction', title: 'Pembayaran Klien', desc: 'Rp 2.800.000 • 18 Jun 2026', url: '/transactions/2' },
-      { type: 'product', title: 'Batik Tulis Klasik', desc: 'Rp 850.000 • Stok: 25', url: '/products/1' },
-      { type: 'product', title: 'Batik Cap Modern', desc: 'Rp 450.000 • Stok: 40', url: '/products/2' },
+    // Daftar halaman yang bisa dicari — sesuaikan url pakai route() Laravel
+    const pages = [
+      { title: 'Dashboard', desc: 'Ringkasan keuangan bisnis', icon: 'ic-activity', url: '{{ route('dashboard') }}' },
+      { title: 'Faktur / Invoice', desc: 'Daftar semua faktur', icon: 'ic-invoice', url: '{{ route('invoices.index') }}' },
+      { title: 'Buat Faktur Baru', desc: 'Tambah faktur penjualan', icon: 'ic-plus', url: '{{ route('invoices.create') }}' },
+      { title: 'Klien', desc: 'Daftar klien / pelanggan', icon: 'ic-users', url: '{{ route('clients.index') }}' },
+      { title: 'Penawaran / Quote', desc: 'Daftar penawaran harga', icon: 'ic-doc', url: '{{ route('quotes.index') }}' },
+      { title: 'Piutang (AR)', desc: 'Daftar piutang usaha', icon: 'ic-receive', url: '{{ route('receivables.index') }}' },
+      { title: 'Utang (AP) / Tagihan', desc: 'Daftar tagihan vendor', icon: 'ic-invoice', url: '{{ route('payables.index') }}' },
+      { title: 'Aging Piutang & Utang', desc: 'Analisis umur piutang/utang', icon: 'ic-target', url: '{{ route('aging.index') }}' },
+      { title: 'Pengeluaran', desc: 'Catatan pembelian & biaya', icon: 'ic-invoice', url: '{{ route('expenses.index') }}' },
+      { title: 'Kategori Pengeluaran', desc: 'Kelompok biaya operasional', icon: 'ic-doc', url: '{{ route('expense-categories.index') }}' },
+      { title: 'Rekonsiliasi Bank', desc: 'Cocokkan saldo bank & buku', icon: 'ic-bank', url: '{{ route('reconciliation.index') }}' },
+      { title: 'Mutasi Bank', desc: 'Riwayat transaksi rekening', icon: 'ic-receive', url: '{{ route('bank-mutations.index') }}' },
+      { title: 'Laba Rugi', desc: 'Laporan laba rugi', icon: 'ic-trending', url: '{{ route('laba-rugi.index') }}' },
+      { title: 'Neraca', desc: 'Laporan posisi keuangan', icon: 'ic-doc', url: '{{ route('neraca.index') }}' },
+      { title: 'Arus Kas', desc: 'Laporan cash flow', icon: 'ic-activity', url: '{{ route('cash-flow.index') }}' },
+      { title: 'Buku Besar', desc: 'General ledger', icon: 'ic-doc', url: '{{ route('ledger.index') }}' },
+      { title: 'Inventaris', desc: 'Stok barang & produk', icon: 'ic-building', url: '{{ route('inventory.index') }}' },
+      { title: 'HPP / COGS', desc: 'Harga pokok penjualan', icon: 'ic-target', url: '{{ route('cogs.index') }}' },
+      { title: 'Payroll', desc: 'Penggajian karyawan', icon: 'ic-user', url: '{{ route('payroll.index') }}' },
+      { title: 'Karyawan', desc: 'Data pegawai', icon: 'ic-users', url: '{{ route('employees.index') }}' },
+      { title: 'PPh', desc: 'Pajak penghasilan', icon: 'ic-doc', url: '{{ route('taxes.pph') }}' },
+      { title: 'PPN', desc: 'Pajak pertambahan nilai', icon: 'ic-doc', url: '{{ route('taxes.ppn') }}' },
+      { title: 'Kalender Pajak', desc: 'Jadwal jatuh tempo pajak', icon: 'ic-activity', url: '{{ route('tax-calendar.index') }}' },
+      { title: 'Anggaran / Budgeting', desc: 'Target vs realisasi anggaran', icon: 'ic-target', url: '{{ route('budgets.index') }}' },
+      { title: 'Anggota Tim', desc: 'Kelola pengguna & hak akses', icon: 'ic-users', url: '{{ route('team-members.index') }}' },
+      { title: 'Profil Perusahaan', desc: 'Pengaturan data bisnis', icon: 'ic-building', url: '{{ route('company.edit') }}' },
+      { title: 'Integrasi', desc: 'Hubungkan layanan pihak ketiga', icon: 'ic-settings', url: '{{ route('integrations.index') }}' },
+      { title: 'Keamanan', desc: 'Password, 2FA, sesi login', icon: 'ic-shield', url: '{{ route('security.index') }}' },
+      { title: 'Profil Saya', desc: 'Pengaturan akun pribadi', icon: 'ic-user', url: '{{ route('profile.edit') }}' },
     ];
-
-    function getIcon(type) {
-      const icons = {
-        invoice: 'ic-invoice',
-        client: 'ic-user',
-        transaction: 'ic-receive',
-        product: 'ic-box'
-      };
-      return icons[type] || 'ic-doc';
-    }
-
-    function getBadge(type) {
-      const labels = {
-        invoice: 'Faktur',
-        client: 'Klien',
-        transaction: 'Transaksi',
-        product: 'Produk'
-      };
-      return labels[type] || 'Item';
-    }
 
     function performSearch(query) {
       if (!query || query.length < 1) {
-        searchResults.innerHTML = '<div class="result-empty">Mulai ketik untuk mencari...</div>';
+        searchResults.innerHTML = '<div class="result-empty">Mulai ketik untuk mencari halaman...</div>';
         searchResults.classList.remove('open');
-        isOpen = false;
         searchBox.classList.remove('has-value');
         return;
       }
 
       searchBox.classList.add('has-value');
-      const lowerQuery = query.toLowerCase();
-      const results = searchData.filter(item => 
-        item.title.toLowerCase().includes(lowerQuery) || 
-        item.desc.toLowerCase().includes(lowerQuery)
+      const lower = query.toLowerCase();
+      const results = pages.filter(p =>
+        p.title.toLowerCase().includes(lower) || p.desc.toLowerCase().includes(lower)
       );
 
       if (results.length === 0) {
         searchResults.innerHTML = `
           <div class="result-empty">
-            <div style="font-size:24px;margin-bottom:8px;">🔍</div>
-            Tidak ditemukan hasil untuk "<strong>${query}</strong>"
+            <div style="font-size:24px;margin-bottom:8px;opacity:0.5;">⌘</div>
+            Tidak ditemukan halaman untuk "<strong>${query}</strong>"
           </div>
         `;
       } else {
-        searchResults.innerHTML = results.map(item => `
-          <div class="result-item" data-url="${item.url}">
-            <div class="ri-icon">
-              <svg class="icon"><use href="#${getIcon(item.type)}"/></svg>
-            </div>
+        searchResults.innerHTML = results.map(p => `
+          <div class="result-item" data-url="${p.url}">
+            <div class="ri-icon"><svg class="icon"><use href="#${p.icon}"/></svg></div>
             <div class="ri-info">
-              <div class="ri-title">${item.title}</div>
-              <div class="ri-desc">${item.desc}</div>
+              <div class="ri-title">${p.title}</div>
+              <div class="ri-desc">${p.desc}</div>
             </div>
-            <span class="ri-badge">${getBadge(item.type)}</span>
+            <span class="ri-badge">Halaman</span>
           </div>
         `).join('');
 
-        // Add click listeners to results
         searchResults.querySelectorAll('.result-item').forEach(el => {
           el.addEventListener('click', function() {
             window.location.href = this.dataset.url;
@@ -645,23 +640,21 @@
       }
 
       searchResults.classList.add('open');
-      isOpen = true;
     }
 
     // Input event with debounce
     searchInput.addEventListener('input', function() {
       clearTimeout(searchTimeout);
       const query = this.value.trim();
-      searchTimeout = setTimeout(() => performSearch(query), 300);
+      searchTimeout = setTimeout(() => performSearch(query), 200);
     });
 
     // Clear button
     searchClear.addEventListener('click', function() {
       searchInput.value = '';
       searchBox.classList.remove('has-value');
-      searchResults.innerHTML = '<div class="result-empty">Mulai ketik untuk mencari...</div>';
+      searchResults.innerHTML = '<div class="result-empty">Mulai ketik untuk mencari halaman...</div>';
       searchResults.classList.remove('open');
-      isOpen = false;
       searchInput.focus();
     });
 
@@ -669,34 +662,28 @@
     document.addEventListener('click', function(e) {
       if (!searchBox.contains(e.target)) {
         searchResults.classList.remove('open');
-        isOpen = false;
       }
     });
 
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
-      // Cmd+K or Ctrl+K to focus search
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         searchInput.focus();
         searchInput.select();
       }
-      // Escape to close results and clear
       if (e.key === 'Escape' && searchInput.value) {
         searchInput.value = '';
         searchBox.classList.remove('has-value');
-        searchResults.innerHTML = '<div class="result-empty">Mulai ketik untuk mencari...</div>';
+        searchResults.innerHTML = '<div class="result-empty">Mulai ketik untuk mencari halaman...</div>';
         searchResults.classList.remove('open');
-        isOpen = false;
         searchInput.blur();
       }
     });
 
-    // Focus on search with animation
+    // Focus on search
     searchInput.addEventListener('focus', function() {
-      if (this.value.trim()) {
-        performSearch(this.value.trim());
-      }
+      if (this.value.trim()) performSearch(this.value.trim());
     });
   })();
 

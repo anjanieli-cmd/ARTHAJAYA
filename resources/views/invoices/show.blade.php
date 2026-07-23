@@ -43,6 +43,9 @@
             <symbol id="ic-printer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 6 2 18 2 18 9"/><path d="M18 9H6"/><path d="M18 9v9H6V9"/><rect x="8" y="14" width="8" height="4"/><rect x="10" y="18" width="4" height="4"/>
             </symbol>
+            <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </symbol>
         </defs>
     </svg>
 
@@ -59,6 +62,10 @@
             : ($statusMap[$invoice->status] ?? $statusMap['draft']);
         
         $overdueDays = $isOverdue ? $invoice->due_date->diffInDays(now()) : 0;
+        
+        // Cek apakah bisa diedit/dihapus
+        $canEdit = $invoice->status === 'draft';
+        $canDelete = in_array($invoice->status, ['draft', 'cancelled']);
     @endphp
 
     <style>
@@ -87,6 +94,29 @@
         .breadcrumb .sep{ color:var(--text-faint); }
         .breadcrumb .current{ color:var(--text); font-weight:600; }
 
+        /* ===== ALERT ===== */
+        .alert{
+            display:flex; align-items:center; gap:12px;
+            padding:14px 20px; border-radius:var(--radius-md);
+            margin-bottom:20px; font-size:13.5px;
+        }
+        .alert-success{
+            background:rgba(var(--emerald-rgb),0.08);
+            border:1px solid var(--emerald);
+            color:var(--emerald);
+        }
+        .alert-danger{
+            background:rgba(var(--danger-rgb),0.08);
+            border:1px solid var(--danger);
+            color:var(--danger);
+        }
+        .alert-info{
+            background:rgba(var(--info-rgb),0.08);
+            border:1px solid var(--info);
+            color:var(--info);
+        }
+        .alert .icon{ width:20px; height:20px; flex-shrink:0; }
+
         /* ===== HEADER ===== */
         .page-head{
             display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap; margin-bottom:28px;
@@ -97,9 +127,10 @@
             display:flex; align-items:center; gap:12px; flex-wrap:wrap;
         }
         .page-head h1 .inv-number{
-            font-family:'IBM Plex Mono', monospace;
-            background:var(--surface-hover); padding:2px 14px; border-radius:8px;
-            font-size:20px; color:var(--text-secondary);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background:var(--surface-hover); padding:4px 16px; border-radius:8px;
+            font-size:20px; font-weight:700; color:var(--text);
+            border:1px solid var(--border);
         }
         .page-head p{
             font-size:14px; color:var(--text-muted); margin:0;
@@ -135,6 +166,9 @@
             background:var(--danger-hover); transform:translateY(-2px); box-shadow:0 8px 22px rgba(var(--danger-rgb),0.35);
         }
         .btn-sm{ padding:8px 16px; font-size:12.5px; }
+        .btn-disabled{
+            opacity:0.5; cursor:not-allowed; pointer-events:none;
+        }
 
         /* ===== STATUS BADGE ===== */
         .status-badge{
@@ -215,9 +249,14 @@
         }
         .detail-item .k .icon{ width:13px; height:13px; color:var(--text-muted); }
         .detail-item .v{
-            font-size:14.5px; font-weight:600; color:var(--text);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size:15px; font-weight:700; color:var(--text);
         }
-        .detail-item .v.mono{ font-family:'IBM Plex Mono', monospace; }
+        .detail-item .v.mono{ 
+            font-family:'IBM Plex Mono', monospace;
+            background:var(--surface); padding:2px 12px; border-radius:6px;
+            display:inline-block; border:1px solid var(--border);
+        }
         .detail-item .v .sub{
             font-size:12px; font-weight:400; color:var(--text-muted);
         }
@@ -265,8 +304,11 @@
             font-size:13.5px; color:var(--text-muted); margin-bottom:6px; line-height:1.6;
         }
         .modal-box p b{
-            color:var(--text); font-family:'IBM Plex Mono', monospace;
-            background:var(--surface-hover); padding:2px 12px; border-radius:6px; display:inline-block; margin-top:4px;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-weight:700; color:var(--text);
+            background:var(--surface-hover); padding:4px 14px; border-radius:6px; 
+            display:inline-block; margin-top:4px;
+            border:1px solid var(--border);
         }
         .modal-warn{
             font-size:12.5px; color:var(--danger); font-weight:600;
@@ -307,6 +349,28 @@
             <span class="current">#{{ $invoice->invoice_number }}</span>
         </div>
 
+        {{-- ===== FLASH MESSAGES ===== --}}
+        @if(session('success'))
+            <div class="alert alert-success animate-in" style="animation-delay:.07s;">
+                <svg class="icon"><use href="#ic-check-circle"/></svg>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger animate-in" style="animation-delay:.07s;">
+                <svg class="icon"><use href="#ic-alert-triangle"/></svg>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+
+        @if(session('info'))
+            <div class="alert alert-info animate-in" style="animation-delay:.07s;">
+                <svg class="icon"><use href="#ic-info"/></svg>
+                <span>{{ session('info') }}</span>
+            </div>
+        @endif
+
         {{-- ===== HEADER ===== --}}
         <div class="page-head animate-in" style="animation-delay:.05s;">
             <div class="page-head-left">
@@ -327,14 +391,22 @@
                     <svg class="icon"><use href="#ic-arrow-left"/></svg>
                     Kembali
                 </a>
-                <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-primary btn-sm">
-                    <svg class="icon"><use href="#ic-edit"/></svg>
-                    Edit
-                </a>
-                <button type="button" class="btn btn-danger btn-sm" onclick="document.getElementById('deleteModal').classList.add('open')">
-                    <svg class="icon"><use href="#ic-trash"/></svg>
-                    Hapus
-                </button>
+                
+                {{-- Tombol Edit hanya untuk draft --}}
+                @if($canEdit)
+                    <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-primary btn-sm">
+                        <svg class="icon"><use href="#ic-edit"/></svg>
+                        Edit
+                    </a>
+                @endif
+                
+                {{-- Tombol Hapus hanya untuk draft atau cancelled --}}
+                @if($canDelete)
+                    <button type="button" class="btn btn-danger btn-sm" onclick="document.getElementById('deleteModal').classList.add('open')">
+                        <svg class="icon"><use href="#ic-trash"/></svg>
+                        Hapus
+                    </button>
+                @endif
             </div>
         </div>
 
@@ -410,7 +482,7 @@
                     </div>
                     <div class="detail-item">
                         <div class="k"><svg class="icon"><use href="#ic-file-text"/></svg> Pajak</div>
-                        <div class="v mono">Rp{{ number_format($invoice->tax_amount ?? 0, 0, ',', '.') }}</div>
+                        <div class="v mono">Rp{{ number_format($invoice->tax ?? 0, 0, ',', '.') }}</div>
                     </div>
                 </div>
 

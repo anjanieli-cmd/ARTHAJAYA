@@ -31,6 +31,12 @@
             <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
             </symbol>
+            <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </symbol>
+            <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </symbol>
         </defs>
     </svg>
 
@@ -69,9 +75,10 @@
             display:flex; align-items:center; gap:12px; flex-wrap:wrap;
         }
         .page-head h1 .inv-number{
-            font-family:'IBM Plex Mono', monospace;
-            background:var(--surface-hover); padding:2px 14px; border-radius:8px;
-            font-size:20px; color:var(--text-secondary);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background:var(--surface-hover); padding:4px 16px; border-radius:8px;
+            font-size:20px; font-weight:700; color:var(--text);
+            border:1px solid var(--border);
         }
         .page-head p{
             font-size:14px; color:var(--text-muted); margin:0;
@@ -106,6 +113,8 @@
             background:var(--surface-strong); border-color:var(--border-hover); transform:translateY(-2px);
         }
         .btn-sm{ padding:8px 16px; font-size:12.5px; }
+        .btn-danger{ background:var(--danger); color:#fff; }
+        .btn-danger:hover{ background:#d14a4a; transform:translateY(-2px); box-shadow:0 8px 22px rgba(232,90,90,.35); }
 
         /* ===== FORM PANEL ===== */
         .form-panel{
@@ -171,6 +180,7 @@
         .field-group .input-wrap .icon{
             position:absolute; left:14px; top:50%; transform:translateY(-50%);
             width:16px; height:16px; color:var(--text-muted); pointer-events:none;
+            z-index:2;
         }
         .field-group input,
         .field-group select,
@@ -179,6 +189,8 @@
             background:var(--surface-hover); border:1px solid var(--border);
             color:var(--text); font-size:13.5px; outline:none;
             transition:all .2s ease; font-family:inherit;
+            position:relative;
+            z-index:1;
         }
         .field-group input.has-icon{ padding-left:42px; }
         .field-group input:focus,
@@ -195,9 +207,13 @@
             background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%239CA3AF' stroke-width='2' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
             background-repeat:no-repeat; background-position:right 14px center; background-size:12px;
             appearance:none; -webkit-appearance:none;
+            background-color:var(--surface-hover);
+        }
+        .field-group select.has-icon{
+            padding-left:42px;
         }
         .field-group select option{
-            background:var(--surface); color:var(--text); padding:8px 12px;
+            background:#1a1f2e; color:#e8edf5; padding:10px 14px;
         }
         .field-group textarea{
             resize:vertical; min-height:100px; padding:12px 16px; font-size:13.5px; line-height:1.6;
@@ -207,6 +223,40 @@
         }
         .field-group .field-error{
             font-size:12px; color:var(--danger); margin-top:4px; display:flex; align-items:center; gap:4px;
+        }
+
+        /* ===== ITEMS LIST ===== */
+        .items-list{
+            display:flex; flex-direction:column; gap:10px; margin-top:4px;
+        }
+        .item-row{
+            display:flex; align-items:center; gap:12px;
+            padding:12px 16px;
+            background:var(--surface-hover);
+            border:1px solid var(--border);
+            border-radius:var(--radius-sm);
+            transition:all .2s ease;
+        }
+        .item-row:hover{
+            border-color:var(--border-hover);
+            background:var(--surface-strong);
+        }
+        .item-row .item-check{
+            width:18px; height:18px; accent-color:var(--accent); cursor:pointer;
+        }
+        .item-row .item-info{
+            flex:1;
+        }
+        .item-row .item-name{
+            font-weight:600; color:var(--text); font-size:13.5px;
+        }
+        .item-row .item-price{
+            font-family:'IBM Plex Mono', monospace;
+            color:var(--text-muted); font-size:13px;
+        }
+        .item-row .item-qty{
+            font-family:'IBM Plex Mono', monospace;
+            color:var(--text-muted); font-size:13px;
         }
 
         /* ===== FORM DIVIDER ===== */
@@ -220,6 +270,28 @@
         .form-divider span{
             font-size:11.5px; text-transform:uppercase; letter-spacing:.08em;
             color:var(--text-muted); font-weight:600; white-space:nowrap;
+        }
+
+        /* ===== TOTAL SUMMARY ===== */
+        .total-summary{
+            background:var(--surface-hover);
+            border:1px solid var(--border);
+            border-radius:var(--radius-sm);
+            padding:16px 20px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:12px;
+            margin-top:8px;
+        }
+        .total-summary .label{
+            font-size:13px; color:var(--text-muted);
+        }
+        .total-summary .value{
+            font-family:'IBM Plex Mono', monospace;
+            font-size:20px; font-weight:700;
+            color:var(--text);
         }
 
         /* ===== FORM ACTIONS ===== */
@@ -244,10 +316,12 @@
             .form-actions .btn{ flex:1; justify-content:center; }
             .page-head h1{ font-size:22px; flex-direction:column; align-items:flex-start; }
             .page-head h1 .inv-number{ font-size:16px; }
+            .item-row{ flex-wrap:wrap; }
         }
         @media (max-width: 480px){
             .form-panel-header h2{ font-size:15px; }
             .form-panel-header p{ font-size:12px; }
+            .total-summary .value{ font-size:16px; }
         }
     </style>
 
@@ -262,6 +336,10 @@
         $st = $isOverdue 
             ? ['label' => 'Jatuh Tempo', 'class' => 'status-overdue'] 
             : ($statusMap[$invoice->status] ?? $statusMap['draft']);
+        
+        // Decode items dari JSON
+        $itemsData = is_string($invoice->items) ? json_decode($invoice->items, true) : ($invoice->items ?? []);
+        $selectedItems = $itemsData ?? [];
     @endphp
 
     <div class="inv-edit-wrap">
@@ -370,11 +448,11 @@
                         <div class="field-group">
                             <label>
                                 Jatuh Tempo
-                                <span class="opt">(opsional)</span>
+                                <span class="required">*</span>
                             </label>
                             <div class="input-wrap">
                                 <svg class="icon"><use href="#ic-calendar"/></svg>
-                                <input type="date" name="due_date" class="has-icon" value="{{ old('due_date', $invoice->due_date?->format('Y-m-d')) }}">
+                                <input type="date" name="due_date" class="has-icon" value="{{ old('due_date', $invoice->due_date?->format('Y-m-d')) }}" required>
                             </div>
                             @error('due_date')
                                 <div class="field-error">
@@ -387,10 +465,10 @@
 
                     {{-- Divider --}}
                     <div class="form-divider">
-                        <span>Detail Invoice</span>
+                        <span>Detail Faktur</span>
                     </div>
 
-                    {{-- Baris 2: Nomor & Total --}}
+                    {{-- Baris 2: Nomor & Status --}}
                     <div class="field-grid">
                         {{-- Nomor Faktur --}}
                         <div class="field-group">
@@ -403,24 +481,6 @@
                                 <input type="text" class="has-icon" value="{{ $invoice->invoice_number }}" disabled style="opacity:0.7; cursor:not-allowed;">
                             </div>
                             <div class="field-hint">Nomor faktur dibuat otomatis oleh sistem.</div>
-                        </div>
-
-                        {{-- Total --}}
-                        <div class="field-group">
-                            <label>
-                                Total
-                                <span class="required">*</span>
-                            </label>
-                            <div class="input-wrap">
-                                <svg class="icon"><use href="#ic-dollar"/></svg>
-                                <input type="number" name="total" class="has-icon" value="{{ old('total', $invoice->total) }}" placeholder="0" step="0.01" min="0" required>
-                            </div>
-                            @error('total')
-                                <div class="field-error">
-                                    <span>⚠️</span> {{ $message }}
-                                </div>
-                            @enderror
-                            <div class="field-hint">Total nominal faktur dalam Rupiah.</div>
                         </div>
 
                         {{-- Status --}}
@@ -442,13 +502,106 @@
                             @enderror
                             <div class="field-hint">Status faktur saat ini.</div>
                         </div>
+
+                        {{-- Subtotal --}}
+                        <div class="field-group">
+                            <label>
+                                Subtotal
+                                <span class="required">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <svg class="icon"><use href="#ic-dollar"/></svg>
+                                <input type="number" name="subtotal" class="has-icon" value="{{ old('subtotal', $invoice->subtotal ?? 0) }}" step="0.01" min="0" required>
+                            </div>
+                            @error('subtotal')
+                                <div class="field-error">
+                                    <span>⚠️</span> {{ $message }}
+                                </div>
+                            @enderror
+                            <div class="field-hint">Subtotal sebelum pajak.</div>
+                        </div>
                     </div>
 
-                    {{-- Baris 3: Deskripsi (full width) --}}
+                    {{-- Baris 3: Pajak & Total --}}
                     <div class="field-grid" style="margin-top:8px;">
+                        <div class="field-group">
+                            <label>
+                                Pajak
+                                <span class="opt">(opsional)</span>
+                            </label>
+                            <div class="input-wrap">
+                                <svg class="icon"><use href="#ic-file-text"/></svg>
+                                <input type="number" name="tax" class="has-icon" value="{{ old('tax', $invoice->tax ?? 0) }}" step="0.01" min="0">
+                            </div>
+                            @error('tax')
+                                <div class="field-error">
+                                    <span>⚠️</span> {{ $message }}
+                                </div>
+                            @enderror
+                            <div class="field-hint">Jumlah pajak yang dikenakan.</div>
+                        </div>
+
+                        <div class="field-group">
+                            <label>
+                                Total
+                                <span class="required">*</span>
+                            </label>
+                            <div class="input-wrap">
+                                <svg class="icon"><use href="#ic-dollar"/></svg>
+                                <input type="number" name="total" class="has-icon" value="{{ old('total', $invoice->total) }}" step="0.01" min="0" required>
+                            </div>
+                            @error('total')
+                                <div class="field-error">
+                                    <span>⚠️</span> {{ $message }}
+                                </div>
+                            @enderror
+                            <div class="field-hint">Total nominal faktur (subtotal + pajak).</div>
+                        </div>
+
+                        <div class="field-group">
+                            <!-- empty column for spacing -->
+                        </div>
+                    </div>
+
+                    {{-- Baris 4: Items --}}
+                    @if(isset($items) && count($items) > 0)
+                        <div class="field-grid" style="margin-top:12px;">
+                            <div class="field-group full">
+                                <label>
+                                    Item / Barang
+                                    <span class="opt">(pilih item yang akan dimasukkan)</span>
+                                </label>
+                                <div class="items-list">
+                                    @foreach($items as $item)
+                                        @php
+                                            $isChecked = false;
+                                            foreach($selectedItems as $selected) {
+                                                if (isset($selected['id']) && $selected['id'] == $item->id) {
+                                                    $isChecked = true;
+                                                    break;
+                                                }
+                                            }
+                                        @endphp
+                                        <label class="item-row">
+                                            <input type="checkbox" name="items[]" value="{{ $item->id }}" class="item-check" {{ $isChecked ? 'checked' : '' }}>
+                                            <div class="item-info">
+                                                <div class="item-name">{{ $item->name }}</div>
+                                                <div class="item-price">Rp{{ number_format($item->price ?? 0, 0, ',', '.') }}</div>
+                                            </div>
+                                            <div class="item-qty">Qty: {{ $item->quantity ?? 1 }}</div>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                <div class="field-hint" style="margin-top:8px;">Pilih item yang akan dimasukkan ke dalam faktur.</div>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Baris 5: Catatan --}}
+                    <div class="field-grid" style="margin-top:12px;">
                         <div class="field-group full">
                             <label>
-                                Deskripsi / Catatan
+                                Catatan
                                 <span class="opt">(opsional)</span>
                             </label>
                             <textarea name="notes" rows="4" placeholder="Tambahkan catatan atau deskripsi untuk faktur ini...">{{ old('notes', $invoice->notes) }}</textarea>
@@ -461,29 +614,11 @@
                         </div>
                     </div>
 
-                    {{-- Baris 4: Item Barang/Jasa (jika ada) --}}
-                    @if(isset($items) && count($items) > 0)
-                        <div class="field-grid" style="margin-top:12px;">
-                            <div class="field-group full">
-                                <label>
-                                    Item / Barang
-                                    <span class="opt">(opsional)</span>
-                                </label>
-                                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                                    @foreach($items as $item)
-                                        @php
-                                            $isChecked = in_array($item->id, $selectedItems ?? []);
-                                        @endphp
-                                        <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); cursor:pointer; padding:8px 14px; background:var(--surface-hover); border-radius:8px; border:1px solid {{ $isChecked ? 'var(--accent)' : 'var(--border)' }};">
-                                            <input type="checkbox" name="items[]" value="{{ $item->id }}" {{ $isChecked ? 'checked' : '' }} style="width:16px; height:16px; accent-color:var(--accent);">
-                                            {{ $item->name }} - Rp{{ number_format($item->price ?? 0, 0, ',', '.') }}
-                                        </label>
-                                    @endforeach
-                                </div>
-                                <div class="field-hint" style="margin-top:8px;">Pilih item yang akan dimasukkan ke dalam faktur.</div>
-                            </div>
-                        </div>
-                    @endif
+                    {{-- Total Summary --}}
+                    <div class="total-summary">
+                        <span class="label">Total Faktur</span>
+                        <span class="value" id="totalDisplay">Rp{{ number_format(old('total', $invoice->total ?? 0), 0, ',', '.') }}</span>
+                    </div>
 
                     {{-- Form Actions --}}
                     <div class="form-actions">
@@ -500,4 +635,38 @@
             </div>
         </form>
     </div>
+
+    <script>
+        // Auto update total display when subtotal or tax changes
+        document.addEventListener('DOMContentLoaded', function() {
+            var subtotalInput = document.querySelector('input[name="subtotal"]');
+            var taxInput = document.querySelector('input[name="tax"]');
+            var totalInput = document.querySelector('input[name="total"]');
+            var totalDisplay = document.getElementById('totalDisplay');
+
+            function updateTotal() {
+                var subtotal = parseFloat(subtotalInput ? subtotalInput.value : 0) || 0;
+                var tax = parseFloat(taxInput ? taxInput.value : 0) || 0;
+                var total = subtotal + tax;
+                
+                if (totalInput) {
+                    totalInput.value = total.toFixed(2);
+                }
+                if (totalDisplay) {
+                    var formatted = 'Rp' + Math.round(total).toLocaleString('id-ID');
+                    totalDisplay.textContent = formatted;
+                }
+            }
+
+            if (subtotalInput) {
+                subtotalInput.addEventListener('input', updateTotal);
+            }
+            if (taxInput) {
+                taxInput.addEventListener('input', updateTotal);
+            }
+
+            // Initial update
+            updateTotal();
+        });
+    </script>
 </x-app-layout>

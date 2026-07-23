@@ -97,9 +97,10 @@
             display:flex; align-items:center; gap:12px; flex-wrap:wrap;
         }
         .page-head h1 .quote-number{
-            font-family:'IBM Plex Mono', monospace;
-            background:var(--surface-hover); padding:2px 14px; border-radius:8px;
-            font-size:20px; color:var(--text-secondary);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background:var(--surface-hover); padding:4px 16px; border-radius:8px;
+            font-size:20px; font-weight:700; color:var(--text);
+            border:1px solid var(--border);
         }
         .page-head p{
             font-size:14px; color:var(--text-muted); margin:0;
@@ -194,32 +195,62 @@
 
         /* ===== AMOUNT HERO ===== */
         .amount-hero{
-            font-family:'Space Grotesk', sans-serif; font-size:36px; font-weight:700;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size:38px; font-weight:800;
             letter-spacing:-.02em; color:var(--text); margin:4px 0;
+            padding:12px 20px;
+            background:var(--surface-hover);
+            border-radius:var(--radius-sm);
+            border:1px solid var(--border);
+            display:inline-block;
         }
-        .amount-hero .currency{ font-size:24px; color:var(--text-muted); margin-right:4px; }
+        .amount-hero .currency{ 
+            font-size:24px; 
+            color:var(--text-muted); 
+            margin-right:6px;
+            font-weight:600;
+        }
 
         /* ===== DETAIL GRID ===== */
         .detail-grid{
             display:grid; grid-template-columns:repeat(3,1fr); gap:20px 28px; margin-top:24px;
         }
         .detail-item{
-            padding:14px 16px; background:var(--surface-hover); border-radius:var(--radius-sm);
+            padding:16px 20px; background:var(--surface-hover); border-radius:var(--radius-sm);
             border:1px solid var(--border); transition:all .2s ease;
         }
         .detail-item:hover{ border-color:var(--border-hover); }
         .detail-item .k{
             font-size:11px; text-transform:uppercase; letter-spacing:.06em;
-            color:var(--text-muted); font-weight:600; margin-bottom:4px;
+            color:var(--text-muted); font-weight:600; margin-bottom:6px;
             display:flex; align-items:center; gap:6px;
         }
         .detail-item .k .icon{ width:13px; height:13px; color:var(--text-muted); }
+        
+        /* ===== FIX: DETAIL VALUE JELAS ===== */
         .detail-item .v{
-            font-size:14.5px; font-weight:600; color:var(--text);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size:16px; 
+            font-weight:700; 
+            color:var(--text);
+            letter-spacing:0.3px;
         }
-        .detail-item .v.mono{ font-family:'IBM Plex Mono', monospace; }
+        .detail-item .v.mono{
+            font-family: 'JetBrains Mono', 'Fira Code', 'IBM Plex Mono', monospace;
+            font-size:15px;
+            font-weight:700;
+            color:var(--text);
+            background:var(--surface);
+            padding:2px 12px;
+            border-radius:6px;
+            display:inline-block;
+            border:1px solid var(--border);
+        }
         .detail-item .v .sub{
-            font-size:12px; font-weight:400; color:var(--text-muted);
+            font-size:12px; 
+            font-weight:400; 
+            color:var(--text-muted);
+            margin-left:6px;
         }
 
         /* ===== NOTES ===== */
@@ -233,7 +264,10 @@
         .notes-box{
             background:var(--surface-hover); border:1px solid var(--border);
             border-radius:var(--radius-sm); padding:16px 20px;
-            font-size:14px; color:var(--text-secondary); line-height:1.7;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size:14px; 
+            color:var(--text-secondary); 
+            line-height:1.7;
         }
 
         /* ===== MODAL ===== */
@@ -259,14 +293,18 @@
         }
         .modal-ic .icon{ width:26px; height:26px; }
         .modal-box h3{
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             font-size:18px; font-weight:700; margin-bottom:8px; color:var(--text);
         }
         .modal-box p{
             font-size:13.5px; color:var(--text-muted); margin-bottom:6px; line-height:1.6;
         }
         .modal-box p b{
-            color:var(--text); font-family:'IBM Plex Mono', monospace;
-            background:var(--surface-hover); padding:2px 12px; border-radius:6px; display:inline-block; margin-top:4px;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-weight:700; color:var(--text);
+            background:var(--surface-hover); padding:4px 14px; border-radius:6px; 
+            display:inline-block; margin-top:4px;
+            border:1px solid var(--border);
         }
         .modal-warn{
             font-size:12.5px; color:var(--danger); font-weight:600;
@@ -279,7 +317,7 @@
         /* ===== RESPONSIVE ===== */
         @media (max-width: 900px){ 
             .detail-grid{ grid-template-columns:1fr 1fr; }
-            .amount-hero{ font-size:28px; }
+            .amount-hero{ font-size:30px; }
         }
         @media (max-width: 768px){
             .page-head{ flex-direction:column; }
@@ -288,13 +326,16 @@
             .main-card-header{ flex-direction:column; align-items:stretch; }
             .main-card-body{ padding:20px; }
             .detail-grid{ grid-template-columns:1fr; gap:12px; }
-            .amount-hero{ font-size:24px; }
+            .amount-hero{ font-size:26px; display:block; text-align:center; }
             .modal-box{ padding:24px 20px; }
             .page-head h1{ font-size:22px; flex-direction:column; align-items:flex-start; }
             .page-head h1 .quote-number{ font-size:16px; }
         }
         @media (max-width: 480px){
             .main-card-header .left{ flex-wrap:wrap; }
+            .amount-hero{ font-size:22px; padding:10px 16px; }
+            .detail-item .v{ font-size:14px; }
+            .detail-item .v.mono{ font-size:13px; }
         }
     </style>
 

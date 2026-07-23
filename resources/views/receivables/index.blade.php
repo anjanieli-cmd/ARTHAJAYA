@@ -69,7 +69,7 @@
         $chartData = [
             'lancar' => ['label' => 'Lancar', 'value' => $totalLancar, 'color' => 'var(--theme-primary)'],
             'jatuh_tempo' => ['label' => 'Jatuh Tempo', 'value' => $totalJatuhTempo, 'color' => 'var(--danger)'],
-            'lunas' => ['label' => 'Lunas', 'value' => $totalLunas, 'color' => 'var(--text-faint)'],
+            'lunas' => ['label' => 'Lunas', 'value' => $totalLunas, 'color' => 'var(--text-tertiary)'],
         ];
     @endphp
 
@@ -103,6 +103,44 @@
 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
+        }
+
+        /* ===== FIX: LIGHT MODE DONUT CHART ===== */
+        [data-theme="light"] .ar-modern {
+            --bg-card-active: rgba(0, 0, 0, 0.05);
+            --text-tertiary: #94a3b8;
+        }
+
+        [data-theme="light"] .ar-donut circle {
+            stroke-opacity: 0.3;
+        }
+
+        [data-theme="light"] .ar-donut circle:first-child {
+            stroke: #e2e8f0 !important;
+            stroke-opacity: 1 !important;
+        }
+
+        [data-theme="light"] .ar-donut circle:nth-child(2) {
+            stroke: #34d399 !important;
+            stroke-opacity: 1 !important;
+        }
+
+        [data-theme="light"] .ar-donut circle:nth-child(3) {
+            stroke: #ef4444 !important;
+            stroke-opacity: 1 !important;
+        }
+
+        [data-theme="light"] .ar-donut circle:nth-child(4) {
+            stroke: #94a3b8 !important;
+            stroke-opacity: 1 !important;
+        }
+
+        [data-theme="light"] .ar-donut-center .total {
+            color: #1a1a2e;
+        }
+
+        [data-theme="light"] .ar-donut-center .label {
+            color: #94a3b8;
         }
 
         .ar-modern * {
@@ -151,6 +189,25 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
+
+        /* TOAST */
+        .toast-container{
+            position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; max-width:380px; width:100%;
+        }
+        .toast{
+            background:var(--modal-bg); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 20px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:fadeSlideUp .35s cubic-bezier(.16,1,.3,1);
+            display:flex; align-items:center; gap:12px; backdrop-filter:blur(12px);
+        }
+        .toast .toast-icon{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .toast .toast-icon.success{ background:var(--success-soft); color:var(--success); }
+        .toast .toast-icon.error{ background:var(--danger-soft); color:var(--danger); }
+        .toast .toast-icon .icon{ width:18px; height:18px; }
+        .toast .toast-content{ flex:1; }
+        .toast .toast-title{ font-size:13px; font-weight:600; color:var(--text); }
+        .toast .toast-msg{ font-size:12px; color:var(--text-mute); }
+        .toast .toast-close{ background:none; border:none; color:var(--text-faint); cursor:pointer; padding:4px; }
+        .toast .toast-close .icon{ width:14px; height:14px; }
 
         /* HEADER */
         .ar-header {
@@ -288,6 +345,67 @@
                 transform: scale(4);
                 opacity: 0;
             }
+        }
+
+        /* FILTER BAR */
+        .filter-bar{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            margin-bottom:20px;
+            flex-wrap:wrap;
+            background:var(--bg-card);
+            padding:16px 20px;
+            border-radius:var(--radius-md);
+            border:1px solid var(--border-color);
+        }
+        .filter-bar form{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+            width:100%;
+        }
+        .search-wrap{
+            position:relative;
+            flex:1;
+            min-width:220px;
+        }
+        .search-wrap .icon{
+            position:absolute;
+            left:14px;
+            top:50%;
+            transform:translateY(-50%);
+            width:16px;
+            height:16px;
+            color:var(--text-muted);
+            pointer-events:none;
+        }
+        .filter-bar input[type=text]{
+            width:100%;
+            padding:10px 16px 10px 42px;
+            border-radius:var(--radius-sm);
+            background:var(--bg-card-active);
+            border:1px solid var(--border-color);
+            color:var(--text-primary);
+            font-size:13px;
+            outline:none;
+            transition:border-color .15s ease, box-shadow .15s ease;
+            font-family:inherit;
+        }
+        .filter-bar input[type=text]:focus{
+            border-color:var(--theme-primary);
+            background:var(--bg-card);
+            box-shadow:0 0 0 3px rgba(var(--emerald-rgb),0.1);
+        }
+        .filter-bar input[type=text]::placeholder{
+            color:var(--text-tertiary);
+        }
+
+        .filter-actions{
+            display:flex;
+            gap:8px;
+            align-items:center;
         }
 
         /* STATS */
@@ -1022,6 +1140,13 @@
             box-shadow: 0 4px 20px rgba(232, 90, 90, 0.4);
         }
 
+        /* LOADING */
+        .ar-list.loading {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
         @media (max-width: 1200px) {
             .ar-stats-row {
                 grid-template-columns: repeat(2, 1fr);
@@ -1147,6 +1272,9 @@
 
     <div class="ar-modern">
 
+        <!-- TOAST CONTAINER -->
+        <div class="toast-container" id="toastContainer"></div>
+
         <!-- HEADER -->
         <div class="ar-header animate-in" style="animation-delay: 0.05s;">
             <div class="ar-header-left">
@@ -1191,7 +1319,7 @@
         @endif
 
         <!-- STATS -->
-        <div class="ar-stats-row">
+        <div class="ar-stats-row" id="arStatCards">
             <div class="ar-stat-card animate-in" style="animation-delay: 0.10s;">
                 <div class="stat-label">
                     <svg class="icon"><use href="#ic-bank"/></svg>
@@ -1237,11 +1365,33 @@
             </div>
         </div>
 
+        <!-- FILTER BAR -->
+        <div class="filter-bar animate-in" style="animation-delay: 0.28s;">
+            <form method="GET" action="{{ route('receivables.index') }}" id="filterForm">
+                <div class="search-wrap">
+                    <svg class="icon"><use href="#ic-search"/></svg>
+                    <input type="text" name="q" id="arSearchInput" value="{{ request('q') }}" placeholder="Cari nama klien atau nomor faktur..." autocomplete="off">
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="ar-btn ar-btn-ghost" id="filterBtn" style="padding:10px 20px;">
+                        <svg class="icon"><use href="#ic-search"/></svg>
+                        Filter
+                    </button>
+                    @if(request()->filled('q'))
+                        <a href="{{ route('receivables.index') }}" class="ar-btn ar-btn-ghost" id="resetBtn" style="padding:10px 20px;">
+                            <svg class="icon"><use href="#ic-x"/></svg>
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
         <!-- LAYOUT -->
         <div class="ar-layout">
 
             <!-- SIDEBAR -->
-            <aside class="ar-sidebar animate-in" style="animation-delay: 0.30s;">
+            <aside class="ar-sidebar animate-in" style="animation-delay: 0.30s;" id="arSidebar">
                 <div class="section-title">Ringkasan Piutang</div>
 
                 <div class="ar-donut-wrap">
@@ -1271,7 +1421,7 @@
                     </div>
                 </div>
 
-                <div class="ar-legend">
+                <div class="ar-legend" id="arLegend">
                     @foreach($chartData as $key => $data)
                     <div class="ar-legend-item">
                         <span class="dot {{ $key }}"></span>
@@ -1306,7 +1456,7 @@
 
             <!-- LIST -->
             <div>
-                <div class="ar-list">
+                <div class="ar-list" id="arList">
                     @forelse($receivables as $index => $r)
                     @php
                     $colors = ['#EC4C93', '#34B583', '#F0A83C', '#4E8FF0', '#9B7BE0', '#E85A5A'];
@@ -1453,9 +1603,33 @@
     </div>
 
     <script>
+        // ===== TOAST SYSTEM =====
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon ${type}">
+                    <svg class="icon"><use href="#${type === 'success' ? 'ic-check-circle' : 'ic-alert-triangle'}"/></svg>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <svg class="icon"><use href="#ic-x"/></svg>
+                </button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 5000);
+        }
+
+        // ===== DELETE MODAL =====
         function openDeleteModal(id, invoiceNumber) {
             document.getElementById('deleteInvoiceNumber').textContent = invoiceNumber;
-            // Buat URL dengan placeholder :id
             var url = '{{ route("invoices.destroy", ":id") }}';
             url = url.replace(':id', id);
             document.getElementById('deleteForm').action = url;
@@ -1468,21 +1642,95 @@
             document.body.style.overflow = '';
         }
 
-        // Close modal when clicking outside
         document.getElementById('deleteModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeDeleteModal();
             }
         });
 
-        // Close modal with Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeDeleteModal();
             }
         });
 
+        // ===== LIVE SEARCH =====
         document.addEventListener('DOMContentLoaded', function() {
+            var searchInput = document.getElementById('arSearchInput');
+            var filterBtn = document.getElementById('filterBtn');
+            var arList = document.getElementById('arList');
+            var arStatCards = document.getElementById('arStatCards');
+            var arSidebar = document.getElementById('arSidebar');
+            var loadingTimeout = null;
+
+            function updateResults() {
+                arList.classList.add('loading');
+                
+                var q = searchInput ? searchInput.value : '';
+                var url = '{{ route("receivables.index") }}?q=' + encodeURIComponent(q);
+                
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(function(html) {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    
+                    var newList = doc.querySelector('#arList');
+                    if (newList) {
+                        arList.innerHTML = newList.innerHTML;
+                    }
+                    
+                    var newStats = doc.querySelector('#arStatCards');
+                    if (newStats) {
+                        arStatCards.innerHTML = newStats.innerHTML;
+                    }
+                    
+                    var newSidebar = doc.querySelector('#arSidebar');
+                    if (newSidebar) {
+                        arSidebar.innerHTML = newSidebar.innerHTML;
+                    }
+                    
+                    arList.classList.remove('loading');
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    arList.classList.remove('loading');
+                    showToast('Error', 'Gagal memuat data. Silakan refresh halaman.', 'error');
+                });
+            }
+
+            // Search: submit dengan debounce 400ms
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    if (loadingTimeout) {
+                        clearTimeout(loadingTimeout);
+                    }
+                    loadingTimeout = setTimeout(function() {
+                        updateResults();
+                    }, 400);
+                });
+            }
+
+            // Filter button: override default submit
+            if (filterBtn) {
+                filterBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (loadingTimeout) {
+                        clearTimeout(loadingTimeout);
+                    }
+                    updateResults();
+                });
+            }
+
             // Ripple effect untuk button
             document.querySelectorAll('.ar-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {

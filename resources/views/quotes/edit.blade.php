@@ -85,9 +85,10 @@
             display:flex; align-items:center; gap:12px; flex-wrap:wrap;
         }
         .page-head h1 .quote-number{
-            font-family:'IBM Plex Mono', monospace;
-            background:var(--surface-hover); padding:2px 14px; border-radius:8px;
-            font-size:20px; color:var(--text-secondary);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background:var(--surface-hover); padding:4px 16px; border-radius:8px;
+            font-size:20px; font-weight:700; color:var(--text);
+            border:1px solid var(--border);
         }
         .page-head p{
             font-size:14px; color:var(--text-muted); margin:0;
@@ -180,8 +181,8 @@
             font-size:11.5px; color:var(--text-muted); font-weight:500;
         }
         .info-box .value{
-            font-size:16px; font-weight:700; font-family:'IBM Plex Mono', monospace;
-            color:var(--text);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-size:16px; font-weight:700; color:var(--text);
         }
 
         /* ===== FORM GRID ===== */
@@ -204,35 +205,90 @@
             position:relative;
         }
         .field-group .input-wrap .icon{
-            position:absolute; left:14px; top:50%; transform:translateY(-50%);
-            width:16px; height:16px; color:var(--text-muted); pointer-events:none;
+            position:absolute; 
+            left:14px; 
+            top:50%; 
+            transform:translateY(-50%);
+            width:16px; 
+            height:16px; 
+            color:var(--text-muted); 
+            pointer-events:none;
+            z-index:2;
         }
+        
+        /* ===== FIX: INPUT DAN SELECT DENGAN ICON ===== */
         .field-group input,
         .field-group select,
         .field-group textarea{
-            width:100%; padding:11px 16px; border-radius:var(--radius-sm);
-            background:var(--surface-hover); border:1px solid var(--border);
-            color:var(--text); font-size:13.5px; outline:none;
-            transition:all .2s ease; font-family:inherit;
+            width:100%; 
+            padding:11px 16px; 
+            border-radius:var(--radius-sm);
+            background:var(--surface-hover); 
+            border:1px solid var(--border);
+            color:var(--text); 
+            font-size:13.5px; 
+            outline:none;
+            transition:all .2s ease; 
+            font-family:inherit;
+            position:relative;
+            z-index:1;
         }
-        .field-group input.has-icon{ padding-left:42px; }
+        
+        /* Input dengan icon di kiri */
+        .field-group input.has-icon{ 
+            padding-left: 42px; 
+        }
+        
+        /* ===== FIX: SELECT DENGAN ICON ===== */
+        .field-group select.has-icon{ 
+            padding-left: 42px;
+            padding-right: 42px;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%239CA3AF' stroke-width='2' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 12px;
+            background-color: var(--surface-hover);
+            cursor: pointer;
+        }
+        
+        /* Select tanpa icon (untuk status) */
+        .field-group select:not(.has-icon){
+            padding-right: 42px;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%239CA3AF' stroke-width='2' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 12px;
+            background-color: var(--surface-hover);
+            cursor: pointer;
+        }
+
         .field-group input:focus,
         .field-group select:focus,
         .field-group textarea:focus{
-            border-color:var(--accent); background:var(--surface);
+            border-color:var(--accent); 
+            background:var(--surface);
             box-shadow:0 0 0 4px rgba(var(--emerald-rgb),0.08);
         }
+        
+        /* Select focus - pertahankan background */
+        .field-group select.has-icon:focus,
+        .field-group select:not(.has-icon):focus{
+            background-color: var(--surface);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%239CA3AF' stroke-width='2' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 12px;
+        }
+
         .field-group input::placeholder{
             color:var(--text-muted);
         }
-        .field-group select{
-            padding-right:38px;
-            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%239CA3AF' stroke-width='2' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
-            background-repeat:no-repeat; background-position:right 14px center; background-size:12px;
-            appearance:none; -webkit-appearance:none;
-            color-scheme: dark;
-        }
-        /* ===== FIX: OPTION DI DARK MODE ===== */
+
+        /* ===== FIX: SELECT OPTIONS DARK MODE ===== */
         .field-group select option{
             background: #1a1f2e !important;
             color: #e8edf5 !important;
@@ -244,6 +300,7 @@
             background: #0d2a1f !important;
             color: #34d399 !important;
         }
+
         /* Light mode override */
         @media (prefers-color-scheme: light) {
             .field-group select {

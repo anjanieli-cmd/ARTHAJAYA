@@ -40,8 +40,24 @@
             <symbol id="ic-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
             </symbol>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
         </defs>
     </svg>
+
+    @php
+        function formatRupiahShort($amount) {
+            if ($amount >= 1000000000) {
+                return 'Rp' . number_format($amount / 1000000000, 1, ',', '') . ' M';
+            } elseif ($amount >= 1000000) {
+                return 'Rp' . number_format($amount / 1000000, 1, ',', '') . ' Jt';
+            } elseif ($amount >= 1000) {
+                return 'Rp' . number_format($amount / 1000, 0, ',', '') . ' Rb';
+            }
+            return 'Rp' . number_format($amount, 0, ',', '.');
+        }
+    @endphp
 
     <style>
         .clients-wrap{
@@ -57,7 +73,27 @@
         .clients-wrap *{ box-sizing:border-box; }
 
         @keyframes fadeSlideUp{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:translateY(0);} }
+        @keyframes spin{ to{ transform:rotate(360deg);} }
         .clients-wrap .animate-in{ animation:fadeSlideUp .5s cubic-bezier(.16,1,.3,1) forwards; opacity:0; }
+
+        /* ===== TOAST ===== */
+        .toast-container{
+            position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; max-width:380px; width:100%;
+        }
+        .toast{
+            background:var(--modal-bg); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 20px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:fadeSlideUp .35s cubic-bezier(.16,1,.3,1);
+            display:flex; align-items:center; gap:12px; backdrop-filter:blur(12px);
+        }
+        .toast .toast-icon{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .toast .toast-icon.success{ background:var(--success-soft); color:var(--success); }
+        .toast .toast-icon.error{ background:var(--danger-soft); color:var(--danger); }
+        .toast .toast-icon .icon{ width:18px; height:18px; }
+        .toast .toast-content{ flex:1; }
+        .toast .toast-title{ font-size:13px; font-weight:600; color:var(--text); }
+        .toast .toast-msg{ font-size:12px; color:var(--text-mute); }
+        .toast .toast-close{ background:none; border:none; color:var(--text-faint); cursor:pointer; padding:4px; }
+        .toast .toast-close .icon{ width:14px; height:14px; }
 
         /* ===== HEADER ===== */
         .page-head{
@@ -98,8 +134,8 @@
             background:var(--surface-strong); border-color:var(--border-hover); transform:translateY(-2px);
         }
         .btn-sm{ padding:8px 14px; font-size:12.5px; }
-        .btn-danger-ghost{ background:none; color:var(--danger); }
-        .btn-danger-ghost:hover{ background:rgba(var(--danger-rgb),0.1); }
+        .btn-danger{ background:var(--danger); color:#fff; }
+        .btn-danger:hover{ background:#d14a4a; transform:translateY(-2px); box-shadow:0 8px 22px rgba(232,90,90,.35); }
 
         /* ===== STAT CARDS ===== */
         .stat-row{
@@ -135,6 +171,9 @@
         .stat-card .sv{
             font-family:'Space Grotesk', sans-serif; font-size:23px; font-weight:700; letter-spacing:-.01em;
             color:var(--text);
+        }
+        .stat-card .sv.mono{
+            font-family:'Space Grotesk', sans-serif;
         }
         .stat-card .sc{ font-size:12px; color:var(--text-faint); margin-top:5px; }
 
@@ -173,6 +212,11 @@
             background:var(--surface); border:1px solid var(--border);
             border-radius:var(--radius-lg); overflow:hidden;
             box-shadow:0 4px 24px rgba(0,0,0,0.06);
+            transition: opacity 0.3s ease;
+        }
+        .table-card.loading{
+            opacity:0.5;
+            pointer-events:none;
         }
         .table-scroll{ overflow-x:auto; }
         table{ width:100%; border-collapse:collapse; min-width:860px; }
@@ -185,9 +229,6 @@
         tbody tr{ border-bottom:1px solid var(--border); transition:background .18s ease; position:relative; }
         tbody tr:last-child{ border-bottom:none; }
         tbody tr:hover{ background:var(--surface-strong); }
-        tbody tr.row-accent td:first-child{
-            box-shadow: inset 3px 0 0 0 var(--row-color, transparent);
-        }
         tbody td{ padding:15px 18px; font-size:13.5px; vertical-align:middle; }
 
         .client-cell{ display:flex; align-items:center; gap:12px; }
@@ -283,6 +324,50 @@
             background:var(--accent); color:#052117; font-weight:600;
         }
 
+        /* ===== DELETE MODAL ===== */
+        .modal-overlay{
+            position:fixed; inset:0; background:rgba(3,6,12,.65); backdrop-filter:blur(8px);
+            z-index:999; display:none; align-items:center; justify-content:center; padding:20px;
+        }
+        .modal-overlay.open{ display:flex; }
+        @keyframes modalSlideUp{
+            from{ opacity:0; transform:translateY(24px) scale(.96);}
+            to{ opacity:1; transform:translateY(0) scale(1);}
+        }
+        .modal-box{
+            background:var(--modal-bg); border:1px solid var(--border);
+            border-radius:var(--radius-lg); padding:32px 34px;
+            max-width:420px; width:100%; box-shadow:0 30px 80px rgba(0,0,0,.5);
+            animation:modalSlideUp .3s cubic-bezier(.16,1,.3,1); text-align:center;
+        }
+        .modal-ic{
+            width:54px; height:54px; border-radius:50%;
+            background:rgba(232,90,90,.14); color:var(--danger);
+            display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
+        }
+        .modal-ic .icon{ width:24px; height:24px; }
+        .modal-box h3{
+            font-family:'Space Grotesk', sans-serif; font-size:18px;
+            margin-bottom:8px; color:var(--text);
+        }
+        .modal-box p{
+            font-size:13.5px; color:var(--text-mute); margin-bottom:6px; line-height:1.6;
+        }
+        .modal-box p b{
+            color:var(--text); font-family:'IBM Plex Mono', monospace;
+            background:var(--surface-strong); padding:2px 10px; border-radius:6px;
+            display:inline-block; margin-top:4px;
+        }
+        .modal-warn{
+            font-size:12.5px; color:var(--danger); font-weight:600;
+            margin-top:14px; padding:9px 14px; background:rgba(232,90,90,.1);
+            border-radius:10px; display:inline-block;
+        }
+        .modal-actions{
+            display:flex; gap:10px; justify-content:center; margin-top:22px;
+        }
+        .modal-actions .btn{ flex:1; justify-content:center; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1100px){ .stat-row{ grid-template-columns:repeat(2,1fr); } }
         @media (max-width: 768px){
@@ -308,6 +393,9 @@
 
     <div class="clients-wrap">
 
+        {{-- ===== TOAST CONTAINER ===== --}}
+        <div class="toast-container" id="toastContainer"></div>
+
         {{-- ===== HEADER ===== --}}
         <div class="page-head animate-in" style="animation-delay:.05s;">
             <div class="page-head-left">
@@ -323,7 +411,7 @@
         </div>
 
         {{-- ===== STAT CARDS ===== --}}
-        <div class="stat-row">
+        <div class="stat-row" id="statCards">
             <div class="stat-card c-emerald animate-in" style="animation-delay:.10s;">
                 <div class="sk">
                     <span class="sk-label">Total Klien</span>
@@ -345,7 +433,7 @@
                     <span class="sk-label">Piutang Berjalan</span>
                     <span class="stat-icon"><svg class="icon"><use href="#ic-alert-triangle"/></svg></span>
                 </div>
-                <div class="sv mono">Rp{{ number_format($stats['outstanding_amount'] ?? 0, 0, ',', '.') }}</div>
+                <div class="sv mono">{{ formatRupiahShort($stats['outstanding_amount'] ?? 0) }}</div>
                 <div class="sc">Belum dibayar</div>
             </div>
             <div class="stat-card c-emerald animate-in" style="animation-delay:.25s;">
@@ -363,19 +451,19 @@
             <form method="GET" action="{{ route('clients.index') }}" id="filterForm">
                 <div class="search-wrap">
                     <svg class="icon"><use href="#ic-search"/></svg>
-                    <input type="text" name="q" id="searchInput" value="{{ request('q') }}" placeholder="Cari nama klien, perusahaan, atau email..." autocomplete="off">
+                    <input type="text" name="q" id="clientSearchInput" value="{{ request('q') }}" placeholder="Cari nama klien, perusahaan, atau email..." autocomplete="off">
                 </div>
                 <div class="filter-actions">
-                    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="filterBtn">Filter</button>
                     @if(request()->anyFilled(['q']))
-                        <a href="{{ route('clients.index') }}" class="btn btn-outline btn-sm">Reset</a>
+                        <a href="{{ route('clients.index') }}" class="btn btn-outline btn-sm" id="resetBtn">Reset</a>
                     @endif
                 </div>
             </form>
         </div>
 
         {{-- ===== TABLE ===== --}}
-        <div class="table-card animate-in" style="animation-delay:.32s;">
+        <div class="table-card animate-in" style="animation-delay:.32s;" id="tableContainer">
             <div class="table-scroll">
                 <table>
                     <thead>
@@ -387,7 +475,7 @@
                             <th style="text-align:right;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tableBody">
                         @forelse($clients as $client)
                             @php
                                 $colors = ['#EC4C93', '#34B583', '#F0A83C', '#4E8FF0', '#9B7BE0', '#E85A5A'];
@@ -438,12 +526,9 @@
                                         <a href="{{ route('clients.edit', $client) }}" class="icon-action edit" data-tip="Edit Klien">
                                             <svg class="icon"><use href="#ic-edit"/></svg>
                                         </a>
-                                        <form action="{{ route('clients.destroy', $client) }}" method="POST" onsubmit="return confirm('Hapus klien ini?')" class="inline" style="display:inline;">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="icon-action delete" data-tip="Hapus">
-                                                <svg class="icon"><use href="#ic-trash"/></svg>
-                                            </button>
-                                        </form>
+                                        <button type="button" class="icon-action delete" data-tip="Hapus" onclick="openDeleteModal('{{ $client->id }}', '{{ $client->name }}')">
+                                            <svg class="icon"><use href="#ic-trash"/></svg>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -469,7 +554,7 @@
             </div>
 
             @if(isset($clients) && method_exists($clients, 'total') && $clients->total() > 0)
-                <div class="pagination-bar">
+                <div class="pagination-bar" id="paginationBar">
                     <div class="pg-info">
                         Menampilkan {{ $clients->firstItem() }}–{{ $clients->lastItem() }} dari {{ $clients->total() }} klien
                     </div>
@@ -479,24 +564,151 @@
                 </div>
             @endif
         </div>
+
+        {{-- ===== DELETE MODAL ===== --}}
+        <div class="modal-overlay" id="deleteModal">
+            <div class="modal-box">
+                <div class="modal-ic"><svg class="icon"><use href="#ic-alert-triangle"/></svg></div>
+                <h3>Hapus klien ini?</h3>
+                <p>Klien <br><b id="deleteClientName">—</b></p>
+                <p style="margin-top:8px;">akan dihapus permanen dan tidak bisa dikembalikan.</p>
+                <div class="modal-warn">Semua data terkait klien ini juga akan dihapus.</div>
+                <form method="POST" id="deleteForm">
+                    @csrf
+                    @method('DELETE')
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Batal</button>
+                        <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
-        // ===== LIVE SEARCH =====
-        document.addEventListener('DOMContentLoaded', function() {
-            var form = document.getElementById('filterForm');
-            var searchInput = document.getElementById('searchInput');
-            var submitTimeout = null;
+        // ===== TOAST SYSTEM =====
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon ${type}">
+                    <svg class="icon"><use href="#${type === 'success' ? 'ic-check-circle' : 'ic-alert-triangle'}"/></svg>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <svg class="icon"><use href="#ic-x"/></svg>
+                </button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 5000);
+        }
 
-            // Search: submit dengan debounce 300ms
+        // ===== DELETE MODAL =====
+        function openDeleteModal(id, name) {
+            document.getElementById('deleteClientName').textContent = name;
+            document.getElementById('deleteForm').action = '{{ url("clients") }}/' + id;
+            document.getElementById('deleteModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+
+        // ===== ESC KEY =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeDeleteModal();
+        });
+
+        // ===== LIVE SEARCH & FILTER =====
+        document.addEventListener('DOMContentLoaded', function() {
+            var searchInput = document.getElementById('clientSearchInput');
+            var filterBtn = document.getElementById('filterBtn');
+            var tableContainer = document.getElementById('tableContainer');
+            var tableBody = document.getElementById('tableBody');
+            var statCards = document.getElementById('statCards');
+            var paginationBar = document.getElementById('paginationBar');
+            var loadingTimeout = null;
+
+            function updateResults() {
+                tableContainer.classList.add('loading');
+                
+                var q = searchInput ? searchInput.value : '';
+                var url = '{{ route("clients.index") }}?q=' + encodeURIComponent(q);
+                
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(function(html) {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    
+                    var newBody = doc.querySelector('#tableBody');
+                    if (newBody) {
+                        tableBody.innerHTML = newBody.innerHTML;
+                    }
+                    
+                    var newStats = doc.querySelector('#statCards');
+                    if (newStats) {
+                        statCards.innerHTML = newStats.innerHTML;
+                    }
+                    
+                    var newPagination = doc.querySelector('#paginationBar');
+                    if (newPagination && paginationBar) {
+                        paginationBar.innerHTML = newPagination.innerHTML;
+                    } else if (!newPagination && paginationBar) {
+                        paginationBar.remove();
+                    }
+                    
+                    tableContainer.classList.remove('loading');
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    tableContainer.classList.remove('loading');
+                    showToast('Error', 'Gagal memuat data. Silakan refresh halaman.', 'error');
+                });
+            }
+
+            // Search: submit dengan debounce 400ms
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
-                    if (submitTimeout) {
-                        clearTimeout(submitTimeout);
+                    if (loadingTimeout) {
+                        clearTimeout(loadingTimeout);
                     }
-                    submitTimeout = setTimeout(function() {
-                        form.submit();
-                    }, 300);
+                    loadingTimeout = setTimeout(function() {
+                        updateResults();
+                    }, 400);
+                });
+            }
+
+            // Filter button: override default submit
+            if (filterBtn) {
+                filterBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (loadingTimeout) {
+                        clearTimeout(loadingTimeout);
+                    }
+                    updateResults();
                 });
             }
         });

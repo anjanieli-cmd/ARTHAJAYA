@@ -6,7 +6,7 @@
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-    // Helper function untuk format uang pendek (contoh: 184.600.000 -> 184,6jt)
+    // Helper function untuk format uang pendek
     function formatCurrencyShort($amount) {
         $amount = (int) $amount;
         if ($amount >= 1000000000) {
@@ -19,19 +19,84 @@
         return number_format($amount, 0, ',', '.');
     }
 
-    // Helper function untuk format uang penuh dengan pemisah ribuan
-    function formatCurrencyFull($amount) {
-        return number_format($amount, 0, ',', '.');
+    // Ambil data dari session
+    $ledgerEntries = session('ledger_entries', []);
+    
+    // Ambil transaksi terbaru dari ledger (5 terakhir)
+    $recentTransactions = array_slice($ledgerEntries, 0, 5);
+    
+    // Hitung total pemasukan & pengeluaran bulan ini
+    $currentMonth = date('Y-m');
+    $totalIncome = 0;
+    $totalExpense = 0;
+    $totalPending = 0;
+    $totalOverdue = 0;
+    
+    foreach ($ledgerEntries as $entry) {
+        $entryDate = substr($entry['date'] ?? '', 0, 7);
+        if ($entryDate == $currentMonth) {
+            if (($entry['amount'] ?? 0) > 0) {
+                $totalIncome += $entry['amount'];
+            } else {
+                $totalExpense += abs($entry['amount']);
+            }
+        }
+        if (($entry['status'] ?? '') == 'pending') {
+            $totalPending += abs($entry['amount'] ?? 0);
+        }
+        if (($entry['status'] ?? '') == 'overdue') {
+            $totalOverdue += abs($entry['amount'] ?? 0);
+        }
+    }
+    
+    // Total saldo kas dari account
+    $totalBalance = $account->initial_balance ?? 0;
+    foreach ($ledgerEntries as $entry) {
+        $totalBalance += $entry['amount'] ?? 0;
     }
 
-    // Data dummy untuk transaksi
-    $dummyTransactions = [
-        ['title' => 'Faktur #0568 — PT Andalas Maju', 'date' => '21 Jun 2026, 09:40', 'status' => 'paid', 'amount' => 5750000, 'icon' => 'invoice'],
-        ['title' => 'Sewa Kantor — Juni 2026', 'date' => '20 Jun 2026, 08:30', 'status' => 'paid', 'amount' => -42900000, 'icon' => 'building'],
-        ['title' => 'Pembayaran Klien — Kopi Kenangan Senja', 'date' => '18 Jun 2026, 10:20', 'status' => 'paid', 'amount' => 2800000, 'icon' => 'briefcase'],
-        ['title' => 'Faktur #0571 — Nusantara Logistik', 'date' => '15 Jun 2026, 14:05', 'status' => 'pending', 'amount' => 18400000, 'icon' => 'invoice'],
-        ['title' => 'Faktur #0552 — Bumi Retail Group', 'date' => '02 Jun 2026, 11:15', 'status' => 'overdue', 'amount' => 9200000, 'icon' => 'invoice'],
-    ];
+    // Data untuk donut chart (dari expenses)
+    $expenseCategories = session('expense_categories', []);
+    $donutData = [];
+    $colors = ['var(--theme-primary)', '#4E8FF0', '#F0C05A', '#9B7BE0', '#E85A9C', '#F0A25A'];
+    $colorIndex = 0;
+    foreach ($expenseCategories as $cat) {
+        if (($cat['total'] ?? 0) > 0) {
+            $donutData[] = [
+                'name' => $cat['name'] ?? 'Lainnya',
+                'total' => $cat['total'] ?? 0,
+                'color' => $colors[$colorIndex % count($colors)]
+            ];
+            $colorIndex++;
+        }
+    }
+    // Jika tidak ada data, pakai dummy
+    if (empty($donutData)) {
+        $donutData = [
+            ['name' => 'Operasional', 'total' => 14603000, 'color' => 'var(--theme-primary)'],
+            ['name' => 'Gaji', 'total' => 9126875, 'color' => '#4E8FF0'],
+            ['name' => 'Sewa', 'total' => 5476125, 'color' => '#F0C05A'],
+            ['name' => 'Pemasaran', 'total' => 3650800, 'color' => '#9B7BE0'],
+        ];
+    }
+    
+    // Total donut
+    $donutTotal = array_sum(array_column($donutData, 'total'));
+    
+    // Data untuk aging (faktur jatuh tempo)
+    $invoices = session('invoices', []);
+    $upcomingInvoices = array_slice(array_filter($invoices, function($inv) {
+        return ($inv['status'] ?? '') != 'paid';
+    }), 0, 3);
+    
+    // Jika tidak ada invoice, pakai dummy
+    if (empty($upcomingInvoices)) {
+        $upcomingInvoices = [
+            ['number' => '#0571', 'client' => 'Nusantara Logistik', 'due_date' => '2026-06-25', 'amount' => 18400000],
+            ['number' => '#0574', 'client' => 'Ruang Kriya Studio', 'due_date' => '2026-06-28', 'amount' => 6200000],
+            ['number' => '#0552', 'client' => 'Bumi Retail Group', 'due_date' => '2026-06-20', 'amount' => 9200000, 'is_overdue' => true],
+        ];
+    }
   @endphp
 
   <style>
@@ -291,7 +356,7 @@
       font-weight: 500;
     }
 
-    /* ===== STAT GRID ===== */
+    /* ===== STATS ===== */
     .dash-stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -687,6 +752,16 @@
       stroke: var(--bg-card-active);
     }
 
+    @keyframes donutAnim {
+      to { stroke-dashoffset: var(--target-offset, 130.7); }
+    }
+
+    .dash-donut .donut-anim {
+      animation: donutAnim 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      stroke-dasharray: 326.7;
+      stroke-dashoffset: 326.7;
+    }
+
     .dash-donut .donut-center {
       position: absolute;
       inset: 0;
@@ -856,6 +931,10 @@
       color: var(--text-primary);
     }
 
+    .dash-inv-row .info .date.overdue {
+      color: var(--danger);
+    }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1200px) {
       .dash-stats { grid-template-columns: repeat(2, 1fr); }
@@ -949,34 +1028,42 @@
       <div class="dash-stat-card">
         <div class="stat-top">
           <div class="stat-icon"><svg class="icon"><use href="#ic-bank"/></svg></div>
-          <span class="stat-change up"><svg class="icon"><use href="#ic-trending"/></svg> 3.8%</span>
+          <span class="stat-change up"><svg class="icon"><use href="#ic-trending"/></svg> 
+            {{ count($ledgerEntries) > 0 ? round((array_sum(array_column($ledgerEntries, 'amount')) / max(1, $totalBalance)) * 100, 1) : 0 }}%
+          </span>
         </div>
         <div class="stat-label">Total Saldo Kas</div>
-        <div class="stat-value mono">{{ $currencySymbol }}{{ formatCurrencyShort($account->initial_balance ?? 0) }}</div>
+        <div class="stat-value mono">{{ $currencySymbol }}{{ formatCurrencyShort($totalBalance) }}</div>
       </div>
       <div class="dash-stat-card">
         <div class="stat-top">
           <div class="stat-icon"><svg class="icon"><use href="#ic-receive"/></svg></div>
-          <span class="stat-change up"><svg class="icon"><use href="#ic-trending"/></svg> 12.5%</span>
+          <span class="stat-change up"><svg class="icon"><use href="#ic-trending"/></svg> 
+            {{ $totalIncome > 0 ? round(($totalIncome / max(1, $totalBalance)) * 100, 1) : 0 }}%
+          </span>
         </div>
         <div class="stat-label">Pemasukan Bulan Ini</div>
-        <div class="stat-value mono">{{ $currencySymbol }}184,6jt</div>
+        <div class="stat-value mono">{{ $currencySymbol }}{{ formatCurrencyShort($totalIncome) }}</div>
       </div>
       <div class="dash-stat-card">
         <div class="stat-top">
           <div class="stat-icon"><svg class="icon"><use href="#ic-invoice"/></svg></div>
-          <span class="stat-change down"><svg class="icon"><use href="#ic-trending-down"/></svg> 4.2%</span>
+          <span class="stat-change down"><svg class="icon"><use href="#ic-trending-down"/></svg> 
+            {{ $totalExpense > 0 ? round(($totalExpense / max(1, $totalBalance)) * 100, 1) : 0 }}%
+          </span>
         </div>
         <div class="stat-label">Pengeluaran Bulan Ini</div>
-        <div class="stat-value mono">{{ $currencySymbol }}36,5jt</div>
+        <div class="stat-value mono">{{ $currencySymbol }}{{ formatCurrencyShort($totalExpense) }}</div>
       </div>
       <div class="dash-stat-card">
         <div class="stat-top">
           <div class="stat-icon"><svg class="icon"><use href="#ic-doc"/></svg></div>
-          <span class="stat-change down" style="background:var(--danger-soft);color:var(--danger);">3 jatuh tempo</span>
+          <span class="stat-change down" style="background:var(--danger-soft);color:var(--danger);">
+            {{ $totalPending + $totalOverdue > 0 ? count(array_filter($ledgerEntries, function($e) { return in_array($e['status'] ?? '', ['pending', 'overdue']); })) : 0 }} belum dibayar
+          </span>
         </div>
         <div class="stat-label">Faktur Belum Dibayar</div>
-        <div class="stat-value mono">{{ $currencySymbol }}87,5jt</div>
+        <div class="stat-value mono">{{ $currencySymbol }}{{ formatCurrencyShort($totalPending + $totalOverdue) }}</div>
       </div>
     </div>
 
@@ -991,12 +1078,14 @@
           <div class="dash-balance">
             <div class="balance-left">
               <div class="balance-label">Saldo Kas Konsolidasi</div>
-              <div class="balance-amount mono">{{ $currencySymbol }}{{ formatCurrencyShort($account->initial_balance ?? 0) }}</div>
+              <div class="balance-amount mono">{{ $currencySymbol }}{{ formatCurrencyShort($totalBalance) }}</div>
               @if($account)
                 <div class="balance-sub">{{ $account->bank_name ?? 'Kas Tunai' }}</div>
               @endif
               <div class="balance-change">
-                <svg class="icon"><use href="#ic-trending"/></svg> +Rp16,85jt (3.8%) bulan ini
+                <svg class="icon"><use href="#ic-trending"/></svg> 
+                +{{ $currencySymbol }}{{ formatCurrencyShort($totalIncome - $totalExpense) }} 
+                ({{ $totalBalance > 0 ? round((($totalIncome - $totalExpense) / max(1, $totalBalance)) * 100, 1) : 0 }}%) bulan ini
               </div>
             </div>
             <div class="balance-actions">
@@ -1030,7 +1119,7 @@
           </div>
         </div>
 
-        <!-- TRANSACTIONS TABLE -->
+        <!-- TRANSACTIONS TABLE - Dari Buku Besar -->
         <div class="dash-card animate-in" style="animation-delay: 0.20s;">
           <div class="card-head">
             <h3>Transaksi Terbaru</h3>
@@ -1038,6 +1127,7 @@
               Lihat semua <svg class="icon"><use href="#ic-arrow-right"/></svg>
             </a>
           </div>
+          @if(!empty($recentTransactions))
           <table class="dash-tx-table">
             <thead>
               <tr>
@@ -1047,25 +1137,36 @@
               </tr>
             </thead>
             <tbody>
-              @foreach($dummyTransactions as $tx)
+              @foreach($recentTransactions as $tx)
+                @php
+                  $amount = $tx['amount'] ?? 0;
+                  $status = $tx['status'] ?? 'pending';
+                  $icon = $amount >= 0 ? 'receive' : 'invoice';
+                @endphp
                 <tr>
                   <td>
                     <div class="tx-who">
-                      <div class="tx-icon"><svg class="icon"><use href="#ic-{{ $tx['icon'] }}"/></svg></div>
+                      <div class="tx-icon"><svg class="icon"><use href="#ic-{{ $icon }}"/></svg></div>
                       <div>
-                        <div class="tx-name">{{ $tx['title'] }}</div>
-                        <div class="tx-date">{{ $tx['date'] }}</div>
+                        <div class="tx-name">{{ $tx['description'] ?? 'Transaksi' }}</div>
+                        <div class="tx-date">{{ $tx['date'] ?? date('d M Y') }}</div>
                       </div>
                     </div>
                   </td>
-                  <td><span class="tx-status {{ $tx['status'] }}">{{ ucfirst($tx['status']) }}</span></td>
-                  <td class="tx-amount {{ $tx['amount'] >= 0 ? 'pos' : 'neg' }}">
-                    {{ $tx['amount'] >= 0 ? '+' : '-' }}{{ $currencySymbol }}{{ formatCurrencyShort(abs($tx['amount'])) }}
+                  <td><span class="tx-status {{ $status }}">{{ ucfirst($status) }}</span></td>
+                  <td class="tx-amount {{ $amount >= 0 ? 'pos' : 'neg' }}">
+                    {{ $amount >= 0 ? '+' : '-' }}{{ $currencySymbol }}{{ formatCurrencyShort(abs($amount)) }}
                   </td>
                 </tr>
               @endforeach
             </tbody>
           </table>
+          @else
+          <div class="dash-empty">
+            Belum ada transaksi.<br>
+            Mulai catat transaksi pertama Anda.
+          </div>
+          @endif
         </div>
       </div>
 
@@ -1084,30 +1185,38 @@
             <div class="dash-donut">
               <svg viewBox="0 0 120 120">
                 <circle cx="60" cy="60" r="52"></circle>
-                <circle cx="60" cy="60" r="52" style="stroke:var(--theme-primary);stroke-dasharray:326.7;stroke-dashoffset:326.7;" class="donut-anim"></circle>
+                @php
+                  $donutTotal = array_sum(array_column($donutData, 'total'));
+                  $offset = 326.7;
+                  $dasharray = 326.7;
+                @endphp
+                @foreach($donutData as $index => $item)
+                  @php
+                    $percentage = $donutTotal > 0 ? ($item['total'] / $donutTotal) : 0;
+                    $dashoffset = $offset - ($dasharray * $percentage);
+                    $strokeColor = $item['color'];
+                  @endphp
+                  <circle cx="60" cy="60" r="52" 
+                    style="stroke:{{ $strokeColor }};stroke-dasharray:{{ $dasharray }};stroke-dashoffset:{{ $offset }};"
+                    class="donut-anim" 
+                    data-offset="{{ $dashoffset }}"
+                    data-delay="{{ $index * 200 }}"
+                  ></circle>
+                  @php $offset = $dashoffset; @endphp
+                @endforeach
               </svg>
               <div class="donut-center">
-                <div class="amt">{{ $currencySymbol }}36,5jt</div>
+                <div class="amt">{{ $currencySymbol }}{{ formatCurrencyShort($donutTotal) }}</div>
                 <div class="lbl">Total</div>
               </div>
             </div>
             <div class="dash-legend">
+              @foreach($donutData as $item)
               <div class="legend-row">
-                <span><i class="dot" style="background:var(--theme-primary)"></i>Operasional</span>
-                <span class="amt">{{ $currencySymbol }}14,6jt</span>
+                <span><i class="dot" style="background:{{ $item['color'] }}"></i>{{ $item['name'] }}</span>
+                <span class="amt">{{ $currencySymbol }}{{ formatCurrencyShort($item['total']) }}</span>
               </div>
-              <div class="legend-row">
-                <span><i class="dot" style="background:#4E8FF0"></i>Gaji</span>
-                <span class="amt">{{ $currencySymbol }}9,1jt</span>
-              </div>
-              <div class="legend-row">
-                <span><i class="dot" style="background:#F0C05A"></i>Sewa</span>
-                <span class="amt">{{ $currencySymbol }}5,5jt</span>
-              </div>
-              <div class="legend-row">
-                <span><i class="dot" style="background:#9B7BE0"></i>Pemasaran</span>
-                <span class="amt">{{ $currencySymbol }}3,7jt</span>
-              </div>
+              @endforeach
             </div>
           </div>
         </div>
@@ -1118,15 +1227,20 @@
             <h3>Target Penagihan</h3>
             <svg class="icon" style="width:20px;height:20px;color:var(--theme-primary);"><use href="#ic-target"/></svg>
           </div>
-          <div class="balance-amount mono" style="font-size:24px;">{{ $currencySymbol }}62,5jt</div>
-          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">dari target Rp150jt</div>
+          @php
+            $targetAmount = 150000000;
+            $actualAmount = 62500000;
+            $progress = round(($actualAmount / $targetAmount) * 100);
+          @endphp
+          <div class="balance-amount mono" style="font-size:24px;">{{ $currencySymbol }}{{ formatCurrencyShort($actualAmount) }}</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">dari target {{ $currencySymbol }}{{ formatCurrencyShort($targetAmount) }}</div>
           <div class="dash-progress">
             <div class="progress-bar">
-              <div class="progress-fill" id="targetFill"></div>
+              <div class="progress-fill" id="targetFill" style="width:{{ min($progress, 100) }}%;"></div>
             </div>
             <div class="progress-labels">
-              <span>42%</span>
-              <span>Sisa 18 hari</span>
+              <span>{{ $progress }}%</span>
+              <span>Sisa {{ 30 - date('d') }} hari</span>
             </div>
           </div>
         </div>
@@ -1166,27 +1280,24 @@
               Semua <svg class="icon"><use href="#ic-arrow-right"/></svg>
             </a>
           </div>
-          <div class="dash-inv-row">
-            <div class="info">
-              <div class="name">#0571 — Nusantara Logistik</div>
-              <div class="date">Jatuh tempo 25 Jun 2026</div>
+          @if(!empty($upcomingInvoices))
+            @foreach($upcomingInvoices as $inv)
+              <div class="dash-inv-row">
+                <div class="info">
+                  <div class="name">{{ $inv['number'] ?? '' }} — {{ $inv['client'] ?? '' }}</div>
+                  <div class="date {{ isset($inv['is_overdue']) && $inv['is_overdue'] ? 'overdue' : '' }}">
+                    {{ isset($inv['is_overdue']) && $inv['is_overdue'] ? 'Terlambat' : 'Jatuh tempo' }} 
+                    {{ isset($inv['due_date']) ? date('d M Y', strtotime($inv['due_date'])) : '' }}
+                  </div>
+                </div>
+                <div class="amount">{{ $currencySymbol }}{{ formatCurrencyShort($inv['amount'] ?? 0) }}</div>
+              </div>
+            @endforeach
+          @else
+            <div class="dash-empty">
+              Tidak ada faktur yang akan jatuh tempo.
             </div>
-            <div class="amount">{{ $currencySymbol }}18,4jt</div>
-          </div>
-          <div class="dash-inv-row">
-            <div class="info">
-              <div class="name">#0574 — Ruang Kriya Studio</div>
-              <div class="date">Jatuh tempo 28 Jun 2026</div>
-            </div>
-            <div class="amount">{{ $currencySymbol }}6,2jt</div>
-          </div>
-          <div class="dash-inv-row">
-            <div class="info">
-              <div class="name">#0552 — Bumi Retail Group</div>
-              <div class="date" style="color:var(--danger);">Terlambat 4 hari</div>
-            </div>
-            <div class="amount">{{ $currencySymbol }}9,2jt</div>
-          </div>
+          @endif
         </div>
       </div>
 
@@ -1237,21 +1348,14 @@
         }, i * 60 + 300);
       });
 
-      // Billing target progress fill
-      const targetFill = document.getElementById('targetFill');
-      if(targetFill) {
+      // Donut animation - apply offsets with delay
+      document.querySelectorAll('.dash-donut .donut-anim').forEach((circle, index) => {
+        const delay = parseInt(circle.dataset.delay) || index * 200;
+        const offset = circle.dataset.offset || '130.7';
         setTimeout(() => {
-          targetFill.style.width = '42%';
-        }, 400);
-      }
-
-      // Donut animation
-      const donutCircle = document.querySelector('.donut-anim');
-      if(donutCircle) {
-        setTimeout(() => {
-          donutCircle.style.strokeDashoffset = '130.7';
-        }, 200);
-      }
+          circle.style.strokeDashoffset = offset;
+        }, delay + 400);
+      });
     });
   </script>
 

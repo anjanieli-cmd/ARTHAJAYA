@@ -65,18 +65,18 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         Route::post('/notifications/read-all', 'markAllAsRead')->name('notifications.readAll');
     });
 
-
-    // ===== INVOICES (pakai InvoiceController — database) =====
+    // ===== INVOICES (PASTIKAN URUTAN BENAR) =====
     Route::controller(InvoiceController::class)->group(function () {
         Route::get('/invoices', 'index')->name('invoices.index');
         Route::get('/invoices/create', 'create')->name('invoices.create');
         Route::post('/invoices', 'store')->name('invoices.store');
+        // EXPORT HARUS DIATAS {invoice} BIAR GA KETABRAK
         Route::get('/invoices/export', 'export')->name('invoices.export');
         Route::get('/invoices/{invoice}', 'show')->name('invoices.show');
         Route::get('/invoices/{invoice}/edit', 'edit')->name('invoices.edit');
         Route::put('/invoices/{invoice}', 'update')->name('invoices.update');
         Route::delete('/invoices/{invoice}', 'destroy')->name('invoices.destroy');
-        Route::delete('/invoices/bulk-destroy', 'bulkDestroy')->name('invoices.bulk-destroy');
+        Route::post('/invoices/{invoice}/send', 'send')->name('invoices.send');
     });
 
     // ===== CLIENTS =====
@@ -98,10 +98,10 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::get('/receivables', [ReceivableController::class, 'index'])->name('receivables.index');
     Route::get('/receivables/create', [ReceivableController::class, 'create'])->name('receivables.create');
     Route::post('/receivables', [ReceivableController::class, 'store'])->name('receivables.store');
-    Route::get('/receivables/{id}', [ReceivableController::class, 'show'])->name('receivables.show');
-    Route::get('/receivables/{id}/edit', [ReceivableController::class, 'edit'])->name('receivables.edit');
-    Route::put('/receivables/{id}', [ReceivableController::class, 'update'])->name('receivables.update');
-    Route::delete('/receivables/{id}', [ReceivableController::class, 'destroy'])->name('receivables.destroy');
+    Route::get('/receivables/{receivable}', [ReceivableController::class, 'show'])->name('receivables.show');
+    Route::get('/receivables/{receivable}/edit', [ReceivableController::class, 'edit'])->name('receivables.edit');
+    Route::put('/receivables/{receivable}', [ReceivableController::class, 'update'])->name('receivables.update');
+    Route::delete('/receivables/{receivable}', [ReceivableController::class, 'destroy'])->name('receivables.destroy');
 
     // ===== PAYABLES =====
     Route::get('/payables', function () {
@@ -478,7 +478,6 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil dibuat!');
     })->name('expense-categories.store');
 
-    // EXPENSE CATEGORIES SHOW
     Route::get('/expense-categories/show/{index}', function ($index) {
         $user = Auth::user();
         $company = $user->company;
@@ -492,7 +491,6 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return view('expense-categories.show', compact('user', 'company', 'category', 'index'));
     })->name('expense-categories.show');
 
-    // EXPENSE CATEGORIES EDIT
     Route::get('/expense-categories/edit/{index}', function ($index) {
         $user = Auth::user();
         $company = $user->company;
@@ -506,7 +504,6 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return view('expense-categories.edit', compact('user', 'company', 'category', 'index'));
     })->name('expense-categories.edit');
 
-    // EXPENSE CATEGORIES UPDATE
     Route::put('/expense-categories/update/{index}', function ($index) {
         $categories = session('expense_categories', []);
 
@@ -522,7 +519,6 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil diupdate!');
     })->name('expense-categories.update');
 
-    // EXPENSE CATEGORIES DELETE
     Route::delete('/expense-categories/delete/{index}', function ($index) {
         $categories = session('expense_categories', []);
 
