@@ -15,7 +15,7 @@
 
   <style>
     /* ============================================
-       MUTASI REKENING - Premium Design
+       MUTASI REKENING - Premium Design - FULL WIDTH
        ============================================ */
     
     .bm-create-wrap {
@@ -49,6 +49,7 @@
       
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
+      padding: 0 24px;
     }
 
     .bm-create-wrap * { box-sizing: border-box; }
@@ -192,17 +193,16 @@
       to { transform: scale(4); opacity: 0; }
     }
 
-    /* FORM LAYOUT */
+    /* FORM LAYOUT - FULL WIDTH */
     .bm-form {
-      max-width: 900px;
-      margin: 0 auto;
+      max-width: 100%;
     }
 
     .bm-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 28px 32px;
+      padding: 32px 36px;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -213,18 +213,18 @@
     }
 
     .bm-card .title {
-      font-size: 15px;
+      font-size: 17px;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .bm-card .title .icon {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       color: var(--theme-primary);
     }
 
@@ -238,12 +238,12 @@
     .bm-type-selector {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 14px;
+      margin-bottom: 24px;
     }
 
     .bm-type-btn {
-      padding: 14px 20px;
+      padding: 16px 24px;
       border: 2px solid var(--border-color);
       border-radius: var(--radius-sm);
       background: var(--bg-card-active);
@@ -256,7 +256,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
       font-family: 'Inter', sans-serif;
     }
 
@@ -274,12 +274,12 @@
     }
 
     .bm-type-btn .icon {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
     }
 
     .bm-type-btn .type-label {
-      font-size: 13px;
+      font-size: 14px;
     }
 
     .bm-type-btn .type-desc {
@@ -295,18 +295,16 @@
 
     /* FORM GROUP */
     .bm-form-group {
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .bm-form-group:last-child { margin-bottom: 0; }
 
     .bm-form-group label {
       display: block;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      color: var(--text-secondary);
       margin-bottom: 6px;
     }
 
@@ -319,12 +317,12 @@
     .bm-form-group select,
     .bm-form-group textarea {
       width: 100%;
-      padding: 10px 14px;
+      padding: 12px 16px;
       background: var(--bg-card-active);
-      border: 1px solid var(--border-color);
+      border: 2px solid var(--border-color);
       border-radius: var(--radius-sm);
       color: var(--text-primary);
-      font-size: 13px;
+      font-size: 14px;
       font-family: 'Inter', sans-serif;
       transition: all 0.3s ease;
       outline: none;
@@ -334,7 +332,7 @@
     .bm-form-group select:focus,
     .bm-form-group textarea:focus {
       border-color: var(--theme-primary);
-      background: var(--bg-card-hover);
+      background: var(--bg-card);
       box-shadow: 0 0 0 4px var(--theme-glow);
     }
 
@@ -375,20 +373,27 @@
     .bm-form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 20px;
     }
 
     /* FORM ACTIONS */
     .bm-form-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 24px;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 2px solid var(--border-color);
     }
 
     .bm-form-actions .bm-btn {
       flex: 1;
       justify-content: center;
-      padding: 12px 20px;
+      padding: 12px 24px;
+      font-size: 14px;
+    }
+
+    .bm-form-actions .bm-btn-primary {
+      flex: 2;
     }
 
     /* INFO BOX */
@@ -396,11 +401,11 @@
       background: var(--theme-soft);
       border: 1px solid var(--theme-glow);
       border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      margin-bottom: 18px;
+      padding: 14px 18px;
+      margin-bottom: 22px;
       display: flex;
       align-items: flex-start;
-      gap: 10px;
+      gap: 12px;
     }
 
     .bm-info-box .icon {
@@ -425,9 +430,10 @@
     @media (max-width: 768px) {
       .bm-form-row { 
         grid-template-columns: 1fr; 
+        gap: 0;
       }
       .bm-card { 
-        padding: 20px; 
+        padding: 24px 20px; 
       }
       .bm-type-selector { 
         grid-template-columns: 1fr; 
@@ -435,6 +441,7 @@
     }
 
     @media (max-width: 640px) {
+      .bm-create-wrap { padding: 0 16px; }
       .bm-header { 
         flex-direction: column; 
       }
@@ -450,6 +457,9 @@
       }
       .bm-form-actions .bm-btn { 
         flex: none; 
+      }
+      .bm-form-actions .bm-btn-primary {
+        flex: none;
       }
     }
 
@@ -590,6 +600,10 @@
 
         <!-- Actions -->
         <div class="bm-form-actions">
+          <a href="{{ route('bank-mutations.index') }}" class="bm-btn bm-btn-ghost">
+            <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow-right"/></svg>
+            Batal
+          </a>
           <button type="submit" class="bm-btn bm-btn-primary">
             <svg class="icon"><use href="#ic-check"/></svg>
             Simpan Mutasi
@@ -609,7 +623,6 @@
     <symbol id="ic-bank" viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="12" rx="2"/><path d="M3 8L12 2l9 6"/><line x1="8" y1="14" x2="16" y2="14"/></symbol>
     <symbol id="ic-receive" viewBox="0 0 24 24"><polyline points="20 12 12 20 4 12"/><line x1="12" y1="4" x2="12" y2="20"/></symbol>
     <symbol id="ic-send" viewBox="0 0 24 24"><polyline points="20 12 12 4 4 12"/><line x1="12" y1="20" x2="12" y2="4"/></symbol>
-    <symbol id="ic-arrow-left" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
   </svg>
 
   <script>

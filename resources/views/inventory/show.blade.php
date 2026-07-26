@@ -10,9 +10,6 @@
             <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/>
             </symbol>
-            <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </symbol>
             <symbol id="ic-box" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
             </symbol>
@@ -122,12 +119,6 @@
         }
         .btn-outline:hover{
             background:var(--surface-strong); border-color:var(--border-hover); transform:translateY(-2px);
-        }
-        .btn-danger{
-            background:var(--danger); color:#fff; border:1px solid var(--danger);
-        }
-        .btn-danger:hover{
-            background:var(--danger-hover); transform:translateY(-2px); box-shadow:0 8px 22px rgba(var(--danger-rgb),0.35);
         }
         .btn-sm{ padding:8px 16px; font-size:12.5px; }
 
@@ -259,46 +250,6 @@
             font-size:14px; color:var(--text-secondary); line-height:1.7;
         }
 
-        /* ===== MODAL ===== */
-        .modal-overlay{
-            position:fixed; inset:0; background:rgba(3,6,12,0.6); backdrop-filter:blur(8px);
-            z-index:999; display:none; align-items:center; justify-content:center; padding:20px;
-        }
-        .modal-overlay.open{ display:flex; }
-        @keyframes modalSlideUp{
-            from{ opacity:0; transform:translateY(24px) scale(.96);}
-            to{ opacity:1; transform:translateY(0) scale(1);}
-        }
-        .modal-box{
-            background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
-            padding:32px 36px; max-width:420px; width:100%;
-            box-shadow:0 40px 90px rgba(0,0,0,0.5);
-            animation:modalSlideUp .3s cubic-bezier(.16,1,.3,1); text-align:center;
-        }
-        .modal-ic{
-            width:56px; height:56px; border-radius:50%;
-            background:rgba(var(--danger-rgb),0.12); color:var(--danger);
-            display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
-        }
-        .modal-ic .icon{ width:26px; height:26px; }
-        .modal-box h3{
-            font-size:18px; font-weight:700; margin-bottom:8px; color:var(--text);
-        }
-        .modal-box p{
-            font-size:13.5px; color:var(--text-muted); margin-bottom:6px; line-height:1.6;
-        }
-        .modal-box p b{
-            color:var(--text); font-family:'IBM Plex Mono', monospace;
-            background:var(--surface-hover); padding:2px 12px; border-radius:6px; display:inline-block; margin-top:4px;
-        }
-        .modal-warn{
-            font-size:12.5px; color:var(--danger); font-weight:600;
-            margin-top:14px; padding:10px 16px;
-            background:rgba(var(--danger-rgb),0.08); border-radius:10px; display:inline-block;
-        }
-        .modal-actions{ display:flex; gap:10px; justify-content:center; margin-top:22px; }
-        .modal-actions .btn{ flex:1; justify-content:center; }
-
         /* ===== RESPONSIVE ===== */
         @media (max-width: 900px){ 
             .detail-grid{ grid-template-columns:1fr 1fr; }
@@ -314,7 +265,6 @@
             .main-card-body{ padding:20px; }
             .detail-grid{ grid-template-columns:1fr; gap:12px; }
             .amount-hero{ font-size:24px; }
-            .modal-box{ padding:24px 20px; }
             .page-head h1{ font-size:22px; flex-direction:column; align-items:flex-start; }
             .page-head h1 .item-sku-badge{ font-size:14px; }
         }
@@ -345,7 +295,7 @@
                     {{ $item->category ?? 'Tanpa Kategori' }}
                     @if($item->category)
                         <span class="sep">·</span>
-                        @endif
+                    @endif
                     {{ $item->unit ?? 'pcs' }}
                 </p>
             </div>
@@ -358,10 +308,6 @@
                     <svg class="icon"><use href="#ic-edit"/></svg>
                     Edit
                 </a>
-                <button type="button" class="btn btn-danger btn-sm" onclick="document.getElementById('deleteModal').classList.add('open')">
-                    <svg class="icon"><use href="#ic-trash"/></svg>
-                    Hapus
-                </button>
             </div>
         </div>
 
@@ -472,40 +418,7 @@
         </div>
     </div>
 
-    {{-- ===== DELETE MODAL ===== --}}
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div class="modal-ic">
-                <svg class="icon"><use href="#ic-alert-triangle"/></svg>
-            </div>
-            <h3>Hapus Barang Ini?</h3>
-            <p>Barang <br><b>{{ $item->name }}</b></p>
-            <p style="margin-top:4px;">akan dihapus permanen dan tidak bisa dikembalikan.</p>
-            <div class="modal-warn">⚠️ Semua data stok yang terkait akan ikut terhapus.</div>
-            <form method="POST" action="{{ route('inventory.destroy', $item) }}">
-                @csrf
-                @method('DELETE')
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-outline" onclick="document.getElementById('deleteModal').classList.remove('open')">Batal</button>
-                    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
-        // ===== Modal =====
-        document.getElementById('deleteModal').addEventListener('click', function(e){
-            if(e.target === this) this.classList.remove('open');
-        });
-
-        // ===== ESC =====
-        document.addEventListener('keydown', function(e){
-            if(e.key === 'Escape'){
-                document.getElementById('deleteModal').classList.remove('open');
-            }
-        });
-
         // ===== Animate stock bar on load =====
         document.addEventListener('DOMContentLoaded', function() {
             var bars = document.querySelectorAll('.stock-bar-fill.animate');

@@ -65,12 +65,11 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         Route::post('/notifications/read-all', 'markAllAsRead')->name('notifications.readAll');
     });
 
-    // ===== INVOICES (PASTIKAN URUTAN BENAR) =====
+    // ===== INVOICES =====
     Route::controller(InvoiceController::class)->group(function () {
         Route::get('/invoices', 'index')->name('invoices.index');
         Route::get('/invoices/create', 'create')->name('invoices.create');
         Route::post('/invoices', 'store')->name('invoices.store');
-        // EXPORT HARUS DIATAS {invoice} BIAR GA KETABRAK
         Route::get('/invoices/export', 'export')->name('invoices.export');
         Route::get('/invoices/{invoice}', 'show')->name('invoices.show');
         Route::get('/invoices/{invoice}/edit', 'edit')->name('invoices.edit');
@@ -108,17 +107,28 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('payables')) {
-            session(['payables' => [
-                ['vendor' => 'Toko Bangunan Sentosa',  'bill' => '#B-0112', 'date' => '2026-06-05', 'due' => '2026-07-20', 'status' => 'lancar', 'amount' => 12500000],
-                ['vendor' => 'CV Kertas Nusantara',    'bill' => '#B-0119', 'date' => '2026-06-12', 'due' => '2026-07-12', 'status' => 'lancar', 'amount' => 3200000],
-                ['vendor' => 'PLN — Listrik Kantor',   'bill' => '#B-0125', 'date' => '2026-06-01', 'due' => '2026-06-15', 'status' => 'jatuh_tempo', 'amount' => 4100000],
-                ['vendor' => 'Distributor Kain Batik', 'bill' => '#B-0103', 'date' => '2026-05-20', 'due' => '2026-06-05', 'status' => 'jatuh_tempo', 'amount' => 21400000],
-                ['vendor' => 'Jasa Ekspedisi Cepat',   'bill' => '#B-0098', 'date' => '2026-05-10', 'due' => '2026-05-24', 'status' => 'lunas', 'amount' => 1850000],
-            ]]);
+        $defaultPayables = [
+            ['vendor' => 'Toko Bangunan Sentosa',  'bill' => '#B-0112', 'date' => '2026-06-05', 'due' => '2026-07-20', 'status' => 'lancar', 'amount' => 12500000],
+            ['vendor' => 'CV Kertas Nusantara',    'bill' => '#B-0119', 'date' => '2026-06-12', 'due' => '2026-07-12', 'status' => 'lancar', 'amount' => 3200000],
+            ['vendor' => 'PLN — Listrik Kantor',   'bill' => '#B-0125', 'date' => '2026-06-01', 'due' => '2026-06-15', 'status' => 'jatuh_tempo', 'amount' => 4100000],
+            ['vendor' => 'Distributor Kain Batik', 'bill' => '#B-0103', 'date' => '2026-05-20', 'due' => '2026-06-05', 'status' => 'jatuh_tempo', 'amount' => 21400000],
+            ['vendor' => 'Jasa Ekspedisi Cepat',   'bill' => '#B-0098', 'date' => '2026-05-10', 'due' => '2026-05-24', 'status' => 'lunas', 'amount' => 1850000],
+        ];
+
+        $payables = session()->has('payables') ? session('payables') : $defaultPayables;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $payables = array_filter($payables, function ($p) use ($q) {
+                return str_contains(strtolower($p['vendor']), $q)
+                    || str_contains(strtolower($p['bill']), $q);
+            });
+            $payables = array_values($payables);
         }
 
-        $payables = session('payables');
+        if (request()->ajax()) {
+            return view('payables.index', compact('user', 'company', 'payables'))->render();
+        }
 
         return view('payables.index', compact('user', 'company', 'payables'));
     })->name('payables.index');
@@ -238,7 +248,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $user = Auth::user();
         $company = $user->company;
 
-        $arRows = [
+        $defaultArRows = [
             ['name' => 'PT Andalas Maju Bersama', 'invoice' => '#0568', 'current' => 5750000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
             ['name' => 'Nusantara Logistik',      'invoice' => '#0571', 'current' => 18400000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
             ['name' => 'Bumi Retail Group',       'invoice' => '#0552', 'current' => 0, 'd30' => 9200000, 'd60' => 0, 'd90' => 0],
@@ -247,12 +257,35 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
             ['name' => 'CV Bangun Perkasa',       'invoice' => '#0421', 'current' => 0, 'd30' => 0, 'd60' => 0, 'd90' => 3400000],
         ];
 
-        $apRows = [
+        $defaultApRows = [
             ['name' => 'Toko Bangunan Sentosa',   'invoice' => '#B-0112', 'current' => 12500000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
             ['name' => 'CV Kertas Nusantara',     'invoice' => '#B-0119', 'current' => 3200000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
             ['name' => 'PLN — Listrik Kantor',    'invoice' => '#B-0125', 'current' => 0, 'd30' => 4100000, 'd60' => 0, 'd90' => 0],
             ['name' => 'Distributor Kain Batik',  'invoice' => '#B-0103', 'current' => 0, 'd30' => 21400000, 'd60' => 0, 'd90' => 0],
         ];
+
+        $arRows = session()->has('aging_ar') ? session('aging_ar') : $defaultArRows;
+        $apRows = session()->has('aging_ap') ? session('aging_ap') : $defaultApRows;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            
+            $arRows = array_filter($arRows, function ($row) use ($q) {
+                return str_contains(strtolower($row['name']), $q)
+                    || str_contains(strtolower($row['invoice']), $q);
+            });
+            $arRows = array_values($arRows);
+            
+            $apRows = array_filter($apRows, function ($row) use ($q) {
+                return str_contains(strtolower($row['name']), $q)
+                    || str_contains(strtolower($row['invoice']), $q);
+            });
+            $apRows = array_values($apRows);
+        }
+
+        if (request()->ajax()) {
+            return view('aging.index', compact('user', 'company', 'arRows', 'apRows'))->render();
+        }
 
         return view('aging.index', compact('user', 'company', 'arRows', 'apRows'));
     })->name('aging.index');
@@ -326,15 +359,26 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('expenses')) {
-            session(['expenses' => [
-                ['desc' => 'Beli kain mori 50 meter', 'kategori' => 'Bahan Baku', 'date' => '2026-07-01', 'status' => 'lunas', 'amount' => 2500000],
-                ['desc' => 'Ongkir bahan dari Solo',   'kategori' => 'Transportasi', 'date' => '2026-07-03', 'status' => 'lunas', 'amount' => 350000],
-                ['desc' => 'Tagihan listrik workshop', 'kategori' => 'Utilitas', 'date' => '2026-07-06', 'status' => 'pending', 'amount' => 820000],
-            ]]);
+        $defaultExpenses = [
+            ['desc' => 'Beli kain mori 50 meter', 'kategori' => 'Bahan Baku', 'date' => '2026-07-01', 'status' => 'lunas', 'amount' => 2500000],
+            ['desc' => 'Ongkir bahan dari Solo',   'kategori' => 'Transportasi', 'date' => '2026-07-03', 'status' => 'lunas', 'amount' => 350000],
+            ['desc' => 'Tagihan listrik workshop', 'kategori' => 'Utilitas', 'date' => '2026-07-06', 'status' => 'pending', 'amount' => 820000],
+        ];
+
+        $expenses = session()->has('expenses') ? session('expenses') : $defaultExpenses;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $expenses = array_filter($expenses, function ($e) use ($q) {
+                return str_contains(strtolower($e['desc']), $q)
+                    || str_contains(strtolower($e['kategori']), $q);
+            });
+            $expenses = array_values($expenses);
         }
 
-        $expenses = session('expenses');
+        if (request()->ajax()) {
+            return view('expenses.index', compact('user', 'company', 'expenses'))->render();
+        }
 
         return view('expenses.index', compact('user', 'company', 'expenses'));
     })->name('expenses.index');
@@ -439,17 +483,28 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('expense_categories')) {
-            session(['expense_categories' => [
-                ['name' => 'Bahan Baku', 'desc' => 'Kain, pewarna, malam, dan perlengkapan batik', 'count' => 2, 'total' => 3475000],
-                ['name' => 'Transportasi', 'desc' => 'Pengiriman bahan & produk jadi', 'count' => 1, 'total' => 350000],
-                ['name' => 'Utilitas', 'desc' => 'Listrik, air, dan internet workshop', 'count' => 1, 'total' => 820000],
-                ['name' => 'Produksi', 'desc' => 'Upah pengrajin & biaya proses produksi', 'count' => 1, 'total' => 4200000],
-                ['name' => 'Marketing', 'desc' => 'Promosi, konten, dan iklan online', 'count' => 1, 'total' => 600000],
-            ]]);
+        $defaultCategories = [
+            ['name' => 'Bahan Baku', 'desc' => 'Kain, pewarna, malam, dan perlengkapan batik', 'count' => 2, 'total' => 3475000],
+            ['name' => 'Transportasi', 'desc' => 'Pengiriman bahan & produk jadi', 'count' => 1, 'total' => 350000],
+            ['name' => 'Utilitas', 'desc' => 'Listrik, air, dan internet workshop', 'count' => 1, 'total' => 820000],
+            ['name' => 'Produksi', 'desc' => 'Upah pengrajin & biaya proses produksi', 'count' => 1, 'total' => 4200000],
+            ['name' => 'Marketing', 'desc' => 'Promosi, konten, dan iklan online', 'count' => 1, 'total' => 600000],
+        ];
+
+        $categories = session()->has('expense_categories') ? session('expense_categories') : $defaultCategories;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $categories = array_filter($categories, function ($c) use ($q) {
+                return str_contains(strtolower($c['name']), $q)
+                    || str_contains(strtolower($c['desc']), $q);
+            });
+            $categories = array_values($categories);
         }
 
-        $categories = session('expense_categories');
+        if (request()->ajax()) {
+            return view('expense-categories.index', compact('user', 'company', 'categories'))->render();
+        }
 
         return view('expense-categories.index', compact('user', 'company', 'categories'));
     })->name('expense-categories.index');
@@ -536,16 +591,26 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('reconciliations')) {
-            session(['reconciliations' => [
-                ['desc' => 'Transfer masuk dari Nusantara Logistik', 'date' => '2026-07-02', 'bank' => 18400000, 'buku' => 18400000, 'status' => 'cocok'],
-                ['desc' => 'Pembayaran listrik workshop',            'date' => '2026-07-06', 'bank' => 820000,    'buku' => 820000,    'status' => 'cocok'],
-                ['desc' => 'Setoran tunai penjualan',                'date' => '2026-07-09', 'bank' => 1500000,   'buku' => 0,          'status' => 'belum'],
-                ['desc' => 'Biaya admin bank',                       'date' => '2026-07-10', 'bank' => 25000,     'buku' => 0,          'status' => 'belum'],
-            ]]);
+        $defaultReconciliations = [
+            ['desc' => 'Transfer masuk dari Nusantara Logistik', 'date' => '2026-07-02', 'bank' => 18400000, 'buku' => 18400000, 'status' => 'cocok'],
+            ['desc' => 'Pembayaran listrik workshop',            'date' => '2026-07-06', 'bank' => 820000,    'buku' => 820000,    'status' => 'cocok'],
+            ['desc' => 'Setoran tunai penjualan',                'date' => '2026-07-09', 'bank' => 1500000,   'buku' => 0,          'status' => 'belum'],
+            ['desc' => 'Biaya admin bank',                       'date' => '2026-07-10', 'bank' => 25000,     'buku' => 0,          'status' => 'belum'],
+        ];
+
+        $reconciliations = session()->has('reconciliations') ? session('reconciliations') : $defaultReconciliations;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $reconciliations = array_filter($reconciliations, function ($r) use ($q) {
+                return str_contains(strtolower($r['desc']), $q);
+            });
+            $reconciliations = array_values($reconciliations);
         }
 
-        $reconciliations = session('reconciliations');
+        if (request()->ajax()) {
+            return view('reconciliation.index', compact('user', 'company', 'reconciliations'))->render();
+        }
 
         return view('reconciliation.index', compact('user', 'company', 'reconciliations'));
     })->name('reconciliation.index');
@@ -642,16 +707,26 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('bank_mutations')) {
-            session(['bank_mutations' => [
-                ['desc' => 'Transfer masuk - Nusantara Logistik',   'date' => '2026-07-02', 'type' => 'masuk',  'amount' => 18400000, 'saldo' => 24650000],
-                ['desc' => 'Pembayaran listrik workshop',            'date' => '2026-07-06', 'type' => 'keluar', 'amount' => 820000,   'saldo' => 23830000],
-                ['desc' => 'Setoran tunai penjualan',                'date' => '2026-07-09', 'type' => 'masuk',  'amount' => 1500000,  'saldo' => 25330000],
-                ['desc' => 'Biaya admin bank',                       'date' => '2026-07-10', 'type' => 'keluar', 'amount' => 25000,    'saldo' => 25305000],
-            ]]);
+        $defaultMutations = [
+            ['desc' => 'Transfer masuk - Nusantara Logistik',   'date' => '2026-07-02', 'type' => 'masuk',  'amount' => 18400000, 'saldo' => 24650000],
+            ['desc' => 'Pembayaran listrik workshop',            'date' => '2026-07-06', 'type' => 'keluar', 'amount' => 820000,   'saldo' => 23830000],
+            ['desc' => 'Setoran tunai penjualan',                'date' => '2026-07-09', 'type' => 'masuk',  'amount' => 1500000,  'saldo' => 25330000],
+            ['desc' => 'Biaya admin bank',                       'date' => '2026-07-10', 'type' => 'keluar', 'amount' => 25000,    'saldo' => 25305000],
+        ];
+
+        $mutations = session()->has('bank_mutations') ? session('bank_mutations') : $defaultMutations;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $mutations = array_filter($mutations, function ($m) use ($q) {
+                return str_contains(strtolower($m['desc']), $q);
+            });
+            $mutations = array_values($mutations);
         }
 
-        $mutations = session('bank_mutations');
+        if (request()->ajax()) {
+            return view('bank-mutations.index', compact('user', 'company', 'mutations'))->render();
+        }
 
         return view('bank-mutations.index', compact('user', 'company', 'mutations'));
     })->name('bank-mutations.index');
@@ -758,12 +833,14 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::get('/inventory/create', [InventoryController::class, 'create'])->name('inventory.create');
     Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
     Route::get('/inventory/{item}/edit', [InventoryController::class, 'edit'])->name('inventory.edit');
+    Route::get('/inventory/{item}', [InventoryController::class, 'show'])->name('inventory.show');
     Route::put('/inventory/{item}', [InventoryController::class, 'update'])->name('inventory.update');
     Route::delete('/inventory/{item}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
 
     Route::get('/cogs', [CogsController::class, 'index'])->name('cogs.index');
     Route::get('/cogs/create', [CogsController::class, 'create'])->name('cogs.create');
     Route::post('/cogs', [CogsController::class, 'store'])->name('cogs.store');
+    Route::get('/cogs/{entry}', [CogsController::class, 'show'])->name('cogs.show');
     Route::get('/cogs/{entry}/edit', [CogsController::class, 'edit'])->name('cogs.edit');
     Route::put('/cogs/{entry}', [CogsController::class, 'update'])->name('cogs.update');
     Route::delete('/cogs/{entry}', [CogsController::class, 'destroy'])->name('cogs.destroy');
@@ -773,16 +850,28 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('payrolls')) {
-            session(['payrolls' => [
-                ['employee' => 'Budi Santoso',      'position' => 'Pengrajin Batik', 'period' => 'Juli 2026', 'basic_salary' => 4500000, 'allowance' => 500000, 'deduction' => 150000, 'total' => 4850000, 'status' => 'paid'],
-                ['employee' => 'Siti Rahayu',        'position' => 'Desainer',        'period' => 'Juli 2026', 'basic_salary' => 5200000, 'allowance' => 750000, 'deduction' => 200000, 'total' => 5750000, 'status' => 'paid'],
-                ['employee' => 'Agus Wijaya',        'position' => 'Marketing',       'period' => 'Juli 2026', 'basic_salary' => 4800000, 'allowance' => 600000, 'deduction' => 180000, 'total' => 5220000, 'status' => 'pending'],
-                ['employee' => 'Dewi Lestari',       'position' => 'Admin',           'period' => 'Juli 2026', 'basic_salary' => 4000000, 'allowance' => 400000, 'deduction' => 120000, 'total' => 4280000, 'status' => 'pending'],
-            ]]);
+        $defaultPayrolls = [
+            ['employee' => 'Budi Santoso',      'position' => 'Pengrajin Batik', 'period' => 'Juli 2026', 'basic_salary' => 4500000, 'allowance' => 500000, 'deduction' => 150000, 'total' => 4850000, 'status' => 'paid'],
+            ['employee' => 'Siti Rahayu',        'position' => 'Desainer',        'period' => 'Juli 2026', 'basic_salary' => 5200000, 'allowance' => 750000, 'deduction' => 200000, 'total' => 5750000, 'status' => 'paid'],
+            ['employee' => 'Agus Wijaya',        'position' => 'Marketing',       'period' => 'Juli 2026', 'basic_salary' => 4800000, 'allowance' => 600000, 'deduction' => 180000, 'total' => 5220000, 'status' => 'pending'],
+            ['employee' => 'Dewi Lestari',       'position' => 'Admin',           'period' => 'Juli 2026', 'basic_salary' => 4000000, 'allowance' => 400000, 'deduction' => 120000, 'total' => 4280000, 'status' => 'pending'],
+        ];
+
+        $payrolls = session()->has('payrolls') ? session('payrolls') : $defaultPayrolls;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $payrolls = array_filter($payrolls, function ($p) use ($q) {
+                return str_contains(strtolower($p['employee']), $q)
+                    || str_contains(strtolower($p['position']), $q)
+                    || str_contains(strtolower($p['period']), $q);
+            });
+            $payrolls = array_values($payrolls);
         }
 
-        $payrolls = session('payrolls');
+        if (request()->ajax()) {
+            return view('payroll.index', compact('user', 'company', 'payrolls'))->render();
+        }
 
         return view('payroll.index', compact('user', 'company', 'payrolls'));
     })->name('payroll.index');
@@ -899,16 +988,29 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('employees')) {
-            session(['employees' => [
-                ['name' => 'Budi Santoso', 'position' => 'Pengrajin Batik', 'department' => 'Produksi', 'email' => 'budi@arvessa.com', 'phone' => '0812-3456-7890', 'salary' => 4500000, 'status' => 'active', 'joined' => '2023-01-15'],
-                ['name' => 'Siti Rahayu', 'position' => 'Desainer', 'department' => 'Kreatif', 'email' => 'siti@arvessa.com', 'phone' => '0813-4567-8901', 'salary' => 5200000, 'status' => 'active', 'joined' => '2023-03-01'],
-                ['name' => 'Agus Wijaya', 'position' => 'Marketing', 'department' => 'Marketing', 'email' => 'agus@arvessa.com', 'phone' => '0814-5678-9012', 'salary' => 4800000, 'status' => 'active', 'joined' => '2023-06-10'],
-                ['name' => 'Dewi Lestari', 'position' => 'Admin', 'department' => 'Operasional', 'email' => 'dewi@arvessa.com', 'phone' => '0815-6789-0123', 'salary' => 4000000, 'status' => 'active', 'joined' => '2023-08-20'],
-            ]]);
+        $defaultEmployees = [
+            ['name' => 'Budi Santoso', 'position' => 'Pengrajin Batik', 'department' => 'Produksi', 'email' => 'budi@arvessa.com', 'phone' => '0812-3456-7890', 'salary' => 4500000, 'status' => 'active', 'joined' => '2023-01-15'],
+            ['name' => 'Siti Rahayu', 'position' => 'Desainer', 'department' => 'Kreatif', 'email' => 'siti@arvessa.com', 'phone' => '0813-4567-8901', 'salary' => 5200000, 'status' => 'active', 'joined' => '2023-03-01'],
+            ['name' => 'Agus Wijaya', 'position' => 'Marketing', 'department' => 'Marketing', 'email' => 'agus@arvessa.com', 'phone' => '0814-5678-9012', 'salary' => 4800000, 'status' => 'active', 'joined' => '2023-06-10'],
+            ['name' => 'Dewi Lestari', 'position' => 'Admin', 'department' => 'Operasional', 'email' => 'dewi@arvessa.com', 'phone' => '0815-6789-0123', 'salary' => 4000000, 'status' => 'active', 'joined' => '2023-08-20'],
+        ];
+
+        $employees = session()->has('employees') ? session('employees') : $defaultEmployees;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $employees = array_filter($employees, function ($e) use ($q) {
+                return str_contains(strtolower($e['name']), $q)
+                    || str_contains(strtolower($e['position']), $q)
+                    || str_contains(strtolower($e['department']), $q)
+                    || str_contains(strtolower($e['email']), $q);
+            });
+            $employees = array_values($employees);
         }
 
-        $employees = session('employees');
+        if (request()->ajax()) {
+            return view('employees.index', compact('user', 'company', 'employees'))->render();
+        }
 
         return view('employees.index', compact('user', 'company', 'employees'));
     })->name('employees.index');
@@ -1009,20 +1111,34 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('employees.index')->with('success', 'Karyawan berhasil dihapus!');
     })->name('employees.destroy');
 
-    // ===== PAJAK =====
+    // ===== PAJAK - PPH =====
     Route::get('/taxes/pph', function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('pph_data')) {
-            session(['pph_data' => [
-                ['period' => 'Januari 2026', 'gross' => 45000000, 'deduction' => 5000000, 'taxable' => 40000000, 'tax' => 1250000, 'status' => 'paid', 'due' => '2026-02-15'],
-                ['period' => 'Februari 2026', 'gross' => 48000000, 'deduction' => 5200000, 'taxable' => 42800000, 'tax' => 1350000, 'status' => 'paid', 'due' => '2026-03-15'],
-                ['period' => 'Maret 2026', 'gross' => 52000000, 'deduction' => 5500000, 'taxable' => 46500000, 'tax' => 1500000, 'status' => 'pending', 'due' => '2026-04-15'],
-            ]]);
+        $defaultPphData = [
+            ['id' => 1, 'period' => 'Januari 2026', 'gross' => 45000000, 'deduction' => 5000000, 'taxable' => 40000000, 'tax' => 1250000, 'status' => 'paid', 'due' => '2026-02-15'],
+            ['id' => 2, 'period' => 'Februari 2026', 'gross' => 48000000, 'deduction' => 5200000, 'taxable' => 42800000, 'tax' => 1350000, 'status' => 'paid', 'due' => '2026-03-15'],
+            ['id' => 3, 'period' => 'Maret 2026', 'gross' => 52000000, 'deduction' => 5500000, 'taxable' => 46500000, 'tax' => 1500000, 'status' => 'pending', 'due' => '2026-04-15'],
+            ['id' => 4, 'period' => 'April 2026', 'gross' => 49000000, 'deduction' => 5300000, 'taxable' => 43700000, 'tax' => 1400000, 'status' => 'pending', 'due' => '2026-05-15'],
+            ['id' => 5, 'period' => 'Mei 2026', 'gross' => 51000000, 'deduction' => 5400000, 'taxable' => 45600000, 'tax' => 1450000, 'status' => 'pending', 'due' => '2026-06-15'],
+        ];
+
+        $pphData = session()->has('pph_data') ? session('pph_data') : $defaultPphData;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $pphData = array_filter($pphData, function ($p) use ($q) {
+                return str_contains(strtolower($p['period']), $q)
+                    || str_contains(strtolower($p['status']), $q)
+                    || str_contains(strtolower((string)$p['tax']), $q);
+            });
+            $pphData = array_values($pphData);
         }
 
-        $pphData = session('pph_data');
+        if (request()->ajax()) {
+            return view('taxes.pph', compact('user', 'company', 'pphData'))->render();
+        }
 
         return view('taxes.pph', compact('user', 'company', 'pphData'));
     })->name('taxes.pph');
@@ -1044,6 +1160,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         $pphData = session('pph_data', []);
         $newPph = [
+            'id' => count($pphData) + 1,
             'period' => $period,
             'gross' => (int) $gross,
             'deduction' => (int) $deduction,
@@ -1122,19 +1239,46 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('taxes.pph')->with('success', 'Data PPh berhasil dihapus!');
     })->name('taxes.pph.destroy');
 
+    Route::get('/taxes/pph/pay/{index}', function ($index) {
+        $pphData = session('pph_data', []);
+
+        if (isset($pphData[$index])) {
+            $pphData[$index]['status'] = 'paid';
+            session(['pph_data' => $pphData]);
+            return redirect()->route('taxes.pph')->with('success', 'PPh berhasil dibayar!');
+        }
+
+        return redirect()->route('taxes.pph')->with('error', 'Data PPh tidak ditemukan!');
+    })->name('taxes.pph.pay');
+
+    // ===== PAJAK - PPN =====
     Route::get('/taxes/ppn', function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('ppn_data')) {
-            session(['ppn_data' => [
-                ['period' => 'Januari 2026', 'output' => 4500000, 'input' => 1200000, 'ppn' => 3300000, 'status' => 'paid', 'due' => '2026-02-28'],
-                ['period' => 'Februari 2026', 'output' => 4800000, 'input' => 1500000, 'ppn' => 3300000, 'status' => 'paid', 'due' => '2026-03-31'],
-                ['period' => 'Maret 2026', 'output' => 5200000, 'input' => 1800000, 'ppn' => 3400000, 'status' => 'pending', 'due' => '2026-04-30'],
-            ]]);
+        $defaultPpnData = [
+            ['id' => 1, 'period' => 'Januari 2026', 'output' => 4500000, 'input' => 1200000, 'ppn' => 3300000, 'status' => 'paid', 'due' => '2026-02-28'],
+            ['id' => 2, 'period' => 'Februari 2026', 'output' => 4800000, 'input' => 1500000, 'ppn' => 3300000, 'status' => 'paid', 'due' => '2026-03-31'],
+            ['id' => 3, 'period' => 'Maret 2026', 'output' => 5200000, 'input' => 1800000, 'ppn' => 3400000, 'status' => 'paid', 'due' => '2026-04-30'],
+            ['id' => 4, 'period' => 'April 2026', 'output' => 4900000, 'input' => 1400000, 'ppn' => 3500000, 'status' => 'pending', 'due' => '2026-05-31'],
+            ['id' => 5, 'period' => 'Mei 2026', 'output' => 5100000, 'input' => 1600000, 'ppn' => 3500000, 'status' => 'pending', 'due' => '2026-06-30'],
+        ];
+
+        $ppnData = session()->has('ppn_data') ? session('ppn_data') : $defaultPpnData;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $ppnData = array_filter($ppnData, function ($p) use ($q) {
+                return str_contains(strtolower($p['period']), $q)
+                    || str_contains(strtolower($p['status']), $q)
+                    || str_contains(strtolower((string)$p['ppn']), $q);
+            });
+            $ppnData = array_values($ppnData);
         }
 
-        $ppnData = session('ppn_data');
+        if (request()->ajax()) {
+            return view('taxes.ppn', compact('user', 'company', 'ppnData'))->render();
+        }
 
         return view('taxes.ppn', compact('user', 'company', 'ppnData'));
     })->name('taxes.ppn');
@@ -1155,6 +1299,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
         $ppnData = session('ppn_data', []);
         $newPpn = [
+            'id' => count($ppnData) + 1,
             'period' => $period,
             'output' => (int) $output,
             'input' => (int) $input,
@@ -1231,19 +1376,43 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('taxes.ppn')->with('success', 'Data PPN berhasil dihapus!');
     })->name('taxes.ppn.destroy');
 
+    Route::get('/taxes/ppn/pay/{index}', function ($index) {
+        $ppnData = session('ppn_data', []);
+
+        if (isset($ppnData[$index])) {
+            $ppnData[$index]['status'] = 'paid';
+            session(['ppn_data' => $ppnData]);
+            return redirect()->route('taxes.ppn')->with('success', 'PPN berhasil dibayar!');
+        }
+
+        return redirect()->route('taxes.ppn')->with('error', 'Data PPN tidak ditemukan!');
+    })->name('taxes.ppn.pay');
+
+    // ===== TAX CALENDAR =====
     Route::get('/tax-calendar', function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('calendar_events')) {
-            session(['calendar_events' => [
-                ['date' => '2026-07-15', 'title' => 'PPh Pasal 21', 'type' => 'pph', 'status' => 'upcoming', 'desc' => 'Laporan PPh 21 masa Juni 2026'],
-                ['date' => '2026-07-20', 'title' => 'PPN Masa', 'type' => 'ppn', 'status' => 'upcoming', 'desc' => 'Laporan PPN masa Juni 2026'],
-                ['date' => '2026-07-25', 'title' => 'PPh Pasal 23', 'type' => 'pph', 'status' => 'upcoming', 'desc' => 'Laporan PPh 23 masa Juni 2026'],
-            ]]);
+        $defaultEvents = [
+            ['date' => '2026-07-15', 'title' => 'PPh Pasal 21', 'type' => 'pph', 'status' => 'upcoming', 'desc' => 'Laporan PPh 21 masa Juni 2026'],
+            ['date' => '2026-07-20', 'title' => 'PPN Masa', 'type' => 'ppn', 'status' => 'upcoming', 'desc' => 'Laporan PPN masa Juni 2026'],
+            ['date' => '2026-07-25', 'title' => 'PPh Pasal 23', 'type' => 'pph', 'status' => 'upcoming', 'desc' => 'Laporan PPh 23 masa Juni 2026'],
+        ];
+
+        $calendarEvents = session()->has('calendar_events') ? session('calendar_events') : $defaultEvents;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $calendarEvents = array_filter($calendarEvents, function ($e) use ($q) {
+                return str_contains(strtolower($e['title']), $q)
+                    || str_contains(strtolower($e['type']), $q);
+            });
+            $calendarEvents = array_values($calendarEvents);
         }
 
-        $calendarEvents = session('calendar_events');
+        if (request()->ajax()) {
+            return view('tax-calendar.index', compact('user', 'company', 'calendarEvents'))->render();
+        }
 
         return view('tax-calendar.index', compact('user', 'company', 'calendarEvents'));
     })->name('tax-calendar.index');
@@ -1337,19 +1506,30 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $user = Auth::user();
         $company = $user->company;
 
-        if (!session()->has('budgets')) {
-            session(['budgets' => [
-                ['category' => 'Pendapatan', 'period' => '2026', 'target' => 850000000, 'actual' => 785000000, 'progress' => 92, 'status' => 'on_track'],
-                ['category' => 'Bahan Baku', 'period' => '2026', 'target' => 120000000, 'actual' => 98000000, 'progress' => 82, 'status' => 'on_track'],
-                ['category' => 'Biaya Produksi', 'period' => '2026', 'target' => 95000000, 'actual' => 102000000, 'progress' => 107, 'status' => 'over_budget'],
-                ['category' => 'Marketing', 'period' => '2026', 'target' => 45000000, 'actual' => 38500000, 'progress' => 86, 'status' => 'on_track'],
-                ['category' => 'Operasional', 'period' => '2026', 'target' => 65000000, 'actual' => 72000000, 'progress' => 111, 'status' => 'over_budget'],
-                ['category' => 'Utilitas', 'period' => '2026', 'target' => 28000000, 'actual' => 26500000, 'progress' => 95, 'status' => 'on_track'],
-                ['category' => 'Pengembangan', 'period' => '2026', 'target' => 35000000, 'actual' => 21000000, 'progress' => 60, 'status' => 'under_budget'],
-            ]]);
+        $defaultBudgets = [
+            ['category' => 'Pendapatan', 'period' => '2026', 'target' => 850000000, 'actual' => 785000000, 'progress' => 92, 'status' => 'on_track'],
+            ['category' => 'Bahan Baku', 'period' => '2026', 'target' => 120000000, 'actual' => 98000000, 'progress' => 82, 'status' => 'on_track'],
+            ['category' => 'Biaya Produksi', 'period' => '2026', 'target' => 95000000, 'actual' => 102000000, 'progress' => 107, 'status' => 'over_budget'],
+            ['category' => 'Marketing', 'period' => '2026', 'target' => 45000000, 'actual' => 38500000, 'progress' => 86, 'status' => 'on_track'],
+            ['category' => 'Operasional', 'period' => '2026', 'target' => 65000000, 'actual' => 72000000, 'progress' => 111, 'status' => 'over_budget'],
+            ['category' => 'Utilitas', 'period' => '2026', 'target' => 28000000, 'actual' => 26500000, 'progress' => 95, 'status' => 'on_track'],
+            ['category' => 'Pengembangan', 'period' => '2026', 'target' => 35000000, 'actual' => 21000000, 'progress' => 60, 'status' => 'under_budget'],
+        ];
+
+        $budgets = session()->has('budgets') ? session('budgets') : $defaultBudgets;
+
+        if (request()->filled('q')) {
+            $q = strtolower(request('q'));
+            $budgets = array_filter($budgets, function ($b) use ($q) {
+                return str_contains(strtolower($b['category']), $q)
+                    || str_contains(strtolower($b['period']), $q);
+            });
+            $budgets = array_values($budgets);
         }
 
-        $budgets = session('budgets');
+        if (request()->ajax()) {
+            return view('budgets.index', compact('user', 'company', 'budgets'))->render();
+        }
 
         return view('budgets.index', compact('user', 'company', 'budgets'));
     })->name('budgets.index');
@@ -1626,14 +1806,14 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     // Integrasi (pakai IntegrationController)
     Route::resource('integrations', IntegrationController::class);
 
-    // Keamanan (pakai SecurityController — lengkap dengan password, 2FA, session)
+    // Keamanan (pakai SecurityController)
     Route::get('/security', [SecurityController::class, 'index'])->name('security.index');
     Route::put('/security/password', [SecurityController::class, 'updatePassword'])->name('security.password.update');
     Route::post('/security/two-factor/toggle', [SecurityController::class, 'toggleTwoFactor'])->name('security.two-factor.toggle');
     Route::delete('/security/sessions/{sessionId}', [SecurityController::class, 'revokeSession'])->name('security.sessions.revoke');
     Route::post('/security/sessions/revoke-others', [SecurityController::class, 'revokeOtherSessions'])->name('security.sessions.revoke-others');
 
-    // Profile (pakai ProfileController — butuh route update & destroy)
+    // Profile (pakai ProfileController)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

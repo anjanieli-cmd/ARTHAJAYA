@@ -5,19 +5,37 @@
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-    // DUMMY data - nanti diganti dengan data dari database
-    $tax = [
-        'id' => 1,
-        'period' => 'Juli 2026',
-        'output' => 5500000,
-        'input' => 3300000,
-        'due' => '2026-08-20',
+    // 🔧 Pakai data ASLI dari controller, bukan dummy
+    $tax = $ppn ?? [];
+    $tax['id'] = $index ?? 0;
+
+    // Default values jika ada yang kosong
+    $tax = array_merge([
+        'id' => 0,
+        'period' => 'Tidak Diketahui',
+        'output' => 0,
+        'input' => 0,
+        'due' => date('Y-m-d'),
         'status' => 'pending',
-        'notes' => 'PPN Masa Juli 2026',
-        'created_by' => 'Anjani',
-        'created_at' => '2026-07-20 14:30:00',
-        'updated_at' => '2026-07-20 14:30:00',
-    ];
+        'notes' => '-',
+        'created_by' => '-',
+        'created_at' => date('Y-m-d H:i:s'),
+        'updated_at' => date('Y-m-d H:i:s'),
+    ], $tax);
+
+    // Fungsi format angka ke jutaan (M)
+    function formatCompact($number) {
+        if ($number >= 1000000000) {
+            return round($number / 1000000000, 1) . 'B';
+        } elseif ($number >= 1000000) {
+            $result = $number / 1000000;
+            return ($result == floor($result)) ? number_format($result, 0) . 'M' : number_format($result, 1) . 'M';
+        } elseif ($number >= 1000) {
+            $result = $number / 1000;
+            return ($result == floor($result)) ? number_format($result, 0) . 'K' : number_format($result, 1) . 'K';
+        }
+        return number_format($number, 0);
+    }
 
     $statusLabel = [
         'pending' => 'Pending',
@@ -27,6 +45,8 @@
         'pending' => 'pending',
         'paid' => 'paid'
     ];
+
+    $ppnNet = $tax['output'] - $tax['input'];
   @endphp
 
   <style>
@@ -80,6 +100,10 @@
     @keyframes pulseGlow {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.6; }
+    }
+
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
     }
 
     .pn-detail-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
@@ -197,18 +221,6 @@
       color: var(--text-primary);
     }
 
-    .pnd-btn-danger {
-      background: var(--danger);
-      color: #fff;
-      border: none;
-    }
-
-    .pnd-btn-danger:hover {
-      background: #DC2626;
-      color: #fff;
-      transform: translateY(-2px);
-    }
-
     .pnd-btn .ripple {
       position: absolute;
       border-radius: 50%;
@@ -216,10 +228,6 @@
       transform: scale(0);
       animation: rippleAnim 0.6s ease-out forwards;
       pointer-events: none;
-    }
-
-    @keyframes rippleAnim {
-      to { transform: scale(4); opacity: 0; }
     }
 
     /* CONTENT LAYOUT */
@@ -439,10 +447,6 @@
           <svg class="icon"><use href="#ic-edit"/></svg>
           Edit
         </a>
-        <button class="pnd-btn pnd-btn-danger" onclick="confirmDelete({{ $tax['id'] }})">
-          <svg class="icon"><use href="#ic-trash"/></svg>
-          Hapus
-        </button>
       </div>
     </div>
 
@@ -465,34 +469,31 @@
         <div class="pnd-info-row">
           <div class="pnd-info-group">
             <span class="label">PPN Keluaran</span>
-            <div class="value mono">{{ $currencySymbol }}{{ number_format($tax['output'], 0, ',', '.') }}</div>
+            <div class="value mono">{{ $currencySymbol }}{{ formatCompact($tax['output']) }}</div>
           </div>
           <div class="pnd-info-group">
             <span class="label">PPN Masukan</span>
-            <div class="value mono">{{ $currencySymbol }}{{ number_format($tax['input'], 0, ',', '.') }}</div>
+            <div class="value mono">{{ $currencySymbol }}{{ formatCompact($tax['input']) }}</div>
           </div>
         </div>
 
-        @php
-          $ppnNet = $tax['output'] - $tax['input'];
-        @endphp
         <div class="pnd-info-group">
           <span class="label">PPN Net / PPN Dibayar</span>
           <div class="value mono" style="font-size:20px;font-weight:700;color:var(--theme-primary);">
-            {{ $currencySymbol }}{{ number_format($ppnNet, 0, ',', '.') }}
+            {{ $currencySymbol }}{{ formatCompact($ppnNet) }}
           </div>
         </div>
 
         <div class="pnd-info-row">
           <div class="pnd-info-group">
             <span class="label">Jatuh Tempo</span>
-            <div class="value">{{ date('d/m/Y', strtotime($tax['due'])) }}</div>
+            <div class="value">{{ isset($tax['due']) ? date('d/m/Y', strtotime($tax['due'])) : '-' }}</div>
           </div>
           <div class="pnd-info-group">
             <span class="label">Status</span>
             <div class="value">
-              <span class="badge {{ $statusBadge[$tax['status']] }}">
-                {{ $statusLabel[$tax['status']] }}
+              <span class="badge {{ $statusBadge[$tax['status']] ?? 'pending' }}">
+                {{ $statusLabel[$tax['status']] ?? 'Pending' }}
               </span>
             </div>
           </div>
@@ -519,39 +520,39 @@
           </div>
           <div class="pnd-summary-item">
             <span class="label">PPN Keluaran</span>
-            <span class="value mono">{{ $currencySymbol }}{{ number_format($tax['output'], 0, ',', '.') }}</span>
+            <span class="value mono">{{ $currencySymbol }}{{ formatCompact($tax['output']) }}</span>
           </div>
           <div class="pnd-summary-item">
             <span class="label">PPN Masukan</span>
-            <span class="value mono">{{ $currencySymbol }}{{ number_format($tax['input'], 0, ',', '.') }}</span>
+            <span class="value mono">{{ $currencySymbol }}{{ formatCompact($tax['input']) }}</span>
           </div>
           <div class="pnd-summary-item">
             <span class="label">Status</span>
             <span class="value">
-              <span class="badge {{ $statusBadge[$tax['status']] }}" style="display:inline-block;padding:2px 10px;border-radius:100px;font-size:11px;">
-                {{ $statusLabel[$tax['status']] }}
+              <span class="badge {{ $statusBadge[$tax['status']] ?? 'pending' }}" style="display:inline-block;padding:2px 10px;border-radius:100px;font-size:11px;">
+                {{ $statusLabel[$tax['status']] ?? 'Pending' }}
               </span>
             </span>
           </div>
 
           <div class="pnd-summary-total">
             <span class="label">PPN Net</span>
-            <span class="value mono">{{ $currencySymbol }}{{ number_format($ppnNet, 0, ',', '.') }}</span>
+            <span class="value mono">{{ $currencySymbol }}{{ formatCompact($ppnNet) }}</span>
           </div>
 
           <div class="pnd-meta">
             <div class="meta-item">
               <span class="meta-label">Dibuat oleh</span>
-              <span class="meta-value">{{ $tax['created_by'] }}</span>
+              <span class="meta-value">{{ $tax['created_by'] ?? '-' }}</span>
             </div>
             <div class="meta-item">
               <span class="meta-label">Dibuat pada</span>
-              <span class="meta-value">{{ date('d/m/Y H:i', strtotime($tax['created_at'])) }}</span>
+              <span class="meta-value">{{ isset($tax['created_at']) ? date('d/m/Y H:i', strtotime($tax['created_at'])) : '-' }}</span>
             </div>
-            @if($tax['created_at'] != $tax['updated_at'])
+            @if(isset($tax['created_at']) && isset($tax['updated_at']) && $tax['created_at'] != $tax['updated_at'])
             <div class="meta-item">
               <span class="meta-label">Terakhir diupdate</span>
-              <span class="meta-value">{{ date('d/m/Y H:i', strtotime($tax['updated_at'])) }}</span>
+              <span class="meta-value">{{ isset($tax['updated_at']) ? date('d/m/Y H:i', strtotime($tax['updated_at'])) : '-' }}</span>
             </div>
             @endif
           </div>
@@ -562,30 +563,10 @@
 
   </div>
 
-  <!-- Delete Confirmation Modal -->
-  <div class="modal-overlay" id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:var(--bg-card);border-radius:var(--radius-md);padding:32px;max-width:440px;width:90%;border:1px solid var(--border-color);">
-      <svg style="width:48px;height:48px;color:var(--danger);margin:0 auto 16px;display:block;"><use href="#ic-trash"/></svg>
-      <h3 style="font-size:18px;font-weight:600;margin:0 0 8px;text-align:center;color:var(--text-primary);">Hapus PPN</h3>
-      <p style="color:var(--text-secondary);text-align:center;margin:0 0 24px;font-size:14px;line-height:1.5;">
-        Apakah Anda yakin ingin menghapus PPN ini? Tindakan ini tidak dapat dibatalkan.
-      </p>
-      <div style="display:flex;gap:10px;justify-content:center;">
-        <button class="pnd-btn pnd-btn-ghost" onclick="closeDeleteModal()" style="min-width:100px;justify-content:center;">Batal</button>
-        <form id="deleteForm" method="POST" style="display:inline;">
-          @csrf
-          @method('DELETE')
-          <button type="submit" class="pnd-btn pnd-btn-danger" style="min-width:100px;justify-content:center;">Hapus</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <!-- SVG Icons -->
   <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
     <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
     <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
-    <symbol id="ic-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></symbol>
     <symbol id="ic-tax" viewBox="0 0 24 24"><path d="M12 2L2 7v4c0 5.52 3.12 10.56 10 11 6.88-.44 10-5.48 10-11V7L12 2z"/><polyline points="12 11 12 17 16 17"/><line x1="8" y1="17" x2="16" y2="17"/></symbol>
     <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
   </svg>
@@ -606,21 +587,6 @@
           setTimeout(() => { ripple.remove(); }, 600);
         });
       });
-    });
-
-    function confirmDelete(id) {
-      document.getElementById('deleteForm').action = '{{ route("taxes.ppn.destroy", ["index" => "__ID__"]) }}'.replace('__ID__', id);
-      document.getElementById('deleteModal').style.display = 'flex';
-    }
-
-    function closeDeleteModal() {
-      document.getElementById('deleteModal').style.display = 'none';
-    }
-
-    document.getElementById('deleteModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeDeleteModal();
-      }
     });
   </script>
 

@@ -5,6 +5,11 @@
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
+        // 🔧 SEEDING SESSION — biar show/edit/delete bisa nemu datanya
+        if (!session()->has('payables')) {
+            session(['payables' => $payables]);
+        }
+
         $payablesCollection = collect($payables);
         $statusLabel = ['lancar' => 'Lancar', 'jatuh_tempo' => 'Jatuh Tempo', 'lunas' => 'Lunas'];
         $statusPill = ['lancar' => 'lancar', 'jatuh_tempo' => 'jatuh_tempo', 'lunas' => 'lunas'];
@@ -69,9 +74,61 @@
         $chartData = [
             'lancar' => ['label' => 'Lancar', 'value' => $totalLancar, 'color' => 'var(--theme-primary)'],
             'jatuh_tempo' => ['label' => 'Jatuh Tempo', 'value' => $totalJatuhTempo, 'color' => 'var(--danger)'],
-            'lunas' => ['label' => 'Lunas', 'value' => $totalLunas, 'color' => 'var(--text-faint)'],
+            'lunas' => ['label' => 'Lunas', 'value' => $totalLunas, 'color' => 'var(--text-tertiary)'],
         ];
     @endphp
+
+    <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </symbol>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </symbol>
+            <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/>
+            </symbol>
+            <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </symbol>
+            <symbol id="ic-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </symbol>
+            <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </symbol>
+            <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </symbol>
+            <symbol id="ic-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+                <line x1="9" y1="6" x2="15" y2="6"/>
+                <line x1="9" y1="10" x2="15" y2="10"/>
+                <line x1="9" y1="14" x2="15" y2="14"/>
+                <line x1="9" y1="18" x2="12" y2="18"/>
+            </symbol>
+            <symbol id="ic-trending" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 17 9 11 13 15 21 7"/>
+                <polyline points="14 7 21 7 21 14"/>
+            </symbol>
+            <symbol id="ic-trending-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 7 9 13 13 9 21 17"/>
+                <polyline points="14 17 21 17 21 10"/>
+            </symbol>
+            <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <polyline points="9 12 11 14 15 10"/>
+            </symbol>
+            <symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+            </symbol>
+        </defs>
+    </svg>
 
     <style>
         .ap-modern {
@@ -94,7 +151,6 @@
 
             --danger: #E85A5A;
             --danger-soft: rgba(232, 90, 90, 0.12);
-            --danger-glow: rgba(232, 90, 90, 0.20);
 
             --success: #34B583;
             --success-soft: rgba(52, 181, 131, 0.14);
@@ -105,12 +161,10 @@
 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
+            padding: 0 24px;
         }
 
-        .ap-modern * {
-            box-sizing: border-box;
-        }
-
+        .ap-modern * { box-sizing: border-box; }
         .ap-modern .mono {
             font-family: 'IBM Plex Mono', monospace;
             font-variant-numeric: tabular-nums;
@@ -118,55 +172,28 @@
         }
 
         @keyframes fadeSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulseGlow {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.6;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
 
         @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(-10px) scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0) scale(1);
-            }
+            from { opacity: 0; transform: translateX(-10px) scale(0.8); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
         }
 
         @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         @keyframes modalSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .ap-modern .animate-in {
@@ -206,65 +233,25 @@
         .toast .toast-close{ background:none; border:none; color:var(--text-faint); cursor:pointer; padding:4px; }
         .toast .toast-close .icon{ width:14px; height:14px; }
 
-        /* FILTER BAR */
-        .filter-bar{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            margin-bottom:20px;
-            flex-wrap:wrap;
-            background:var(--bg-card);
-            padding:16px 20px;
-            border-radius:var(--radius-md);
-            border:1px solid var(--border-color);
+        /* ALERT */
+        .ap-alert {
+            background: var(--danger-soft);
+            border: 1px solid var(--danger);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--danger);
+            margin-bottom: 20px;
         }
-        .filter-bar form{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            flex-wrap:wrap;
-            width:100%;
-        }
-        .search-wrap{
-            position:relative;
-            flex:1;
-            min-width:220px;
-        }
-        .search-wrap .icon{
-            position:absolute;
-            left:14px;
-            top:50%;
-            transform:translateY(-50%);
-            width:16px;
-            height:16px;
-            color:var(--text-muted);
-            pointer-events:none;
-        }
-        .filter-bar input[type=text]{
-            width:100%;
-            padding:10px 16px 10px 42px;
-            border-radius:var(--radius-sm);
-            background:var(--bg-card-active);
-            border:1px solid var(--border-color);
-            color:var(--text-primary);
-            font-size:13px;
-            outline:none;
-            transition:border-color .15s ease, box-shadow .15s ease;
-            font-family:inherit;
-        }
-        .filter-bar input[type=text]:focus{
-            border-color:var(--theme-primary);
-            background:var(--bg-card);
-            box-shadow:0 0 0 3px rgba(var(--emerald-rgb),0.1);
-        }
-        .filter-bar input[type=text]::placeholder{
-            color:var(--text-tertiary);
-        }
-
-        .filter-actions{
-            display:flex;
-            gap:8px;
-            align-items:center;
+        .ap-alert .icon { width: 18px; height: 18px; flex-shrink: 0; }
+        .ap-alert .message { font-size: 13px; font-weight: 500; }
+        .ap-alert .message strong { font-weight: 700; }
+        .ap-alert.success {
+            background: var(--theme-soft);
+            border-color: var(--theme-primary);
+            color: var(--theme-primary);
         }
 
         .ap-header {
@@ -277,10 +264,7 @@
             padding: 0 4px;
         }
 
-        .ap-header-left {
-            flex: 1;
-            min-width: 200px;
-        }
+        .ap-header-left { flex: 1; min-width: 200px; }
 
         .ap-badge {
             display: inline-flex;
@@ -297,7 +281,6 @@
             color: var(--theme-primary);
             margin-bottom: 12px;
         }
-
         .ap-badge .dot {
             width: 6px;
             height: 6px;
@@ -322,7 +305,6 @@
             color: var(--text-secondary);
             margin: 0;
         }
-
         .ap-header .subtitle strong {
             color: var(--text-primary);
             font-weight: 600;
@@ -352,26 +334,15 @@
             position: relative;
             overflow: hidden;
         }
-
-        .ap-btn .icon {
-            width: 16px;
-            height: 16px;
-        }
-
-        .ap-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .ap-btn:active {
-            transform: translateY(0) scale(0.97);
-        }
+        .ap-btn .icon { width: 16px; height: 16px; }
+        .ap-btn:hover { transform: translateY(-2px); }
+        .ap-btn:active { transform: translateY(0) scale(0.97); }
 
         .ap-btn-primary {
             background: var(--theme-gradient);
             color: #fff;
             box-shadow: 0 4px 16px var(--theme-glow);
         }
-
         .ap-btn-primary:hover {
             box-shadow: 0 8px 28px var(--theme-glow);
             transform: translateY(-2px);
@@ -383,7 +354,6 @@
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
         }
-
         .ap-btn-ghost:hover {
             background: var(--bg-card-hover);
             border-color: var(--border-hover);
@@ -400,10 +370,7 @@
         }
 
         @keyframes rippleAnim {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
+            to { transform: scale(4); opacity: 0; }
         }
 
         .ap-stats-row {
@@ -440,10 +407,7 @@
             border-color: var(--border-hover);
             transform: translateY(-2px);
         }
-
-        .ap-stat-card:hover::before {
-            opacity: 1;
-        }
+        .ap-stat-card:hover::before { opacity: 1; }
 
         .ap-stat-card .stat-label {
             font-size: 11.5px;
@@ -455,11 +419,7 @@
             align-items: center;
             gap: 8px;
         }
-
-        .ap-stat-card .stat-label .icon {
-            width: 14px;
-            height: 14px;
-        }
+        .ap-stat-card .stat-label .icon { width: 14px; height: 14px; }
 
         .ap-stat-card .stat-value {
             font-size: 26px;
@@ -467,15 +427,8 @@
             letter-spacing: -0.02em;
             color: var(--text-primary);
         }
-
-        .ap-stat-card .stat-value.primary {
-            color: var(--theme-primary);
-        }
-
-        .ap-stat-card .stat-value.danger {
-            color: var(--danger);
-        }
-
+        .ap-stat-card .stat-value.primary { color: var(--theme-primary); }
+        .ap-stat-card .stat-value.danger { color: var(--danger); }
         .ap-stat-card .stat-sub {
             font-size: 12px;
             color: var(--text-tertiary);
@@ -498,11 +451,7 @@
             position: sticky;
             top: 80px;
         }
-
-        .ap-sidebar:hover {
-            border-color: var(--border-hover);
-        }
-
+        .ap-sidebar:hover { border-color: var(--border-hover); }
         .ap-sidebar .section-title {
             font-size: 13px;
             font-weight: 600;
@@ -524,13 +473,11 @@
             flex-shrink: 0;
             margin-bottom: 16px;
         }
-
         .ap-donut svg {
             transform: rotate(-90deg);
             width: 100%;
             height: 100%;
         }
-
         .ap-donut circle {
             fill: none;
             stroke-width: 16;
@@ -546,14 +493,12 @@
             align-items: center;
             justify-content: center;
         }
-
         .ap-donut-center .total {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 20px;
             font-weight: 700;
             color: var(--text-primary);
         }
-
         .ap-donut-center .label {
             font-size: 10px;
             color: var(--text-tertiary);
@@ -579,10 +524,7 @@
             background: var(--bg-card-active);
             transition: background 0.2s ease;
         }
-
-        .ap-legend-item:hover {
-            background: var(--bg-card-hover);
-        }
+        .ap-legend-item:hover { background: var(--bg-card-hover); }
 
         .ap-legend-item .dot {
             width: 10px;
@@ -590,32 +532,21 @@
             border-radius: 50%;
             flex-shrink: 0;
         }
-
-        .ap-legend-item .dot.lancar {
-            background: var(--theme-primary);
-        }
-
-        .ap-legend-item .dot.jatuh_tempo {
-            background: var(--danger);
-        }
-
-        .ap-legend-item .dot.lunas {
-            background: var(--text-tertiary);
-        }
+        .ap-legend-item .dot.lancar { background: var(--theme-primary); }
+        .ap-legend-item .dot.jatuh_tempo { background: var(--danger); }
+        .ap-legend-item .dot.lunas { background: var(--text-tertiary); }
 
         .ap-legend-item .label {
             flex: 1;
             font-size: 13px;
             color: var(--text-secondary);
         }
-
         .ap-legend-item .value {
             font-family: 'IBM Plex Mono', monospace;
             font-size: 13px;
             font-weight: 600;
             color: var(--text-primary);
         }
-
         .ap-legend-item .count {
             font-size: 11px;
             color: var(--text-tertiary);
@@ -630,48 +561,10 @@
             margin: 16px 0;
         }
 
-        .ap-alert {
-            background: var(--danger-soft);
-            border: 1px solid var(--danger);
-            border-radius: var(--radius-sm);
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--danger);
-        }
-
-        .ap-alert .icon {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-        }
-
-        .ap-alert .message {
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .ap-alert .message strong {
-            font-weight: 700;
-        }
-
-        .ap-alert.success {
-            background: var(--theme-soft);
-            border-color: var(--theme-primary);
-            color: var(--theme-primary);
-        }
-
         .ap-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
-        }
-
-        .ap-list.loading {
-            opacity: 0.5;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
         }
 
         .ap-item {
@@ -697,27 +590,15 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-
         .ap-item:hover {
             background: var(--bg-card-hover);
             border-color: var(--border-hover);
         }
+        .ap-item:hover::before { opacity: 1; }
 
-        .ap-item:hover::before {
-            opacity: 1;
-        }
-
-        .ap-item.status-lancar::before {
-            background: var(--theme-primary);
-        }
-
-        .ap-item.status-jatuh_tempo::before {
-            background: var(--danger);
-        }
-
-        .ap-item.status-lunas::before {
-            background: var(--text-tertiary);
-        }
+        .ap-item.status-lancar::before { background: var(--theme-primary); }
+        .ap-item.status-jatuh_tempo::before { background: var(--danger); }
+        .ap-item.status-lunas::before { background: var(--text-tertiary); }
 
         .ap-avatar {
             width: 44px;
@@ -732,17 +613,9 @@
             color: #fff;
             flex-shrink: 0;
         }
+        .ap-avatar .icon { width: 20px; height: 20px; }
 
-        .ap-avatar .icon {
-            width: 20px;
-            height: 20px;
-        }
-
-        .ap-item-info {
-            flex: 1;
-            min-width: 0;
-        }
-
+        .ap-item-info { flex: 1; min-width: 0; }
         .ap-item-vendor {
             font-size: 14px;
             font-weight: 600;
@@ -761,30 +634,18 @@
             color: var(--text-tertiary);
             flex-wrap: wrap;
         }
-
         .ap-item-meta .bill {
             font-family: 'IBM Plex Mono', monospace;
             color: var(--text-secondary);
         }
-
-        .ap-item-meta .separator {
-            color: var(--border-color);
-        }
-
+        .ap-item-meta .separator { color: var(--border-color); }
         .ap-item-meta .due-date {
             display: flex;
             align-items: center;
             gap: 4px;
         }
-
-        .ap-item-meta .due-date .icon {
-            width: 12px;
-            height: 12px;
-        }
-
-        .ap-item-meta .due-date.overdue {
-            color: var(--danger);
-        }
+        .ap-item-meta .due-date .icon { width: 12px; height: 12px; }
+        .ap-item-meta .due-date.overdue { color: var(--danger); }
 
         .ap-item-right {
             display: flex;
@@ -811,17 +672,14 @@
             display: inline-block;
             white-space: nowrap;
         }
-
         .ap-status-pill.lancar {
             background: var(--theme-soft);
             color: var(--theme-primary);
         }
-
         .ap-status-pill.jatuh_tempo {
             background: var(--danger-soft);
             color: var(--danger);
         }
-
         .ap-status-pill.lunas {
             background: var(--bg-card-active);
             color: var(--text-tertiary);
@@ -837,7 +695,6 @@
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             visibility: hidden;
         }
-
         .ap-actions.active {
             max-width: 200px;
             opacity: 1;
@@ -862,34 +719,18 @@
             border: none;
             flex-shrink: 0;
         }
-
-        .ap-actions .btn-action .icon {
-            width: 15px;
-            height: 15px;
-        }
-
-        .ap-actions .btn-action.show {
-            color: var(--theme-primary);
-        }
-
+        .ap-actions .btn-action .icon { width: 15px; height: 15px; }
+        .ap-actions .btn-action.show { color: var(--theme-primary); }
         .ap-actions .btn-action.show:hover {
             background: var(--theme-soft);
             border-color: var(--theme-primary);
         }
-
-        .ap-actions .btn-action.edit {
-            color: #4FA6E8;
-        }
-
+        .ap-actions .btn-action.edit { color: #4FA6E8; }
         .ap-actions .btn-action.edit:hover {
             background: rgba(79, 166, 232, 0.12);
             border-color: #4FA6E8;
         }
-
-        .ap-actions .btn-action.danger {
-            color: var(--danger);
-        }
-
+        .ap-actions .btn-action.danger { color: var(--danger); }
         .ap-actions .btn-action.danger:hover {
             background: var(--danger-soft);
             border-color: var(--danger);
@@ -914,13 +755,11 @@
             line-height: 1;
             user-select: none;
         }
-
         .ap-toggle-actions:hover {
             background: var(--bg-card-hover);
             border-color: var(--border-hover);
             color: var(--text-primary);
         }
-
         .ap-toggle-actions.active {
             background: var(--theme-soft);
             border-color: var(--theme-primary);
@@ -937,7 +776,6 @@
             padding-top: 16px;
             border-top: 1px solid var(--border-color);
         }
-
         .ap-footer .info {
             font-size: 13px;
             color: var(--text-tertiary);
@@ -945,42 +783,10 @@
             align-items: center;
             gap: 8px;
         }
-
         .ap-footer .info .icon {
             width: 14px;
             height: 14px;
             color: var(--theme-primary);
-        }
-
-        .ap-footer .actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .ap-footer .actions a {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            padding: 6px 14px;
-            border-radius: var(--radius-sm);
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
-        }
-
-        .ap-footer .actions a .icon {
-            width: 14px;
-            height: 14px;
-            color: var(--theme-primary);
-        }
-
-        .ap-footer .actions a:hover {
-            background: var(--bg-card);
-            border-color: var(--border-color);
-            color: var(--text-primary);
         }
 
         .ap-empty {
@@ -990,7 +796,6 @@
             border-radius: var(--radius-md);
             border: 2px dashed var(--border-color);
         }
-
         .ap-empty .empty-icon {
             width: 56px;
             height: 56px;
@@ -998,184 +803,236 @@
             color: var(--theme-primary);
             opacity: 0.5;
         }
-
         .ap-empty h3 {
             font-size: 18px;
             font-weight: 600;
             margin: 0 0 6px;
             color: var(--text-primary);
         }
-
         .ap-empty p {
             color: var(--text-secondary);
             margin: 0 0 20px;
             font-size: 14px;
         }
 
+        /* ============================================================
+           MODAL DELETE - PINGGIRAN BULAT 24px (SAMA KAYA YANG LAIN)
+           ============================================================ */
         .ap-modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
-            z-index: 999;
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
             align-items: center;
             justify-content: center;
             padding: 20px;
             animation: modalFadeIn 0.3s ease;
         }
-        .ap-modal-overlay.active {
-            display: flex;
+        .ap-modal-overlay.active { display: flex; }
+
+        [data-theme="dark"] .ap-modal-box { 
+            background: #0F1520; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
+        [data-theme="light"] .ap-modal-box { 
+            background: #FFFFFF; 
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
         .ap-modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
+            border-radius: 24px;
             max-width: 440px;
             width: 100%;
             padding: 32px 36px;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
             animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             text-align: center;
         }
+
         [data-theme="light"] .ap-modal-box {
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
         }
+
         .ap-modal-box .icon-danger {
             width: 56px;
             height: 56px;
-            color: var(--danger);
-            margin: 0 auto 16px;
-            background: var(--danger-soft);
+            background: #FEE2E2;
             border-radius: 50%;
-            padding: 12px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        [data-theme="dark"] .ap-modal-box .icon-danger {
+            background: rgba(220, 38, 38, 0.2);
+        }
+
+        .ap-modal-box .icon-danger svg {
+            width: 28px;
+            height: 28px;
+            stroke: #DC2626;
+        }
+
+        [data-theme="dark"] .ap-modal-box .icon-danger svg {
+            stroke: #F87171;
+        }
+
         .ap-modal-box h3 {
             font-size: 20px;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin: 0 0 8px 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         .ap-modal-box p {
             font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 4px;
+            margin: 0 0 4px 0;
             line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         .ap-modal-box .bill-number {
             font-family: 'IBM Plex Mono', monospace;
             font-weight: 600;
             color: var(--text-primary);
             background: var(--bg-card-active);
-            padding: 2px 12px;
-            border-radius: 6px;
+            padding: 4px 14px;
+            border-radius: 8px;
             display: inline-block;
+            margin-top: 4px;
+            font-size: 15px;
         }
+
         .ap-modal-box .warning-text {
             font-size: 13px;
-            color: var(--danger);
+            color: #DC2626;
             font-weight: 500;
-            margin-top: 12px;
+            margin-top: 16px;
             padding: 10px 16px;
-            background: var(--danger-soft);
-            border-radius: var(--radius-sm);
+            background: #FEE2E2;
+            border-radius: 10px;
             display: inline-block;
         }
+
+        [data-theme="dark"] .ap-modal-box .warning-text {
+            color: #F87171;
+            background: rgba(220, 38, 38, 0.15);
+        }
+
         .ap-modal-actions {
             display: flex;
             gap: 12px;
             justify-content: center;
             margin-top: 24px;
         }
+
         .ap-modal-actions .btn {
             min-width: 100px;
             justify-content: center;
             padding: 10px 22px;
-            border-radius: var(--radius-sm);
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             border: none;
             transition: all 0.25s ease;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
+
         .ap-modal-actions .btn .icon {
             width: 16px;
             height: 16px;
         }
+
         .ap-modal-actions .btn-outline {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
         }
+
         .ap-modal-actions .btn-outline:hover {
             background: var(--bg-card-hover);
             border-color: var(--border-hover);
             transform: translateY(-2px);
             color: var(--text-primary);
         }
+
         .ap-modal-actions .btn-danger {
-            background: var(--danger);
+            background: #DC2626;
             color: #fff;
         }
+
         .ap-modal-actions .btn-danger:hover {
-            background: #d14a4a;
+            background: #B91C1C;
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(232, 90, 90, 0.4);
+            box-shadow: 0 8px 22px rgba(220, 38, 38, 0.35);
+        }
+
+        [data-theme="dark"] .ap-modal-actions .btn-danger {
+            background: #DC2626;
+        }
+
+        [data-theme="dark"] .ap-modal-actions .btn-danger:hover {
+            background: #B91C1C;
+        }
+
+        /* CSS UNTUK NAVBAR TIDAK KE-BLUR */
+        body.aj-modal-open main {
+            position: relative;
+            z-index: 9998;
+        }
+
+        body.aj-modal-open .sidebar,
+        body.aj-modal-open .topbar {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        body.aj-modal-open .sidebar *,
+        body.aj-modal-open .topbar * {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
         @media (max-width: 1200px) {
-            .ap-stats-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .ap-stats-row { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 992px) {
-            .ap-layout {
-                grid-template-columns: 1fr;
-            }
+            .ap-layout { grid-template-columns: 1fr; }
             .ap-sidebar {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 20px;
                 position: static;
             }
-            .ap-donut-wrap {
-                grid-column: 1 / -1;
-            }
+            .ap-donut-wrap { grid-column: 1 / -1; }
         }
 
         @media (max-width: 768px) {
-            .ap-item {
-                flex-wrap: wrap;
-            }
+            .ap-item { flex-wrap: wrap; }
+            .ap-modal-box { padding: 24px 20px; margin: 10px; }
+            .ap-modal-actions { flex-direction: column; }
+            .ap-modal-actions .btn { width: 100%; }
         }
 
         @media (max-width: 640px) {
-            .ap-header {
-                flex-direction: column;
-            }
-            .ap-header-actions {
-                width: 100%;
-            }
-            .ap-header-actions .ap-btn {
-                flex: 1;
-                justify-content: center;
-            }
-            .ap-stats-row {
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-            }
-            .ap-stat-card .stat-value {
-                font-size: 20px;
-            }
-            .ap-sidebar {
-                grid-template-columns: 1fr;
-            }
+            .ap-header { flex-direction: column; }
+            .ap-header-actions { width: 100%; }
+            .ap-header-actions .ap-btn { flex: 1; justify-content: center; }
+            .ap-stats-row { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .ap-stat-card .stat-value { font-size: 20px; }
+            .ap-sidebar { grid-template-columns: 1fr; }
             .ap-item {
                 flex-wrap: wrap;
                 padding: 14px 16px;
@@ -1186,17 +1043,9 @@
                 justify-content: space-between;
                 margin-left: 60px;
             }
-            .ap-item-amount {
-                min-width: auto;
-                font-size: 14px;
-            }
-            .ap-item-meta {
-                font-size: 11px;
-                gap: 8px;
-            }
-            .ap-actions {
-                margin-left: 60px;
-            }
+            .ap-item-amount { min-width: auto; font-size: 14px; }
+            .ap-item-meta { font-size: 11px; gap: 8px; }
+            .ap-actions { margin-left: 60px; }
             .ap-actions.active {
                 max-width: 100%;
                 width: 100%;
@@ -1208,49 +1057,20 @@
                 text-align: center;
                 gap: 12px;
             }
-            .ap-footer .actions {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            .ap-avatar {
-                width: 36px;
-                height: 36px;
-                font-size: 13px;
-            }
-            .ap-donut {
-                width: 130px;
-                height: 130px;
-            }
-            .ap-donut-center .total {
-                font-size: 16px;
-            }
-            .ap-modal-box {
-                padding: 24px 20px;
-                margin: 10px;
-            }
-            .ap-modal-actions {
-                flex-direction: column;
-            }
-            .ap-modal-actions .btn {
-                width: 100%;
-            }
+            .ap-avatar { width: 36px; height: 36px; font-size: 13px; }
+            .ap-donut { width: 130px; height: 130px; }
+            .ap-donut-center .total { font-size: 16px; }
+            .ap-modal-box { padding: 20px 16px; }
+            .ap-modal-box h3 { font-size: 18px; }
+            .ap-modal-box .icon-danger { width: 48px; height: 48px; }
+            .ap-modal-box .icon-danger svg { width: 24px; height: 24px; }
         }
 
         @media (max-width: 380px) {
-            .ap-header h1 {
-                font-size: 22px;
-            }
-            .ap-btn {
-                font-size: 12px;
-                padding: 8px 14px;
-            }
-            .ap-btn .icon {
-                width: 14px;
-                height: 14px;
-            }
-            .ap-stats-row {
-                grid-template-columns: 1fr;
-            }
+            .ap-header h1 { font-size: 22px; }
+            .ap-btn { font-size: 12px; padding: 8px 14px; }
+            .ap-btn .icon { width: 14px; height: 14px; }
+            .ap-stats-row { grid-template-columns: 1fr; }
         }
     </style>
 
@@ -1269,7 +1089,7 @@
                 <h1>Utang Usaha (AP)</h1>
                 <p class="subtitle">
                     Daftar tagihan dari supplier/vendor yang belum dibayar —
-                    <strong id="totalCount">{{ $payablesCollection->count() }}</strong> tagihan aktif
+                    <strong id="apTotalCount">{{ $payablesCollection->count() }}</strong> tagihan aktif
                 </p>
             </div>
             <div class="ap-header-actions">
@@ -1284,10 +1104,10 @@
             </div>
         </div>
 
-        <!-- SUCCESS -->
+        <!-- SUCCESS/ERROR -->
         @if(session('success'))
         <div class="ap-alert success animate-in" style="animation-delay: 0.06s; border-color:var(--success);color:var(--success);background:var(--success-soft);">
-            <svg class="icon"><use href="#ic-shield"/></svg>
+            <svg class="icon"><use href="#ic-check-circle"/></svg>
             <span class="message">{{ session('success') }}</span>
         </div>
         @endif
@@ -1298,28 +1118,6 @@
             <span class="message">{{ session('error') }}</span>
         </div>
         @endif
-
-        <!-- FILTER BAR -->
-        <div class="filter-bar animate-in" style="animation-delay: 0.28s;">
-            <form method="GET" action="{{ route('payables.index') }}" id="filterForm">
-                <div class="search-wrap">
-                    <svg class="icon"><use href="#ic-search"/></svg>
-                    <input type="text" name="q" id="apSearchInput" value="{{ request('q') }}" placeholder="Cari nama vendor atau nomor tagihan..." autocomplete="off">
-                </div>
-                <div class="filter-actions">
-                    <button type="submit" class="ap-btn ap-btn-ghost" id="filterBtn" style="padding:10px 20px;">
-                        <svg class="icon"><use href="#ic-search"/></svg>
-                        Filter
-                    </button>
-                    @if(request()->filled('q'))
-                        <a href="{{ route('payables.index') }}" class="ap-btn ap-btn-ghost" id="resetBtn" style="padding:10px 20px;">
-                            <svg class="icon"><use href="#ic-x"/></svg>
-                            Reset
-                        </a>
-                    @endif
-                </div>
-            </form>
-        </div>
 
         <!-- STATS -->
         <div class="ap-stats-row" id="apStatCards">
@@ -1491,26 +1289,14 @@
                         <!-- Actions -->
                         <div class="ap-actions" id="{{ $itemId }}">
                             <a href="/payables/{{ $index }}" class="btn-action show" title="Lihat Detail">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
+                                <svg class="icon"><use href="#ic-eye"/></svg>
                             </a>
                             <a href="/payables/{{ $index }}/edit" class="btn-action edit" title="Edit Tagihan">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                                    <path d="M15 5l4 4"/>
-                                </svg>
+                                <svg class="icon"><use href="#ic-edit"/></svg>
                             </a>
                             <button type="button" class="btn-action danger" title="Hapus Tagihan"
-                                    onclick="openDeleteModal('{{ $index }}', '{{ $p['bill'] }}')">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 6h18"/>
-                                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                    <path d="M10 11v6"/>
-                                    <path d="M14 11v6"/>
-                                </svg>
+                                    onclick="openDeleteModal('{{ $index }}', '{{ addslashes($p['bill']) }}')">
+                                <svg class="icon"><use href="#ic-trash"/></svg>
                             </button>
                         </div>
                     </div>
@@ -1530,72 +1316,68 @@
                 <div class="ap-footer animate-in" style="animation-delay: 0.40s;">
                     <div class="info">
                         <svg class="icon"><use href="#ic-building"/></svg>
-                        Total <span id="footerTotalCount">{{ $payablesCollection->count() }}</span> tagihan terdaftar
-                    </div>
-                    <div class="actions">
-                        <a href="{{ Route::has('reports.general-ledger') ? route('reports.general-ledger') : '#' }}">
-                            <svg class="icon"><use href="#ic-doc"/></svg>
-                            Buku Besar Utang
-                        </a>
-                        <a href="#">
-                            <svg class="icon"><use href="#ic-doc"/></svg>
-                            Ekspor CSV
-                        </a>
-                        <a href="#">
-                            <svg class="icon"><use href="#ic-doc"/></svg>
-                            Cetak
-                        </a>
+                        Total <span id="apFooterTotalCount">{{ $payablesCollection->count() }}</span> tagihan terdaftar
                     </div>
                 </div>
             </div>
 
         </div>
 
-    </div>
+        <!-- ===== MODAL DELETE ===== -->
+        <div class="ap-modal-overlay" id="deleteModal">
+            <div class="ap-modal-box">
+                <!-- ICON DANGER -->
+                <div class="icon-danger">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
 
-    <!-- MODAL DELETE -->
-    <div class="ap-modal-overlay" id="deleteModal">
-        <div class="ap-modal-box">
-            <svg class="icon-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <h3>Hapus Tagihan?</h3>
-            <p>
-                Anda yakin ingin menghapus tagihan
-                <br>
-                <span class="bill-number" id="deleteBillNumber">BILL-XXXX</span>
-            </p>
-            <div class="warning-text">
-                ⚠️ Data yang dihapus tidak dapat dikembalikan!
-            </div>
-            <div class="ap-modal-actions">
-                <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">
-                    Batal
-                </button>
-                <form id="deleteForm" action="" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
-                            <path d="M3 6h18"/>
-                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                            <path d="M10 11v6"/>
-                            <path d="M14 11v6"/>
-                        </svg>
-                        Ya, Hapus!
+                <!-- JUDUL -->
+                <h3>Hapus Tagihan?</h3>
+
+                <!-- DESKRIPSI -->
+                <p>
+                    Anda yakin ingin menghapus tagihan
+                    <br>
+                    <span class="bill-number" id="deleteBillNumber">-</span>
+                </p>
+
+                <!-- WARNING -->
+                <div class="warning-text">
+                    ⚠️ Data yang dihapus tidak dapat dikembalikan!
+                </div>
+
+                <!-- TOMBOL -->
+                <div class="ap-modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">
+                        Batal
                     </button>
-                </form>
+                    <form id="deleteForm" action="" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                            Ya, Hapus!
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
+
     </div>
 
     <script>
         // ===== TOAST SYSTEM =====
         function showToast(title, message, type = 'success') {
             const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.innerHTML = `
@@ -1617,17 +1399,20 @@
             }, 5000);
         }
 
+        // ===== DELETE MODAL =====
         function openDeleteModal(id, billNumber) {
             document.getElementById('deleteBillNumber').textContent = billNumber;
             var url = '/payables/' + id;
             document.getElementById('deleteForm').action = url;
             document.getElementById('deleteModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('aj-modal-open');
         }
 
         function closeDeleteModal() {
             document.getElementById('deleteModal').classList.remove('active');
             document.body.style.overflow = '';
+            document.body.classList.remove('aj-modal-open');
         }
 
         document.getElementById('deleteModal').addEventListener('click', function(e) {
@@ -1642,142 +1427,48 @@
             }
         });
 
+        // ===== TOGGLE ACTIONS =====
         document.addEventListener('DOMContentLoaded', function() {
-            // ===== LIVE SEARCH =====
-            var searchInput = document.getElementById('apSearchInput');
-            var filterBtn = document.getElementById('filterBtn');
-            var apList = document.getElementById('apList');
-            var apStatCards = document.getElementById('apStatCards');
-            var apSidebar = document.getElementById('apSidebar');
-            var totalCount = document.getElementById('totalCount');
-            var footerTotalCount = document.getElementById('footerTotalCount');
-            var loadingTimeout = null;
+            const toggleButtons = document.querySelectorAll('.ap-toggle-actions');
 
-            function updateResults() {
-                apList.classList.add('loading');
-                
-                var q = searchInput ? searchInput.value : '';
-                var url = '{{ route("payables.index") }}?q=' + encodeURIComponent(q);
-                
-                fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(function(response) {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
-                .then(function(html) {
-                    var parser = new DOMParser();
-                    var doc = parser.parseFromString(html, 'text/html');
-                    
-                    var newList = doc.querySelector('#apList');
-                    if (newList) {
-                        apList.innerHTML = newList.innerHTML;
-                    }
-                    
-                    var newStats = doc.querySelector('#apStatCards');
-                    if (newStats) {
-                        apStatCards.innerHTML = newStats.innerHTML;
-                    }
-                    
-                    var newSidebar = doc.querySelector('#apSidebar');
-                    if (newSidebar) {
-                        apSidebar.innerHTML = newSidebar.innerHTML;
-                    }
-                    
-                    // Update total count
-                    var newTotal = doc.querySelector('#totalCount');
-                    if (newTotal && totalCount) {
-                        totalCount.textContent = newTotal.textContent;
-                    }
-                    if (newTotal && footerTotalCount) {
-                        footerTotalCount.textContent = newTotal.textContent;
-                    }
-                    
-                    // Re-initialize toggle buttons
-                    initToggleButtons();
-                    
-                    apList.classList.remove('loading');
-                })
-                .catch(function(error) {
-                    console.error('Error:', error);
-                    apList.classList.remove('loading');
-                    showToast('Error', 'Gagal memuat data. Silakan refresh halaman.', 'error');
-                });
-            }
+            toggleButtons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const targetId = this.dataset.target;
+                    const actions = document.getElementById(targetId);
 
-            function initToggleButtons() {
-                const toggleButtons = document.querySelectorAll('.ap-toggle-actions');
-
-                toggleButtons.forEach(btn => {
-                    btn.removeEventListener('click', toggleHandler);
-                    btn.addEventListener('click', toggleHandler);
-                });
-            }
-
-            function toggleHandler(e) {
-                e.stopPropagation();
-                const targetId = this.dataset.target;
-                const actions = document.getElementById(targetId);
-
-                if (actions) {
-                    document.querySelectorAll('.ap-actions.active').forEach(el => {
-                        if (el.id !== targetId) {
-                            el.classList.remove('active');
-                            el.style.maxWidth = '0';
-                            el.style.opacity = '0';
-                            el.style.visibility = 'hidden';
-                            const toggleBtn = document.querySelector(
-                                `.ap-toggle-actions[data-target="${el.id}"]`);
-                            if (toggleBtn) {
-                                toggleBtn.classList.remove('active');
+                    if (actions) {
+                        document.querySelectorAll('.ap-actions.active').forEach(el => {
+                            if (el.id !== targetId) {
+                                el.classList.remove('active');
+                                el.style.maxWidth = '0';
+                                el.style.opacity = '0';
+                                el.style.visibility = 'hidden';
+                                const toggleBtn = document.querySelector(
+                                    `.ap-toggle-actions[data-target="${el.id}"]`);
+                                if (toggleBtn) {
+                                    toggleBtn.classList.remove('active');
+                                }
                             }
+                        });
+
+                        const isActive = actions.classList.contains('active');
+                        if (isActive) {
+                            actions.classList.remove('active');
+                            actions.style.maxWidth = '0';
+                            actions.style.opacity = '0';
+                            actions.style.visibility = 'hidden';
+                            this.classList.remove('active');
+                        } else {
+                            actions.classList.add('active');
+                            actions.style.maxWidth = actions.scrollWidth + 'px';
+                            actions.style.opacity = '1';
+                            actions.style.visibility = 'visible';
+                            this.classList.add('active');
                         }
-                    });
-
-                    const isActive = actions.classList.contains('active');
-                    if (isActive) {
-                        actions.classList.remove('active');
-                        actions.style.maxWidth = '0';
-                        actions.style.opacity = '0';
-                        actions.style.visibility = 'hidden';
-                        this.classList.remove('active');
-                    } else {
-                        actions.classList.add('active');
-                        actions.style.maxWidth = actions.scrollWidth + 'px';
-                        actions.style.opacity = '1';
-                        actions.style.visibility = 'visible';
-                        this.classList.add('active');
                     }
-                }
-            }
-
-            // Search: debounce 400ms
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    if (loadingTimeout) {
-                        clearTimeout(loadingTimeout);
-                    }
-                    loadingTimeout = setTimeout(function() {
-                        updateResults();
-                    }, 400);
                 });
-            }
-
-            // Filter button
-            if (filterBtn) {
-                filterBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (loadingTimeout) {
-                        clearTimeout(loadingTimeout);
-                    }
-                    updateResults();
-                });
-            }
+            });
 
             // Close actions when clicking outside
             document.addEventListener('click', function(e) {
@@ -1795,9 +1486,6 @@
                     });
                 }
             });
-
-            // Initialize toggle buttons
-            initToggleButtons();
 
             // Ripple effect
             document.querySelectorAll('.ap-btn').forEach(btn => {

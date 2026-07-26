@@ -1,9 +1,56 @@
 <x-app-layout>
     <x-slot name="title">Piutang Usaha (AR)</x-slot>
 
+    {{-- ===== SVG ICONS TAMBAHAN ===== --}}
+    <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <symbol id="ic-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </symbol>
+            <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </symbol>
+            <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </symbol>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </symbol>
+            <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </symbol>
+            <symbol id="ic-trending" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/>
+            </symbol>
+            <symbol id="ic-trending-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 7 9 13 13 9 21 17"/><polyline points="14 17 21 17 21 10"/>
+            </symbol>
+            <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/>
+            </symbol>
+            <symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </symbol>
+            <symbol id="ic-bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="10" width="20" height="14" rx="2"/><path d="M12 3L2 10h20L12 3z"/><line x1="8" y1="14" x2="8" y2="18"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="16" y1="14" x2="16" y2="18"/>
+            </symbol>
+            <symbol id="ic-invoice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </symbol>
+        </defs>
+    </svg>
+
     @php
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
+
+        // 🔧 SEEDING SESSION — biar show/delete bisa nemu datanya
+        if (!session()->has('receivables')) {
+            session(['receivables' => $receivables]);
+        }
 
         $receivablesCollection = collect($receivables);
         $statusLabel = ['lancar' => 'Lancar', 'jatuh_tempo' => 'Jatuh Tempo', 'lunas' => 'Lunas'];
@@ -103,44 +150,12 @@
 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
+            padding: 0 24px;
         }
 
-        /* ===== FIX: LIGHT MODE DONUT CHART ===== */
         [data-theme="light"] .ar-modern {
             --bg-card-active: rgba(0, 0, 0, 0.05);
             --text-tertiary: #94a3b8;
-        }
-
-        [data-theme="light"] .ar-donut circle {
-            stroke-opacity: 0.3;
-        }
-
-        [data-theme="light"] .ar-donut circle:first-child {
-            stroke: #e2e8f0 !important;
-            stroke-opacity: 1 !important;
-        }
-
-        [data-theme="light"] .ar-donut circle:nth-child(2) {
-            stroke: #34d399 !important;
-            stroke-opacity: 1 !important;
-        }
-
-        [data-theme="light"] .ar-donut circle:nth-child(3) {
-            stroke: #ef4444 !important;
-            stroke-opacity: 1 !important;
-        }
-
-        [data-theme="light"] .ar-donut circle:nth-child(4) {
-            stroke: #94a3b8 !important;
-            stroke-opacity: 1 !important;
-        }
-
-        [data-theme="light"] .ar-donut-center .total {
-            color: #1a1a2e;
-        }
-
-        [data-theme="light"] .ar-donut-center .label {
-            color: #94a3b8;
         }
 
         .ar-modern * {
@@ -153,24 +168,27 @@
         }
 
         @keyframes fadeSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulseGlow {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.6;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes rippleAnim {
+            to { transform: scale(4); opacity: 0; }
         }
 
         .ar-modern .animate-in {
@@ -338,74 +356,6 @@
             transform: scale(0);
             animation: rippleAnim 0.6s ease-out forwards;
             pointer-events: none;
-        }
-
-        @keyframes rippleAnim {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
-        }
-
-        /* FILTER BAR */
-        .filter-bar{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            margin-bottom:20px;
-            flex-wrap:wrap;
-            background:var(--bg-card);
-            padding:16px 20px;
-            border-radius:var(--radius-md);
-            border:1px solid var(--border-color);
-        }
-        .filter-bar form{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            flex-wrap:wrap;
-            width:100%;
-        }
-        .search-wrap{
-            position:relative;
-            flex:1;
-            min-width:220px;
-        }
-        .search-wrap .icon{
-            position:absolute;
-            left:14px;
-            top:50%;
-            transform:translateY(-50%);
-            width:16px;
-            height:16px;
-            color:var(--text-muted);
-            pointer-events:none;
-        }
-        .filter-bar input[type=text]{
-            width:100%;
-            padding:10px 16px 10px 42px;
-            border-radius:var(--radius-sm);
-            background:var(--bg-card-active);
-            border:1px solid var(--border-color);
-            color:var(--text-primary);
-            font-size:13px;
-            outline:none;
-            transition:border-color .15s ease, box-shadow .15s ease;
-            font-family:inherit;
-        }
-        .filter-bar input[type=text]:focus{
-            border-color:var(--theme-primary);
-            background:var(--bg-card);
-            box-shadow:0 0 0 3px rgba(var(--emerald-rgb),0.1);
-        }
-        .filter-bar input[type=text]::placeholder{
-            color:var(--text-tertiary);
-        }
-
-        .filter-actions{
-            display:flex;
-            gap:8px;
-            align-items:center;
         }
 
         /* STATS */
@@ -879,63 +829,6 @@
             transform: translateY(-2px);
         }
 
-        /* FOOTER */
-        .ar-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .ar-footer .info {
-            font-size: 13px;
-            color: var(--text-tertiary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .ar-footer .info .icon {
-            width: 14px;
-            height: 14px;
-            color: var(--theme-primary);
-        }
-
-        .ar-footer .actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .ar-footer .actions a {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            padding: 6px 14px;
-            border-radius: var(--radius-sm);
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
-        }
-
-        .ar-footer .actions a .icon {
-            width: 14px;
-            height: 14px;
-            color: var(--theme-primary);
-        }
-
-        .ar-footer .actions a:hover {
-            background: var(--bg-card);
-            border-color: var(--border-color);
-            color: var(--text-primary);
-        }
-
         /* EMPTY */
         .ar-empty {
             text-align: center;
@@ -1015,136 +908,196 @@
             font-weight: 500;
         }
 
-        /* MODAL DELETE */
+        /* ============================================================
+           MODAL DELETE - SAMA KAYA YANG LAIN
+           ============================================================ */
         .ar-modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
-            z-index: 999;
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
             align-items: center;
             justify-content: center;
             padding: 20px;
             animation: modalFadeIn 0.3s ease;
         }
+
         .ar-modal-overlay.active {
             display: flex;
         }
-        @keyframes modalFadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+
+        [data-theme="dark"] .ar-modal-box { 
+            background: #0F1520; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        @keyframes modalSlideUp {
-            from { opacity: 0; transform: translateY(30px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+        [data-theme="light"] .ar-modal-box { 
+            background: #FFFFFF; 
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
+
         .ar-modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
+            border-radius: 24px;
             max-width: 440px;
             width: 100%;
             padding: 32px 36px;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
             animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             text-align: center;
         }
+
         [data-theme="light"] .ar-modal-box {
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
         }
+
         .ar-modal-box .icon-danger {
             width: 56px;
             height: 56px;
-            color: var(--danger);
-            margin: 0 auto 16px;
-            background: var(--danger-soft);
+            background: #FEE2E2;
             border-radius: 50%;
-            padding: 12px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        [data-theme="dark"] .ar-modal-box .icon-danger {
+            background: rgba(220, 38, 38, 0.2);
+        }
+
+        .ar-modal-box .icon-danger svg {
+            width: 28px;
+            height: 28px;
+            stroke: #DC2626;
+        }
+
+        [data-theme="dark"] .ar-modal-box .icon-danger svg {
+            stroke: #F87171;
+        }
+
         .ar-modal-box h3 {
             font-size: 20px;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin: 0 0 8px 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         .ar-modal-box p {
             font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 4px;
+            margin: 0 0 4px 0;
             line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         .ar-modal-box .invoice-number {
             font-family: 'IBM Plex Mono', monospace;
             font-weight: 600;
             color: var(--text-primary);
             background: var(--bg-card-active);
-            padding: 2px 12px;
-            border-radius: 6px;
+            padding: 4px 14px;
+            border-radius: 8px;
             display: inline-block;
+            margin-top: 4px;
+            font-size: 15px;
         }
+
         .ar-modal-box .warning-text {
             font-size: 13px;
-            color: var(--danger);
+            color: #DC2626;
             font-weight: 500;
-            margin-top: 12px;
+            margin-top: 16px;
             padding: 10px 16px;
-            background: var(--danger-soft);
-            border-radius: var(--radius-sm);
+            background: #FEE2E2;
+            border-radius: 10px;
             display: inline-block;
         }
+
+        [data-theme="dark"] .ar-modal-box .warning-text {
+            color: #F87171;
+            background: rgba(220, 38, 38, 0.15);
+        }
+
         .ar-modal-actions {
             display: flex;
             gap: 12px;
             justify-content: center;
             margin-top: 24px;
         }
+
         .ar-modal-actions .btn {
             min-width: 100px;
             justify-content: center;
             padding: 10px 22px;
-            border-radius: var(--radius-sm);
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             border: none;
             transition: all 0.25s ease;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
+
         .ar-modal-actions .btn .icon {
             width: 16px;
             height: 16px;
         }
+
         .ar-modal-actions .btn-outline {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
         }
+
         .ar-modal-actions .btn-outline:hover {
             background: var(--bg-card-hover);
             border-color: var(--border-hover);
             transform: translateY(-2px);
             color: var(--text-primary);
         }
+
         .ar-modal-actions .btn-danger {
-            background: var(--danger);
+            background: #DC2626;
             color: #fff;
         }
+
         .ar-modal-actions .btn-danger:hover {
-            background: #d14a4a;
+            background: #B91C1C;
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(232, 90, 90, 0.4);
+            box-shadow: 0 8px 22px rgba(220, 38, 38, 0.35);
         }
 
-        /* LOADING */
-        .ar-list.loading {
-            opacity: 0.5;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+        [data-theme="dark"] .ar-modal-actions .btn-danger {
+            background: #DC2626;
+        }
+
+        [data-theme="dark"] .ar-modal-actions .btn-danger:hover {
+            background: #B91C1C;
+        }
+
+        /* CSS UNTUK NAVBAR TIDAK KE-BLUR */
+        body.aj-modal-open main {
+            position: relative;
+            z-index: 9998;
+        }
+
+        body.aj-modal-open .sidebar,
+        body.aj-modal-open .topbar {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        body.aj-modal-open .sidebar *,
+        body.aj-modal-open .topbar * {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
         @media (max-width: 1200px) {
@@ -1171,6 +1124,16 @@
         @media (max-width: 768px) {
             .ar-item {
                 flex-wrap: wrap;
+            }
+            .ar-modal-box {
+                padding: 24px 20px;
+                margin: 10px;
+            }
+            .ar-modal-actions {
+                flex-direction: column;
+            }
+            .ar-modal-actions .btn {
+                width: 100%;
             }
         }
 
@@ -1218,16 +1181,6 @@
                 margin-left: 60px;
                 justify-content: flex-start;
             }
-            .ar-footer {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: center;
-                gap: 12px;
-            }
-            .ar-footer .actions {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
             .ar-avatar {
                 width: 36px;
                 height: 36px;
@@ -1241,14 +1194,18 @@
                 font-size: 16px;
             }
             .ar-modal-box {
-                padding: 24px 20px;
-                margin: 10px;
+                padding: 20px 16px;
             }
-            .ar-modal-actions {
-                flex-direction: column;
+            .ar-modal-box h3 {
+                font-size: 18px;
             }
-            .ar-modal-actions .btn {
-                width: 100%;
+            .ar-modal-box .icon-danger {
+                width: 48px;
+                height: 48px;
+            }
+            .ar-modal-box .icon-danger svg {
+                width: 24px;
+                height: 24px;
             }
         }
 
@@ -1313,7 +1270,7 @@
         <!-- SUCCESS -->
         @if(session('success'))
         <div class="ar-success animate-in" style="animation-delay: 0.08s;">
-            <svg class="icon"><use href="#ic-shield"/></svg>
+            <svg class="icon"><use href="#ic-check-circle"/></svg>
             <span class="message">{{ session('success') }}</span>
         </div>
         @endif
@@ -1363,28 +1320,6 @@
                 </div>
                 <div class="stat-sub">dari total piutang</div>
             </div>
-        </div>
-
-        <!-- FILTER BAR -->
-        <div class="filter-bar animate-in" style="animation-delay: 0.28s;">
-            <form method="GET" action="{{ route('receivables.index') }}" id="filterForm">
-                <div class="search-wrap">
-                    <svg class="icon"><use href="#ic-search"/></svg>
-                    <input type="text" name="q" id="arSearchInput" value="{{ request('q') }}" placeholder="Cari nama klien atau nomor faktur..." autocomplete="off">
-                </div>
-                <div class="filter-actions">
-                    <button type="submit" class="ar-btn ar-btn-ghost" id="filterBtn" style="padding:10px 20px;">
-                        <svg class="icon"><use href="#ic-search"/></svg>
-                        Filter
-                    </button>
-                    @if(request()->filled('q'))
-                        <a href="{{ route('receivables.index') }}" class="ar-btn ar-btn-ghost" id="resetBtn" style="padding:10px 20px;">
-                            <svg class="icon"><use href="#ic-x"/></svg>
-                            Reset
-                        </a>
-                    @endif
-                </div>
-            </form>
         </div>
 
         <!-- LAYOUT -->
@@ -1503,20 +1438,11 @@
                         <!-- ACTIONS: Show & Delete -->
                         <div class="ar-actions">
                             <a href="{{ route('invoices.show', $r['id']) }}" class="btn-action show" title="Lihat Detail">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
+                                <svg class="icon"><use href="#ic-eye"/></svg>
                             </a>
                             <button type="button" class="btn-action danger" title="Hapus Faktur" 
-                                    onclick="openDeleteModal('{{ $r['id'] }}', '{{ $r['invoice'] }}')">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 6h18"/>
-                                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                    <path d="M10 11v6"/>
-                                    <path d="M14 11v6"/>
-                                </svg>
+                                    onclick="openDeleteModal('{{ $r['id'] }}', '{{ addslashes($r['invoice']) }}')">
+                                <svg class="icon"><use href="#ic-trash"/></svg>
                             </button>
                         </div>
                     </div>
@@ -1532,80 +1458,65 @@
                     </div>
                     @endforelse
                 </div>
+            </div>
 
-                <div class="ar-footer animate-in" style="animation-delay: 0.40s;">
-                    <div class="info">
-                        <svg class="icon"><use href="#ic-briefcase"/></svg>
-                        Total {{ $receivablesCollection->count() }} faktur terdaftar
-                    </div>
-                    <div class="actions">
-                        <a href="{{ route('invoices.index') }}">
-                            <svg class="icon"><use href="#ic-invoice"/></svg>
-                            Semua Faktur
-                        </a>
-                        <a href="{{ Route::has('reports.general-ledger') ? route('reports.general-ledger') : '#' }}">
-                            <svg class="icon"><use href="#ic-doc"/></svg>
-                            Buku Besar Piutang
-                        </a>
-                        <a href="#">
-                            <svg class="icon"><use href="#ic-doc"/></svg>
-                            Ekspor CSV
-                        </a>
-                        <a href="#">
-                            <svg class="icon"><use href="#ic-doc"/></svg>
-                            Cetak
-                        </a>
-                    </div>
+        </div>
+
+        <!-- ===== MODAL DELETE ===== -->
+        <div class="ar-modal-overlay" id="deleteModal">
+            <div class="ar-modal-box">
+                <!-- ICON DANGER -->
+                <div class="icon-danger">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+
+                <!-- JUDUL -->
+                <h3>Hapus Faktur Ini?</h3>
+
+                <!-- DESKRIPSI -->
+                <p>
+                    Anda yakin ingin menghapus faktur
+                    <br>
+                    <span class="invoice-number" id="deleteInvoiceNumber">-</span>
+                </p>
+
+                <!-- WARNING -->
+                <div class="warning-text">
+                    ⚠️ Data yang dihapus tidak dapat dikembalikan!
+                </div>
+
+                <!-- TOMBOL -->
+                <div class="ar-modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">
+                        Batal
+                    </button>
+                    <form id="deleteForm" action="" method="POST" style="display:inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                            Ya, Hapus!
+                        </button>
+                    </form>
                 </div>
             </div>
-
         </div>
 
-    </div>
-
-    <!-- MODAL DELETE -->
-    <div class="ar-modal-overlay" id="deleteModal">
-        <div class="ar-modal-box">
-            <svg class="icon-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <h3>Hapus Faktur?</h3>
-            <p>
-                Anda yakin ingin menghapus faktur
-                <br>
-                <span class="invoice-number" id="deleteInvoiceNumber">INV-XXXX</span>
-            </p>
-            <div class="warning-text">
-                ⚠️ Data yang dihapus tidak dapat dikembalikan!
-            </div>
-            <div class="ar-modal-actions">
-                <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">
-                    Batal
-                </button>
-                <form id="deleteForm" action="" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
-                            <path d="M3 6h18"/>
-                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                            <path d="M10 11v6"/>
-                            <path d="M14 11v6"/>
-                        </svg>
-                        Ya, Hapus!
-                    </button>
-                </form>
-            </div>
-        </div>
     </div>
 
     <script>
         // ===== TOAST SYSTEM =====
         function showToast(title, message, type = 'success') {
             const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.innerHTML = `
@@ -1635,11 +1546,13 @@
             document.getElementById('deleteForm').action = url;
             document.getElementById('deleteModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('aj-modal-open');
         }
 
         function closeDeleteModal() {
             document.getElementById('deleteModal').classList.remove('active');
             document.body.style.overflow = '';
+            document.body.classList.remove('aj-modal-open');
         }
 
         document.getElementById('deleteModal').addEventListener('click', function(e) {
@@ -1654,84 +1567,8 @@
             }
         });
 
-        // ===== LIVE SEARCH =====
+        // ===== RIPPLE EFFECT =====
         document.addEventListener('DOMContentLoaded', function() {
-            var searchInput = document.getElementById('arSearchInput');
-            var filterBtn = document.getElementById('filterBtn');
-            var arList = document.getElementById('arList');
-            var arStatCards = document.getElementById('arStatCards');
-            var arSidebar = document.getElementById('arSidebar');
-            var loadingTimeout = null;
-
-            function updateResults() {
-                arList.classList.add('loading');
-                
-                var q = searchInput ? searchInput.value : '';
-                var url = '{{ route("receivables.index") }}?q=' + encodeURIComponent(q);
-                
-                fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(function(response) {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
-                .then(function(html) {
-                    var parser = new DOMParser();
-                    var doc = parser.parseFromString(html, 'text/html');
-                    
-                    var newList = doc.querySelector('#arList');
-                    if (newList) {
-                        arList.innerHTML = newList.innerHTML;
-                    }
-                    
-                    var newStats = doc.querySelector('#arStatCards');
-                    if (newStats) {
-                        arStatCards.innerHTML = newStats.innerHTML;
-                    }
-                    
-                    var newSidebar = doc.querySelector('#arSidebar');
-                    if (newSidebar) {
-                        arSidebar.innerHTML = newSidebar.innerHTML;
-                    }
-                    
-                    arList.classList.remove('loading');
-                })
-                .catch(function(error) {
-                    console.error('Error:', error);
-                    arList.classList.remove('loading');
-                    showToast('Error', 'Gagal memuat data. Silakan refresh halaman.', 'error');
-                });
-            }
-
-            // Search: submit dengan debounce 400ms
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    if (loadingTimeout) {
-                        clearTimeout(loadingTimeout);
-                    }
-                    loadingTimeout = setTimeout(function() {
-                        updateResults();
-                    }, 400);
-                });
-            }
-
-            // Filter button: override default submit
-            if (filterBtn) {
-                filterBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (loadingTimeout) {
-                        clearTimeout(loadingTimeout);
-                    }
-                    updateResults();
-                });
-            }
-
-            // Ripple effect untuk button
             document.querySelectorAll('.ar-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     const rect = this.getBoundingClientRect();
@@ -1758,5 +1595,4 @@
             });
         });
     </script>
-
 </x-app-layout>

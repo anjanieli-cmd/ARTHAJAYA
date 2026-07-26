@@ -31,17 +31,11 @@
             <symbol id="ic-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
             </symbol>
-            <symbol id="ic-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-            </symbol>
             <symbol id="ic-file-invoice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
             </symbol>
             <symbol id="ic-file-quote" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/>
-            </symbol>
-            <symbol id="ic-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </symbol>
             <symbol id="ic-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6"/>
@@ -75,6 +69,7 @@
             --radius-md: 16px;
             --radius-lg: 22px;
             color: var(--text);
+            padding: 0 24px;
         }
         .client-detail-wrap *{ box-sizing:border-box; }
 
@@ -114,33 +109,23 @@
         /* ===== BUTTONS ===== */
         .btn{
             display:inline-flex; align-items:center; justify-content:center; gap:8px;
-            padding:11px 22px; border-radius:var(--radius-sm); font-size:13.5px; font-weight:600;
+            padding:10px 20px; border-radius:var(--radius-sm); font-size:13px; font-weight:600;
             cursor:pointer; border:none; transition:all .22s cubic-bezier(.16,1,.3,1);
             white-space:nowrap; text-decoration:none; position:relative; overflow:hidden;
         }
         .btn .icon{ width:16px; height:16px; flex-shrink:0; }
+        .btn:hover{ transform:translateY(-2px); }
+        .btn:active{ transform:translateY(0) scale(0.97); }
         .btn-primary{
             background:linear-gradient(135deg, var(--accent), var(--accent-dim));
             color:#052117; box-shadow:0 4px 18px var(--accent-glow);
         }
-        .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 28px var(--accent-glow); }
-        .btn-primary::after{
-            content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
-            background:linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform:rotate(45deg) translateX(-100%); transition:transform .6s ease;
-        }
-        .btn-primary:hover::after{ transform:rotate(45deg) translateX(100%); }
+        .btn-primary:hover{ box-shadow:0 10px 28px var(--accent-glow); color:#052117; }
         .btn-outline{
-            background:var(--surface); border:1px solid var(--border); color:var(--text);
+            background:var(--surface); border:1px solid var(--border); color:var(--text-secondary);
         }
         .btn-outline:hover{
-            background:var(--surface-strong); border-color:var(--border-hover); transform:translateY(-2px);
-        }
-        .btn-danger{
-            background:var(--danger); color:#fff; border:1px solid var(--danger);
-        }
-        .btn-danger:hover{
-            background:var(--danger-hover); transform:translateY(-2px); box-shadow:0 8px 22px rgba(var(--danger-rgb),0.35);
+            background:var(--surface-strong); border-color:var(--border-hover); color:var(--text-primary);
         }
         .btn-sm{ padding:8px 16px; font-size:12.5px; }
 
@@ -274,51 +259,12 @@
         .status-expired{ background:rgba(var(--warning-rgb),0.12); color:var(--warning); }
         .status-expired .sdot{ background:var(--warning); animation:pulseGlow 1.6s ease-in-out infinite; }
 
-        /* ===== MODAL ===== */
-        .modal-overlay{
-            position:fixed; inset:0; background:rgba(3,6,12,0.6); backdrop-filter:blur(8px);
-            z-index:999; display:none; align-items:center; justify-content:center; padding:20px;
-        }
-        .modal-overlay.open{ display:flex; }
-        @keyframes modalSlideUp{
-            from{ opacity:0; transform:translateY(24px) scale(.96);}
-            to{ opacity:1; transform:translateY(0) scale(1);}
-        }
-        .modal-box{
-            background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
-            padding:32px 36px; max-width:420px; width:100%;
-            box-shadow:0 40px 90px rgba(0,0,0,0.5);
-            animation:modalSlideUp .3s cubic-bezier(.16,1,.3,1); text-align:center;
-        }
-        .modal-ic{
-            width:56px; height:56px; border-radius:50%;
-            background:rgba(var(--danger-rgb),0.12); color:var(--danger);
-            display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
-        }
-        .modal-ic .icon{ width:26px; height:26px; }
-        .modal-box h3{
-            font-size:18px; font-weight:700; margin-bottom:8px; color:var(--text);
-        }
-        .modal-box p{
-            font-size:13.5px; color:var(--text-muted); margin-bottom:6px; line-height:1.6;
-        }
-        .modal-box p b{
-            color:var(--text); font-family:'IBM Plex Mono', monospace;
-            background:var(--surface-hover); padding:2px 12px; border-radius:6px; display:inline-block; margin-top:4px;
-        }
-        .modal-warn{
-            font-size:12.5px; color:var(--danger); font-weight:600;
-            margin-top:14px; padding:10px 16px;
-            background:rgba(var(--danger-rgb),0.08); border-radius:10px; display:inline-block;
-        }
-        .modal-actions{ display:flex; gap:10px; justify-content:center; margin-top:22px; }
-        .modal-actions .btn{ flex:1; justify-content:center; }
-
         /* ===== RESPONSIVE ===== */
         @media (max-width: 900px){ 
             .detail-grid-wrap{ grid-template-columns:1fr; }
         }
         @media (max-width: 768px){
+            .client-detail-wrap { padding: 0 16px; }
             .page-head{ flex-direction:column; }
             .head-actions{ width:100%; }
             .head-actions .btn{ flex:1; }
@@ -326,7 +272,6 @@
             .page-head h1 .client-badge{ font-size:16px; }
             .profile-panel{ padding:20px; }
             .activity-panel{ padding:18px; }
-            .modal-box{ padding:24px 20px; }
             .profile-stats{ grid-template-columns:1fr 1fr; }
         }
         @media (max-width: 480px){
@@ -363,10 +308,6 @@
                     <svg class="icon"><use href="#ic-edit"/></svg>
                     Edit
                 </a>
-                <button type="button" class="btn btn-danger btn-sm" onclick="document.getElementById('deleteModal').classList.add('open')">
-                    <svg class="icon"><use href="#ic-trash"/></svg>
-                    Hapus
-                </button>
             </div>
         </div>
 
@@ -493,38 +434,20 @@
         </div>
     </div>
 
-    {{-- ===== DELETE MODAL ===== --}}
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div class="modal-ic">
-                <svg class="icon"><use href="#ic-alert-triangle"/></svg>
-            </div>
-            <h3>Hapus Klien Ini?</h3>
-            <p>Klien <br><b>{{ $client->name }}</b></p>
-            <p style="margin-top:4px;">akan dihapus permanen dan tidak bisa dikembalikan.</p>
-            <div class="modal-warn">⚠️ Semua faktur dan penawaran yang terkait akan ikut terhapus.</div>
-            <form method="POST" action="{{ route('clients.destroy', $client) }}">
-                @csrf
-                @method('DELETE')
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-outline" onclick="document.getElementById('deleteModal').classList.remove('open')">Batal</button>
-                    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
-        // ===== Modal =====
-        document.getElementById('deleteModal').addEventListener('click', function(e){
-            if(e.target === this) this.classList.remove('open');
-        });
-
-        // ===== ESC =====
-        document.addEventListener('keydown', function(e){
-            if(e.key === 'Escape'){
-                document.getElementById('deleteModal').classList.remove('open');
-            }
+        // ===== RIPPLE EFFECT =====
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
         });
     </script>
 </x-app-layout>

@@ -5,14 +5,20 @@
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-        $categories = [
-            ['id' => 1, 'name' => 'Bahan Baku'],
-            ['id' => 2, 'name' => 'Transportasi'],
-            ['id' => 3, 'name' => 'Utilitas'],
-            ['id' => 4, 'name' => 'Produksi'],
-            ['id' => 5, 'name' => 'Marketing'],
-            ['id' => 6, 'name' => 'Operasional'],
+        // 🔥 AMBIL KATEGORI DARI SESSION (sama seperti di halaman expense-categories)
+        $defaultExpenseCategories = [
+            ['name' => 'Bahan Baku', 'desc' => 'Kain, pewarna, malam, dan perlengkapan batik', 'count' => 2, 'total' => 3475000],
+            ['name' => 'Transportasi', 'desc' => 'Pengiriman bahan & produk jadi', 'count' => 1, 'total' => 350000],
+            ['name' => 'Utilitas', 'desc' => 'Listrik, air, dan internet workshop', 'count' => 1, 'total' => 820000],
+            ['name' => 'Produksi', 'desc' => 'Upah pengrajin & biaya proses produksi', 'count' => 1, 'total' => 4200000],
+            ['name' => 'Marketing', 'desc' => 'Promosi, konten, dan iklan online', 'count' => 1, 'total' => 600000],
         ];
+
+        if (!session()->has('expense_categories')) {
+            session(['expense_categories' => $defaultExpenseCategories]);
+        }
+
+        $categories = session('expense_categories', []);
     @endphp
 
     <style>
@@ -355,10 +361,18 @@
             cursor: pointer;
         }
 
+        /* 🔥 FIX KONTRAST DROPDOWN - PAKAI HEX LANGSUNG */
         .ed-group select option {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            padding: 8px;
+            background-color: #1a1f2e;
+            color: #e8edf5;
+            padding: 10px 14px;
+            font-size: 14px;
+        }
+
+        .ed-group select option:checked,
+        .ed-group select option:hover {
+            background-color: #0d2a1f;
+            color: #34d399;
         }
 
         .ed-group .error-text {
@@ -483,8 +497,8 @@
                         <span>Deskripsi</span>
                         <span class="required">*</span>
                     </label>
-                    <input type="text" name="desc" value="{{ $expense['desc'] }}" required>
-                    @error('desc')
+                    <input type="text" name="description" value="{{ $expense['description'] ?? $expense['desc'] }}" required>
+                    @error('description')
                         <span class="error-text">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"/>
@@ -502,15 +516,15 @@
                             <span>Kategori</span>
                             <span class="required">*</span>
                         </label>
-                        <select name="kategori" required>
+                        <select name="category_id" required>
                             <option value="">Pilih Kategori</option>
-                            @foreach($categories as $c)
-                                <option value="{{ $c['name'] }}" {{ $expense['kategori'] == $c['name'] ? 'selected' : '' }}>
-                                    {{ $c['name'] }}
+                            @foreach($categories as $index => $category)
+                                <option value="{{ $index }}" {{ ($expense['category_id'] ?? $expense['kategori_index'] ?? '') == $index ? 'selected' : '' }}>
+                                    {{ $category['name'] }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('kategori')
+                        @error('category_id')
                             <span class="error-text">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10"/>
@@ -572,8 +586,8 @@
                         <span class="required">*</span>
                     </label>
                     <select name="status" required>
-                        <option value="lunas" {{ $expense['status'] == 'lunas' ? 'selected' : '' }}>Lunas</option>
-                        <option value="pending" {{ $expense['status'] == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="lunas" {{ ($expense['status'] ?? '') == 'lunas' ? 'selected' : '' }}>Lunas</option>
+                        <option value="pending" {{ ($expense['status'] ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
                     </select>
                     <span class="helper">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
