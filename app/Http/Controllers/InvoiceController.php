@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
 {
+    /**
+     * Batas maksimal nominal total faktur.
+     * Kolom `subtotal`, `tax_amount`, `total` di tabel invoices bertipe
+     * decimal(15,2) => kapasitas maksimal 9.999.999.999.999,99 (13 digit + 2 desimal).
+     */
+    private const MAX_TOTAL = 9999999999999.99;
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -111,12 +118,16 @@ class InvoiceController extends Controller
             'client_id'   => 'required|exists:clients,id',
             'issue_date'  => 'required|date',
             'due_date'    => 'required|date|after_or_equal:issue_date',
-            'subtotal'    => 'nullable|numeric|min:0',
-            'tax'         => 'nullable|numeric|min:0',
-            'total'       => 'required|numeric|min:0',
+            'subtotal'    => 'nullable|numeric|min:0|max:' . self::MAX_TOTAL,
+            'tax_amount'  => 'nullable|numeric|min:0|max:' . self::MAX_TOTAL,
+            'total'       => 'required|numeric|min:0|max:' . self::MAX_TOTAL,
             'status'      => 'required|in:draft,sent,paid,cancelled',
             'notes'       => 'nullable|string|max:500',
             'items'       => 'nullable|array',
+        ], [
+            'total.max'       => 'Total faktur tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
+            'subtotal.max'    => 'Subtotal tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
+            'tax_amount.max'  => 'Nilai pajak tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
         ]);
 
         $invoiceNumber = $this->generateInvoiceNumber($company->id);
@@ -133,7 +144,7 @@ class InvoiceController extends Controller
             'issue_date'     => $validated['issue_date'],
             'due_date'       => $validated['due_date'],
             'subtotal'       => $validated['subtotal'] ?? 0,
-            'tax'            => $validated['tax'] ?? 0,
+            'tax_amount'     => $validated['tax_amount'] ?? 0,
             'total'          => $validated['total'],
             'status'         => $validated['status'],
             'notes'          => $validated['notes'] ?? null,
@@ -191,12 +202,16 @@ class InvoiceController extends Controller
             'client_id'   => 'required|exists:clients,id',
             'issue_date'  => 'required|date',
             'due_date'    => 'required|date|after_or_equal:issue_date',
-            'subtotal'    => 'nullable|numeric|min:0',
-            'tax'         => 'nullable|numeric|min:0',
-            'total'       => 'required|numeric|min:0',
+            'subtotal'    => 'nullable|numeric|min:0|max:' . self::MAX_TOTAL,
+            'tax_amount'  => 'nullable|numeric|min:0|max:' . self::MAX_TOTAL,
+            'total'       => 'required|numeric|min:0|max:' . self::MAX_TOTAL,
             'status'      => 'required|in:draft,sent,paid,cancelled',
             'notes'       => 'nullable|string|max:500',
             'items'       => 'nullable|array',
+        ], [
+            'total.max'       => 'Total faktur tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
+            'subtotal.max'    => 'Subtotal tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
+            'tax_amount.max'  => 'Nilai pajak tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
         ]);
 
         $itemsData = [];
@@ -209,7 +224,7 @@ class InvoiceController extends Controller
             'issue_date' => $validated['issue_date'],
             'due_date'   => $validated['due_date'],
             'subtotal'   => $validated['subtotal'] ?? 0,
-            'tax'        => $validated['tax'] ?? 0,
+            'tax_amount' => $validated['tax_amount'] ?? 0,
             'total'      => $validated['total'],
             'status'     => $validated['status'],
             'notes'      => $validated['notes'] ?? null,

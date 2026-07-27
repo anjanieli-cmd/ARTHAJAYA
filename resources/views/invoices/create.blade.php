@@ -211,6 +211,85 @@
             border-top:1px solid var(--border); margin-top:8px;
         }
 
+        /* ============================================================
+           DARK MODE FIX FOR SELECT DROPDOWN
+           ============================================================ */
+        /* Base select styling */
+        .field-group select {
+            background-color: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .field-group select:focus {
+            border-color: var(--accent);
+            background: var(--surface);
+            box-shadow: 0 0 0 4px rgba(var(--emerald-rgb), 0.08);
+        }
+
+        /* Option styling - works in most browsers */
+        .field-group select option {
+            background-color: var(--surface);
+            color: var(--text);
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+
+        .field-group select option:checked {
+            background: var(--accent-soft);
+            color: var(--text);
+        }
+
+        /* Dark mode specific fixes */
+        [data-theme="dark"] .field-group select {
+            background-color: #1a1a2e;
+            color: #e2e8f0;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .field-group select:focus {
+            border-color: var(--accent);
+            background-color: #1a1a2e;
+            box-shadow: 0 0 0 4px rgba(var(--emerald-rgb), 0.15);
+        }
+
+        [data-theme="dark"] .field-group select option {
+            background-color: #1a1a2e !important;
+            color: #e2e8f0 !important;
+        }
+
+        [data-theme="dark"] .field-group select option:checked {
+            background: rgba(var(--emerald-rgb), 0.25) !important;
+            color: #ffffff !important;
+        }
+
+        [data-theme="dark"] .field-group select option:hover,
+        [data-theme="dark"] .field-group select option:focus {
+            background: rgba(var(--emerald-rgb), 0.2) !important;
+            color: #ffffff !important;
+        }
+
+        /* Firefox specific dark mode fix */
+        @-moz-document url-prefix() {
+            [data-theme="dark"] .field-group select {
+                background-color: #1a1a2e !important;
+                color: #e2e8f0 !important;
+            }
+            [data-theme="dark"] .field-group select option {
+                background-color: #1a1a2e !important;
+                color: #e2e8f0 !important;
+            }
+        }
+
+        /* Edge/Chromium specific dark mode fix for select dropdown */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            [data-theme="dark"] .field-group select option {
+                background-color: #1a1a2e !important;
+                color: #e2e8f0 !important;
+            }
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1100px){ .field-grid{ grid-template-columns:1fr 1fr; } }
         @media (max-width: 768px){
@@ -369,14 +448,24 @@
                             </label>
                             <div class="input-wrap">
                                 <svg class="icon"><use href="#ic-dollar"/></svg>
-                                <input type="number" name="total" class="has-icon" value="{{ old('total') }}" placeholder="0" step="1000" min="0" required>
+                                <input
+                                    type="number"
+                                    name="total"
+                                    class="has-icon"
+                                    value="{{ old('total') }}"
+                                    placeholder="0"
+                                    step="1000"
+                                    min="0"
+                                    max="9999999999999.99"
+                                    required
+                                >
                             </div>
                             @error('total')
                                 <div class="field-error">
                                     <span>⚠️</span> {{ $message }}
                                 </div>
                             @enderror
-                            <div class="field-hint">Total nominal faktur dalam Rupiah.</div>
+                            <div class="field-hint">Total nominal faktur dalam Rupiah. Maksimal Rp9.999.999.999.999,99.</div>
                         </div>
 
                         {{-- Status --}}
