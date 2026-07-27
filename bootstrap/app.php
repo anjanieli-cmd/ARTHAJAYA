@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use App\Http\Middleware\EnsureOnboardingComplete;
+use App\Http\Middleware\EnsureUserHasAccessLevel;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Daftarkan middleware alias
         $middleware->alias([
             'onboarding.complete' => EnsureOnboardingComplete::class,
+            'access' => EnsureUserHasAccessLevel::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

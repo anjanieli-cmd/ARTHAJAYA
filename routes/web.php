@@ -22,6 +22,16 @@ use App\Http\Controllers\TeamMemberController;
 use App\Http\Controllers\IntegrationController;
 use App\Http\Controllers\SecurityController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\CompanyManagementController;
+use App\Http\Controllers\Admin\SystemStatsController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\SubscriptionPlanController;
+use App\Http\Controllers\Admin\SystemSettingController;
+use App\Http\Controllers\Admin\AnnouncementController;
+use App\Http\Controllers\Admin\AdminProfileController;
+use App\Http\Controllers\Admin\AdminSecurityController;
 
 // Homepage
 Route::get('/', function () {
@@ -1637,4 +1647,58 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+    // ===== ADMIN ROUTES (hanya admin) =====
+    Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+        return view('admin.dashboard', compact('user'));
+    })->name('dashboard');
+
+    Route::resource('users', UserManagementController::class)
+        ->except(['create', 'store', 'show']);
+
+    Route::get('/companies', [CompanyManagementController::class, 'index'])->name('companies.index');
+    Route::get('/companies/{company}/edit', [CompanyManagementController::class, 'edit'])->name('companies.edit');
+    Route::put('/companies/{company}', [CompanyManagementController::class, 'update'])->name('companies.update');
+
+    Route::get('/stats', [SystemStatsController::class, 'index'])->name('stats.index');
+
+    Route::controller(AdminNotificationController::class)->prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/{id}/read', 'markAsRead')->name('read');
+        Route::post('/read-all', 'markAllAsRead')->name('readAll');
+    });
+
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity.index');
+
+    Route::resource('subscription-plans', SubscriptionPlanController::class)
+        ->except(['show']);
+
+    Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
+
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
+
+    Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/security', [AdminSecurityController::class, 'index'])->name('security.index');
+    Route::put('/security/password', [AdminSecurityController::class, 'updatePassword'])->name('security.password.update');
+    Route::post('/security/two-factor/toggle', [AdminSecurityController::class, 'toggleTwoFactor'])->name('security.two-factor.toggle');
+
+    });
+
+    // ===== STAFF ROUTES (admin & staff boleh masuk) =====
+    Route::middleware(['auth', 'access:admin,staff'])->prefix('staff')->name('staff.')->group(function () {
+
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+        return view('staff.dashboard', compact('user'));
+    })->name('dashboard');
+
 });

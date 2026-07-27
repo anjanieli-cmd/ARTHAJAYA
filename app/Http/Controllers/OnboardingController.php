@@ -53,6 +53,13 @@ class OnboardingController extends Controller
             'company_id' => $company->id,
         ]);
 
+        \App\Models\AdminNotification::notify(
+            'new_company',
+            'Company baru terdaftar',
+            "{$company->name} baru saja menyelesaikan onboarding.",
+            'building'
+        );
+
         return redirect()->route('onboarding.show')->with('completed', true);
     }
 

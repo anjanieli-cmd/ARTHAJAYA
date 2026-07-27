@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\AccessLevel;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -20,16 +21,36 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at'   => 'datetime',
+            'password'            => 'hashed',
+            'password_changed_at' => 'datetime',
+            'two_factor_enabled'  => 'boolean',
+            'access_level'        => AccessLevel::class,
         ];
     }
 
     protected $fillable = [
         'name', 'email', 'password', 'company_id',
-        'phone', 'position', 'avatar',
+        'phone', 'position', 'avatar', 'role', 'access_level',
         'two_factor_enabled', 'password_changed_at',
     ];
+
+    /**
+     * Cek apakah user adalah admin (hak akses sistem)
+     */
+    public function isAdmin(): bool
+    {
+        return $this->access_level === AccessLevel::Admin;
+    }
+
+    /**
+     * Cek access level tertentu, bisa lebih dari satu
+     * Contoh: $user->hasAccessLevel(AccessLevel::Admin, AccessLevel::Staff)
+     */
+    public function hasAccessLevel(AccessLevel ...$levels): bool
+    {
+        return in_array($this->access_level, $levels);
+    }
 
     /**
      * Relasi ke Company
