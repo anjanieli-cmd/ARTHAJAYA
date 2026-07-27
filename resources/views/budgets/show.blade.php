@@ -199,18 +199,6 @@
       color: var(--text-primary);
     }
 
-    .bs-btn-danger {
-      background: var(--danger);
-      color: #fff;
-      border: none;
-    }
-
-    .bs-btn-danger:hover {
-      background: #DC2626;
-      color: #fff;
-      transform: translateY(-2px);
-    }
-
     .bs-btn .ripple {
       position: absolute;
       border-radius: 50%;
@@ -479,10 +467,6 @@
           <svg class="icon"><use href="#ic-edit"/></svg>
           Edit
         </a>
-        <button class="bs-btn bs-btn-danger" onclick="confirmDelete({{ $budget['id'] }})">
-          <svg class="icon"><use href="#ic-trash"/></svg>
-          Hapus
-        </button>
       </div>
     </div>
 
@@ -605,32 +589,10 @@
 
   </div>
 
-  <!-- Delete Confirmation Modal -->
-  <div class="modal-overlay" id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:var(--bg-card);border-radius:var(--radius-md);padding:32px;max-width:440px;width:90%;border:1px solid var(--border-color);">
-      <svg style="width:48px;height:48px;color:var(--danger);margin:0 auto 16px;display:block;"><use href="#ic-trash"/></svg>
-      <h3 style="font-size:18px;font-weight:600;margin:0 0 8px;text-align:center;color:var(--text-primary);">Hapus Anggaran</h3>
-      <p style="color:var(--text-secondary);text-align:center;margin:0 0 24px;font-size:14px;line-height:1.5;">
-        Apakah Anda yakin ingin menghapus anggaran <strong>{{ $budget['category'] }}</strong>? Tindakan ini tidak dapat dibatalkan.
-      </p>
-      <div style="display:flex;gap:10px;justify-content:center;">
-        <button class="bs-btn bs-btn-ghost" onclick="closeDeleteModal()" style="min-width:100px;justify-content:center;">Batal</button>
-        <form id="deleteForm" method="POST" style="display:inline;">
-          @csrf
-          @method('DELETE')
-          <button type="submit" class="bs-btn" style="min-width:100px;justify-content:center;background:var(--danger);color:#fff;border:none;">
-            Hapus
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <!-- SVG Icons -->
   <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
     <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
     <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
-    <symbol id="ic-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></symbol>
     <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
   </svg>
 
@@ -650,21 +612,6 @@
           setTimeout(() => { ripple.remove(); }, 600);
         });
       });
-    });
-
-    function confirmDelete(id) {
-      document.getElementById('deleteForm').action = '{{ route("budgets.destroy", ["index" => "__ID__"]) }}'.replace('__ID__', id);
-      document.getElementById('deleteModal').style.display = 'flex';
-    }
-
-    function closeDeleteModal() {
-      document.getElementById('deleteModal').style.display = 'none';
-    }
-
-    document.getElementById('deleteModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeDeleteModal();
-      }
     });
   </script>
 

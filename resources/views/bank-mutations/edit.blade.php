@@ -41,7 +41,7 @@
 
   <style>
     /* ============================================
-       MUTASI EDIT - Premium Design
+       MUTASI EDIT - Premium Design - FULL WIDTH
        ============================================ */
     
     .me-wrap {
@@ -75,6 +75,7 @@
       
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
+      padding: 0 24px;
     }
 
     .me-wrap * { box-sizing: border-box; }
@@ -218,17 +219,16 @@
       to { transform: scale(4); opacity: 0; }
     }
 
-    /* FORM LAYOUT */
+    /* FORM LAYOUT - FULL WIDTH */
     .me-form {
-      max-width: 900px;
-      margin: 0 auto;
+      max-width: 100%;
     }
 
     .me-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 28px 32px;
+      padding: 32px 36px;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -239,18 +239,18 @@
     }
 
     .me-card .title {
-      font-size: 15px;
+      font-size: 17px;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .me-card .title .icon {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       color: var(--theme-primary);
     }
 
@@ -264,12 +264,12 @@
     .me-type-selector {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 14px;
+      margin-bottom: 24px;
     }
 
     .me-type-btn {
-      padding: 14px 20px;
+      padding: 16px 24px;
       border: 2px solid var(--border-color);
       border-radius: var(--radius-sm);
       background: var(--bg-card-active);
@@ -282,7 +282,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
       font-family: 'Inter', sans-serif;
     }
 
@@ -300,12 +300,12 @@
     }
 
     .me-type-btn .icon {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
     }
 
     .me-type-btn .type-label {
-      font-size: 13px;
+      font-size: 14px;
     }
 
     .me-type-btn .type-desc {
@@ -321,18 +321,16 @@
 
     /* FORM GROUP */
     .me-form-group {
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .me-form-group:last-child { margin-bottom: 0; }
 
     .me-form-group label {
       display: block;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      color: var(--text-secondary);
       margin-bottom: 6px;
     }
 
@@ -345,12 +343,12 @@
     .me-form-group select,
     .me-form-group textarea {
       width: 100%;
-      padding: 10px 14px;
+      padding: 12px 16px;
       background: var(--bg-card-active);
-      border: 1px solid var(--border-color);
+      border: 2px solid var(--border-color);
       border-radius: var(--radius-sm);
       color: var(--text-primary);
-      font-size: 13px;
+      font-size: 14px;
       font-family: 'Inter', sans-serif;
       transition: all 0.3s ease;
       outline: none;
@@ -360,7 +358,7 @@
     .me-form-group select:focus,
     .me-form-group textarea:focus {
       border-color: var(--theme-primary);
-      background: var(--bg-card-hover);
+      background: var(--bg-card);
       box-shadow: 0 0 0 4px var(--theme-glow);
     }
 
@@ -401,7 +399,7 @@
     .me-form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 20px;
     }
 
     /* INFO BOX */
@@ -409,11 +407,11 @@
       background: var(--theme-soft);
       border: 1px solid var(--theme-glow);
       border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      margin-bottom: 18px;
+      padding: 14px 18px;
+      margin-bottom: 22px;
       display: flex;
       align-items: flex-start;
-      gap: 10px;
+      gap: 12px;
     }
 
     .me-info-box .icon {
@@ -437,23 +435,31 @@
     /* FORM ACTIONS */
     .me-form-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 24px;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 2px solid var(--border-color);
     }
 
     .me-form-actions .me-btn {
       flex: 1;
       justify-content: center;
-      padding: 12px 20px;
+      padding: 12px 24px;
+      font-size: 14px;
+    }
+
+    .me-form-actions .me-btn-primary {
+      flex: 2;
     }
 
     /* RESPONSIVE */
     @media (max-width: 768px) {
       .me-form-row { 
         grid-template-columns: 1fr; 
+        gap: 0;
       }
       .me-card { 
-        padding: 20px; 
+        padding: 24px 20px; 
       }
       .me-type-selector { 
         grid-template-columns: 1fr; 
@@ -461,6 +467,7 @@
     }
 
     @media (max-width: 640px) {
+      .me-wrap { padding: 0 16px; }
       .me-header { 
         flex-direction: column; 
       }
@@ -476,6 +483,9 @@
       }
       .me-form-actions .me-btn { 
         flex: none; 
+      }
+      .me-form-actions .me-btn-primary {
+        flex: none;
       }
     }
 
@@ -509,10 +519,6 @@
         </p>
       </div>
       <div class="me-actions">
-        <a href="{{ route('bank-mutations.show', $mutation['id']) }}" class="me-btn me-btn-ghost">
-          <svg class="icon"><use href="#ic-eye"/></svg>
-          Batal
-        </a>
         <a href="{{ route('bank-mutations.index') }}" class="me-btn me-btn-ghost">
           <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow-right"/></svg>
           Kembali
@@ -620,6 +626,10 @@
 
         <!-- Actions -->
         <div class="me-form-actions">
+          <a href="{{ route('bank-mutations.index') }}" class="me-btn me-btn-ghost">
+            <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow-right"/></svg>
+            Batal
+          </a>
           <button type="submit" class="me-btn me-btn-primary">
             <svg class="icon"><use href="#ic-check"/></svg>
             Update Mutasi
@@ -639,7 +649,6 @@
     <symbol id="ic-bank" viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="12" rx="2"/><path d="M3 8L12 2l9 6"/><line x1="8" y1="14" x2="16" y2="14"/></symbol>
     <symbol id="ic-receive" viewBox="0 0 24 24"><polyline points="20 12 12 20 4 12"/><line x1="12" y1="4" x2="12" y2="20"/></symbol>
     <symbol id="ic-send" viewBox="0 0 24 24"><polyline points="20 12 12 4 4 12"/><line x1="12" y1="20" x2="12" y2="4"/></symbol>
-    <symbol id="ic-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
   </svg>
 
   <script>

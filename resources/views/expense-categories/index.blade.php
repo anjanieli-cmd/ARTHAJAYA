@@ -5,6 +5,11 @@
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
+        // 🔧 SEEDING SESSION — biar show/edit/delete bisa nemu datanya
+        if (!session()->has('expense_categories')) {
+            session(['expense_categories' => $categories]);
+        }
+
         $categoriesCollection = collect($categories);
         $totalKategori     = $categoriesCollection->count();
         $totalSemuaBiaya   = $categoriesCollection->sum('total');
@@ -12,7 +17,66 @@
         $totalTransaksi    = $categoriesCollection->sum('count');
         
         $colors = ['#EC4C93', '#34B583', '#F0A83C', '#4E8FF0', '#9B7BE0', '#E85A5A', '#14B8A6', '#F97316'];
+
+        function formatAngkaPendek($angka) {
+            if ($angka >= 1000000000) {
+                return number_format($angka / 1000000000, 1, ',', '') . ' M';
+            } elseif ($angka >= 1000000) {
+                return number_format($angka / 1000000, 1, ',', '') . ' Jt';
+            } elseif ($angka >= 1000) {
+                return number_format($angka / 1000, 0, ',', '') . ' Rb';
+            } else {
+                return number_format($angka, 0, ',', '.');
+            }
+        }
     @endphp
+
+    <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </symbol>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </symbol>
+            <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/>
+            </symbol>
+            <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </symbol>
+            <symbol id="ic-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </symbol>
+            <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </symbol>
+            <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </symbol>
+            <symbol id="ic-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </symbol>
+            <symbol id="ic-trending" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/>
+            </symbol>
+            <symbol id="ic-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </symbol>
+            <symbol id="ic-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+            </symbol>
+            <symbol id="ic-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+            </symbol>
+            <symbol id="ic-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+            </symbol>
+        </defs>
+    </svg>
 
     <style>
         /* ============================================
@@ -39,8 +103,13 @@
             
             --danger: #E85A5A;
             --danger-soft: rgba(232, 90, 90, 0.12);
+            --danger-rgb: 232, 90, 90;
+            
             --success: #34B583;
             --success-soft: rgba(52, 181, 131, 0.14);
+            
+            --warning: #F0A83C;
+            --warning-soft: rgba(240, 168, 60, 0.14);
             
             --radius-sm: 10px;
             --radius-md: 16px;
@@ -51,6 +120,7 @@
             
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
+            padding: 0 24px;
         }
 
         .cat-modern * {
@@ -105,6 +175,130 @@
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
+        }
+
+        /* ===== TOAST ===== */
+        .toast-container{
+            position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; max-width:380px; width:100%;
+        }
+        .toast{
+            background:var(--modal-bg); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 20px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:fadeSlideUp .35s cubic-bezier(.16,1,.3,1);
+            display:flex; align-items:center; gap:12px; backdrop-filter:blur(12px);
+        }
+        .toast .toast-icon{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .toast .toast-icon.success{ background:var(--success-soft); color:var(--success); }
+        .toast .toast-icon.error{ background:var(--danger-soft); color:var(--danger); }
+        .toast .toast-icon .icon{ width:18px; height:18px; }
+        .toast .toast-content{ flex:1; }
+        .toast .toast-title{ font-size:13px; font-weight:600; color:var(--text); }
+        .toast .toast-msg{ font-size:12px; color:var(--text-mute); }
+        .toast .toast-close{ background:none; border:none; color:var(--text-faint); cursor:pointer; padding:4px; }
+        .toast .toast-close .icon{ width:14px; height:14px; }
+
+        /* ===== FILTER BAR ===== */
+        .filter-bar{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+            background:var(--bg-card);
+            padding:12px 20px;
+            border-radius:var(--radius-sm);
+            border:1px solid var(--border-color);
+            margin-bottom:24px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-bar:focus-within {
+            border-color: var(--theme-primary);
+            box-shadow: 0 0 0 3px var(--theme-soft);
+        }
+
+        .filter-bar form{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+            width:100%;
+        }
+
+        .search-wrap{
+            position:relative;
+            flex:1;
+            min-width:220px;
+        }
+
+        .search-wrap .icon{
+            position:absolute;
+            left:14px;
+            top:50%;
+            transform:translateY(-50%);
+            width:16px;
+            height:16px;
+            color:var(--text-tertiary);
+            pointer-events:none;
+            transition: color 0.3s ease;
+        }
+
+        .search-wrap:focus-within .icon {
+            color: var(--theme-primary);
+        }
+
+        .filter-bar input[type=text]{
+            width:100%;
+            padding:10px 16px 10px 42px;
+            border-radius:var(--radius-sm);
+            background:var(--bg-card-active);
+            border:1px solid transparent;
+            color:var(--text-primary);
+            font-size:13px;
+            outline:none;
+            transition:all .3s ease;
+            font-family:inherit;
+        }
+
+        .filter-bar input[type=text]:focus{
+            border-color:var(--theme-primary);
+            background:var(--bg-card);
+            box-shadow:0 0 0 3px rgba(var(--emerald-rgb),0.1);
+        }
+
+        .filter-bar input[type=text]::placeholder{
+            color:var(--text-tertiary);
+        }
+
+        .filter-actions{
+            display:flex;
+            gap:8px;
+            align-items:center;
+        }
+
+        .filter-actions .cat-btn {
+            padding: 8px 14px;
+            font-size: 12px;
+        }
+
+        /* SEARCH INDICATOR */
+        .search-indicator {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            padding: 4px 12px;
+            background: var(--bg-card-active);
+            border-radius: 20px;
+            white-space: nowrap;
+            display: none;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .search-indicator.active {
+            display: inline-flex;
+        }
+
+        .search-indicator .count {
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
         /* HEADER */
@@ -359,6 +553,12 @@
             gap: 16px;
         }
 
+        .cat-grid.loading {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
         .cat-item {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -553,120 +753,196 @@
             font-size: 14px;
         }
 
-        /* MODAL DELETE */
+        /* ============================================================
+           MODAL DELETE - PINGGIRAN BULAT 24px (SAMA KAYA AGING)
+           ============================================================ */
         .cat-modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
-            z-index: 999;
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
             align-items: center;
             justify-content: center;
             padding: 20px;
             animation: modalFadeIn 0.3s ease;
         }
+
         .cat-modal-overlay.active {
             display: flex;
         }
+
+        [data-theme="dark"] .cat-modal-box { 
+            background: #0F1520; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        [data-theme="light"] .cat-modal-box { 
+            background: #FFFFFF; 
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
         .cat-modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
+            border-radius: 24px;              /* <--- INI BIKIN GA LANCIP! */
             max-width: 440px;
             width: 100%;
             padding: 32px 36px;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
             animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             text-align: center;
         }
+
         [data-theme="light"] .cat-modal-box {
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
         }
+
         .cat-modal-box .icon-danger {
             width: 56px;
             height: 56px;
-            color: var(--danger);
-            margin: 0 auto 16px;
-            background: var(--danger-soft);
+            background: #FEE2E2;
             border-radius: 50%;
-            padding: 12px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        [data-theme="dark"] .cat-modal-box .icon-danger {
+            background: rgba(220, 38, 38, 0.2);
+        }
+
+        .cat-modal-box .icon-danger svg {
+            width: 28px;
+            height: 28px;
+            stroke: #DC2626;
+        }
+
+        [data-theme="dark"] .cat-modal-box .icon-danger svg {
+            stroke: #F87171;
+        }
+
         .cat-modal-box h3 {
             font-size: 20px;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin: 0 0 8px 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         .cat-modal-box p {
             font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 4px;
+            margin: 0 0 4px 0;
             line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         .cat-modal-box .category-name {
+            font-family: 'IBM Plex Mono', monospace;
             font-weight: 600;
             color: var(--text-primary);
             background: var(--bg-card-active);
-            padding: 2px 12px;
-            border-radius: 6px;
+            padding: 4px 14px;
+            border-radius: 8px;
             display: inline-block;
+            margin-top: 4px;
+            font-size: 15px;
         }
+
         .cat-modal-box .warning-text {
             font-size: 13px;
-            color: var(--danger);
+            color: #DC2626;
             font-weight: 500;
-            margin-top: 12px;
+            margin-top: 16px;
             padding: 10px 16px;
-            background: var(--danger-soft);
-            border-radius: var(--radius-sm);
+            background: #FEE2E2;
+            border-radius: 10px;
             display: inline-block;
         }
+
+        [data-theme="dark"] .cat-modal-box .warning-text {
+            color: #F87171;
+            background: rgba(220, 38, 38, 0.15);
+        }
+
         .cat-modal-actions {
             display: flex;
             gap: 12px;
             justify-content: center;
             margin-top: 24px;
         }
+
         .cat-modal-actions .btn {
             min-width: 100px;
             justify-content: center;
             padding: 10px 22px;
-            border-radius: var(--radius-sm);
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             border: none;
             transition: all 0.25s ease;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
+
         .cat-modal-actions .btn .icon {
             width: 16px;
             height: 16px;
         }
+
         .cat-modal-actions .btn-outline {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
         }
+
         .cat-modal-actions .btn-outline:hover {
             background: var(--bg-card-hover);
             border-color: var(--border-hover);
             transform: translateY(-2px);
             color: var(--text-primary);
         }
+
         .cat-modal-actions .btn-danger {
-            background: var(--danger);
+            background: #DC2626;
             color: #fff;
         }
+
         .cat-modal-actions .btn-danger:hover {
-            background: #d14a4a;
+            background: #B91C1C;
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(232, 90, 90, 0.4);
+            box-shadow: 0 8px 22px rgba(220, 38, 38, 0.35);
+        }
+
+        [data-theme="dark"] .cat-modal-actions .btn-danger {
+            background: #DC2626;
+        }
+
+        [data-theme="dark"] .cat-modal-actions .btn-danger:hover {
+            background: #B91C1C;
+        }
+
+        /* CSS UNTUK NAVBAR TIDAK KE-BLUR */
+        body.aj-modal-open main {
+            position: relative;
+            z-index: 9998;
+        }
+
+        body.aj-modal-open .sidebar,
+        body.aj-modal-open .topbar {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        body.aj-modal-open .sidebar *,
+        body.aj-modal-open .topbar * {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
         /* RESPONSIVE */
@@ -682,6 +958,33 @@
             }
             .cat-actions {
                 opacity: 1;
+            }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 12px 16px;
+            }
+            .filter-bar form {
+                flex-direction: column;
+            }
+            .search-wrap {
+                min-width: 100%;
+            }
+            .filter-actions {
+                width: 100%;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+            }
+            .cat-modal-box {
+                padding: 24px 20px;
+                margin: 10px;
+            }
+            .cat-modal-actions {
+                flex-direction: column;
+            }
+            .cat-modal-actions .btn {
+                width: 100%;
             }
         }
 
@@ -712,6 +1015,21 @@
             .cat-item {
                 padding: 18px 16px;
             }
+
+            .cat-modal-box {
+                padding: 20px 16px;
+            }
+            .cat-modal-box h3 {
+                font-size: 18px;
+            }
+            .cat-modal-box .icon-danger {
+                width: 48px;
+                height: 48px;
+            }
+            .cat-modal-box .icon-danger svg {
+                width: 24px;
+                height: 24px;
+            }
         }
 
         @media (max-width: 380px) {
@@ -731,6 +1049,9 @@
 
     <div class="cat-modern">
 
+        <!-- ===== TOAST CONTAINER ===== -->
+        <div class="toast-container" id="toastContainer"></div>
+
         <!-- HEADER -->
         <div class="cat-header animate-in" style="animation-delay: 0.05s;">
             <div class="cat-header-left">
@@ -741,22 +1062,16 @@
                 <h1>Kategori Biaya</h1>
                 <p class="subtitle">
                     Kelompokkan pengeluaran usaha agar laporan lebih rapi — 
-                    <strong>{{ $totalKategori }}</strong> kategori aktif
+                    <strong id="catTotalCount">{{ $totalKategori }}</strong> kategori aktif
                 </p>
             </div>
             <div class="cat-header-actions">
                 <a href="{{ route('expenses.index') }}" class="cat-btn cat-btn-ghost">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-file-text"/></svg>
                     Lihat Pengeluaran
                 </a>
                 <a href="{{ route('expense-categories.create') }}" class="cat-btn cat-btn-primary">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-plus"/></svg>
                     Kategori Baru
                 </a>
             </div>
@@ -765,80 +1080,91 @@
         <!-- SUCCESS MESSAGE -->
         @if(session('success'))
             <div class="cat-success animate-in" style="animation-delay: 0.08s;">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
+                <svg class="icon"><use href="#ic-check-circle"/></svg>
                 <span class="message">{{ session('success') }}</span>
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="cat-success" style="background:var(--danger-soft);border-color:var(--danger);color:var(--danger);">
+                <svg class="icon"><use href="#ic-alert-triangle"/></svg>
+                <span class="message">{{ session('error') }}</span>
+            </div>
+        @endif
+
         <!-- STATS -->
-        <div class="cat-stats">
+        <div class="cat-stats" id="catStatCards">
             <div class="cat-stat-card animate-in" style="animation-delay: 0.10s;">
                 <div class="stat-head">
                     <div class="ic">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-tag"/></svg>
                     </div>
                     <span class="label">Total Kategori</span>
                 </div>
-                <div class="stat-value primary">{{ $totalKategori }}</div>
+                <div class="stat-value primary" id="catStatTotal">{{ $totalKategori }}</div>
                 <div class="stat-sub">Kelompok biaya aktif</div>
             </div>
 
             <div class="cat-stat-card animate-in" style="animation-delay: 0.15s;">
                 <div class="stat-head">
                     <div class="ic">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-file-text"/></svg>
                     </div>
                     <span class="label">Total Transaksi</span>
                 </div>
-                <div class="stat-value">{{ $totalTransaksi }}</div>
+                <div class="stat-value" id="catStatTransaksi">{{ $totalTransaksi }}</div>
                 <div class="stat-sub">Pengeluaran tercatat</div>
             </div>
 
             <div class="cat-stat-card animate-in" style="animation-delay: 0.20s;">
                 <div class="stat-head">
                     <div class="ic">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                            <polyline points="17 6 23 6 23 12"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-trending"/></svg>
                     </div>
                     <span class="label">Total Biaya</span>
                 </div>
-                <div class="stat-value primary mono">{{ $currencySymbol }}{{ number_format($totalSemuaBiaya, 0, ',', '.') }}</div>
+                <div class="stat-value primary mono" id="catStatTotalBiaya">{{ $currencySymbol }}{{ formatAngkaPendek($totalSemuaBiaya) }}</div>
                 <div class="stat-sub">Semua kategori</div>
             </div>
 
             <div class="cat-stat-card animate-in" style="animation-delay: 0.25s;">
                 <div class="stat-head">
                     <div class="ic">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                            <polyline points="17 6 23 6 23 12"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-layers"/></svg>
                     </div>
                     <span class="label">Kategori Terbesar</span>
                 </div>
-                <div class="stat-value warning">{{ $kategoriTerbesar['name'] ?? '-' }}</div>
-                <div class="stat-sub mono">{{ $kategoriTerbesar ? $currencySymbol . number_format($kategoriTerbesar['total'], 0, ',', '.') : 'Tidak ada data' }}</div>
+                <div class="stat-value warning" id="catStatTerbesar">{{ $kategoriTerbesar['name'] ?? '-' }}</div>
+                <div class="stat-sub mono" id="catStatTerbesarTotal">{{ $kategoriTerbesar ? $currencySymbol . formatAngkaPendek($kategoriTerbesar['total']) : 'Tidak ada data' }}</div>
             </div>
         </div>
 
+        <!-- ===== FILTER BAR (DI ANTARA STATS DAN GRID) ===== -->
+        <div class="filter-bar animate-in" style="animation-delay: 0.27s;">
+            <form method="GET" action="{{ route('expense-categories.index') }}" id="filterForm">
+                <div class="search-wrap">
+                    <svg class="icon"><use href="#ic-search"/></svg>
+                    <input type="text" name="q" id="catSearchInput" value="{{ request('q') }}" placeholder="Cari nama atau deskripsi kategori..." autocomplete="off">
+                </div>
+                <div class="filter-actions">
+                    <span class="search-indicator" id="searchIndicator">
+                        <span class="count" id="searchResultCount">0</span> hasil ditemukan
+                    </span>
+                    <a href="{{ route('expense-categories.index') }}" class="cat-btn cat-btn-ghost" id="resetBtn">
+                        <svg class="icon"><use href="#ic-x"/></svg>
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
         <!-- CATEGORY GRID -->
-        <div class="cat-grid">
+        <div class="cat-grid" id="catGrid">
             @forelse($categories as $index => $c)
                 @php
                     $color = $colors[$index % count($colors)];
                 @endphp
-                <div class="cat-item animate-in" style="animation-delay: {{ 0.30 + ($index * 0.05) }}s;">
+                <div class="cat-item animate-in" style="animation-delay: {{ 0.30 + ($index * 0.05) }}s;" data-id="{{ $index }}">
                     <div class="color-bar" style="background: {{ $color }};"></div>
                     
                     <div class="cat-top">
@@ -847,26 +1173,14 @@
                         </div>
                         <div class="cat-actions">
                             <a href="/expense-categories/show/{{ $index }}" class="btn-action show" title="Lihat Detail">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
+                                <svg class="icon"><use href="#ic-eye"/></svg>
                             </a>
                             <a href="/expense-categories/edit/{{ $index }}" class="btn-action edit" title="Edit">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                                    <path d="M15 5l4 4"/>
-                                </svg>
+                                <svg class="icon"><use href="#ic-edit"/></svg>
                             </a>
                             <button type="button" class="btn-action danger" title="Hapus"
                                     onclick="openDeleteModal('{{ $index }}', '{{ $c['name'] }}')">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M3 6h18"/>
-                                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                    <path d="M10 11v6"/>
-                                    <path d="M14 11v6"/>
-                                </svg>
+                                <svg class="icon"><use href="#ic-trash"/></svg>
                             </button>
                         </div>
                     </div>
@@ -876,29 +1190,20 @@
 
                     <div class="cat-footer">
                         <div class="stat">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                            </svg>
+                            <svg class="icon"><use href="#ic-file-text"/></svg>
                             <span class="label">Transaksi</span>
                             <span class="value mono">{{ $c['count'] }}</span>
                         </div>
-                        <div class="total mono">{{ $currencySymbol }}{{ number_format($c['total'], 0, ',', '.') }}</div>
+                        <div class="total mono">{{ $currencySymbol }}{{ formatAngkaPendek($c['total']) }}</div>
                     </div>
                 </div>
             @empty
                 <div class="cat-empty animate-in" style="animation-delay: 0.35s;">
-                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                    </svg>
+                    <svg class="empty-icon"><use href="#ic-tag"/></svg>
                     <h3>Belum Ada Kategori</h3>
                     <p>Belum ada kategori biaya yang tercatat di sistem.</p>
                     <a href="{{ route('expense-categories.create') }}" class="cat-btn cat-btn-primary" style="display: inline-flex;">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19"/>
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-plus"/></svg>
                         Buat Kategori Pertama
                     </a>
                 </div>
@@ -907,23 +1212,36 @@
 
     </div>
 
-    <!-- MODAL DELETE -->
+    <!-- ============================================================
+         MODAL DELETE - PINGGIRAN BULAT 24px (SAMA KAYA AGING)
+         ============================================================ -->
     <div class="cat-modal-overlay" id="deleteModal">
         <div class="cat-modal-box">
-            <svg class="icon-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
+            <!-- ICON DANGER -->
+            <div class="icon-danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+
+            <!-- JUDUL -->
             <h3>Hapus Kategori?</h3>
+
+            <!-- DESKRIPSI -->
             <p>
                 Anda yakin ingin menghapus kategori
                 <br>
                 <span class="category-name" id="deleteCategoryName">-</span>
             </p>
+
+            <!-- WARNING -->
             <div class="warning-text">
-                Data yang dihapus tidak dapat dikembalikan!
+                ⚠️ Data yang dihapus tidak dapat dikembalikan!
             </div>
+
+            <!-- TOMBOL -->
             <div class="cat-modal-actions">
                 <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">
                     Batal
@@ -932,12 +1250,9 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
-                            <path d="M3 6h18"/>
-                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                            <path d="M10 11v6"/>
-                            <path d="M14 11v6"/>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                         </svg>
                         Ya, Hapus!
                     </button>
@@ -947,17 +1262,46 @@
     </div>
 
     <script>
+        // ===== TOAST SYSTEM =====
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon ${type}">
+                    <svg class="icon"><use href="#${type === 'success' ? 'ic-check-circle' : 'ic-alert-triangle'}"/></svg>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <svg class="icon"><use href="#ic-x"/></svg>
+                </button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 5000);
+        }
+
+        // ===== DELETE MODAL =====
         function openDeleteModal(index, categoryName) {
             document.getElementById('deleteCategoryName').textContent = categoryName;
             var url = '/expense-categories/delete/' + index;
             document.getElementById('deleteForm').action = url;
             document.getElementById('deleteModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('aj-modal-open');
         }
 
         function closeDeleteModal() {
             document.getElementById('deleteModal').classList.remove('active');
             document.body.style.overflow = '';
+            document.body.classList.remove('aj-modal-open');
         }
 
         document.getElementById('deleteModal').addEventListener('click', function(e) {
@@ -973,6 +1317,139 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            // ===== LIVE SEARCH =====
+            var searchInput = document.getElementById('catSearchInput');
+            var catGrid = document.getElementById('catGrid');
+            var catStatCards = document.getElementById('catStatCards');
+            var resetBtn = document.getElementById('resetBtn');
+            var searchIndicator = document.getElementById('searchIndicator');
+            var searchResultCount = document.getElementById('searchResultCount');
+            var totalCountEl = document.getElementById('catTotalCount');
+            var loadingTimeout = null;
+
+            function resetToInitial() {
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+
+                if (searchIndicator) {
+                    searchIndicator.classList.remove('active');
+                }
+
+                var url = new URL(window.location.href);
+                url.searchParams.delete('q');
+                window.history.replaceState({}, '', url.toString());
+
+                updateResults(true);
+            }
+
+            function updateResults(isReset = false) {
+                catGrid.classList.add('loading');
+                
+                var q = searchInput ? searchInput.value : '';
+                var url = '{{ route("expense-categories.index") }}';
+                if (!isReset && q) {
+                    url += '?q=' + encodeURIComponent(q);
+                }
+                
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(function(html) {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    
+                    var newGrid = doc.querySelector('#catGrid');
+                    if (newGrid) {
+                        catGrid.innerHTML = newGrid.innerHTML;
+                    }
+                    
+                    var newStats = doc.querySelector('#catStatCards');
+                    if (newStats) {
+                        catStatCards.innerHTML = newStats.innerHTML;
+                    }
+                    
+                    var newTotal = doc.querySelector('#catTotalCount');
+                    if (newTotal && totalCountEl) {
+                        totalCountEl.textContent = newTotal.textContent;
+                    }
+
+                    if (searchIndicator && searchResultCount && !isReset && q) {
+                        var newItems = doc.querySelectorAll('.cat-item');
+                        var count = newItems.length;
+                        if (count > 0) {
+                            searchIndicator.classList.add('active');
+                            searchResultCount.textContent = count;
+                        } else {
+                            searchIndicator.classList.remove('active');
+                        }
+                    } else if (isReset) {
+                        if (searchIndicator) {
+                            searchIndicator.classList.remove('active');
+                        }
+                    }
+                    
+                    catGrid.classList.remove('loading');
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    catGrid.classList.remove('loading');
+                    showToast('Error', 'Gagal memuat data. Silakan refresh halaman.', 'error');
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    if (loadingTimeout) {
+                        clearTimeout(loadingTimeout);
+                    }
+                    
+                    var url = new URL(window.location.href);
+                    if (this.value.trim() !== '') {
+                        url.searchParams.set('q', this.value.trim());
+                    } else {
+                        url.searchParams.delete('q');
+                    }
+                    window.history.replaceState({}, '', url.toString());
+
+                    loadingTimeout = setTimeout(function() {
+                        updateResults(false);
+                    }, 300);
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                        e.preventDefault();
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                    if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                        var activeElement = document.activeElement;
+                        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                            return;
+                        }
+                        e.preventDefault();
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    resetToInitial();
+                });
+            }
+
             // Ripple effect
             const buttons = document.querySelectorAll('.cat-btn');
             buttons.forEach(btn => {

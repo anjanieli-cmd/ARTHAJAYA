@@ -1,62 +1,66 @@
 <x-app-layout>
-  <x-slot name="title">Edit HPP</x-slot>
+  <x-slot name="title">Buat Anggaran</x-slot>
 
   <style>
     /* ============================================
-       HPP EDIT - Premium Design
+       BUDGET CREATE - Premium Design
+       (konsisten dengan budgets/index.blade.php)
        ============================================ */
-    
-    .hpp-edit-wrap {
+
+    .bc-wrap {
       --theme-primary: var(--emerald);
       --theme-light: var(--emerald);
       --theme-dark: var(--emerald-dim);
       --theme-glow: rgba(var(--emerald-rgb), 0.25);
       --theme-soft: rgba(var(--emerald-rgb), 0.12);
       --theme-gradient: linear-gradient(135deg, var(--emerald), var(--emerald-dim));
-      
+
       --text-primary: var(--text);
       --text-secondary: var(--text-mute);
       --text-tertiary: var(--text-faint);
-      
+
       --bg-card: var(--surface);
       --bg-card-hover: var(--surface-strong);
       --bg-card-active: rgba(255, 255, 255, 0.04);
       --border-color: var(--border);
       --border-hover: var(--border-hover);
-      
+
       --danger: #E85A5A;
       --danger-soft: rgba(232, 90, 90, 0.12);
       --success: #34B583;
       --success-soft: rgba(52, 181, 131, 0.14);
       --warning: #F0A83C;
       --warning-soft: rgba(240, 168, 60, 0.14);
-      
+
       --radius-sm: 10px;
       --radius-md: 16px;
       --radius-lg: 24px;
-      
+
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
+      padding: 0 24px;
     }
 
-    .hpp-edit-wrap * { box-sizing: border-box; }
-    .hpp-edit-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .bc-wrap * { box-sizing: border-box; }
+    .bc-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
     @keyframes pulseGlow {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.6; }
     }
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
 
-    .hpp-edit-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
-    .hpp-edit-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .bc-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .bc-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     /* HEADER */
-    .he-header {
+    .bc-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
@@ -66,9 +70,9 @@
       padding: 0 4px;
     }
 
-    .he-header-left { flex: 1; min-width: 200px; }
+    .bc-header-left { flex: 1; min-width: 200px; }
 
-    .he-badge {
+    .bc-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -84,7 +88,7 @@
       margin-bottom: 12px;
     }
 
-    .he-badge .dot {
+    .bc-badge .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
@@ -92,7 +96,7 @@
       animation: pulseGlow 2s ease-in-out infinite;
     }
 
-    .he-header h1 {
+    .bc-header h1 {
       font-size: 28px;
       font-weight: 700;
       margin: 0 0 6px;
@@ -103,25 +107,20 @@
       letter-spacing: -0.02em;
     }
 
-    .he-header .subtitle {
+    .bc-header .subtitle {
       font-size: 14px;
       color: var(--text-secondary);
       margin: 0;
     }
 
-    .he-header .subtitle strong {
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-
-    .he-actions {
+    .bc-actions {
       display: flex;
       gap: 10px;
       flex-shrink: 0;
       flex-wrap: wrap;
     }
 
-    .he-btn {
+    .bc-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -137,37 +136,38 @@
       color: var(--text-secondary);
       position: relative;
       overflow: hidden;
+      font-family: 'Inter', sans-serif;
     }
 
-    .he-btn .icon { width: 16px; height: 16px; }
-    .he-btn:hover { transform: translateY(-2px); }
-    .he-btn:active { transform: translateY(0) scale(0.97); }
+    .bc-btn .icon { width: 16px; height: 16px; }
+    .bc-btn:hover { transform: translateY(-2px); }
+    .bc-btn:active { transform: translateY(0) scale(0.97); }
 
-    .he-btn-primary {
+    .bc-btn-primary {
       background: var(--theme-gradient);
       color: #fff;
       box-shadow: 0 4px 16px var(--theme-glow);
     }
 
-    .he-btn-primary:hover {
+    .bc-btn-primary:hover {
       box-shadow: 0 8px 28px var(--theme-glow);
       transform: translateY(-2px);
       color: #fff;
     }
 
-    .he-btn-ghost {
+    .bc-btn-ghost {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
     }
 
-    .he-btn-ghost:hover {
+    .bc-btn-ghost:hover {
       background: var(--bg-card-hover);
       border-color: var(--border-hover);
       color: var(--text-primary);
     }
 
-    .he-btn .ripple {
+    .bc-btn .ripple {
       position: absolute;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
@@ -176,12 +176,8 @@
       pointer-events: none;
     }
 
-    @keyframes rippleAnim {
-      to { transform: scale(4); opacity: 0; }
-    }
-
     /* FORM LAYOUT - Grid */
-    .he-form-wrap {
+    .bc-form-wrap {
       display: grid;
       grid-template-columns: 1fr 340px;
       gap: 24px;
@@ -189,13 +185,10 @@
     }
 
     @media (max-width: 1024px) {
-      .he-form-wrap {
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
+      .bc-form-wrap { grid-template-columns: 1fr; gap: 24px; }
     }
 
-    .he-card {
+    .bc-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
@@ -203,16 +196,16 @@
       transition: border-color 0.22s ease;
     }
 
-    .he-card:hover { border-color: var(--border-hover); }
+    .bc-card:hover { border-color: var(--border-hover); }
 
-    .he-card .title {
+    .bc-card .title {
       font-size: 15px;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 20px;
     }
 
-    .he-card .title .icon {
+    .bc-card .title .icon {
       width: 18px;
       height: 18px;
       color: var(--theme-primary);
@@ -221,13 +214,10 @@
     }
 
     /* FORM GROUP */
-    .he-form-group {
-      margin-bottom: 18px;
-    }
+    .bc-form-group { margin-bottom: 18px; }
+    .bc-form-group:last-child { margin-bottom: 0; }
 
-    .he-form-group:last-child { margin-bottom: 0; }
-
-    .he-form-group label {
+    .bc-form-group label {
       display: block;
       font-size: 12px;
       font-weight: 600;
@@ -237,14 +227,11 @@
       margin-bottom: 5px;
     }
 
-    .he-form-group .required {
-      color: var(--danger);
-      margin-left: 2px;
-    }
+    .bc-form-group .required { color: var(--danger); margin-left: 2px; }
 
-    .he-form-group input,
-    .he-form-group select,
-    .he-form-group textarea {
+    .bc-form-group input,
+    .bc-form-group select,
+    .bc-form-group textarea {
       width: 100%;
       padding: 10px 14px;
       background: var(--bg-card-active);
@@ -257,65 +244,60 @@
       outline: none;
     }
 
-    .he-form-group input:focus,
-    .he-form-group select:focus,
-    .he-form-group textarea:focus {
+    .bc-form-group input:focus,
+    .bc-form-group select:focus,
+    .bc-form-group textarea:focus {
       border-color: var(--theme-primary);
       background: var(--bg-card-hover);
     }
 
-    .he-form-group input::placeholder,
-    .he-form-group textarea::placeholder {
-      color: var(--text-tertiary);
-    }
+    .bc-form-group input::placeholder,
+    .bc-form-group textarea::placeholder { color: var(--text-tertiary); }
 
-    .he-form-group textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
+    .bc-form-group textarea { resize: vertical; min-height: 80px; }
 
-    .he-form-group select {
+    .bc-form-group select {
       cursor: pointer;
       appearance: auto;
       -webkit-appearance: auto;
       color-scheme: dark;
     }
 
-    .he-form-group select option {
+    .bc-form-group select option {
       background-color: #12181f;
       color: #f2f4f7;
       padding: 10px 14px;
       font-size: 13px;
     }
 
-    .he-form-group select option:checked,
-    .he-form-group select option:hover {
+    .bc-form-group select option:checked,
+    .bc-form-group select option:hover {
       background-color: #17352c;
       color: #34d399;
     }
 
-    .he-form-row {
+    .bc-form-row {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 14px;
     }
 
-    @media (max-width: 768px) {
-      .he-form-row {
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-      }
+    @media (max-width: 480px) {
+      .bc-form-row { grid-template-columns: 1fr; gap: 0; }
     }
 
-    @media (max-width: 480px) {
-      .he-form-row {
-        grid-template-columns: 1fr;
-        gap: 0;
-      }
+    /* ERROR VALIDATION */
+    .bc-error {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 5px;
     }
+
+    .bc-form-group input.is-invalid,
+    .bc-form-group select.is-invalid { border-color: var(--danger); }
 
     /* INFO BOX */
-    .he-info-box {
+    .bc-info-box {
       background: var(--theme-soft);
       border: 1px solid var(--theme-primary);
       border-radius: var(--radius-sm);
@@ -327,19 +309,11 @@
       color: var(--theme-primary);
     }
 
-    .he-info-box .icon {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
+    .bc-info-box .icon { width: 20px; height: 20px; flex-shrink: 0; }
+    .bc-info-box .message { font-size: 13px; font-weight: 500; }
 
-    .he-info-box .message {
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    /* SIDEBAR - Summary & Tips */
-    .he-sidebar {
+    /* SIDEBAR - Preview & Tips */
+    .bc-sidebar {
       position: sticky;
       top: 24px;
       display: flex;
@@ -347,7 +321,7 @@
       gap: 16px;
     }
 
-    .he-total-ticker {
+    .bc-preview {
       background: linear-gradient(160deg, rgba(var(--emerald-rgb), 0.12), var(--surface) 60%);
       border: 1px solid var(--theme-glow);
       border-radius: var(--radius-md);
@@ -355,13 +329,13 @@
       transition: all 0.3s ease;
     }
 
-    .he-total-ticker:hover {
+    .bc-preview:hover {
       border-color: var(--theme-primary);
       transform: translateY(-2px);
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     }
 
-    .he-total-ticker .lbl {
+    .bc-preview .lbl {
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -370,33 +344,63 @@
       margin-bottom: 8px;
     }
 
-    .he-total-ticker .amt {
+    .bc-preview .progress-bar {
+      height: 8px;
+      border-radius: 100px;
+      background: var(--bg-card-active);
+      overflow: hidden;
+      margin: 10px 0 8px;
+    }
+
+    .bc-preview .progress-bar .fill {
+      height: 100%;
+      border-radius: 100px;
+      background: var(--theme-gradient);
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 0%;
+    }
+
+    .bc-preview .amt {
       font-family: 'Space Grotesk', 'Inter', sans-serif;
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
       color: var(--theme-primary);
       line-height: 1.2;
     }
 
-    .he-total-ticker .sub {
+    .bc-preview .sub {
       font-size: 13px;
       color: var(--text-secondary);
       margin-top: 6px;
     }
 
-    .he-total-ticker .sub strong {
-      color: var(--text-primary);
-      font-weight: 600;
+    .bc-preview .sub strong { color: var(--text-primary); font-weight: 600; }
+
+    .bc-preview .status-pill {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--bg-card-active);
+      color: var(--text-tertiary);
     }
 
-    .he-tips {
+    .bc-preview .status-pill.on-track { background: var(--success-soft); color: var(--success); }
+    .bc-preview .status-pill.over-budget { background: var(--danger-soft); color: var(--danger); }
+    .bc-preview .status-pill.under-budget { background: var(--warning-soft); color: var(--warning); }
+
+    .bc-tips {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
       padding: 20px 24px;
     }
 
-    .he-tips h4 {
+    .bc-tips h4 {
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -405,7 +409,7 @@
       margin: 0 0 12px;
     }
 
-    .he-tips ul {
+    .bc-tips ul {
       list-style: none;
       padding: 0;
       margin: 0;
@@ -414,7 +418,7 @@
       gap: 10px;
     }
 
-    .he-tips li {
+    .bc-tips li {
       font-size: 13px;
       color: var(--text-secondary);
       padding-left: 18px;
@@ -422,7 +426,7 @@
       line-height: 1.5;
     }
 
-    .he-tips li::before {
+    .bc-tips li::before {
       content: '✦';
       position: absolute;
       left: 0;
@@ -432,144 +436,167 @@
     }
 
     /* FORM ACTIONS */
-    .he-form-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 24px;
-    }
-
-    .he-form-actions .he-btn {
-      flex: 1;
-      justify-content: center;
-    }
+    .bc-form-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .bc-form-actions .bc-btn { flex: 1; justify-content: center; }
 
     /* RESPONSIVE */
     @media (max-width: 992px) {
-      .he-card { padding: 24px 28px; }
+      .bc-wrap { padding: 0 16px; }
+      .bc-card { padding: 24px 28px; }
     }
 
     @media (max-width: 768px) {
-      .he-header h1 { font-size: 24px; }
-      .he-sidebar { position: relative; top: 0; }
-      .he-total-ticker .amt { font-size: 28px; }
-      .he-card { padding: 20px; }
+      .bc-wrap { padding: 0 12px; }
+      .bc-header h1 { font-size: 24px; }
+      .bc-sidebar { position: relative; top: 0; }
+      .bc-preview .amt { font-size: 24px; }
+      .bc-card { padding: 20px; }
     }
 
     @media (max-width: 640px) {
-      .he-header { flex-direction: column; }
-      .he-actions { width: 100%; }
-      .he-actions .he-btn { flex: 1; justify-content: center; }
-      .he-form-actions { flex-direction: column; }
-      .he-form-actions .he-btn { flex: none; }
-      .he-card { padding: 16px; }
-      .he-total-ticker { padding: 20px; }
+      .bc-header { flex-direction: column; }
+      .bc-actions { width: 100%; }
+      .bc-actions .bc-btn { flex: 1; justify-content: center; }
+      .bc-form-actions { flex-direction: column; }
+      .bc-form-actions .bc-btn { flex: none; }
+      .bc-card { padding: 16px; }
+      .bc-preview { padding: 20px; }
     }
 
     @media (max-width: 380px) {
-      .he-header h1 { font-size: 20px; }
-      .he-btn { font-size: 12px; padding: 8px 14px; }
-      .he-btn .icon { width: 14px; height: 14px; }
-      .he-card { padding: 12px; }
+      .bc-wrap { padding: 0 8px; }
+      .bc-header h1 { font-size: 20px; }
+      .bc-btn { font-size: 12px; padding: 8px 14px; }
+      .bc-btn .icon { width: 14px; height: 14px; }
+      .bc-card { padding: 12px; }
     }
   </style>
 
-  <div class="hpp-edit-wrap">
+  <div class="bc-wrap">
 
     <!-- ===== HEADER ===== -->
-    <div class="he-header animate-in" style="animation-delay: 0.05s;">
-      <div class="he-header-left">
-        <div class="he-badge">
+    <div class="bc-header animate-in" style="animation-delay: 0.05s;">
+      <div class="bc-header-left">
+        <div class="bc-badge">
           <span class="dot"></span>
-          Inventory &amp; COGS
+          Keuangan
         </div>
-        <h1>Edit HPP</h1>
-        <p class="subtitle">
-          Perbarui data transaksi HPP untuk — <strong>{{ $entry->item_name }}</strong>
-        </p>
+        <h1>Buat Anggaran</h1>
+        <p class="subtitle">Tambahkan kategori anggaran baru beserta target dan realisasinya</p>
       </div>
-      <div class="he-actions">
-        <a href="{{ route('cogs.index') }}" class="he-btn he-btn-ghost">
-          <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow-right"/></svg>
+      <div class="bc-actions">
+        <a href="{{ route('budgets.index') }}" class="bc-btn bc-btn-ghost">
+          <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow"/></svg>
           Kembali
         </a>
       </div>
     </div>
 
+    @if ($errors->any())
+      <div class="bc-info-box" style="background:var(--danger-soft);border-color:var(--danger);color:var(--danger);">
+        <svg class="icon"><use href="#ic-alert"/></svg>
+        <span class="message">Ada input yang belum sesuai, cek lagi ya di bawah.</span>
+      </div>
+    @endif
+
     <!-- ===== FORM ===== -->
-    <form method="POST" action="{{ route('cogs.update', $entry) }}" class="he-form-wrap" id="cogsForm">
+    <form method="POST" action="{{ route('budgets.store') }}" class="bc-form-wrap" id="budgetForm">
       @csrf
-      @method('PUT')
 
       <!-- Main Form -->
-      <div class="he-card animate-in" style="animation-delay: 0.10s;">
+      <div class="bc-card animate-in" style="animation-delay: 0.10s;">
         <div class="title">
-          <svg class="icon"><use href="#ic-box"/></svg>
-          Data Transaksi HPP
+          <svg class="icon"><use href="#ic-target"/></svg>
+          Detail Anggaran
         </div>
 
-        <!-- Info Box -->
-        <div class="he-info-box">
+        <div class="bc-info-box">
           <svg class="icon"><use href="#ic-info"/></svg>
-          <span class="message">Mengubah jumlah terjual akan otomatis menyesuaikan stok barang terkait.</span>
+          <span class="message">Progress dan status akan dihitung otomatis dari target &amp; realisasi.</span>
         </div>
 
-        <!-- Item Name -->
-        <div class="he-form-group">
-          <label>Nama Item <span class="required">*</span></label>
-          <input type="text" name="item_name" value="{{ $entry->item_name }}" placeholder="Contoh: Batik Tulis Klasik" required>
-        </div>
-
-        <!-- Qty, Cost, Total -->
-        <div class="he-form-row">
-          <div class="he-form-group">
-            <label>Jumlah Terjual <span class="required">*</span></label>
-            <input type="number" name="quantity" id="qtyInput" value="{{ $entry->quantity }}" placeholder="0" min="0" step="1" required>
+        <!-- Kategori & Periode -->
+        <div class="bc-form-row">
+          <div class="bc-form-group">
+            <label>Kategori <span class="required">*</span></label>
+            <input type="text" name="category" id="categoryInput" value="{{ old('category') }}"
+                   class="{{ $errors->has('category') ? 'is-invalid' : '' }}"
+                   placeholder="Contoh: Bahan Baku" required>
+            @error('category') <div class="bc-error">{{ $message }}</div> @enderror
           </div>
-          <div class="he-form-group">
-            <label>Harga Pokok / Unit <span class="required">*</span></label>
-            <input type="number" name="unit_cost" id="costInput" value="{{ $entry->unit_cost }}" placeholder="0" min="0" step="100" required>
-          </div>
-          <div class="he-form-group">
-            <label>Total HPP (Otomatis)</label>
-            <input type="text" id="totalDisplay" value="Rp0" readonly style="background: var(--bg-card-active); cursor: default; font-weight: 600; color: var(--theme-primary);">
+          <div class="bc-form-group">
+            <label>Periode <span class="required">*</span></label>
+            <input type="text" name="period" id="periodInput" value="{{ old('period', date('Y')) }}"
+                   class="{{ $errors->has('period') ? 'is-invalid' : '' }}"
+                   placeholder="Contoh: 2026" required>
+            @error('period') <div class="bc-error">{{ $message }}</div> @enderror
           </div>
         </div>
 
-        <!-- Hidden total field -->
-        <input type="hidden" name="total_cost" id="totalInput" value="{{ $entry->total_cost }}">
+        <!-- Target & Actual -->
+        <div class="bc-form-row">
+          <div class="bc-form-group">
+            <label>Target Anggaran (Rp) <span class="required">*</span></label>
+            <input type="number" name="target" id="targetInput" value="{{ old('target') }}"
+                   class="{{ $errors->has('target') ? 'is-invalid' : '' }}"
+                   placeholder="0" min="0" step="1000" required>
+            @error('target') <div class="bc-error">{{ $message }}</div> @enderror
+          </div>
+          <div class="bc-form-group">
+            <label>Realisasi Saat Ini (Rp)</label>
+            <input type="number" name="actual" id="actualInput" value="{{ old('actual', 0) }}"
+                   placeholder="0" min="0" step="1000">
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="bc-form-group">
+          <label>Status <span class="required">*</span></label>
+          <select name="status" id="statusInput" class="{{ $errors->has('status') ? 'is-invalid' : '' }}" required>
+            <option value="" disabled {{ old('status') ? '' : 'selected' }}>Pilih status</option>
+            <option value="on_track" {{ old('status') === 'on_track' ? 'selected' : '' }}>On Track</option>
+            <option value="over_budget" {{ old('status') === 'over_budget' ? 'selected' : '' }}>Over Budget</option>
+            <option value="under_budget" {{ old('status') === 'under_budget' ? 'selected' : '' }}>Under Budget</option>
+          </select>
+          @error('status') <div class="bc-error">{{ $message }}</div> @enderror
+        </div>
 
         <!-- Notes -->
-        <div class="he-form-group">
+        <div class="bc-form-group">
           <label>Catatan</label>
-          <textarea name="notes" placeholder="Tambahkan catatan untuk transaksi ini...">{{ $entry->notes }}</textarea>
+          <textarea name="notes" placeholder="Tambahkan catatan untuk anggaran ini...">{{ old('notes') }}</textarea>
         </div>
 
         <!-- Actions -->
-        <div class="he-form-actions">
-          <button type="submit" class="he-btn he-btn-primary">
+        <div class="bc-form-actions">
+          <button type="submit" class="bc-btn bc-btn-primary">
             <svg class="icon"><use href="#ic-check"/></svg>
-            Simpan Perubahan
+            Simpan Anggaran
           </button>
-          <a href="{{ route('cogs.index') }}" class="he-btn he-btn-ghost">
+          <a href="{{ route('budgets.index') }}" class="bc-btn bc-btn-ghost">
             Batal
           </a>
         </div>
       </div>
 
       <!-- Sidebar -->
-      <div class="he-sidebar animate-in" style="animation-delay: 0.15s;">
-        <div class="he-total-ticker">
-          <div class="lbl">Total HPP Transaksi Ini</div>
-          <div class="amt" id="totalTicker">Rp0</div>
-          <div class="sub" id="totalSub">0 unit × <strong>Rp0</strong></div>
+      <div class="bc-sidebar animate-in" style="animation-delay: 0.15s;">
+        <div class="bc-preview">
+          <div class="lbl">Preview Progress</div>
+          <div class="amt" id="previewProgress">0%</div>
+          <div class="progress-bar">
+            <div class="fill" id="previewFill"></div>
+          </div>
+          <div class="sub" id="previewSub">Rp0 dari <strong>Rp0</strong></div>
+          <span class="status-pill" id="previewStatus">Belum diisi</span>
         </div>
 
-        <div class="he-tips">
-          <h4>Tips Pencatatan HPP</h4>
+        <div class="bc-tips">
+          <h4>Tips Mengisi Anggaran</h4>
           <ul>
-            <li>Mengubah jumlah terjual akan otomatis menyesuaikan stok barang terkait.</li>
-            <li>Harga pokok per unit diambil dari harga beli, bukan harga jual.</li>
-            <li>Total dihitung otomatis: jumlah terjual × harga pokok per unit.</li>
+            <li>Progress dihitung otomatis: realisasi ÷ target × 100%.</li>
+            <li>Status "Over Budget" cocok kalau realisasi diperkirakan bakal lewat target.</li>
+            <li>Realisasi boleh dikosongkan (0) kalau anggaran baru mau dimulai.</li>
           </ul>
         </div>
       </div>
@@ -580,51 +607,86 @@
 
   <!-- SVG Icons -->
   <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
-    <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
-    <symbol id="ic-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
-    <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
-    <symbol id="ic-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
+    <defs>
+      <symbol id="ic-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </symbol>
+      <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </symbol>
+      <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      </symbol>
+      <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </symbol>
+      <symbol id="ic-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+      </symbol>
+    </defs>
   </svg>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      function fmtRupiah(n){
+    document.addEventListener('DOMContentLoaded', function () {
+      function fmtRupiah(n) {
         n = isNaN(n) ? 0 : n;
-        return 'Rp' + n.toLocaleString('id-ID', {maximumFractionDigits:0});
+        return 'Rp' + n.toLocaleString('id-ID', { maximumFractionDigits: 0 });
       }
 
-      function updateTicker(){
-        var qty = parseFloat(document.getElementById('qtyInput')?.value) || 0;
-        var cost = parseFloat(document.getElementById('costInput')?.value) || 0;
-        var total = qty * cost;
-        
-        // Update display
-        document.getElementById('totalTicker').textContent = fmtRupiah(total);
-        document.getElementById('totalSub').innerHTML = qty + ' unit × <strong>' + fmtRupiah(cost) + '</strong>';
-        document.getElementById('totalDisplay').value = fmtRupiah(total);
-        document.getElementById('totalInput').value = total;
+      const targetInput = document.getElementById('targetInput');
+      const actualInput = document.getElementById('actualInput');
+      const statusInput = document.getElementById('statusInput');
+
+      const previewProgress = document.getElementById('previewProgress');
+      const previewFill = document.getElementById('previewFill');
+      const previewSub = document.getElementById('previewSub');
+      const previewStatus = document.getElementById('previewStatus');
+
+      function updatePreview() {
+        const target = parseFloat(targetInput.value) || 0;
+        const actual = parseFloat(actualInput.value) || 0;
+        const progress = target > 0 ? Math.round((actual / target) * 100) : 0;
+
+        previewProgress.textContent = progress + '%';
+        previewFill.style.width = Math.min(progress, 100) + '%';
+        previewSub.innerHTML = fmtRupiah(actual) + ' dari <strong>' + fmtRupiah(target) + '</strong>';
+
+        const status = statusInput.value;
+        previewStatus.className = 'status-pill';
+        if (status === 'on_track') {
+          previewStatus.classList.add('on-track');
+          previewStatus.textContent = 'On Track';
+        } else if (status === 'over_budget') {
+          previewStatus.classList.add('over-budget');
+          previewStatus.textContent = 'Over Budget';
+        } else if (status === 'under_budget') {
+          previewStatus.classList.add('under-budget');
+          previewStatus.textContent = 'Under Budget';
+        } else {
+          previewStatus.textContent = 'Belum diisi';
+        }
       }
 
-      // Auto update on input
-      const form = document.getElementById('cogsForm');
-      form.addEventListener('input', updateTicker);
-      
-      // Initial update
-      setTimeout(updateTicker, 50);
+      [targetInput, actualInput, statusInput].forEach(function (el) {
+        el.addEventListener('input', updatePreview);
+        el.addEventListener('change', updatePreview);
+      });
 
-      // Ripple effect
-      const buttons = document.querySelectorAll('.he-btn');
-      buttons.forEach(btn => {
-        btn.addEventListener('click', function(e) {
+      updatePreview();
+
+      // Ripple effect (skip link)
+      document.querySelectorAll('.bc-btn').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          if (this.tagName === 'A') return;
           const rect = this.getBoundingClientRect();
           const ripple = document.createElement('span');
           ripple.className = 'ripple';
           const size = Math.max(rect.width, rect.height);
           ripple.style.width = ripple.style.height = size + 'px';
-          ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
-          ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+          ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+          ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
           this.appendChild(ripple);
-          setTimeout(() => { ripple.remove(); }, 600);
+          setTimeout(function () { if (ripple.parentNode) ripple.remove(); }, 600);
         });
       });
     });

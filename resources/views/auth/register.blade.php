@@ -3,10 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Buat Akun — Arthajaya</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arthajaya — Akuntansi Bisnis, Secepat Langkahmu</title>
+<title>Buat Akun — Arvessa</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -21,6 +19,7 @@
     }catch(e){}
   })();
 </script>
+
 <style>
   :root{
     --bg: #070B13;
@@ -44,7 +43,6 @@
     --glow2-a: 0.11;
   }
 
-  /* LIGHT THEME */
   [data-theme="light"]{
     --bg: #F4F6FA;
     --surface: rgba(15,25,40,0.035);
@@ -63,7 +61,6 @@
     --glow2-a: 0.16;
   }
 
-  /* ACCENT COLOR VARIANTS */
   [data-accent="blue"]{ --emerald:#4E8FF0; --emerald-dim:#3465C4; --emerald-rgb:78,143,240; }
   [data-accent="purple"]{ --emerald:#9B7BE0; --emerald-dim:#6E4FBE; --emerald-rgb:155,123,224; }
   [data-accent="orange"]{ --emerald:#F0A25A; --emerald-dim:#C97A2E; --emerald-rgb:240,162,90; }
@@ -93,7 +90,6 @@
   svg{ display:block; }
   .icon{ width:1em; height:1em; }
 
-  /* STARFIELD */
   #starfield{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
   .star{ position:absolute; border-radius:50%; background:#fff; animation: twinkle 3s ease-in-out infinite; }
   @keyframes twinkle{ 0%,100%{opacity:.15;} 50%{opacity:.9;} }
@@ -101,10 +97,8 @@
   .bg-glow{ position:fixed; top:-25%; right:-10%; width:900px; height:900px; background:radial-gradient(circle, rgba(var(--emerald-rgb),var(--glow1-a)) 0%, transparent 70%); pointer-events:none; z-index:0; }
   .bg-glow-2{ position:fixed; bottom:-15%; left:-15%; width:700px; height:700px; background:radial-gradient(circle, rgba(var(--emerald-rgb),var(--glow2-a)) 0%, transparent 70%); pointer-events:none; z-index:0; }
 
-  /* REUSABLE */
   .icon{ width:1em; height:1em; }
 
-  /* SETTINGS WIDGET */
   .settings-fab{
     position:fixed; right:22px; bottom:22px; z-index:150;
     width:50px; height:50px; border-radius:50%;
@@ -141,329 +135,320 @@
   .lang-opt:hover{ color:var(--text); border-color:var(--border-hover); }
   .lang-opt.active{ color:var(--emerald); border-color:var(--emerald); background:rgba(var(--emerald-rgb),0.08); }
 
-  /* AUTH PAGE */
-  .auth-page{ 
-    width:100%; 
-    min-height:100vh; 
-    display:flex; 
-    align-items:center; 
-    justify-content:center; 
-    padding:20px; 
-    position:relative; 
+  .auth-page{
+    width:100%;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    position:relative;
     z-index:2;
   }
-  .auth-card{ 
-    width:min(440px, 100%); 
-    background:var(--modal-bg); 
-    border:1px solid var(--border); 
-    border-radius:22px; 
-    padding:34px 30px 28px; 
+  .auth-card{
+    width:min(440px, 100%);
+    background:var(--modal-bg);
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:34px 30px 28px;
     box-shadow:0 40px 100px rgba(0,0,0,0.45);
     margin:20px 0;
     max-height:calc(100vh - 40px);
     overflow-y:auto;
   }
-  .back-home{ 
-    display:inline-flex; 
-    align-items:center; 
-    gap:6px; 
-    font-size:13px; 
-    color:var(--text-mute); 
-    margin-bottom:22px; 
-    transition: color .2s ease; 
+  .back-home{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    color:var(--text-mute);
+    margin-bottom:22px;
+    transition: color .2s ease;
   }
   .back-home:hover{ color:var(--text); }
-  .auth-error{ 
-    background:rgba(232,90,90,0.08); 
-    border:1px solid rgba(232,90,90,0.35); 
-    color:#E85A5A; 
-    border-radius:12px; 
-    padding:12px 16px; 
-    margin-bottom:18px; 
-    font-size:13px; 
+  .auth-error{
+    background:rgba(232,90,90,0.08);
+    border:1px solid rgba(232,90,90,0.35);
+    color:#E85A5A;
+    border-radius:12px;
+    padding:12px 16px;
+    margin-bottom:18px;
+    font-size:13px;
   }
   .auth-error ul{ padding-left:18px; list-style:disc; }
 
   .auth-head{ margin-bottom:22px; }
-  .auth-head .logo{ 
-    display:flex; 
-    align-items:center; 
-    gap:10px; 
-    font-family:'Space Grotesk'; 
-    font-weight:700; 
-    font-size:19px; 
-    margin-bottom:20px; 
+  .auth-head .logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Space Grotesk';
+    font-weight:700;
+    font-size:19px;
+    margin-bottom:20px;
   }
-  .auth-head .logo .logo-mark{ 
-    width:30px; 
-    height:30px; 
-    border-radius:8px; 
-    background:linear-gradient(135deg,var(--emerald),var(--emerald-dim)); 
-    display:flex; 
-    align-items:center; 
-    justify-content:center; 
-    font-size:15px; 
-    color:#062A1C; 
-    font-weight:800; 
+  .auth-head .logo .logo-mark{
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .auth-head .logo .logo-mark img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
   }
   .auth-head .logo .dot{ color:var(--emerald); }
   .auth-head h2{ font-size:22px; margin-bottom:6px; }
   .auth-head p{ font-size:13.5px; color:var(--text-mute); }
 
-  .auth-social{ 
-    width:100%; 
-    margin-bottom:18px; 
-  }
+  .auth-social{ width:100%; margin-bottom:18px; }
   .auth-social .icon{ width:17px; height:17px; }
-  .auth-divider{ 
-    display:flex; 
-    align-items:center; 
-    gap:12px; 
-    margin-bottom:18px; 
+  .auth-divider{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:18px;
   }
-  .auth-divider::before, 
-  .auth-divider::after{ 
-    content:''; 
-    flex:1; 
-    height:1px; 
-    background:var(--border); 
+  .auth-divider::before,
+  .auth-divider::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:var(--border);
   }
-  .auth-divider span{ 
-    font-size:11.5px; 
-    color:var(--text-faint); 
-    white-space:nowrap; 
+  .auth-divider span{
+    font-size:11.5px;
+    color:var(--text-faint);
+    white-space:nowrap;
   }
 
   .auth-form{ display:flex; flex-direction:column; gap:15px; }
   .field{ display:flex; flex-direction:column; gap:7px; }
   .field > span{ font-size:12.5px; color:var(--text-mute); font-weight:500; }
-  .field-input{ 
-    display:flex; 
-    align-items:center; 
-    gap:10px; 
-    padding:12px 14px; 
-    border-radius:12px; 
-    background:var(--surface); 
-    border:1px solid var(--border); 
-    transition: border-color .2s ease, background .2s ease; 
+  .field-input{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    border-radius:12px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    transition: border-color .2s ease, background .2s ease;
   }
-  .field-input:focus-within{ 
-    border-color: var(--border-hover); 
-    background:var(--surface-strong); 
+  .field-input:focus-within{
+    border-color: var(--border-hover);
+    background:var(--surface-strong);
   }
-  .field-input .icon{ 
-    width:16px; 
-    height:16px; 
-    color:var(--text-faint); 
-    flex-shrink:0; 
+  .field-input .icon{
+    width:16px;
+    height:16px;
+    color:var(--text-faint);
+    flex-shrink:0;
   }
-  .field-input input{ 
-    flex:1; 
-    min-width:0; 
-    background:none; 
-    border:none; 
-    outline:none; 
-    color:var(--text); 
-    font-family:'Inter'; 
-    font-size:14px; 
+  .field-input input{
+    flex:1;
+    min-width:0;
+    background:none;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:'Inter';
+    font-size:14px;
     width:100%;
   }
   .field-input input::placeholder{ color:var(--text-faint); }
-  .toggle-eye{ 
-    cursor:pointer; 
-    transition: color .2s ease; 
+  .toggle-eye{
+    cursor:pointer;
+    transition: color .2s ease;
     flex-shrink:0;
   }
   .toggle-eye:hover{ color:var(--text-mute); }
 
-  .checkbox{ 
-    display:flex; 
-    align-items:center; 
-    gap:8px; 
-    font-size:12.5px; 
-    color:var(--text-mute); 
-    cursor:pointer; 
+  .checkbox{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    color:var(--text-mute);
+    cursor:pointer;
   }
-  .checkbox input{ 
-    accent-color: var(--emerald); 
-    width:15px; 
-    height:15px; 
-    flex-shrink:0; 
+  .checkbox input{
+    accent-color: var(--emerald);
+    width:15px;
+    height:15px;
+    flex-shrink:0;
   }
-  .checkbox.terms{ 
-    align-items:flex-start; 
-    line-height:1.5; 
+  .checkbox.terms{
+    align-items:flex-start;
+    line-height:1.5;
   }
   .checkbox.terms input{ margin-top:2px; }
 
-  .btn{ 
-    display:inline-flex; 
-    align-items:center; 
-    justify-content:center; 
-    gap:8px; 
-    padding:11px 22px; 
-    border-radius:12px; 
-    font-size:14.5px; 
-    font-weight:600; 
-    cursor:pointer; 
-    border:none; 
-    transition:all .25s ease; 
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:11px 22px;
+    border-radius:12px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+    border:none;
+    transition:all .25s ease;
   }
   .btn .icon{ width:16px; height:16px; transition: transform .25s ease; }
-  .btn-primary{ 
-    background:var(--emerald); 
-    color:#052117; 
-    box-shadow:0 4px 24px rgba(var(--emerald-rgb),0.35); 
+  .btn-primary{
+    background:var(--emerald);
+    color:#052117;
+    box-shadow:0 4px 24px rgba(var(--emerald-rgb),0.35);
   }
-  .btn-primary:hover{ 
-    transform:translateY(-2px); 
-    box-shadow:0 10px 32px rgba(var(--emerald-rgb),0.5); 
+  .btn-primary:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 32px rgba(var(--emerald-rgb),0.5);
   }
   .btn-primary:hover .icon{ transform: translateX(3px); }
-  .btn-outline{ 
-    background:var(--surface); 
-    border:1px solid var(--border); 
-    color:var(--text); 
+  .btn-outline{
+    background:var(--surface);
+    border:1px solid var(--border);
+    color:var(--text);
   }
-  .btn-outline:hover{ 
-    background:var(--surface-strong); 
-    border-color: var(--border-hover); 
-    transform: translateY(-2px); 
+  .btn-outline:hover{
+    background:var(--surface-strong);
+    border-color: var(--border-hover);
+    transform: translateY(-2px);
   }
   .auth-submit{ width:100%; margin-top:4px; padding:13px 22px; }
 
-  .auth-switch{ 
-    text-align:center; 
-    font-size:13px; 
-    color:var(--text-mute); 
-    margin-top:22px; 
+  .auth-switch{
+    text-align:center;
+    font-size:13px;
+    color:var(--text-mute);
+    margin-top:22px;
   }
-  .auth-switch a{ 
-    color:var(--emerald); 
-    font-weight:600; 
+  .auth-switch a{
+    color:var(--emerald);
+    font-weight:600;
   }
   .auth-switch a:hover{ opacity:.85; }
 
-  /* ===== RESPONSIVE ===== */
-  
-  /* Tablet */
   @media (max-width: 768px){
-    .auth-card{ 
-      padding:28px 24px 24px; 
+    .auth-card{
+      padding:28px 24px 24px;
       border-radius:18px;
       width:min(420px, 100%);
     }
     .auth-head h2{ font-size:20px; }
-    .settings-fab{ 
-      right:16px; 
-      bottom:16px; 
-      width:46px; 
-      height:46px; 
+    .settings-fab{
+      right:16px;
+      bottom:16px;
+      width:46px;
+      height:46px;
     }
     .settings-fab .icon{ width:18px; height:18px; }
-    .settings-panel{ 
-      right:16px; 
-      bottom:74px; 
+    .settings-panel{
+      right:16px;
+      bottom:74px;
       width:calc(100vw - 32px);
       max-width:280px;
     }
   }
 
-  /* Mobile Large */
   @media (max-width: 480px){
     .auth-page{ padding:12px; }
-    .auth-card{ 
-      padding:22px 18px 20px; 
+    .auth-card{
+      padding:22px 18px 20px;
       border-radius:16px;
       width:100%;
       margin:10px 0;
       max-height:calc(100vh - 24px);
     }
-    .auth-head .logo{ 
-      font-size:17px; 
-      margin-bottom:16px; 
+    .auth-head .logo{
+      font-size:17px;
+      margin-bottom:16px;
     }
-    .auth-head .logo .logo-mark{ 
-      width:26px; 
-      height:26px; 
-      font-size:13px; 
+    .auth-head .logo .logo-mark{
+      width:26px;
+      height:26px;
     }
-    .auth-head h2{ 
-      font-size:18px; 
-      margin-bottom:4px; 
+    .auth-head h2{
+      font-size:18px;
+      margin-bottom:4px;
     }
-    .auth-head p{ 
-      font-size:12.5px; 
+    .auth-head p{
+      font-size:12.5px;
     }
-    .back-home{ 
-      font-size:12px; 
-      margin-bottom:16px; 
+    .back-home{
+      font-size:12px;
+      margin-bottom:16px;
     }
     .auth-form{ gap:12px; }
     .field > span{ font-size:11.5px; }
-    .field-input{ 
-      padding:10px 12px; 
-      border-radius:10px; 
+    .field-input{
+      padding:10px 12px;
+      border-radius:10px;
     }
     .field-input input{ font-size:13px; }
     .field-input .icon{ width:14px; height:14px; }
-    .btn{ 
-      font-size:13px; 
-      padding:10px 18px; 
-      border-radius:10px; 
+    .btn{
+      font-size:13px;
+      padding:10px 18px;
+      border-radius:10px;
     }
     .btn .icon{ width:14px; height:14px; }
     .auth-submit{ padding:12px 18px; }
     .auth-social .icon{ width:15px; height:15px; }
     .auth-divider span{ font-size:10.5px; }
-    .checkbox{ 
-      font-size:11.5px; 
-      gap:6px; 
+    .checkbox{
+      font-size:11.5px;
+      gap:6px;
     }
     .checkbox input{ width:14px; height:14px; }
-    .auth-switch{ 
-      font-size:12px; 
-      margin-top:18px; 
+    .auth-switch{
+      font-size:12px;
+      margin-top:18px;
     }
-    .auth-error{ 
-      font-size:12px; 
-      padding:10px 14px; 
+    .auth-error{
+      font-size:12px;
+      padding:10px 14px;
     }
     .auth-error ul{ padding-left:14px; }
-    
-    /* Settings panel mobile */
-    .settings-panel{ 
-      right:10px; 
-      bottom:68px; 
+    .settings-panel{
+      right:10px;
+      bottom:68px;
       width:calc(100vw - 20px);
       max-width:260px;
       padding:14px;
       border-radius:14px;
     }
     .settings-panel h4{ font-size:10px; }
-    .theme-opt{ 
-      font-size:10px; 
-      padding:8px 4px; 
+    .theme-opt{
+      font-size:10px;
+      padding:8px 4px;
     }
     .theme-opt .icon{ width:13px; height:13px; }
     .accent-dot{ width:22px; height:22px; }
-    .lang-opt{ 
-      font-size:11px; 
-      padding:7px 4px; 
+    .lang-opt{
+      font-size:11px;
+      padding:7px 4px;
     }
-    .settings-fab{ 
-      right:10px; 
-      bottom:10px; 
-      width:42px; 
-      height:42px; 
+    .settings-fab{
+      right:10px;
+      bottom:10px;
+      width:42px;
+      height:42px;
     }
     .settings-fab .icon{ width:16px; height:16px; }
   }
 
-  /* Mobile Small */
   @media (max-width: 360px){
-    .auth-card{ 
-      padding:18px 14px 16px; 
+    .auth-card{
+      padding:18px 14px 16px;
       border-radius:14px;
     }
     .auth-head h2{ font-size:16px; }
@@ -471,14 +456,13 @@
     .field-input input{ font-size:12px; }
     .btn{ font-size:12px; padding:8px 14px; }
     .auth-head .logo{ font-size:15px; }
-    .auth-head .logo .logo-mark{ width:22px; height:22px; font-size:11px; }
+    .auth-head .logo .logo-mark{ width:22px; height:22px; }
     .settings-panel{ max-width:220px; }
   }
 
-  /* Fix for very tall screens */
   @media (max-height: 700px){
-    .auth-card{ 
-      padding:20px 24px 18px; 
+    .auth-card{
+      padding:20px 24px 18px;
       max-height:calc(100vh - 20px);
     }
     .auth-head{ margin-bottom:16px; }
@@ -560,7 +544,7 @@
   <symbol id="ic-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></symbol>
   <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></symbol>
   <symbol id="ic-google" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.04 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.19a5.3 5.3 0 0 1-2.3 3.48v2.9h3.72c2.18-2 3.43-4.96 3.43-8.57z"/><path fill="#34A853" d="M12 23.5c3.1 0 5.7-1.02 7.6-2.77l-3.72-2.9c-1.03.7-2.35 1.1-3.88 1.1-2.98 0-5.5-2-6.4-4.7H1.77v2.98A11.5 11.5 0 0 0 12 23.5z"/><path fill="#FBBC05" d="M5.6 14.23A6.9 6.9 0 0 1 5.24 12c0-.77.13-1.53.36-2.23V6.79H1.77A11.5 11.5 0 0 0 .5 12c0 1.85.44 3.6 1.27 5.21z"/><path fill="#EA4335" d="M12 4.98c1.69 0 3.2.58 4.4 1.72l3.29-3.3C17.7 1.6 15.1.5 12 .5A11.5 11.5 0 0 0 1.77 6.79l3.83 2.98c.9-2.7 3.42-4.79 6.4-4.79z"/></symbol>
-  <symbol id="ic-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
   <symbol id="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8"/></symbol>
   <symbol id="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5a8.5 8.5 0 1 1-9.5-11.4 7 7 0 0 0 9.5 11.4z"/></symbol>
   <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></symbol>
@@ -573,8 +557,8 @@
 
     <div class="auth-head">
       <div class="logo">
-        <span class="logo-mark">A</span>
-        Artha<span class="dot">jaya</span>
+        <span class="logo-mark"><img src="{{ asset('logos.png') }}" alt="Arvessa"></span>
+        Arvessa
       </div>
       <h2>Buat akun bisnis</h2>
       <p>Gratis 14 hari, tanpa kartu kredit.</p>
@@ -642,7 +626,6 @@
 </div>
 
 <script>
-  // Starfield generator
   const field = document.getElementById('starfield');
   for(let i=0;i<90;i++){
     const s = document.createElement('div');
@@ -657,25 +640,15 @@
     field.appendChild(s);
   }
 
-  // Toggle password visibility
   document.querySelectorAll('.toggle-eye').forEach(icon => {
     icon.addEventListener('click', () => {
       const input = icon.parentElement.querySelector('input');
       if(input){
         input.type = input.type === 'password' ? 'text' : 'password';
-        // Optional: change icon
-        const use = icon.querySelector('use') || icon;
-        const href = use.getAttribute('href');
-        if(href === '#ic-eye'){
-          use.setAttribute('href', '#ic-eye-off');
-        } else {
-          use.setAttribute('href', '#ic-eye');
-        }
       }
     });
   });
 
-  // ===== SETTINGS WIDGET =====
   (function(){
     const root = document.documentElement;
     const fab = document.getElementById('settingsFab');

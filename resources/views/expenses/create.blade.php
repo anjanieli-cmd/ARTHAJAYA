@@ -5,14 +5,20 @@
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-        $categories = [
-            ['id' => 1, 'name' => 'Bahan Baku'],
-            ['id' => 2, 'name' => 'Transportasi'],
-            ['id' => 3, 'name' => 'Utilitas'],
-            ['id' => 4, 'name' => 'Produksi'],
-            ['id' => 5, 'name' => 'Marketing'],
-            ['id' => 6, 'name' => 'Operasional'],
+        // 🔥 AMBIL KATEGORI DARI SESSION (sama seperti di halaman expense-categories)
+        $defaultExpenseCategories = [
+            ['name' => 'Bahan Baku', 'desc' => 'Kain, pewarna, malam, dan perlengkapan batik', 'count' => 2, 'total' => 3475000],
+            ['name' => 'Transportasi', 'desc' => 'Pengiriman bahan & produk jadi', 'count' => 1, 'total' => 350000],
+            ['name' => 'Utilitas', 'desc' => 'Listrik, air, dan internet workshop', 'count' => 1, 'total' => 820000],
+            ['name' => 'Produksi', 'desc' => 'Upah pengrajin & biaya proses produksi', 'count' => 1, 'total' => 4200000],
+            ['name' => 'Marketing', 'desc' => 'Promosi, konten, dan iklan online', 'count' => 1, 'total' => 600000],
         ];
+
+        if (!session()->has('expense_categories')) {
+            session(['expense_categories' => $defaultExpenseCategories]);
+        }
+
+        $categories = session('expense_categories', []);
     @endphp
 
     <style>
@@ -363,10 +369,18 @@
             cursor: pointer;
         }
 
+        /* 🔥 FIX KONTRAST DROPDOWN - PAKAI HEX LANGSUNG */
         .ec-group select option {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            padding: 8px;
+            background-color: #1a1f2e;
+            color: #e8edf5;
+            padding: 10px 14px;
+            font-size: 14px;
+        }
+
+        .ec-group select option:checked,
+        .ec-group select option:hover {
+            background-color: #0d2a1f;
+            color: #34d399;
         }
 
         .ec-group .error-text {
@@ -519,9 +533,9 @@
                         </label>
                         <select name="category_id" required>
                             <option value="">Pilih Kategori</option>
-                            @foreach($categories as $c)
-                                <option value="{{ $c['id'] }}" {{ old('category_id') == $c['id'] ? 'selected' : '' }}>
-                                    {{ $c['name'] }}
+                            @foreach($categories as $index => $category)
+                                <option value="{{ $index }}" {{ old('category_id') == $index ? 'selected' : '' }}>
+                                    {{ $category['name'] }}
                                 </option>
                             @endforeach
                         </select>

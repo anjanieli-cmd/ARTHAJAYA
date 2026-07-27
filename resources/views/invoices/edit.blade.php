@@ -1,7 +1,6 @@
 <x-app-layout>
     <x-slot name="title">Edit Faktur {{ $invoice->invoice_number }}</x-slot>
 
-    {{-- ===== SVG ICONS ===== --}}
     <svg style="display:none;">
         <defs>
             <symbol id="ic-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -28,14 +27,17 @@
             <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/>
             </symbol>
-            <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
             </symbol>
-            <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            <symbol id="ic-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
             </symbol>
-            <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <symbol id="ic-rupiah" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <text x="4" y="18" font-size="18" font-weight="bold" font-family="Arial">Rp</text>
             </symbol>
         </defs>
     </svg>
@@ -54,7 +56,13 @@
         .inv-edit-wrap *{ box-sizing:border-box; }
 
         @keyframes fadeSlideUp{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:translateY(0);} }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes rippleAnim{ to{ transform:scale(4); opacity:0; } }
         .inv-edit-wrap .animate-in{ animation:fadeSlideUp .5s cubic-bezier(.16,1,.3,1) forwards; opacity:0; }
+        .inv-edit-wrap .icon{ width:18px; height:18px; flex-shrink:0; display:inline-block; vertical-align:middle; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 
         /* ===== BREADCRUMB ===== */
         .breadcrumb{
@@ -75,15 +83,11 @@
             display:flex; align-items:center; gap:12px; flex-wrap:wrap;
         }
         .page-head h1 .inv-number{
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             background:var(--surface-hover); padding:4px 16px; border-radius:8px;
             font-size:20px; font-weight:700; color:var(--text);
             border:1px solid var(--border);
         }
-        .page-head p{
-            font-size:14px; color:var(--text-muted); margin:0;
-        }
-        .page-head p .icon{ width:14px; height:14px; color:var(--text-muted); }
+        .page-head p{ font-size:14px; color:var(--text-muted); margin:0; }
 
         .head-actions{ display:flex; gap:10px; flex-wrap:wrap; }
 
@@ -100,12 +104,6 @@
             color:#052117; box-shadow:0 4px 18px var(--accent-glow);
         }
         .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 28px var(--accent-glow); }
-        .btn-primary::after{
-            content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%;
-            background:linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-            transform:rotate(45deg) translateX(-100%); transition:transform .6s ease;
-        }
-        .btn-primary:hover::after{ transform:rotate(45deg) translateX(100%); }
         .btn-outline{
             background:var(--surface); border:1px solid var(--border); color:var(--text);
         }
@@ -113,8 +111,6 @@
             background:var(--surface-strong); border-color:var(--border-hover); transform:translateY(-2px);
         }
         .btn-sm{ padding:8px 16px; font-size:12.5px; }
-        .btn-danger{ background:var(--danger); color:#fff; }
-        .btn-danger:hover{ background:#d14a4a; transform:translateY(-2px); box-shadow:0 8px 22px rgba(232,90,90,.35); }
 
         /* ===== FORM PANEL ===== */
         .form-panel{
@@ -147,12 +143,12 @@
         }
         .status-draft{ background:var(--surface-hover); color:var(--text-muted); }
         .status-draft .sdot{ background:var(--text-muted); }
-        .status-sent{ background:rgba(var(--info-rgb),0.12); color:var(--info); }
-        .status-sent .sdot{ background:var(--info); }
+        .status-sent{ background:rgba(78,143,240,.14); color:#4E8FF0; }
+        .status-sent .sdot{ background:#4E8FF0; }
         .status-paid{ background:rgba(var(--emerald-rgb),0.12); color:var(--emerald); }
         .status-paid .sdot{ background:var(--emerald); }
-        .status-overdue{ background:rgba(var(--danger-rgb),0.12); color:var(--danger); }
-        .status-overdue .sdot{ background:var(--danger); }
+        .status-overdue{ background:rgba(232,90,90,.14); color:#E85A5A; }
+        .status-overdue .sdot{ background:#E85A5A; }
         .status-cancelled{ background:var(--surface-hover); color:var(--text-muted); text-decoration:line-through; }
         .status-cancelled .sdot{ background:var(--text-muted); }
 
@@ -171,7 +167,7 @@
             font-weight:400; color:var(--text-muted); font-size:11.5px;
         }
         .field-group label .required{
-            color:var(--danger); font-size:14px;
+            color:#E85A5A; font-size:14px;
         }
 
         .field-group .input-wrap{
@@ -193,27 +189,22 @@
             z-index:1;
         }
         .field-group input.has-icon{ padding-left:42px; }
+        .field-group select.has-icon{ padding-left:42px; }
         .field-group input:focus,
         .field-group select:focus,
         .field-group textarea:focus{
             border-color:var(--accent); background:var(--surface);
             box-shadow:0 0 0 4px rgba(var(--emerald-rgb),0.08);
         }
-        .field-group input::placeholder{
-            color:var(--text-muted);
-        }
         .field-group select{
             padding-right:38px;
             background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%239CA3AF' stroke-width='2' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
             background-repeat:no-repeat; background-position:right 14px center; background-size:12px;
             appearance:none; -webkit-appearance:none;
-            background-color:var(--surface-hover);
-        }
-        .field-group select.has-icon{
-            padding-left:42px;
+            cursor:pointer;
         }
         .field-group select option{
-            background:#1a1f2e; color:#e8edf5; padding:10px 14px;
+            background:var(--surface); color:var(--text); padding:10px 14px;
         }
         .field-group textarea{
             resize:vertical; min-height:100px; padding:12px 16px; font-size:13.5px; line-height:1.6;
@@ -222,7 +213,7 @@
             font-size:11.5px; color:var(--text-muted); margin-top:4px;
         }
         .field-group .field-error{
-            font-size:12px; color:var(--danger); margin-top:4px; display:flex; align-items:center; gap:4px;
+            font-size:12px; color:#E85A5A; margin-top:4px; display:flex; align-items:center; gap:4px;
         }
 
         /* ===== ITEMS LIST ===== */
@@ -236,6 +227,7 @@
             border:1px solid var(--border);
             border-radius:var(--radius-sm);
             transition:all .2s ease;
+            cursor:pointer;
         }
         .item-row:hover{
             border-color:var(--border-hover);
@@ -244,20 +236,9 @@
         .item-row .item-check{
             width:18px; height:18px; accent-color:var(--accent); cursor:pointer;
         }
-        .item-row .item-info{
-            flex:1;
-        }
-        .item-row .item-name{
-            font-weight:600; color:var(--text); font-size:13.5px;
-        }
-        .item-row .item-price{
-            font-family:'IBM Plex Mono', monospace;
-            color:var(--text-muted); font-size:13px;
-        }
-        .item-row .item-qty{
-            font-family:'IBM Plex Mono', monospace;
-            color:var(--text-muted); font-size:13px;
-        }
+        .item-row .item-info{ flex:1; }
+        .item-row .item-name{ font-weight:600; color:var(--text); font-size:13.5px; }
+        .item-row .item-price{ color:var(--text-muted); font-size:13px; }
 
         /* ===== FORM DIVIDER ===== */
         .form-divider{
@@ -300,6 +281,21 @@
             border-top:1px solid var(--border); margin-top:8px;
         }
 
+        /* ===== TOAST ===== */
+        .toast-container{
+            position:fixed; top:20px; right:20px; z-index:9999; max-width:380px; width:100%;
+        }
+        .toast{
+            background:var(--surface); border-radius:12px; padding:16px 20px; margin-bottom:10px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.3); animation:slideDown .35s cubic-bezier(.16,1,.3,1);
+            display:flex; align-items:center; gap:12px; border:1px solid var(--border);
+        }
+        .toast .toast-icon{ font-size:24px; flex-shrink:0; }
+        .toast .toast-content{ flex:1; }
+        .toast .toast-title{ font-size:13px; font-weight:600; color:var(--text); }
+        .toast .toast-msg{ font-size:12px; color:var(--text-muted); }
+        .toast .toast-close{ background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:4px; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1100px){ .field-grid{ grid-template-columns:1fr 1fr; } }
         @media (max-width: 768px){
@@ -337,7 +333,6 @@
             ? ['label' => 'Jatuh Tempo', 'class' => 'status-overdue'] 
             : ($statusMap[$invoice->status] ?? $statusMap['draft']);
         
-        // Decode items dari JSON
         $itemsData = is_string($invoice->items) ? json_decode($invoice->items, true) : ($invoice->items ?? []);
         $selectedItems = $itemsData ?? [];
     @endphp
@@ -375,6 +370,26 @@
                 </a>
             </div>
         </div>
+
+        {{-- ===== TOAST CONTAINER ===== --}}
+        <div class="toast-container" id="toastContainer"></div>
+
+        {{-- ===== SESSION MESSAGES ===== --}}
+        @if(session('success'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    showToast('Sukses!', '{{ session('success') }}', 'success');
+                });
+            </script>
+        @endif
+
+        @if(session('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    showToast('Gagal!', '{{ session('error') }}', 'error');
+                });
+            </script>
+        @endif
 
         {{-- ===== FORM ===== --}}
         <form method="POST" action="{{ route('invoices.update', $invoice) }}" class="animate-in" style="animation-delay:.10s;">
@@ -468,7 +483,7 @@
                         <span>Detail Faktur</span>
                     </div>
 
-                    {{-- Baris 2: Nomor & Status --}}
+                    {{-- Baris 2: Nomor, Status, Subtotal --}}
                     <div class="field-grid">
                         {{-- Nomor Faktur --}}
                         <div class="field-group">
@@ -510,15 +525,15 @@
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrap">
-                                <svg class="icon"><use href="#ic-dollar"/></svg>
-                                <input type="number" name="subtotal" class="has-icon" value="{{ old('subtotal', $invoice->subtotal ?? 0) }}" step="0.01" min="0" required>
+                                <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:600; color:var(--text-muted); z-index:2;">Rp</span>
+                                <input type="number" name="subtotal" class="has-icon" style="padding-left:50px;" value="{{ old('subtotal', $invoice->subtotal ?? 0) }}" step="1000" min="0" required>
                             </div>
                             @error('subtotal')
                                 <div class="field-error">
                                     <span>⚠️</span> {{ $message }}
                                 </div>
                             @enderror
-                            <div class="field-hint">Subtotal sebelum pajak.</div>
+                            <div class="field-hint">Subtotal sebelum pajak dalam Rupiah (Rp).</div>
                         </div>
                     </div>
 
@@ -530,15 +545,15 @@
                                 <span class="opt">(opsional)</span>
                             </label>
                             <div class="input-wrap">
-                                <svg class="icon"><use href="#ic-file-text"/></svg>
-                                <input type="number" name="tax" class="has-icon" value="{{ old('tax', $invoice->tax ?? 0) }}" step="0.01" min="0">
+                                <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:600; color:var(--text-muted); z-index:2;">Rp</span>
+                                <input type="number" name="tax" class="has-icon" style="padding-left:50px;" value="{{ old('tax', $invoice->tax ?? 0) }}" step="1000" min="0">
                             </div>
                             @error('tax')
                                 <div class="field-error">
                                     <span>⚠️</span> {{ $message }}
                                 </div>
                             @enderror
-                            <div class="field-hint">Jumlah pajak yang dikenakan.</div>
+                            <div class="field-hint">Jumlah pajak dalam Rupiah (Rp).</div>
                         </div>
 
                         <div class="field-group">
@@ -547,19 +562,19 @@
                                 <span class="required">*</span>
                             </label>
                             <div class="input-wrap">
-                                <svg class="icon"><use href="#ic-dollar"/></svg>
-                                <input type="number" name="total" class="has-icon" value="{{ old('total', $invoice->total) }}" step="0.01" min="0" required>
+                                <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:600; color:var(--text-muted); z-index:2;">Rp</span>
+                                <input type="number" name="total" class="has-icon" style="padding-left:50px;" value="{{ old('total', $invoice->total) }}" step="1000" min="0" required>
                             </div>
                             @error('total')
                                 <div class="field-error">
                                     <span>⚠️</span> {{ $message }}
                                 </div>
                             @enderror
-                            <div class="field-hint">Total nominal faktur (subtotal + pajak).</div>
+                            <div class="field-hint">Total nominal faktur dalam Rupiah (subtotal + pajak).</div>
                         </div>
 
                         <div class="field-group">
-                            <!-- empty column for spacing -->
+                            <!-- empty column -->
                         </div>
                     </div>
 
@@ -586,9 +601,8 @@
                                             <input type="checkbox" name="items[]" value="{{ $item->id }}" class="item-check" {{ $isChecked ? 'checked' : '' }}>
                                             <div class="item-info">
                                                 <div class="item-name">{{ $item->name }}</div>
-                                                <div class="item-price">Rp{{ number_format($item->price ?? 0, 0, ',', '.') }}</div>
+                                                <div class="item-price">Rp {{ number_format($item->price ?? 0, 0, ',', '.') }}</div>
                                             </div>
-                                            <div class="item-qty">Qty: {{ $item->quantity ?? 1 }}</div>
                                         </label>
                                     @endforeach
                                 </div>
@@ -617,7 +631,7 @@
                     {{-- Total Summary --}}
                     <div class="total-summary">
                         <span class="label">Total Faktur</span>
-                        <span class="value" id="totalDisplay">Rp{{ number_format(old('total', $invoice->total ?? 0), 0, ',', '.') }}</span>
+                        <span class="value" id="totalDisplay">Rp {{ number_format(old('total', $invoice->total ?? 0), 0, ',', '.') }}</span>
                     </div>
 
                     {{-- Form Actions --}}
@@ -637,7 +651,46 @@
     </div>
 
     <script>
-        // Auto update total display when subtotal or tax changes
+        // ===== TOAST =====
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️'
+            };
+            
+            const colors = {
+                success: '#34B583',
+                error: '#E85A5A',
+                info: '#4E8FF0'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.style.borderColor = colors[type] || colors.success;
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type] || 'ℹ️'}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(20px)';
+                    toast.style.transition = 'all 0.3s ease';
+                    setTimeout(() => { if (toast.parentElement) toast.remove(); }, 300);
+                }
+            }, 5000);
+        }
+
+        // ===== AUTO UPDATE TOTAL =====
         document.addEventListener('DOMContentLoaded', function() {
             var subtotalInput = document.querySelector('input[name="subtotal"]');
             var taxInput = document.querySelector('input[name="tax"]');
@@ -650,23 +703,75 @@
                 var total = subtotal + tax;
                 
                 if (totalInput) {
-                    totalInput.value = total.toFixed(2);
+                    totalInput.value = total;
                 }
                 if (totalDisplay) {
-                    var formatted = 'Rp' + Math.round(total).toLocaleString('id-ID');
+                    var formatted = 'Rp ' + Math.round(total).toLocaleString('id-ID');
                     totalDisplay.textContent = formatted;
                 }
             }
 
             if (subtotalInput) {
                 subtotalInput.addEventListener('input', updateTotal);
+                subtotalInput.addEventListener('change', updateTotal);
             }
             if (taxInput) {
                 taxInput.addEventListener('input', updateTotal);
+                taxInput.addEventListener('change', updateTotal);
             }
 
-            // Initial update
-            updateTotal();
+            setTimeout(updateTotal, 100);
+
+            // ===== RIPPLE EFFECT =====
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const ripple = document.createElement('span');
+                    const size = Math.max(rect.width, rect.height);
+                    ripple.style.cssText = `
+                        position: absolute;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.2);
+                        pointer-events: none;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${e.clientX - rect.left - size/2}px;
+                        top: ${e.clientY - rect.top - size/2}px;
+                        transform: scale(0);
+                        animation: rippleAnim 0.6s ease-out forwards;
+                    `;
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+
+            // ===== KEYBOARD SHORTCUT: Ctrl+S =====
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    const form = document.querySelector('form');
+                    if (form) {
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = '<svg class="icon"><use href="#ic-save"/></svg> Menyimpan...';
+                            setTimeout(() => {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = '<svg class="icon"><use href="#ic-save"/></svg> Simpan Perubahan';
+                            }, 3000);
+                        }
+                        form.submit();
+                    }
+                }
+            });
+
+            // Add ripple animation
+            const style = document.createElement('style');
+            style.textContent = `@keyframes rippleAnim{ to{ transform:scale(4); opacity:0; } }`;
+            document.head.appendChild(style);
         });
     </script>
+
 </x-app-layout>

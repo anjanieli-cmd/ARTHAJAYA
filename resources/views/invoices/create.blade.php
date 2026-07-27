@@ -25,12 +25,6 @@
             <symbol id="ic-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
             </symbol>
-            <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-            </symbol>
-            <symbol id="ic-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"/>
-            </symbol>
         </defs>
     </svg>
 
@@ -145,6 +139,7 @@
         .field-group .input-wrap .icon{
             position:absolute; left:14px; top:50%; transform:translateY(-50%);
             width:16px; height:16px; color:var(--text-muted); pointer-events:none;
+            z-index:2;
         }
         .field-group input,
         .field-group select,
@@ -155,6 +150,10 @@
             transition:all .2s ease; font-family:inherit;
         }
         .field-group input.has-icon{ padding-left:42px; }
+        .field-group select.has-icon{ 
+            padding-left:42px; 
+            padding-right:38px;
+        }
         .field-group input:focus,
         .field-group select:focus,
         .field-group textarea:focus{
@@ -167,11 +166,21 @@
         .field-group select{
             padding-right:38px;
             background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%239CA3AF' stroke-width='2' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
-            background-repeat:no-repeat; background-position:right 14px center; background-size:12px;
-            appearance:none; -webkit-appearance:none;
+            background-repeat:no-repeat; 
+            background-position:right 14px center; 
+            background-size:12px;
+            appearance:none; 
+            -webkit-appearance:none;
+            cursor:pointer;
         }
         .field-group select option{
-            background:var(--surface); color:var(--text); padding:8px 12px;
+            background:var(--surface); 
+            color:var(--text); 
+            padding:10px 14px;
+            font-size:13px;
+        }
+        .field-group select option:hover{
+            background:var(--accent-soft);
         }
         .field-group textarea{
             resize:vertical; min-height:100px; padding:12px 16px; font-size:13.5px; line-height:1.6;
@@ -202,6 +211,85 @@
             border-top:1px solid var(--border); margin-top:8px;
         }
 
+        /* ============================================================
+           DARK MODE FIX FOR SELECT DROPDOWN
+           ============================================================ */
+        /* Base select styling */
+        .field-group select {
+            background-color: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .field-group select:focus {
+            border-color: var(--accent);
+            background: var(--surface);
+            box-shadow: 0 0 0 4px rgba(var(--emerald-rgb), 0.08);
+        }
+
+        /* Option styling - works in most browsers */
+        .field-group select option {
+            background-color: var(--surface);
+            color: var(--text);
+            padding: 10px 14px;
+            font-size: 13px;
+        }
+
+        .field-group select option:checked {
+            background: var(--accent-soft);
+            color: var(--text);
+        }
+
+        /* Dark mode specific fixes */
+        [data-theme="dark"] .field-group select {
+            background-color: #1a1a2e;
+            color: #e2e8f0;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="dark"] .field-group select:focus {
+            border-color: var(--accent);
+            background-color: #1a1a2e;
+            box-shadow: 0 0 0 4px rgba(var(--emerald-rgb), 0.15);
+        }
+
+        [data-theme="dark"] .field-group select option {
+            background-color: #1a1a2e !important;
+            color: #e2e8f0 !important;
+        }
+
+        [data-theme="dark"] .field-group select option:checked {
+            background: rgba(var(--emerald-rgb), 0.25) !important;
+            color: #ffffff !important;
+        }
+
+        [data-theme="dark"] .field-group select option:hover,
+        [data-theme="dark"] .field-group select option:focus {
+            background: rgba(var(--emerald-rgb), 0.2) !important;
+            color: #ffffff !important;
+        }
+
+        /* Firefox specific dark mode fix */
+        @-moz-document url-prefix() {
+            [data-theme="dark"] .field-group select {
+                background-color: #1a1a2e !important;
+                color: #e2e8f0 !important;
+            }
+            [data-theme="dark"] .field-group select option {
+                background-color: #1a1a2e !important;
+                color: #e2e8f0 !important;
+            }
+        }
+
+        /* Edge/Chromium specific dark mode fix for select dropdown */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            [data-theme="dark"] .field-group select option {
+                background-color: #1a1a2e !important;
+                color: #e2e8f0 !important;
+            }
+        }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 1100px){ .field-grid{ grid-template-columns:1fr 1fr; } }
         @media (max-width: 768px){
@@ -219,6 +307,11 @@
         @media (max-width: 480px){
             .form-panel-header h2{ font-size:15px; }
             .form-panel-header p{ font-size:12px; }
+            .field-group select.has-icon{ 
+                padding-left:36px; 
+                padding-right:32px;
+                font-size:12px;
+            }
         }
     </style>
 
@@ -312,11 +405,11 @@
                         <div class="field-group">
                             <label>
                                 Jatuh Tempo
-                                <span class="opt">(opsional)</span>
+                                <span class="required">*</span>
                             </label>
                             <div class="input-wrap">
                                 <svg class="icon"><use href="#ic-calendar"/></svg>
-                                <input type="date" name="due_date" class="has-icon" value="{{ old('due_date') }}">
+                                <input type="date" name="due_date" class="has-icon" value="{{ old('due_date', date('Y-m-d', strtotime('+30 days'))) }}" required>
                             </div>
                             @error('due_date')
                                 <div class="field-error">
@@ -355,14 +448,24 @@
                             </label>
                             <div class="input-wrap">
                                 <svg class="icon"><use href="#ic-dollar"/></svg>
-                                <input type="number" name="total" class="has-icon" value="{{ old('total') }}" placeholder="0" step="0.01" min="0" required>
+                                <input
+                                    type="number"
+                                    name="total"
+                                    class="has-icon"
+                                    value="{{ old('total') }}"
+                                    placeholder="0"
+                                    step="1000"
+                                    min="0"
+                                    max="9999999999999.99"
+                                    required
+                                >
                             </div>
                             @error('total')
                                 <div class="field-error">
                                     <span>⚠️</span> {{ $message }}
                                 </div>
                             @enderror
-                            <div class="field-hint">Total nominal faktur dalam Rupiah.</div>
+                            <div class="field-hint">Total nominal faktur dalam Rupiah. Maksimal Rp9.999.999.999.999,99.</div>
                         </div>
 
                         {{-- Status --}}
@@ -403,27 +506,6 @@
                         </div>
                     </div>
 
-                    {{-- Baris 4: Item Barang/Jasa (jika ada) --}}
-                    @if(isset($items) && count($items) > 0)
-                        <div class="field-grid" style="margin-top:12px;">
-                            <div class="field-group full">
-                                <label>
-                                    Item / Barang
-                                    <span class="opt">(opsional)</span>
-                                </label>
-                                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                                    @foreach($items as $item)
-                                        <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); cursor:pointer; padding:8px 14px; background:var(--surface-hover); border-radius:8px; border:1px solid var(--border);">
-                                            <input type="checkbox" name="items[]" value="{{ $item->id }}" style="width:16px; height:16px; accent-color:var(--accent);">
-                                            {{ $item->name }} - Rp{{ number_format($item->price ?? 0, 0, ',', '.') }}
-                                        </label>
-                                    @endforeach
-                                </div>
-                                <div class="field-hint" style="margin-top:8px;">Pilih item yang akan dimasukkan ke dalam faktur.</div>
-                            </div>
-                        </div>
-                    @endif
-
                     {{-- Form Actions --}}
                     <div class="form-actions">
                         <a href="{{ route('invoices.index') }}" class="btn btn-outline">
@@ -439,4 +521,99 @@
             </div>
         </form>
     </div>
+
+    {{-- Toast Notification --}}
+    @if(session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                showToast('Sukses!', '{{ session('success') }}', 'success');
+            });
+        </script>
+    @endif
+
+    @if(session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                showToast('Gagal!', '{{ session('error') }}', 'error');
+            });
+        </script>
+    @endif
+
+    <script>
+        // Toast notification function
+        function showToast(title, message, type = 'success') {
+            const container = document.createElement('div');
+            container.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                max-width: 380px;
+                width: 100%;
+            `;
+            
+            const colors = {
+                success: {
+                    bg: 'rgba(52, 181, 131, 0.12)',
+                    border: '#34B583',
+                    icon: '✅'
+                },
+                error: {
+                    bg: 'rgba(232, 90, 90, 0.12)',
+                    border: '#E85A5A',
+                    icon: '❌'
+                }
+            };
+            
+            const color = colors[type] || colors.success;
+            
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                background: var(--surface);
+                border: 1px solid ${color.border};
+                border-radius: 12px;
+                padding: 16px 20px;
+                margin-bottom: 10px;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            `;
+            
+            toast.innerHTML = `
+                <div style="font-size: 24px; flex-shrink: 0;">${color.icon}</div>
+                <div style="flex: 1;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--text);">${title}</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">${message}</div>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px;">×</button>
+            `;
+            
+            container.appendChild(toast);
+            document.body.appendChild(container);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(20px)';
+                    toast.style.transition = 'all 0.3s ease';
+                    setTimeout(() => {
+                        if (toast.parentElement) toast.remove();
+                        if (container.children.length === 0) container.remove();
+                    }, 300);
+                }
+            }, 5000);
+        }
+
+        // Add slideDown animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </x-app-layout>

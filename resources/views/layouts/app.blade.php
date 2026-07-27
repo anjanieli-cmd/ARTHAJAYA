@@ -331,6 +331,19 @@
   .sb-toggle .icon{ width:17px; height:17px; }
 
   main{ padding:28px; position:relative; z-index:1; }
+  
+  /* ===== MODAL OVERLAY - SAMA KAYA LABA RUGI ===== */
+  /* Saat modal terbuka, main naik di atas topbar & sidebar */
+  body.aj-modal-open main {
+    z-index: 10001;
+  }
+  
+  /* Saat modal terbuka, matikan backdrop-filter di sidebar & topbar agar tidak ke-blur */
+  body.aj-modal-open .sidebar,
+  body.aj-modal-open .topbar {
+    backdrop-filter: none !important;
+  }
+
   .page-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; margin-bottom:24px; }
   .page-head .eyebrow{ font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--emerald); font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
   .page-head h1{ font-size:25px; margin-bottom:6px; }
@@ -794,6 +807,21 @@
 
     loadNotifications();
     setInterval(loadNotifications, 30000);
+  })();
+
+  // ===== GLOBAL: deteksi otomatis modal overlay (delete/confirm dsb) di halaman manapun =====
+  // Berlaku untuk SEMUA elemen yang class-nya mengandung "modal-overlay" (mis. pl-modal-overlay,
+  // exp-modal-overlay, dt-modal-overlay, dst) yang juga punya class "active".
+  // Saat modal terbuka -> body dapat class "aj-modal-open" -> <main> naik di atas topbar & sidebar
+  // -> topbar & sidebar ikut ke-blur oleh overlay modal. Tidak perlu edit JS di tiap halaman lagi.
+  (function(){
+    function syncModalOpenState(){
+      var anyOpen = document.querySelector('[class*="modal-overlay"].active');
+      document.body.classList.toggle('aj-modal-open', !!anyOpen);
+    }
+    var observer = new MutationObserver(syncModalOpenState);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'], subtree: true });
+    syncModalOpenState();
   })();
 
   // ===== mobile sidebar toggle =====

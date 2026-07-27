@@ -9,15 +9,20 @@ use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
 {
+    /**
+     * Batas maksimal nominal total faktur.
+     * Kolom `subtotal`, `tax_amount`, `total` di tabel invoices bertipe
+     * decimal(15,2) => kapasitas maksimal 9.999.999.999.999,99 (13 digit + 2 desimal).
+     */
+    private const MAX_TOTAL = 9999999999999.99;
+
     public function index(Request $request)
     {
         $user = Auth::user();
         $company = $user->company;
 
-        // ===== BUILD QUERY =====
         $query = Invoice::with('client')->where('company_id', $company->id);
 
-        // Filter by search query
         if ($request->filled('q')) {
             $q = $request->q;
             $query->where(function ($sub) use ($q) {
@@ -28,10 +33,8 @@ class InvoiceController extends Controller
             });
         }
 
-        // Filter by status (including virtual "overdue")
         if ($request->filled('status')) {
             if ($request->status === 'overdue') {
-                // Overdue = status 'sent' AND due_date < now
                 $query->where('status', 'sent')
                       ->where('due_date', '<', now());
             } else {
@@ -42,8 +45,7 @@ class InvoiceController extends Controller
         $query->orderBy('created_at', 'desc');
         $invoices = $query->paginate(15)->withQueryString();
 
-        // ===== CALCULATE STATS (BASED ON FILTERED DATA) =====
-        $statsQuery = Invoice::with('client')->where('company_id', $company->id);
+        $statsQuery = Invoice::where('company_id', $company->id);
 
         if ($request->filled('q')) {
             $q = $request->q;
@@ -102,7 +104,6 @@ class InvoiceController extends Controller
         $company = $user->company;
         $clients = Client::where('company_id', $company->id)->get();
         $items = $this->getCompanyItems($company->id);
-
         $nextInvoiceNumber = $this->generateInvoiceNumber($company->id);
 
         return view('invoices.create', compact('company', 'clients', 'items', 'nextInvoiceNumber'));
@@ -113,34 +114,28 @@ class InvoiceController extends Controller
         $user = Auth::user();
         $company = $user->company;
 
-        $itemsRule = class_exists(\App\Models\Item::class) ? 'exists:items,id' : 'nullable';
-
         $validated = $request->validate([
             'client_id'   => 'required|exists:clients,id',
             'issue_date'  => 'required|date',
             'due_date'    => 'required|date|after_or_equal:issue_date',
-            // Items dikirim sebagai checkbox berisi ID barang dari katalog,
-            // BUKAN sebagai objek description/quantity/price.
+            'subtotal'    => 'nullable|numeric|min:0|max:' . self::MAX_TOTAL,
+            'tax_amount'  => 'nullable|numeric|min:0|max:' . self::MAX_TOTAL,
+            'total'       => 'required|numeric|min:0|max:' . self::MAX_TOTAL,
+            'status'      => 'required|in:draft,sent,paid,cancelled',
+            'notes'       => 'nullable|string|max:500',
             'items'       => 'nullable|array',
-            'items.*'     => $itemsRule,
-            'subtotal'    => 'nullable|numeric|min:0',
-            'tax'         => 'nullable|numeric|min:0',
-            'total'       => 'required|numeric|min:0',
-            'notes'       => 'nullable|string',
-            'description' => 'nullable|string',
-            'terms'       => 'nullable|string',
+        ], [
+            'total.max'       => 'Total faktur tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
+            'subtotal.max'    => 'Subtotal tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
+            'tax_amount.max'  => 'Nilai pajak tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
         ]);
 
-        // Nomor faktur DIBUAT DI SERVER, bukan dari input form.
-        // (Input di form create bersifat "disabled" untuk ditampilkan saja,
-        // sehingga tidak pernah ikut terkirim -- jangan andalkan itu.)
         $invoiceNumber = $this->generateInvoiceNumber($company->id);
 
-        // Bangun daftar item dari ID yang dicentang di checkbox.
-        [$formattedItems, $itemsSubtotal] = $this->buildItemsFromIds($request->input('items', []));
-
-        $subtotal = $validated['subtotal'] ?? ($itemsSubtotal > 0 ? $itemsSubtotal : $validated['total']);
-        $tax      = $validated['tax'] ?? 0;
+        $itemsData = [];
+        if (!empty($validated['items'])) {
+            $itemsData = $this->buildItemsFromIds($validated['items']);
+        }
 
         $invoice = Invoice::create([
             'company_id'     => $company->id,
@@ -148,17 +143,17 @@ class InvoiceController extends Controller
             'invoice_number' => $invoiceNumber,
             'issue_date'     => $validated['issue_date'],
             'due_date'       => $validated['due_date'],
-            'items'          => json_encode($formattedItems),
-            'subtotal'       => $subtotal,
-            'tax'            => $tax,
+            'subtotal'       => $validated['subtotal'] ?? 0,
+            'tax_amount'     => $validated['tax_amount'] ?? 0,
             'total'          => $validated['total'],
-            'notes'          => $validated['notes'] ?? $validated['description'] ?? null,
-            'terms'          => $validated['terms'] ?? null,
-            'status'         => 'draft',
+            'status'         => $validated['status'],
+            'notes'          => $validated['notes'] ?? null,
+            'items'          => json_encode($itemsData),
             'created_by'     => $user->id,
         ]);
 
-        return redirect()->route('invoices.index')
+        return redirect()
+            ->route('invoices.index')
             ->with('success', 'Faktur ' . $invoice->invoice_number . ' berhasil dibuat!');
     }
 
@@ -202,45 +197,42 @@ class InvoiceController extends Controller
             abort(403);
         }
 
-        // Hanya faktur berstatus draft yang boleh diedit.
-        if ($invoice->status !== 'draft') {
-            return redirect()->route('invoices.index')
-                ->with('error', 'Faktur dengan status "' . $invoice->status . '" tidak dapat diedit.');
-        }
-
-        $itemsRule = class_exists(\App\Models\Item::class) ? 'exists:items,id' : 'nullable';
-
+        // Izinkan update untuk semua status
         $validated = $request->validate([
-            'client_id'  => 'required|exists:clients,id',
-            'issue_date' => 'required|date',
-            'due_date'   => 'required|date|after_or_equal:issue_date',
-            // Sama seperti store(): items adalah array ID barang dari checkbox.
-            'items'      => 'nullable|array',
-            'items.*'    => $itemsRule,
-            'subtotal'   => 'required|numeric|min:0',
-            'tax'        => 'nullable|numeric|min:0',
-            'total'      => 'required|numeric|min:0',
-            'status'     => 'required|in:draft,sent,paid,cancelled',
-            'notes'      => 'nullable|string',
-            'terms'      => 'nullable|string',
+            'client_id'   => 'required|exists:clients,id',
+            'issue_date'  => 'required|date',
+            'due_date'    => 'required|date|after_or_equal:issue_date',
+            'subtotal'    => 'nullable|numeric|min:0|max:' . self::MAX_TOTAL,
+            'tax_amount'  => 'nullable|numeric|min:0|max:' . self::MAX_TOTAL,
+            'total'       => 'required|numeric|min:0|max:' . self::MAX_TOTAL,
+            'status'      => 'required|in:draft,sent,paid,cancelled',
+            'notes'       => 'nullable|string|max:500',
+            'items'       => 'nullable|array',
+        ], [
+            'total.max'       => 'Total faktur tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
+            'subtotal.max'    => 'Subtotal tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
+            'tax_amount.max'  => 'Nilai pajak tidak boleh melebihi Rp' . number_format(self::MAX_TOTAL, 0, ',', '.') . '.',
         ]);
 
-        [$formattedItems] = $this->buildItemsFromIds($request->input('items', []));
+        $itemsData = [];
+        if (!empty($validated['items'])) {
+            $itemsData = $this->buildItemsFromIds($validated['items']);
+        }
 
         $invoice->update([
             'client_id'  => $validated['client_id'],
             'issue_date' => $validated['issue_date'],
             'due_date'   => $validated['due_date'],
-            'items'      => json_encode($formattedItems),
-            'subtotal'   => $validated['subtotal'],
-            'tax'        => $validated['tax'] ?? 0,
+            'subtotal'   => $validated['subtotal'] ?? 0,
+            'tax_amount' => $validated['tax_amount'] ?? 0,
             'total'      => $validated['total'],
             'status'     => $validated['status'],
             'notes'      => $validated['notes'] ?? null,
-            'terms'      => $validated['terms'] ?? null,
+            'items'      => json_encode($itemsData),
         ]);
 
-        return redirect()->route('invoices.index')
+        return redirect()
+            ->route('invoices.index')
             ->with('success', 'Faktur ' . $invoice->invoice_number . ' berhasil diperbarui!');
     }
 
@@ -253,21 +245,24 @@ class InvoiceController extends Controller
             abort(403);
         }
 
-        // Cek apakah faktur bisa dihapus
         if (!in_array($invoice->status, ['draft', 'cancelled'])) {
-            return redirect()->route('invoices.index')
+            return redirect()
+                ->route('invoices.index')
                 ->with('error', 'Faktur dengan status "' . $invoice->status . '" tidak dapat dihapus.');
         }
 
+        $invoiceNumber = $invoice->invoice_number;
         $invoice->delete();
 
-        return redirect()->route('invoices.index')
-            ->with('success', 'Faktur ' . $invoice->invoice_number . ' berhasil dihapus!');
+        return redirect()
+            ->route('invoices.index')
+            ->with('success', 'Faktur ' . $invoiceNumber . ' berhasil dihapus!');
     }
 
     public function export(Request $request)
     {
-        return redirect()->route('invoices.index')
+        return redirect()
+            ->route('invoices.index')
             ->with('info', 'Fitur ekspor sedang dalam pengembangan.');
     }
 
@@ -284,13 +279,21 @@ class InvoiceController extends Controller
                 ], 403);
             }
 
-            $invoice->status = 'sent';
-            $invoice->save();
+            if ($invoice->status === 'draft') {
+                $invoice->status = 'sent';
+                $invoice->save();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Faktur ' . $invoice->invoice_number . ' berhasil dikirim.'
+                ]);
+            }
 
             return response()->json([
-                'success' => true,
-                'message' => 'Faktur ' . $invoice->invoice_number . ' berhasil dikirim (status diubah menjadi Terkirim).'
-            ]);
+                'success' => false,
+                'message' => 'Faktur dengan status "' . $invoice->status . '" tidak dapat dikirim.'
+            ], 400);
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -299,79 +302,44 @@ class InvoiceController extends Controller
         }
     }
 
-    /**
-     * Buat nomor faktur baru berbasis tanggal + urutan.
-     * Dipakai baik saat menampilkan form create (preview)
-     * maupun saat benar-benar menyimpan (final).
-     */
     private function generateInvoiceNumber(int $companyId): string
     {
         $lastInvoice = Invoice::where('company_id', $companyId)
             ->orderBy('id', 'desc')
             ->first();
 
-        return 'INV-' . date('Ymd') . '-' . str_pad(
-            ($lastInvoice ? $lastInvoice->id + 1 : 1),
-            4,
-            '0',
-            STR_PAD_LEFT
-        );
+        $nextId = $lastInvoice ? $lastInvoice->id + 1 : 1;
+        return 'INV-' . date('Ymd') . '-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * Ubah array ID item (dari checkbox) menjadi array baris item lengkap
-     * (id, name, description, quantity, price), dan hitung subtotalnya.
-     *
-     * Aman dipanggil walau model App\Models\Item belum ada di project --
-     * dalam kondisi itu, fungsi ini akan mengembalikan array kosong
-     * sehingga tidak menyebabkan error.
-     *
-     * @param  array $itemIds
-     * @return array [formattedItems, subtotal]
-     */
     private function buildItemsFromIds(array $itemIds): array
     {
         if (empty($itemIds) || !class_exists(\App\Models\Item::class)) {
-            return [[], 0];
+            return [];
         }
 
-        $itemModel = \App\Models\Item::class;
-        $items = $itemModel::whereIn('id', $itemIds)->get();
-
+        $items = \App\Models\Item::whereIn('id', $itemIds)->get();
         $formattedItems = [];
-        $subtotal = 0;
 
         foreach ($items as $item) {
-            $qty = 1;
-            $price = $item->price ?? 0;
-
             $formattedItems[] = [
                 'id'          => $item->id,
                 'name'        => $item->name,
                 'description' => $item->description ?? $item->name,
-                'quantity'    => $qty,
-                'price'       => $price,
+                'quantity'    => $item->quantity ?? 1,
+                'price'       => $item->price ?? 0,
             ];
-
-            $subtotal += $qty * $price;
         }
 
-        return [$formattedItems, $subtotal];
+        return $formattedItems;
     }
 
-    /**
-     * Ambil daftar item milik company, untuk ditampilkan sebagai checklist
-     * di form create/edit. Mengembalikan collection kosong jika model
-     * App\Models\Item belum ada di project (fitur katalog item belum dipakai).
-     */
     private function getCompanyItems(int $companyId)
     {
         if (!class_exists(\App\Models\Item::class)) {
             return collect();
         }
 
-        $itemModel = \App\Models\Item::class;
-
-        return $itemModel::where('company_id', $companyId)->get();
+        return \App\Models\Item::where('company_id', $companyId)->get();
     }
 }

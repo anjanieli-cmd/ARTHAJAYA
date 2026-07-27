@@ -32,15 +32,34 @@
     $totalPending = 0;
     $totalOverdue = 0;
     
+    // Hitung cash flow per bulan (6 bulan terakhir)
+    $monthlyData = [];
+    for ($i = 5; $i >= 0; $i--) {
+        $month = date('Y-m', strtotime("-$i months"));
+        $monthlyData[$month] = ['income' => 0, 'expense' => 0];
+    }
+    
     foreach ($ledgerEntries as $entry) {
         $entryDate = substr($entry['date'] ?? '', 0, 7);
+        $amount = $entry['amount'] ?? 0;
+        
         if ($entryDate == $currentMonth) {
-            if (($entry['amount'] ?? 0) > 0) {
-                $totalIncome += $entry['amount'];
+            if ($amount > 0) {
+                $totalIncome += $amount;
             } else {
-                $totalExpense += abs($entry['amount']);
+                $totalExpense += abs($amount);
             }
         }
+        
+        // Kumpulkan data per bulan untuk cash flow
+        if (isset($monthlyData[$entryDate])) {
+            if ($amount > 0) {
+                $monthlyData[$entryDate]['income'] += $amount;
+            } else {
+                $monthlyData[$entryDate]['expense'] += abs($amount);
+            }
+        }
+        
         if (($entry['status'] ?? '') == 'pending') {
             $totalPending += abs($entry['amount'] ?? 0);
         }
@@ -97,6 +116,9 @@
             ['number' => '#0552', 'client' => 'Bumi Retail Group', 'due_date' => '2026-06-20', 'amount' => 9200000, 'is_overdue' => true],
         ];
     }
+    
+    // Hitung rasio kas
+    $cashRatio = $totalBalance > 0 ? ($totalIncome / max(1, $totalBalance)) * 100 : 0;
   @endphp
 
   <style>
@@ -128,6 +150,8 @@
       --success-soft: rgba(52, 181, 131, 0.14);
       --warning: #F0A83C;
       --warning-soft: rgba(240, 168, 60, 0.14);
+      --info: #4E8FF0;
+      --info-soft: rgba(78, 143, 240, 0.12);
       
       --radius-sm: 10px;
       --radius-md: 16px;
@@ -935,6 +959,132 @@
       color: var(--danger);
     }
 
+    /* ===== CASH FLOW CARD ===== */
+    .dash-cashflow-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .dash-cashflow-item {
+      background: var(--bg-card-active);
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+
+    .dash-cashflow-item:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .dash-cashflow-item .cf-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+
+    .dash-cashflow-item .cf-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .dash-cashflow-item .cf-value.positive {
+      color: var(--success);
+    }
+
+    .dash-cashflow-item .cf-value.negative {
+      color: var(--danger);
+    }
+
+    .dash-cashflow-item .cf-sub {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    .dash-cashflow-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 80px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .dash-cf-bar-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .dash-cf-bar-wrap .bar-group {
+      display: flex;
+      gap: 2px;
+      width: 100%;
+      height: 60px;
+      align-items: flex-end;
+    }
+
+    .dash-cf-bar-wrap .bar-group .bar-in {
+      flex: 1;
+      background: var(--success);
+      border-radius: 3px 3px 0 0;
+      min-height: 4px;
+      opacity: 0.8;
+      transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dash-cf-bar-wrap .bar-group .bar-out {
+      flex: 1;
+      background: var(--danger);
+      border-radius: 3px 3px 0 0;
+      min-height: 4px;
+      opacity: 0.8;
+      transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dash-cf-bar-wrap .bar-label {
+      font-size: 9px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+
+    .dash-cf-legend {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .dash-cf-legend .leg-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .dash-cf-legend .leg-item .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+    }
+
+    .dash-cf-legend .leg-item .dot.in { background: var(--success); }
+    .dash-cf-legend .leg-item .dot.out { background: var(--danger); }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 1200px) {
       .dash-stats { grid-template-columns: repeat(2, 1fr); }
@@ -944,6 +1094,7 @@
       .dash-layout { grid-template-columns: 1fr; }
       .dash-balance { flex-direction: column; }
       .dash-balance .balance-actions { width: 100%; }
+      .dash-cashflow-grid { grid-template-columns: 1fr 1fr; }
     }
 
     @media (max-width: 768px) {
@@ -954,6 +1105,7 @@
       .dash-donut-wrap { flex-direction: column; align-items: center; }
       .dash-balance .balance-actions { grid-template-columns: repeat(2, 1fr); }
       .dash-card { padding: 20px; }
+      .dash-cashflow-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
@@ -1168,13 +1320,89 @@
           </div>
           @endif
         </div>
+
+        <!-- ===== CASH FLOW CARD ===== -->
+        <div class="dash-card animate-in" style="animation-delay: 0.25s;">
+          <div class="card-head">
+            <h3>Arus Kas 6 Bulan Terakhir</h3>
+            <a href="{{ Route::has('cash-flow.index') ? route('cash-flow.index') : '#' }}" class="sub-link">
+              Lihat detail <svg class="icon"><use href="#ic-arrow-right"/></svg>
+            </a>
+          </div>
+          
+          <!-- Ringkasan Angka -->
+          <div class="dash-cashflow-grid">
+            @php
+              $totalIn = array_sum(array_column($monthlyData, 'income'));
+              $totalOut = array_sum(array_column($monthlyData, 'expense'));
+              $netCash = $totalIn - $totalOut;
+              $avgIn = count($monthlyData) > 0 ? $totalIn / count($monthlyData) : 0;
+              $avgOut = count($monthlyData) > 0 ? $totalOut / count($monthlyData) : 0;
+            @endphp
+            <div class="dash-cashflow-item">
+              <div class="cf-label">Total Pemasukan</div>
+              <div class="cf-value positive">+{{ $currencySymbol }}{{ formatCurrencyShort($totalIn) }}</div>
+              <div class="cf-sub">Rata-rata {{ $currencySymbol }}{{ formatCurrencyShort($avgIn) }}/bln</div>
+            </div>
+            <div class="dash-cashflow-item">
+              <div class="cf-label">Total Pengeluaran</div>
+              <div class="cf-value negative">-{{ $currencySymbol }}{{ formatCurrencyShort($totalOut) }}</div>
+              <div class="cf-sub">Rata-rata {{ $currencySymbol }}{{ formatCurrencyShort($avgOut) }}/bln</div>
+            </div>
+            <div class="dash-cashflow-item">
+              <div class="cf-label">Arus Kas Bersih</div>
+              <div class="cf-value {{ $netCash >= 0 ? 'positive' : 'negative' }}">
+                {{ $netCash >= 0 ? '+' : '-' }}{{ $currencySymbol }}{{ formatCurrencyShort(abs($netCash)) }}
+              </div>
+              <div class="cf-sub">{{ $netCash >= 0 ? 'Surplus' : 'Defisit' }}</div>
+            </div>
+          </div>
+
+          <!-- Bar Chart -->
+          <div class="dash-cashflow-bars">
+            @foreach($monthlyData as $month => $data)
+              @php
+                $monthLabel = date('M', strtotime($month . '-01'));
+                $maxVal = max(array_merge(array_column($monthlyData, 'income'), array_column($monthlyData, 'expense')));
+                $maxVal = $maxVal > 0 ? $maxVal : 1;
+                $inHeight = ($data['income'] / $maxVal) * 55;
+                $outHeight = ($data['expense'] / $maxVal) * 55;
+              @endphp
+              <div class="dash-cf-bar-wrap">
+                <div class="bar-group">
+                  @if($data['income'] > 0)
+                    <div class="bar-in" style="height:{{ max($inHeight, 4) }}px;"></div>
+                  @else
+                    <div class="bar-in" style="height:4px;opacity:0.2;"></div>
+                  @endif
+                  @if($data['expense'] > 0)
+                    <div class="bar-out" style="height:{{ max($outHeight, 4) }}px;"></div>
+                  @else
+                    <div class="bar-out" style="height:4px;opacity:0.2;"></div>
+                  @endif
+                </div>
+                <div class="bar-label">{{ $monthLabel }}</div>
+              </div>
+            @endforeach
+          </div>
+
+          <!-- Legend -->
+          <div class="dash-cf-legend">
+            <span class="leg-item">
+              <span class="dot in"></span> Pemasukan
+            </span>
+            <span class="leg-item">
+              <span class="dot out"></span> Pengeluaran
+            </span>
+          </div>
+        </div>
       </div>
 
       <!-- RIGHT COLUMN -->
       <div class="dash-stack">
 
         <!-- EXPENSE DONUT -->
-        <div class="dash-card animate-in" style="animation-delay: 0.25s;">
+        <div class="dash-card animate-in" style="animation-delay: 0.30s;">
           <div class="card-head">
             <h3>Ringkasan Pengeluaran</h3>
             <a href="{{ Route::has('expenses.index') ? route('expenses.index') : '#' }}" class="sub-link">
@@ -1222,7 +1450,7 @@
         </div>
 
         <!-- BILLING TARGET -->
-        <div class="dash-card animate-in" style="animation-delay: 0.30s;">
+        <div class="dash-card animate-in" style="animation-delay: 0.35s;">
           <div class="card-head">
             <h3>Target Penagihan</h3>
             <svg class="icon" style="width:20px;height:20px;color:var(--theme-primary);"><use href="#ic-target"/></svg>
@@ -1246,7 +1474,7 @@
         </div>
 
         <!-- TEAM -->
-        <div class="dash-card animate-in" style="animation-delay: 0.35s;">
+        <div class="dash-card animate-in" style="animation-delay: 0.40s;">
           <div class="card-head">
             <h3>Tim Perusahaan</h3>
             <a href="{{ Route::has('team-members.index') ? route('team-members.index') : '#' }}" class="sub-link">
@@ -1273,7 +1501,7 @@
         </div>
 
         <!-- UPCOMING INVOICES -->
-        <div class="dash-card animate-in" style="animation-delay: 0.40s;">
+        <div class="dash-card animate-in" style="animation-delay: 0.45s;">
           <div class="card-head">
             <h3>Faktur Akan Jatuh Tempo</h3>
             <a href="{{ Route::has('invoices.index') ? route('invoices.index') : '#' }}" class="sub-link">
@@ -1356,6 +1584,17 @@
           circle.style.strokeDashoffset = offset;
         }, delay + 400);
       });
+
+      // Cash flow bars animation - trigger reflow
+      setTimeout(() => {
+        document.querySelectorAll('.dash-cf-bar-wrap .bar-in, .dash-cf-bar-wrap .bar-out').forEach(bar => {
+          const currentHeight = bar.style.height;
+          bar.style.height = '0px';
+          requestAnimationFrame(() => {
+            bar.style.height = currentHeight;
+          });
+        });
+      }, 500);
     });
   </script>
 

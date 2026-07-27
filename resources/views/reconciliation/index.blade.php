@@ -5,7 +5,11 @@
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-        // Data dari session (sudah passing $reconciliations dari controller)
+        // 🔧 SEEDING SESSION — biar show/edit/delete bisa nemu datanya
+        if (!session()->has('reconciliations')) {
+            session(['reconciliations' => $reconciliations]);
+        }
+
         $reconciliationsCollection = collect($reconciliations);
         $statusLabel = ['cocok' => 'Cocok', 'belum' => 'Belum Rekon'];
         $statusPill  = ['cocok' => 'cocok', 'belum' => 'belum'];
@@ -16,7 +20,6 @@
         $countBelum  = $reconciliationsCollection->where('status', 'belum')->count();
         $countCocok  = $reconciliationsCollection->where('status', 'cocok')->count();
         
-        // Fungsi helper untuk format tanggal
         function formatTanggal($date) {
             if (empty($date)) return '-';
             try {
@@ -25,7 +28,68 @@
                 return $date;
             }
         }
+
+        function formatAngkaPendek($angka) {
+            if ($angka >= 1000000000) {
+                return number_format($angka / 1000000000, 1, ',', '') . ' M';
+            } elseif ($angka >= 1000000) {
+                return number_format($angka / 1000000, 1, ',', '') . ' Jt';
+            } elseif ($angka >= 1000) {
+                return number_format($angka / 1000, 0, ',', '') . ' Rb';
+            } else {
+                return number_format($angka, 0, ',', '.');
+            }
+        }
     @endphp
+
+    <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </symbol>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </symbol>
+            <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/>
+            </symbol>
+            <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </symbol>
+            <symbol id="ic-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </symbol>
+            <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </symbol>
+            <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </symbol>
+            <symbol id="ic-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+            </symbol>
+            <symbol id="ic-bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="10" width="20" height="14" rx="2"/>
+                <path d="M12 3L2 10h20L12 3z"/>
+                <line x1="8" y1="14" x2="8" y2="18"/>
+                <line x1="12" y1="14" x2="12" y2="18"/>
+                <line x1="16" y1="14" x2="16" y2="18"/>
+            </symbol>
+            <symbol id="ic-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+            </symbol>
+            <symbol id="ic-diff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+                <polyline points="17 18 23 18 23 12"/>
+            </symbol>
+        </defs>
+    </svg>
 
     <style>
         /* ============================================
@@ -52,6 +116,7 @@
             
             --danger: #E85A5A;
             --danger-soft: rgba(232, 90, 90, 0.12);
+            --danger-rgb: 232, 90, 90;
             
             --success: #34B583;
             --success-soft: rgba(52, 181, 131, 0.14);
@@ -65,6 +130,7 @@
             
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
+            padding: 0 24px;
         }
 
         .rek-modern * {
@@ -77,16 +143,9 @@
             letter-spacing: -0.02em;
         }
 
-        /* ----- ANIMATIONS ----- */
         @keyframes fadeSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes pulseGlow {
@@ -110,12 +169,15 @@
             }
         }
 
+        @keyframes rippleAnim {
+            to { transform: scale(4); opacity: 0; }
+        }
+
         .rek-modern .animate-in {
             animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
         }
 
-        /* ----- SVG ICON BASE ----- */
         .rek-modern .icon {
             width: 18px;
             height: 18px;
@@ -129,7 +191,130 @@
             stroke-linejoin: round;
         }
 
-        /* ----- HEADER SECTION ----- */
+        /* ===== TOAST ===== */
+        .toast-container{
+            position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px; max-width:380px; width:100%;
+        }
+        .toast{
+            background:var(--modal-bg); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 20px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.5); animation:fadeSlideUp .35s cubic-bezier(.16,1,.3,1);
+            display:flex; align-items:center; gap:12px; backdrop-filter:blur(12px);
+        }
+        .toast .toast-icon{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .toast .toast-icon.success{ background:var(--success-soft); color:var(--success); }
+        .toast .toast-icon.error{ background:var(--danger-soft); color:var(--danger); }
+        .toast .toast-icon .icon{ width:18px; height:18px; }
+        .toast .toast-content{ flex:1; }
+        .toast .toast-title{ font-size:13px; font-weight:600; color:var(--text); }
+        .toast .toast-msg{ font-size:12px; color:var(--text-mute); }
+        .toast .toast-close{ background:none; border:none; color:var(--text-faint); cursor:pointer; padding:4px; }
+        .toast .toast-close .icon{ width:14px; height:14px; }
+
+        /* ===== FILTER BAR ===== */
+        .filter-bar{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+            background:var(--bg-card);
+            padding:12px 20px;
+            border-radius:var(--radius-sm);
+            border:1px solid var(--border-color);
+            margin-bottom:16px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-bar:focus-within {
+            border-color: var(--theme-primary);
+            box-shadow: 0 0 0 3px var(--theme-soft);
+        }
+
+        .filter-bar form{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            flex-wrap:wrap;
+            width:100%;
+        }
+
+        .search-wrap{
+            position:relative;
+            flex:1;
+            min-width:220px;
+        }
+
+        .search-wrap .icon{
+            position:absolute;
+            left:14px;
+            top:50%;
+            transform:translateY(-50%);
+            width:16px;
+            height:16px;
+            color:var(--text-tertiary);
+            pointer-events:none;
+            transition: color 0.3s ease;
+        }
+
+        .search-wrap:focus-within .icon {
+            color: var(--theme-primary);
+        }
+
+        .filter-bar input[type=text]{
+            width:100%;
+            padding:10px 16px 10px 42px;
+            border-radius:var(--radius-sm);
+            background:var(--bg-card-active);
+            border:1px solid transparent;
+            color:var(--text-primary);
+            font-size:13px;
+            outline:none;
+            transition:all .3s ease;
+            font-family:inherit;
+        }
+
+        .filter-bar input[type=text]:focus{
+            border-color:var(--theme-primary);
+            background:var(--bg-card);
+            box-shadow:0 0 0 3px rgba(var(--emerald-rgb),0.1);
+        }
+
+        .filter-bar input[type=text]::placeholder{
+            color:var(--text-tertiary);
+        }
+
+        .filter-actions{
+            display:flex;
+            gap:8px;
+            align-items:center;
+        }
+
+        .filter-actions .rek-btn {
+            padding: 8px 14px;
+            font-size: 12px;
+        }
+
+        .search-indicator {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            padding: 4px 12px;
+            background: var(--bg-card-active);
+            border-radius: 20px;
+            white-space: nowrap;
+            display: none;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .search-indicator.active {
+            display: inline-flex;
+        }
+
+        .search-indicator .count {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* ===== HEADER ===== */
         .rek-header {
             display: flex;
             justify-content: space-between;
@@ -214,6 +399,7 @@
             color: var(--text-secondary);
             position: relative;
             overflow: hidden;
+            font-family: 'Inter', sans-serif;
         }
 
         .rek-btn .icon {
@@ -262,14 +448,7 @@
             pointer-events: none;
         }
 
-        @keyframes rippleAnim {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
-        }
-
-        /* ----- SUCCESS MESSAGE ----- */
+        /* ===== SUCCESS MESSAGE ===== */
         .rek-success {
             background: var(--success-soft);
             border: 1px solid var(--success);
@@ -291,7 +470,7 @@
             font-weight: 500;
         }
 
-        /* ----- STATS ROW ----- */
+        /* ===== STATS ===== */
         .rek-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -401,7 +580,7 @@
             margin-top: 4px;
         }
 
-        /* ----- TABLE CARD ----- */
+        /* ===== TABLE ===== */
         .rek-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -448,10 +627,15 @@
             text-decoration: underline;
         }
 
-        /* ----- TABLE ----- */
         .rek-table-wrap {
             overflow-x: auto;
-            padding: 0 4px;
+            padding: 0 4px 4px 4px;
+        }
+
+        .rek-table-wrap.loading {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
         .rek-table {
@@ -494,7 +678,6 @@
             border-bottom: none;
         }
 
-        /* ----- DESCRIPTION ----- */
         .rek-desc {
             display: flex;
             align-items: center;
@@ -523,7 +706,6 @@
             color: var(--text-primary);
         }
 
-        /* ----- STATUS PILL ----- */
         .rek-status {
             font-size: 11px;
             font-weight: 600;
@@ -544,7 +726,6 @@
             color: var(--warning);
         }
 
-        /* ----- AMOUNT ----- */
         .rek-amount {
             font-family: 'IBM Plex Mono', monospace;
             font-weight: 600;
@@ -557,7 +738,6 @@
             color: var(--warning);
         }
 
-        /* ----- ACTION BUTTONS ----- */
         .rek-item-actions {
             display: flex;
             gap: 6px;
@@ -612,7 +792,6 @@
             border-color: var(--danger);
         }
 
-        /* ----- EMPTY STATE ----- */
         .rek-empty {
             text-align: center;
             padding: 60px 20px;
@@ -640,120 +819,196 @@
             font-size: 14px;
         }
 
-        /* ----- MODAL DELETE ----- */
+        /* ============================================================
+           MODAL DELETE - PINGGIRAN BULAT 24px (SAMA KAYA AGING)
+           ============================================================ */
         .rek-modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
-            z-index: 999;
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
             align-items: center;
             justify-content: center;
             padding: 20px;
             animation: modalFadeIn 0.3s ease;
         }
+
         .rek-modal-overlay.active {
             display: flex;
         }
+
+        [data-theme="dark"] .rek-modal-box { 
+            background: #0F1520; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        [data-theme="light"] .rek-modal-box { 
+            background: #FFFFFF; 
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
         .rek-modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
+            border-radius: 24px;              /* <--- INI BIKIN GA LANCIP! */
             max-width: 440px;
             width: 100%;
             padding: 32px 36px;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
             animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             text-align: center;
         }
+
         [data-theme="light"] .rek-modal-box {
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
         }
+
         .rek-modal-box .icon-danger {
             width: 56px;
             height: 56px;
-            color: var(--danger);
-            margin: 0 auto 16px;
-            background: var(--danger-soft);
+            background: #FEE2E2;
             border-radius: 50%;
-            padding: 12px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        [data-theme="dark"] .rek-modal-box .icon-danger {
+            background: rgba(220, 38, 38, 0.2);
+        }
+
+        .rek-modal-box .icon-danger svg {
+            width: 28px;
+            height: 28px;
+            stroke: #DC2626;
+        }
+
+        [data-theme="dark"] .rek-modal-box .icon-danger svg {
+            stroke: #F87171;
+        }
+
         .rek-modal-box h3 {
             font-size: 20px;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin: 0 0 8px 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         .rek-modal-box p {
             font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 4px;
+            margin: 0 0 4px 0;
             line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         .rek-modal-box .rek-desc-text {
+            font-family: 'IBM Plex Mono', monospace;
             font-weight: 600;
             color: var(--text-primary);
             background: var(--bg-card-active);
-            padding: 2px 12px;
-            border-radius: 6px;
+            padding: 4px 14px;
+            border-radius: 8px;
             display: inline-block;
+            margin-top: 4px;
+            font-size: 15px;
         }
+
         .rek-modal-box .warning-text {
             font-size: 13px;
-            color: var(--danger);
+            color: #DC2626;
             font-weight: 500;
-            margin-top: 12px;
+            margin-top: 16px;
             padding: 10px 16px;
-            background: var(--danger-soft);
-            border-radius: var(--radius-sm);
+            background: #FEE2E2;
+            border-radius: 10px;
             display: inline-block;
         }
+
+        [data-theme="dark"] .rek-modal-box .warning-text {
+            color: #F87171;
+            background: rgba(220, 38, 38, 0.15);
+        }
+
         .rek-modal-actions {
             display: flex;
             gap: 12px;
             justify-content: center;
             margin-top: 24px;
         }
+
         .rek-modal-actions .btn {
             min-width: 100px;
             justify-content: center;
             padding: 10px 22px;
-            border-radius: var(--radius-sm);
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             border: none;
             transition: all 0.25s ease;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
+
         .rek-modal-actions .btn .icon {
             width: 16px;
             height: 16px;
         }
+
         .rek-modal-actions .btn-outline {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
         }
+
         .rek-modal-actions .btn-outline:hover {
             background: var(--bg-card-hover);
             border-color: var(--border-hover);
             transform: translateY(-2px);
             color: var(--text-primary);
         }
+
         .rek-modal-actions .btn-danger {
-            background: var(--danger);
+            background: #DC2626;
             color: #fff;
         }
+
         .rek-modal-actions .btn-danger:hover {
-            background: #d14a4a;
+            background: #B91C1C;
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(232, 90, 90, 0.4);
+            box-shadow: 0 8px 22px rgba(220, 38, 38, 0.35);
+        }
+
+        [data-theme="dark"] .rek-modal-actions .btn-danger {
+            background: #DC2626;
+        }
+
+        [data-theme="dark"] .rek-modal-actions .btn-danger:hover {
+            background: #B91C1C;
+        }
+
+        /* CSS UNTUK NAVBAR TIDAK KE-BLUR */
+        body.aj-modal-open main {
+            position: relative;
+            z-index: 9998;
+        }
+
+        body.aj-modal-open .sidebar,
+        body.aj-modal-open .topbar {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        body.aj-modal-open .sidebar *,
+        body.aj-modal-open .topbar * {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
         /* ============================================
@@ -784,6 +1039,40 @@
 
             .rek-item-actions {
                 justify-content: flex-start;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 12px 16px;
+            }
+
+            .filter-bar form {
+                flex-direction: column;
+            }
+
+            .search-wrap {
+                min-width: 100%;
+            }
+
+            .filter-actions {
+                width: 100%;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+            }
+
+            .rek-modal-box {
+                padding: 24px 20px;
+                margin: 10px;
+            }
+
+            .rek-modal-actions {
+                flex-direction: column;
+            }
+
+            .rek-modal-actions .btn {
+                width: 100%;
             }
         }
 
@@ -817,6 +1106,24 @@
             .rek-item-actions {
                 opacity: 1;
             }
+
+            .rek-modal-box {
+                padding: 20px 16px;
+            }
+
+            .rek-modal-box h3 {
+                font-size: 18px;
+            }
+
+            .rek-modal-box .icon-danger {
+                width: 48px;
+                height: 48px;
+            }
+
+            .rek-modal-box .icon-danger svg {
+                width: 24px;
+                height: 24px;
+            }
         }
 
         @media (max-width: 380px) {
@@ -836,6 +1143,9 @@
 
     <div class="rek-modern">
 
+        <!-- ===== TOAST CONTAINER ===== -->
+        <div class="toast-container" id="toastContainer"></div>
+
         <!-- ===== HEADER ===== -->
         <div class="rek-header animate-in" style="animation-delay: 0.05s;">
             <div class="rek-header-left">
@@ -846,25 +1156,16 @@
                 <h1>Rekonsiliasi Bank</h1>
                 <p class="subtitle">
                     Cocokkan mutasi rekening bank dengan catatan pembukuan — 
-                    <strong>{{ $reconciliationsCollection->count() }}</strong> transaksi
+                    <strong id="rekTotalCount">{{ $reconciliationsCollection->count() }}</strong> transaksi
                 </p>
             </div>
             <div class="rek-header-actions">
                 <a href="{{ route('bank-mutations.index') }}" class="rek-btn rek-btn-ghost">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="10" width="20" height="14" rx="2"/>
-                        <path d="M12 3L2 10h20L12 3z"/>
-                        <line x1="8" y1="14" x2="8" y2="18"/>
-                        <line x1="12" y1="14" x2="12" y2="18"/>
-                        <line x1="16" y1="14" x2="16" y2="18"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-bank"/></svg>
                     Mutasi Rekening
                 </a>
                 <a href="{{ route('reconciliation.create') }}" class="rek-btn rek-btn-primary">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-plus"/></svg>
                     Tambah Rekonsiliasi
                 </a>
             </div>
@@ -873,62 +1174,52 @@
         <!-- ===== SUCCESS MESSAGE ===== -->
         @if(session('success'))
             <div class="rek-success animate-in" style="animation-delay: 0.08s;">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
+                <svg class="icon"><use href="#ic-check-circle"/></svg>
                 <span class="message">{{ session('success') }}</span>
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="rek-success" style="background:var(--danger-soft);border-color:var(--danger);color:var(--danger);">
+                <svg class="icon"><use href="#ic-alert-triangle"/></svg>
+                <span class="message">{{ session('error') }}</span>
+            </div>
+        @endif
+
         <!-- ===== STATS ===== -->
-        <div class="rek-stats">
+        <div class="rek-stats" id="rekStatCards">
             <div class="rek-stat-card animate-in" style="animation-delay: 0.10s;">
                 <div class="stat-head">
                     <div class="ic">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="10" width="20" height="14" rx="2"/>
-                            <path d="M12 3L2 10h20L12 3z"/>
-                            <line x1="8" y1="14" x2="8" y2="18"/>
-                            <line x1="12" y1="14" x2="12" y2="18"/>
-                            <line x1="16" y1="14" x2="16" y2="18"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-bank"/></svg>
                     </div>
-                    <span class="badge success">{{ $countCocok }} transaksi</span>
+                    <span class="badge success" id="rekCountCocok">{{ $countCocok }} transaksi</span>
                 </div>
                 <div class="stat-label">Saldo Bank</div>
-                <div class="stat-value primary mono">{{ $currencySymbol }}{{ number_format($saldoBank, 0, ',', '.') }}</div>
+                <div class="stat-value primary mono" id="rekSaldoBank">{{ $currencySymbol }}{{ formatAngkaPendek($saldoBank) }}</div>
                 <div class="stat-sub">Mutasi rekening bank</div>
             </div>
 
             <div class="rek-stat-card animate-in" style="animation-delay: 0.15s;">
                 <div class="stat-head">
                     <div class="ic">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-book"/></svg>
                     </div>
                 </div>
                 <div class="stat-label">Saldo Buku</div>
-                <div class="stat-value success mono">{{ $currencySymbol }}{{ number_format($saldoBuku, 0, ',', '.') }}</div>
+                <div class="stat-value success mono" id="rekSaldoBuku">{{ $currencySymbol }}{{ formatAngkaPendek($saldoBuku) }}</div>
                 <div class="stat-sub">Catatan pembukuan</div>
             </div>
 
             <div class="rek-stat-card animate-in" style="animation-delay: 0.20s;">
                 <div class="stat-head">
                     <div class="ic">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
-                            <polyline points="17 18 23 18 23 12"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-diff"/></svg>
                     </div>
-                    <span class="badge">{{ $countBelum }} transaksi</span>
+                    <span class="badge" id="rekCountBelum">{{ $countBelum }} transaksi</span>
                 </div>
                 <div class="stat-label">Selisih Belum Rekon</div>
-                <div class="stat-value warning mono">{{ $currencySymbol }}{{ number_format($selisih, 0, ',', '.') }}</div>
+                <div class="stat-value warning mono" id="rekSelisih">{{ $currencySymbol }}{{ formatAngkaPendek($selisih) }}</div>
                 <div class="stat-sub">Perlu ditelusuri</div>
             </div>
         </div>
@@ -939,14 +1230,30 @@
                 <h3>Daftar Rekonsiliasi</h3>
                 <a href="{{ Route::has('reports.general-ledger') ? route('reports.general-ledger') : '#' }}" class="link">
                     Buku besar bank
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                        <polyline points="12 5 19 12 12 19"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-chevron-right"/></svg>
                 </a>
             </div>
 
-            <div class="rek-table-wrap">
+            <!-- ===== FILTER BAR ===== -->
+            <div class="filter-bar animate-in" style="animation-delay: 0.27s;">
+                <form method="GET" action="{{ route('reconciliation.index') }}" id="filterForm">
+                    <div class="search-wrap">
+                        <svg class="icon"><use href="#ic-search"/></svg>
+                        <input type="text" name="q" id="rekSearchInput" value="{{ request('q') }}" placeholder="Cari keterangan rekonsiliasi..." autocomplete="off">
+                    </div>
+                    <div class="filter-actions">
+                        <span class="search-indicator" id="searchIndicator">
+                            <span class="count" id="searchResultCount">0</span> hasil ditemukan
+                        </span>
+                        <a href="{{ route('reconciliation.index') }}" class="rek-btn rek-btn-ghost" id="resetBtn">
+                            <svg class="icon"><use href="#ic-x"/></svg>
+                            Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="rek-table-wrap" id="rekTableWrap">
                 <table class="rek-table">
                     <thead>
                         <tr>
@@ -958,7 +1265,7 @@
                             <th style="width:120px; text-align:center;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="rekTableBody">
                         @forelse($reconciliations as $index => $item)
                             @php
                                 $itemId = $item['id'] ?? $index;
@@ -967,23 +1274,17 @@
                                 <td>
                                     <div class="rek-desc">
                                         <div class="icon-wrap">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <rect x="2" y="10" width="20" height="14" rx="2"/>
-                                                <path d="M12 3L2 10h20L12 3z"/>
-                                                <line x1="8" y1="14" x2="8" y2="18"/>
-                                                <line x1="12" y1="14" x2="12" y2="18"/>
-                                                <line x1="16" y1="14" x2="16" y2="18"/>
-                                            </svg>
+                                            <svg class="icon"><use href="#ic-bank"/></svg>
                                         </div>
                                         <span class="text">{{ $item['desc'] }}</span>
                                     </div>
                                 </td>
                                 <td>{{ formatTanggal($item['date']) }}</td>
                                 <td class="rek-amount mono">
-                                    {{ $currencySymbol }}{{ number_format($item['bank'], 0, ',', '.') }}
+                                    {{ $currencySymbol }}{{ formatAngkaPendek($item['bank']) }}
                                 </td>
                                 <td class="rek-amount mono {{ $item['bank'] != $item['buku'] ? 'different' : '' }}">
-                                    {{ $currencySymbol }}{{ number_format($item['buku'], 0, ',', '.') }}
+                                    {{ $currencySymbol }}{{ formatAngkaPendek($item['buku']) }}
                                     @if($item['bank'] != $item['buku'])
                                         <span style="font-size:10px; color: var(--warning); margin-left:4px;">(!)</span>
                                     @endif
@@ -996,26 +1297,14 @@
                                 <td>
                                     <div class="rek-item-actions">
                                         <a href="/reconciliation/show/{{ $itemId }}" class="btn-action show" title="Lihat Detail">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/>
-                                                <circle cx="12" cy="12" r="3"/>
-                                            </svg>
+                                            <svg class="icon"><use href="#ic-eye"/></svg>
                                         </a>
                                         <a href="/reconciliation/edit/{{ $itemId }}" class="btn-action edit" title="Edit">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                                                <path d="M15 5l4 4"/>
-                                            </svg>
+                                            <svg class="icon"><use href="#ic-edit"/></svg>
                                         </a>
                                         <button type="button" class="btn-action danger" title="Hapus"
                                                 onclick="openDeleteModal('{{ $itemId }}', '{{ addslashes($item['desc']) }}')">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M3 6h18"/>
-                                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                                <path d="M10 11v6"/>
-                                                <path d="M14 11v6"/>
-                                            </svg>
+                                            <svg class="icon"><use href="#ic-trash"/></svg>
                                         </button>
                                     </div>
                                 </td>
@@ -1024,20 +1313,11 @@
                             <tr>
                                 <td colspan="6">
                                     <div class="rek-empty">
-                                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <rect x="2" y="10" width="20" height="14" rx="2"/>
-                                            <path d="M12 3L2 10h20L12 3z"/>
-                                            <line x1="8" y1="14" x2="8" y2="18"/>
-                                            <line x1="12" y1="14" x2="12" y2="18"/>
-                                            <line x1="16" y1="14" x2="16" y2="18"/>
-                                        </svg>
+                                        <svg class="empty-icon"><use href="#ic-bank"/></svg>
                                         <h3>Belum Ada Data Rekonsiliasi</h3>
                                         <p>Belum ada transaksi yang direkonsiliasi.</p>
                                         <a href="{{ route('reconciliation.create') }}" class="rek-btn rek-btn-primary" style="display: inline-flex;">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <line x1="12" y1="5" x2="12" y2="19"/>
-                                                <line x1="5" y1="12" x2="19" y2="12"/>
-                                            </svg>
+                                            <svg class="icon"><use href="#ic-plus"/></svg>
                                             Mulai Rekonsiliasi
                                         </a>
                                     </div>
@@ -1051,23 +1331,36 @@
 
     </div>
 
-    <!-- ===== MODAL DELETE ===== -->
+    <!-- ============================================================
+         MODAL DELETE - PINGGIRAN BULAT 24px (SAMA KAYA AGING)
+         ============================================================ -->
     <div class="rek-modal-overlay" id="deleteModal">
         <div class="rek-modal-box">
-            <svg class="icon-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
+            <!-- ICON DANGER -->
+            <div class="icon-danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+
+            <!-- JUDUL -->
             <h3>Hapus Rekonsiliasi?</h3>
+
+            <!-- DESKRIPSI -->
             <p>
                 Anda yakin ingin menghapus data rekonsiliasi
                 <br>
                 <span class="rek-desc-text" id="deleteDesc">-</span>
             </p>
+
+            <!-- WARNING -->
             <div class="warning-text">
-                Data yang dihapus tidak dapat dikembalikan!
+                ⚠️ Data yang dihapus tidak dapat dikembalikan!
             </div>
+
+            <!-- TOMBOL -->
             <div class="rek-modal-actions">
                 <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">
                     Batal
@@ -1076,12 +1369,9 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
-                            <path d="M3 6h18"/>
-                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                            <path d="M10 11v6"/>
-                            <path d="M14 11v6"/>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                         </svg>
                         Ya, Hapus!
                     </button>
@@ -1091,17 +1381,46 @@
     </div>
 
     <script>
+        // ===== TOAST SYSTEM =====
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-icon ${type}">
+                    <svg class="icon"><use href="#${type === 'success' ? 'ic-check-circle' : 'ic-alert-triangle'}"/></svg>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <svg class="icon"><use href="#ic-x"/></svg>
+                </button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 5000);
+        }
+
+        // ===== DELETE MODAL =====
         function openDeleteModal(id, description) {
             document.getElementById('deleteDesc').textContent = description;
             var url = '/reconciliation/delete/' + id;
             document.getElementById('deleteForm').action = url;
             document.getElementById('deleteModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('aj-modal-open');
         }
 
         function closeDeleteModal() {
             document.getElementById('deleteModal').classList.remove('active');
             document.body.style.overflow = '';
+            document.body.classList.remove('aj-modal-open');
         }
 
         document.getElementById('deleteModal').addEventListener('click', function(e) {
@@ -1117,6 +1436,140 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            // ===== LIVE SEARCH =====
+            var searchInput = document.getElementById('rekSearchInput');
+            var rekTableWrap = document.getElementById('rekTableWrap');
+            var rekTableBody = document.getElementById('rekTableBody');
+            var rekStatCards = document.getElementById('rekStatCards');
+            var resetBtn = document.getElementById('resetBtn');
+            var searchIndicator = document.getElementById('searchIndicator');
+            var searchResultCount = document.getElementById('searchResultCount');
+            var totalCountEl = document.getElementById('rekTotalCount');
+            var loadingTimeout = null;
+
+            function resetToInitial() {
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+
+                if (searchIndicator) {
+                    searchIndicator.classList.remove('active');
+                }
+
+                var url = new URL(window.location.href);
+                url.searchParams.delete('q');
+                window.history.replaceState({}, '', url.toString());
+
+                updateResults(true);
+            }
+
+            function updateResults(isReset = false) {
+                rekTableWrap.classList.add('loading');
+                
+                var q = searchInput ? searchInput.value : '';
+                var url = '{{ route("reconciliation.index") }}';
+                if (!isReset && q) {
+                    url += '?q=' + encodeURIComponent(q);
+                }
+                
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(function(html) {
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    
+                    var newBody = doc.querySelector('#rekTableBody');
+                    if (newBody) {
+                        rekTableBody.innerHTML = newBody.innerHTML;
+                    }
+                    
+                    var newStats = doc.querySelector('#rekStatCards');
+                    if (newStats) {
+                        rekStatCards.innerHTML = newStats.innerHTML;
+                    }
+                    
+                    var newTotal = doc.querySelector('#rekTotalCount');
+                    if (newTotal && totalCountEl) {
+                        totalCountEl.textContent = newTotal.textContent;
+                    }
+
+                    if (searchIndicator && searchResultCount && !isReset && q) {
+                        var newRows = doc.querySelectorAll('#rekTableBody tr');
+                        var count = newRows.length;
+                        if (count > 0) {
+                            searchIndicator.classList.add('active');
+                            searchResultCount.textContent = count;
+                        } else {
+                            searchIndicator.classList.remove('active');
+                        }
+                    } else if (isReset) {
+                        if (searchIndicator) {
+                            searchIndicator.classList.remove('active');
+                        }
+                    }
+                    
+                    rekTableWrap.classList.remove('loading');
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    rekTableWrap.classList.remove('loading');
+                    showToast('Error', 'Gagal memuat data. Silakan refresh halaman.', 'error');
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    if (loadingTimeout) {
+                        clearTimeout(loadingTimeout);
+                    }
+                    
+                    var url = new URL(window.location.href);
+                    if (this.value.trim() !== '') {
+                        url.searchParams.set('q', this.value.trim());
+                    } else {
+                        url.searchParams.delete('q');
+                    }
+                    window.history.replaceState({}, '', url.toString());
+
+                    loadingTimeout = setTimeout(function() {
+                        updateResults(false);
+                    }, 300);
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                        e.preventDefault();
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                    if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                        var activeElement = document.activeElement;
+                        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                            return;
+                        }
+                        e.preventDefault();
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    resetToInitial();
+                });
+            }
+
             // Ripple effect untuk tombol
             const buttons = document.querySelectorAll('.rek-btn');
             buttons.forEach(btn => {

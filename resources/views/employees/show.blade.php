@@ -1,571 +1,487 @@
 <x-app-layout>
-  <x-slot name="title">Detail HPP</x-slot>
+    <x-slot name="title">Detail Karyawan</x-slot>
 
-  <style>
-    /* ============================================
-       HPP DETAIL - Premium Design
-       ============================================ */
-    
-    .hd-wrap {
-      --theme-primary: var(--emerald);
-      --theme-light: var(--emerald);
-      --theme-dark: var(--emerald-dim);
-      --theme-glow: rgba(var(--emerald-rgb), 0.25);
-      --theme-soft: rgba(var(--emerald-rgb), 0.12);
-      --theme-gradient: linear-gradient(135deg, var(--emerald), var(--emerald-dim));
-      
-      --text-primary: var(--text);
-      --text-secondary: var(--text-mute);
-      --text-tertiary: var(--text-faint);
-      
-      --bg-card: var(--surface);
-      --bg-card-hover: var(--surface-strong);
-      --bg-card-active: rgba(255, 255, 255, 0.04);
-      --border-color: var(--border);
-      --border-hover: var(--border-hover);
-      
-      --danger: #E85A5A;
-      --danger-soft: rgba(232, 90, 90, 0.12);
-      --success: #34B583;
-      --success-soft: rgba(52, 181, 131, 0.14);
-      --warning: #F0A83C;
-      --warning-soft: rgba(240, 168, 60, 0.14);
-      
-      --radius-sm: 10px;
-      --radius-md: 16px;
-      --radius-lg: 24px;
-      
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: var(--text-primary);
-    }
+    @php
+        $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
+        $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
+        
+        // Data employee dari route (array)
+        // $employee sudah dikirim dari route employees.show
+        $statusLabel = ['active' => 'Aktif', 'inactive' => 'Tidak Aktif'];
+        $statusPill  = ['active' => 'active', 'inactive' => 'inactive'];
+        
+        function formatTanggal($date) {
+            if (empty($date)) return '-';
+            try {
+                return \Carbon\Carbon::parse($date)->translatedFormat('d M Y');
+            } catch (\Exception $e) {
+                return $date;
+            }
+        }
 
-    .hd-wrap * { box-sizing: border-box; }
-    .hd-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+        function formatAngkaPendek($angka, $currency = 'Rp') {
+            if ($angka === null || $angka === '') return $currency . '0';
+            
+            $angka = (float) $angka;
+            
+            if ($angka >= 1000000000) {
+                return $currency . number_format($angka / 1000000000, 1, ',', '.') . ' M';
+            } elseif ($angka >= 1000000) {
+                return $currency . number_format($angka / 1000000, 1, ',', '.') . ' Jt';
+            } elseif ($angka >= 1000) {
+                return $currency . number_format($angka / 1000, 0, ',', '.') . ' Rb';
+            } else {
+                return $currency . number_format($angka, 0, ',', '.');
+            }
+        }
+    @endphp
 
-    @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    <!-- ===== SVG ICONS ===== -->
+    <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </symbol>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </symbol>
+            <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/>
+            </symbol>
+            <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </symbol>
+            <symbol id="ic-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </symbol>
+            <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </symbol>
+            <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </symbol>
+            <symbol id="ic-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </symbol>
+            <symbol id="ic-user-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <polyline points="16 11 18 13 22 9"/>
+            </symbol>
+            <symbol id="ic-user-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <line x1="18" y1="8" x2="23" y2="13"/>
+                <line x1="23" y1="8" x2="18" y2="13"/>
+            </symbol>
+            <symbol id="ic-credit-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                <line x1="2" y1="11" x2="22" y2="11"/>
+            </symbol>
+            <symbol id="ic-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+            </symbol>
+            <symbol id="ic-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+            </symbol>
+        </defs>
+    </svg>
 
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
+    <style>
+        .emp-detail-wrap {
+            --theme-primary: var(--emerald);
+            --theme-light: var(--emerald);
+            --theme-dark: var(--emerald-dim);
+            --theme-glow: rgba(var(--emerald-rgb), 0.25);
+            --theme-soft: rgba(var(--emerald-rgb), 0.12);
+            --theme-gradient: linear-gradient(135deg, var(--emerald), var(--emerald-dim));
+            
+            --text-primary: var(--text);
+            --text-secondary: var(--text-mute);
+            --text-tertiary: var(--text-faint);
+            
+            --bg-card: var(--surface);
+            --bg-card-hover: var(--surface-strong);
+            --bg-card-active: rgba(255, 255, 255, 0.04);
+            --border-color: var(--border);
+            --border-hover: var(--border-hover);
+            
+            --success: #34B583;
+            --success-soft: rgba(52, 181, 131, 0.14);
+            
+            --danger: #E85A5A;
+            --danger-soft: rgba(232, 90, 90, 0.12);
+            
+            --radius-sm: 10px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-primary);
+            padding: 0 24px;
+        }
 
-    .hd-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
-    .hd-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .emp-detail-wrap * { box-sizing: border-box; }
+        .emp-detail-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 
-    /* HEADER */
-    .hd-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 24px;
-      flex-wrap: wrap;
-      margin-bottom: 32px;
-      padding: 0 4px;
-    }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .hd-header-left { flex: 1; min-width: 200px; }
+        @keyframes rippleAnim {
+            to { transform: scale(4); opacity: 0; }
+        }
 
-    .hd-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 16px 6px 12px;
-      background: var(--theme-glow);
-      border: 1px solid var(--theme-glow);
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--theme-primary);
-      margin-bottom: 12px;
-    }
+        .emp-detail-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .emp-detail-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-    .hd-badge .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--theme-primary);
-      animation: pulseGlow 2s ease-in-out infinite;
-    }
+        /* ===== HEADER ===== */
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+            padding: 0 4px;
+        }
 
-    .hd-header h1 {
-      font-size: 28px;
-      font-weight: 700;
-      margin: 0 0 6px;
-      background: linear-gradient(135deg, var(--text) 60%, var(--theme-light));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.02em;
-    }
+        .detail-header .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
 
-    .hd-header .subtitle {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin: 0;
-    }
+        .detail-header .back-link:hover {
+            color: var(--text-primary);
+        }
 
-    .hd-header .subtitle strong {
-      color: var(--text-primary);
-      font-weight: 600;
-    }
+        .detail-header .back-link .icon {
+            width: 16px;
+            height: 16px;
+        }
 
-    .hd-actions {
-      display: flex;
-      gap: 10px;
-      flex-shrink: 0;
-      flex-wrap: wrap;
-    }
+        .detail-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(135deg, var(--text) 60%, var(--theme-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
 
-    .hd-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      background: transparent;
-      color: var(--text-secondary);
-      position: relative;
-      overflow: hidden;
-    }
+        .detail-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
 
-    .hd-btn .icon { width: 16px; height: 16px; }
-    .hd-btn:hover { transform: translateY(-2px); }
-    .hd-btn:active { transform: translateY(0) scale(0.97); }
+        /* ===== BUTTONS ===== */
+        .emp-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .hd-btn-primary {
-      background: var(--theme-gradient);
-      color: #fff;
-      box-shadow: 0 4px 16px var(--theme-glow);
-    }
+        .emp-btn .icon { width: 16px; height: 16px; }
+        .emp-btn:hover { transform: translateY(-2px); }
+        .emp-btn:active { transform: translateY(0) scale(0.97); }
 
-    .hd-btn-primary:hover {
-      box-shadow: 0 8px 28px var(--theme-glow);
-      transform: translateY(-2px);
-      color: #fff;
-    }
+        .emp-btn .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            pointer-events: none;
+        }
 
-    .hd-btn-ghost {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-    }
+        .emp-btn-primary {
+            background: var(--theme-gradient);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--theme-glow);
+        }
 
-    .hd-btn-ghost:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border-hover);
-      color: var(--text-primary);
-    }
+        .emp-btn-primary:hover {
+            box-shadow: 0 8px 28px var(--theme-glow);
+            transform: translateY(-2px);
+            color: #fff;
+        }
 
-    .hd-btn-danger {
-      background: var(--danger);
-      color: #fff;
-      border: none;
-    }
+        .emp-btn-ghost {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
 
-    .hd-btn-danger:hover {
-      background: #DC2626;
-      color: #fff;
-      transform: translateY(-2px);
-    }
+        .emp-btn-ghost:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
 
-    .hd-btn .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      transform: scale(0);
-      animation: rippleAnim 0.6s ease-out forwards;
-      pointer-events: none;
-    }
+        /* ===== CARD ===== */
+        .detail-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
 
-    @keyframes rippleAnim {
-      to { transform: scale(4); opacity: 0; }
-    }
+        .detail-card .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-    /* CONTENT LAYOUT */
-    .hd-content {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 24px;
-      align-items: start;
-    }
+        .detail-card .avatar-xl {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 32px;
+            color: #fff;
+            flex-shrink: 0;
+        }
 
-    .hd-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 28px 30px;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+        .detail-card .header-info h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 4px;
+            color: var(--text-primary);
+        }
 
-    .hd-card:hover {
-      border-color: var(--border-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    }
+        .detail-card .header-info .position-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
 
-    .hd-card .title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+        .detail-card .header-info .dept-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 14px;
+            border-radius: 100px;
+            background: var(--bg-card-active);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            margin-top: 6px;
+        }
 
-    .hd-card .title .icon {
-      width: 18px;
-      height: 18px;
-      color: var(--theme-primary);
-    }
+        .detail-card .status-badge-lg {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 18px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-left: auto;
+        }
 
-    .hd-card .title .line {
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, var(--border-color), transparent);
-    }
+        .detail-card .status-badge-lg.active {
+            background: var(--success-soft);
+            color: var(--success);
+        }
 
-    /* INFO GROUP */
-    .hd-info-group {
-      margin-bottom: 16px;
-    }
+        .detail-card .status-badge-lg.inactive {
+            background: var(--danger-soft);
+            color: var(--danger);
+        }
 
-    .hd-info-group:last-child { margin-bottom: 0; }
+        .detail-card .card-body {
+            padding: 24px;
+        }
 
-    .hd-info-group .label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      display: block;
-      margin-bottom: 4px;
-    }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px 40px;
+        }
 
-    .hd-info-group .value {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
 
-    .hd-info-group .value.mono {
-      font-family: 'IBM Plex Mono', monospace;
-    }
+        .detail-item .label {
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-tertiary);
+        }
 
-    .hd-info-group .value .badge {
-      display: inline-block;
-      padding: 4px 14px;
-      border-radius: 100px;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
+        .detail-item .value {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
 
-    .hd-info-group .value .badge.success {
-      background: var(--success-soft);
-      color: var(--success);
-    }
+        .detail-item .value.mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
 
-    .hd-info-group .value .badge.warning {
-      background: var(--warning-soft);
-      color: var(--warning);
-    }
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .emp-detail-wrap { padding: 0 12px; }
+            .detail-card .card-header { flex-wrap: wrap; }
+            .detail-card .status-badge-lg { margin-left: 0; }
+            .detail-grid { grid-template-columns: 1fr; gap: 16px; }
+            .detail-header { flex-direction: column; align-items: flex-start; }
+            .detail-actions { width: 100%; }
+            .detail-actions .emp-btn { flex: 1; justify-content: center; }
+        }
 
-    .hd-info-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
+        @media (max-width: 640px) {
+            .emp-detail-wrap { padding: 0 8px; }
+            .detail-header h1 { font-size: 22px; }
+            .detail-card .avatar-xl { width: 60px; height: 60px; font-size: 24px; }
+            .detail-card .header-info h2 { font-size: 17px; }
+        }
+    </style>
 
-    /* SIDEBAR */
-    .hd-sidebar {
-      position: sticky;
-      top: 80px;
-    }
-
-    .hd-summary-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border-color);
-      font-size: 13px;
-    }
-
-    .hd-summary-item:last-child { border-bottom: none; }
-
-    .hd-summary-item .label {
-      color: var(--text-secondary);
-    }
-
-    .hd-summary-item .value {
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .hd-summary-item .value.mono {
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .hd-summary-total {
-      padding: 16px 0 4px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 18px;
-      font-weight: 700;
-      border-top: 2px solid var(--theme-primary);
-      margin-top: 4px;
-    }
-
-    .hd-summary-total .label {
-      color: var(--text-primary);
-    }
-
-    .hd-summary-total .value {
-      color: var(--theme-primary);
-    }
-
-    .hd-summary-total .value.mono {
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .hd-meta {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border-color);
-      font-size: 12px;
-      color: var(--text-tertiary);
-    }
-
-    .hd-meta .meta-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 4px 0;
-    }
-
-    .hd-meta .meta-item .meta-label {
-      color: var(--text-tertiary);
-    }
-
-    .hd-meta .meta-item .meta-value {
-      color: var(--text-secondary);
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 992px) {
-      .hd-content { grid-template-columns: 1fr; }
-      .hd-sidebar { position: static; }
-      .hd-info-row { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 768px) {
-      .hd-card { padding: 20px; }
-    }
-
-    @media (max-width: 640px) {
-      .hd-header { flex-direction: column; }
-      .hd-actions { width: 100%; }
-      .hd-actions .hd-btn { flex: 1; justify-content: center; }
-    }
-
-    @media (max-width: 380px) {
-      .hd-header h1 { font-size: 22px; }
-      .hd-btn { font-size: 12px; padding: 8px 14px; }
-      .hd-btn .icon { width: 14px; height: 14px; }
-    }
-  </style>
-
-  <div class="hd-wrap">
-
-    <!-- ===== HEADER ===== -->
-    <div class="hd-header animate-in" style="animation-delay: 0.05s;">
-      <div class="hd-header-left">
-        <div class="hd-badge">
-          <span class="dot"></span>
-          Inventory &amp; COGS
+    <div class="emp-detail-wrap">
+        <!-- ===== HEADER ===== -->
+        <div class="detail-header animate-in" style="animation-delay: 0.05s;">
+            <div>
+                <a href="{{ route('employees.index') }}" class="back-link">
+                    <svg class="icon"><use href="#ic-chevron-left"/></svg>
+                    Kembali ke Daftar
+                </a>
+                <h1>Detail Karyawan</h1>
+            </div>
+            <div class="detail-actions">
+                <a href="{{ route('employees.edit', ['index' => $index ?? 0]) }}" class="emp-btn emp-btn-primary">
+                    <svg class="icon"><use href="#ic-edit"/></svg>
+                    Edit
+                </a>
+            </div>
         </div>
-        <h1>Detail HPP</h1>
-        <p class="subtitle">
-          Detail transaksi HPP — <strong>{{ $entry->item_name }}</strong>
-        </p>
-      </div>
-      <div class="hd-actions">
-        <a href="{{ route('cogs.index') }}" class="hd-btn hd-btn-ghost">
-          <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow-right"/></svg>
-          Kembali
-        </a>
-        <a href="{{ route('cogs.edit', $entry) }}" class="hd-btn hd-btn-primary">
-          <svg class="icon"><use href="#ic-edit"/></svg>
-          Edit
-        </a>
-        <button class="hd-btn hd-btn-danger" onclick="confirmDelete({{ $entry->id }})">
-          <svg class="icon"><use href="#ic-trash"/></svg>
-          Hapus
-        </button>
-      </div>
+
+        <!-- ===== CARD ===== -->
+        <div class="detail-card animate-in" style="animation-delay: 0.10s;">
+            <div class="card-header">
+                @php
+                    $colors = ['#EC4C93', '#34B583', '#F0A83C', '#4E8FF0', '#9B7BE0', '#E85A5A'];
+                    $color = $colors[($index ?? 0) % count($colors)];
+                    $initial = isset($employee['name']) ? mb_substr($employee['name'], 0, 1) : '?';
+                @endphp
+                <div class="avatar-xl" style="background: {{ $color }};">
+                    {{ $initial }}
+                </div>
+                <div class="header-info">
+                    <h2>{{ $employee['name'] ?? 'Nama Tidak Diketahui' }}</h2>
+                    <div class="position-text">{{ $employee['position'] ?? '-' }}</div>
+                    <span class="dept-badge">{{ $employee['department'] ?? '-' }}</span>
+                </div>
+                <span class="status-badge-lg {{ $statusPill[$employee['status'] ?? 'inactive'] }}">
+                    {{ $statusLabel[$employee['status'] ?? 'inactive'] }}
+                </span>
+            </div>
+
+            <div class="card-body">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="label">Nama Lengkap</span>
+                        <span class="value">{{ $employee['name'] ?? '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Posisi / Jabatan</span>
+                        <span class="value">{{ $employee['position'] ?? '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Departemen</span>
+                        <span class="value">{{ $employee['department'] ?? '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Email</span>
+                        <span class="value">{{ $employee['email'] ?? '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Telepon</span>
+                        <span class="value">{{ $employee['phone'] ?? '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Gaji / Bulan</span>
+                        <span class="value mono">{{ isset($employee['salary']) ? formatAngkaPendek($employee['salary'], $currencySymbol) : '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Tanggal Bergabung</span>
+                        <span class="value">{{ isset($employee['joined']) ? formatTanggal($employee['joined']) : '-' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Status</span>
+                        <span class="value">
+                            <span class="status-badge-lg {{ $statusPill[$employee['status'] ?? 'inactive'] }}" style="display:inline-block; margin:0; font-size:11px; padding:4px 12px;">
+                                {{ $statusLabel[$employee['status'] ?? 'inactive'] }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- ===== CONTENT ===== -->
-    <div class="hd-content">
-
-      <!-- MAIN INFO -->
-      <div class="hd-card animate-in" style="animation-delay: 0.10s;">
-        <div class="title">
-          <svg class="icon"><use href="#ic-box"/></svg>
-          Informasi Transaksi HPP
-          <span class="line"></span>
-        </div>
-
-        <div class="hd-info-group">
-          <span class="label">Nama Item</span>
-          <div class="value">{{ $entry->item_name }}</div>
-        </div>
-
-        <div class="hd-info-row">
-          <div class="hd-info-group">
-            <span class="label">Jumlah Terjual</span>
-            <div class="value mono">{{ number_format($entry->quantity, 0, ',', '.') }} unit</div>
-          </div>
-          <div class="hd-info-group">
-            <span class="label">Harga Pokok / Unit</span>
-            <div class="value mono">Rp {{ number_format($entry->unit_cost, 0, ',', '.') }}</div>
-          </div>
-        </div>
-
-        <div class="hd-info-group">
-          <span class="label">Total HPP</span>
-          <div class="value mono" style="font-size: 20px; color: var(--theme-primary); font-weight: 700;">
-            Rp {{ number_format($entry->total_cost, 0, ',', '.') }}
-          </div>
-        </div>
-
-        <div class="hd-info-group">
-          <span class="label">Catatan</span>
-          <div class="value">{{ $entry->notes ?? '-' }}</div>
-        </div>
-      </div>
-
-      <!-- SIDEBAR -->
-      <div class="hd-sidebar">
-        <div class="hd-card animate-in" style="animation-delay: 0.15s;">
-          <div class="title">
-            <svg class="icon"><use href="#ic-target"/></svg>
-            Ringkasan
-            <span class="line"></span>
-          </div>
-
-          <div class="hd-summary-item">
-            <span class="label">Item</span>
-            <span class="value">{{ $entry->item_name }}</span>
-          </div>
-          <div class="hd-summary-item">
-            <span class="label">Jumlah</span>
-            <span class="value mono">{{ number_format($entry->quantity, 0, ',', '.') }} unit</span>
-          </div>
-          <div class="hd-summary-item">
-            <span class="label">Harga Pokok / Unit</span>
-            <span class="value mono">Rp {{ number_format($entry->unit_cost, 0, ',', '.') }}</span>
-          </div>
-
-          <div class="hd-summary-total">
-            <span class="label">Total HPP</span>
-            <span class="value mono">Rp {{ number_format($entry->total_cost, 0, ',', '.') }}</span>
-          </div>
-
-          <div class="hd-meta">
-            <div class="meta-item">
-              <span class="meta-label">Dibuat oleh</span>
-              <span class="meta-value">{{ $entry->created_by ?? '-' }}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Dibuat pada</span>
-              <span class="meta-value">{{ $entry->created_at ? date('d/m/Y H:i', strtotime($entry->created_at)) : '-' }}</span>
-            </div>
-            @if($entry->created_at != $entry->updated_at)
-            <div class="meta-item">
-              <span class="meta-label">Terakhir diupdate</span>
-              <span class="meta-value">{{ $entry->updated_at ? date('d/m/Y H:i', strtotime($entry->updated_at)) : '-' }}</span>
-            </div>
-            @endif
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-  <!-- Delete Confirmation Modal -->
-  <div class="modal-overlay" id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:var(--bg-card);border-radius:var(--radius-md);padding:32px;max-width:440px;width:90%;border:1px solid var(--border-color);">
-      <svg style="width:48px;height:48px;color:var(--danger);margin:0 auto 16px;display:block;"><use href="#ic-trash"/></svg>
-      <h3 style="font-size:18px;font-weight:600;margin:0 0 8px;text-align:center;color:var(--text-primary);">Hapus Transaksi HPP</h3>
-      <p style="color:var(--text-secondary);text-align:center;margin:0 0 24px;font-size:14px;line-height:1.5;">
-        Apakah Anda yakin ingin menghapus transaksi HPP ini? Tindakan ini tidak dapat dibatalkan.
-      </p>
-      <div style="display:flex;gap:10px;justify-content:center;">
-        <button class="hd-btn hd-btn-ghost" onclick="closeDeleteModal()" style="min-width:100px;justify-content:center;">Batal</button>
-        <form id="deleteForm" method="POST" style="display:inline;">
-          @csrf
-          @method('DELETE')
-          <button type="submit" class="hd-btn hd-btn-danger" style="min-width:100px;justify-content:center;">Hapus</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- SVG Icons -->
-  <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
-    <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
-    <symbol id="ic-edit" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
-    <symbol id="ic-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></symbol>
-    <symbol id="ic-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
-    <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
-  </svg>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const buttons = document.querySelectorAll('.hd-btn');
-      buttons.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-          const rect = this.getBoundingClientRect();
-          const ripple = document.createElement('span');
-          ripple.className = 'ripple';
-          const size = Math.max(rect.width, rect.height);
-          ripple.style.width = ripple.style.height = size + 'px';
-          ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
-          ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
-          this.appendChild(ripple);
-          setTimeout(() => { ripple.remove(); }, 600);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ripple effect for buttons
+            const buttons = document.querySelectorAll('.emp-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (this.tagName === 'A' && this.getAttribute('href') && this.getAttribute('href') !== '#') {
+                        return;
+                    }
+                    const rect = this.getBoundingClientRect();
+                    const ripple = document.createElement('span');
+                    ripple.className = 'ripple';
+                    const size = Math.max(rect.width, rect.height);
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+                    ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+                    this.appendChild(ripple);
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
         });
-      });
-    });
-
-    function confirmDelete(id) {
-      document.getElementById('deleteForm').action = '{{ route("cogs.destroy", ["cog" => "__ID__"]) }}'.replace('__ID__', id);
-      document.getElementById('deleteModal').style.display = 'flex';
-    }
-
-    function closeDeleteModal() {
-      document.getElementById('deleteModal').style.display = 'none';
-    }
-
-    document.getElementById('deleteModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeDeleteModal();
-      }
-    });
-  </script>
-
+    </script>
 </x-app-layout>

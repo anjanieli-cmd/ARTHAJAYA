@@ -42,6 +42,7 @@
       
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
+      padding: 0 24px;
     }
 
     .cal-create-wrap * { box-sizing: border-box; }
@@ -56,6 +57,10 @@
       50% { opacity: 0.6; }
     }
 
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
+    }
+
     .cal-create-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
     .cal-create-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -66,7 +71,7 @@
       align-items: flex-start;
       gap: 24px;
       flex-wrap: wrap;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
       padding: 0 4px;
     }
 
@@ -141,6 +146,7 @@
       color: var(--text-secondary);
       position: relative;
       overflow: hidden;
+      font-family: 'Inter', sans-serif;
     }
 
     .cc-btn .icon { width: 16px; height: 16px; }
@@ -180,35 +186,30 @@
       pointer-events: none;
     }
 
-    @keyframes rippleAnim {
-      to { transform: scale(4); opacity: 0; }
-    }
-
-    /* FORM LAYOUT */
+    /* ===== FORM - FULL WIDTH ===== */
     .cc-form {
-      max-width: 800px;
-      margin: 0 auto;
+      width: 100%;
     }
 
     .cc-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 28px 32px;
+      padding: 32px 36px;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 100%;
     }
 
     .cc-card:hover {
       border-color: var(--border-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
     }
 
     .cc-card .title {
       font-size: 15px;
       font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -228,7 +229,7 @@
 
     /* FORM GROUP */
     .cc-form-group {
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .cc-form-group:last-child { margin-bottom: 0; }
@@ -252,12 +253,12 @@
     .cc-form-group select,
     .cc-form-group textarea {
       width: 100%;
-      padding: 10px 14px;
+      padding: 11px 16px;
       background: var(--bg-card-active);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       color: var(--text-primary);
-      font-size: 13px;
+      font-size: 14px;
       font-family: 'Inter', sans-serif;
       transition: all 0.3s ease;
       outline: none;
@@ -278,7 +279,7 @@
 
     .cc-form-group textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 90px;
     }
 
     .cc-form-group select {
@@ -292,7 +293,7 @@
       background-color: #12181f;
       color: #f2f4f7;
       padding: 10px 14px;
-      font-size: 13px;
+      font-size: 14px;
     }
 
     .cc-form-group select option:checked,
@@ -308,7 +309,7 @@
     .cc-form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 20px;
     }
 
     /* INFO BOX */
@@ -316,11 +317,11 @@
       background: var(--theme-soft);
       border: 1px solid var(--theme-glow);
       border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      margin-bottom: 18px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
       display: flex;
       align-items: flex-start;
-      gap: 10px;
+      gap: 12px;
     }
 
     .cc-info-box .icon {
@@ -334,7 +335,7 @@
     .cc-info-box .message {
       font-size: 13px;
       color: var(--text-secondary);
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     .cc-info-box .message strong {
@@ -344,27 +345,36 @@
     /* FORM ACTIONS */
     .cc-form-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 24px;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
     }
 
     .cc-form-actions .cc-btn {
       flex: 1;
       justify-content: center;
-      padding: 12px 20px;
+      padding: 12px 24px;
     }
 
     /* RESPONSIVE */
+    @media (max-width: 992px) {
+      .cal-create-wrap { padding: 0 16px; }
+      .cc-card { padding: 28px 32px; }
+    }
+
     @media (max-width: 768px) {
+      .cal-create-wrap { padding: 0 12px; }
+      .cc-card { padding: 24px 28px; }
       .cc-form-row { 
         grid-template-columns: 1fr; 
+        gap: 0;
       }
-      .cc-card { 
-        padding: 20px; 
-      }
+      .cc-header h1 { font-size: 24px; }
     }
 
     @media (max-width: 640px) {
+      .cal-create-wrap { padding: 0 12px; }
       .cc-header { 
         flex-direction: column; 
       }
@@ -374,6 +384,8 @@
       .cc-actions .cc-btn { 
         flex: 1; 
         justify-content: center; 
+        font-size: 12px;
+        padding: 8px 12px;
       }
       .cc-form-actions { 
         flex-direction: column; 
@@ -381,19 +393,26 @@
       .cc-form-actions .cc-btn { 
         flex: none; 
       }
+      .cc-card { 
+        padding: 20px; 
+      }
     }
 
     @media (max-width: 380px) {
+      .cal-create-wrap { padding: 0 8px; }
       .cc-header h1 { 
         font-size: 22px; 
       }
       .cc-btn { 
-        font-size: 12px; 
-        padding: 8px 14px; 
+        font-size: 11px; 
+        padding: 6px 10px; 
       }
       .cc-btn .icon { 
-        width: 14px; 
-        height: 14px; 
+        width: 13px; 
+        height: 13px; 
+      }
+      .cc-card { 
+        padding: 16px; 
       }
     }
   </style>
@@ -443,21 +462,21 @@
         <!-- Title -->
         <div class="cc-form-group">
           <label>Judul Event <span class="required">*</span></label>
-          <input type="text" name="title" placeholder="Contoh: PPh Pasal 21 / PPN Masa Juli" required>
+          <input type="text" name="title" value="{{ old('title') }}" placeholder="Contoh: PPh Pasal 21 / PPN Masa Juli" required>
         </div>
 
         <!-- Date & Type -->
         <div class="cc-form-row">
           <div class="cc-form-group">
             <label>Tanggal <span class="required">*</span></label>
-            <input type="date" name="date" value="{{ date('Y-m-d', strtotime('+14 days')) }}" required>
+            <input type="date" name="date" value="{{ old('date', date('Y-m-d', strtotime('+14 days'))) }}" required>
           </div>
           <div class="cc-form-group">
             <label>Tipe <span class="required">*</span></label>
             <select name="type" required>
-              <option value="pph">PPh</option>
-              <option value="ppn">PPN</option>
-              <option value="other">Lainnya</option>
+              <option value="pph" {{ old('type') == 'pph' ? 'selected' : '' }}>PPh</option>
+              <option value="ppn" {{ old('type') == 'ppn' ? 'selected' : '' }}>PPN</option>
+              <option value="other" {{ old('type') == 'other' ? 'selected' : '' }}>Lainnya</option>
             </select>
           </div>
         </div>
@@ -465,16 +484,16 @@
         <!-- Description -->
         <div class="cc-form-group">
           <label>Deskripsi <span class="required">*</span></label>
-          <textarea name="desc" placeholder="Deskripsi event (contoh: Pembayaran PPh Pasal 21 periode Juli)" required></textarea>
+          <textarea name="desc" placeholder="Deskripsi event (contoh: Pembayaran PPh Pasal 21 periode Juli)" required>{{ old('desc') }}</textarea>
         </div>
 
         <!-- Status -->
         <div class="cc-form-group">
           <label>Status <span class="required">*</span></label>
           <select name="status" required>
-            <option value="upcoming">Akan Datang</option>
-            <option value="overdue">Lewat Jatuh Tempo</option>
-            <option value="done">Selesai</option>
+            <option value="upcoming" {{ old('status') == 'upcoming' ? 'selected' : '' }}>Akan Datang</option>
+            <option value="overdue" {{ old('status') == 'overdue' ? 'selected' : '' }}>Lewat Jatuh Tempo</option>
+            <option value="done" {{ old('status') == 'done' ? 'selected' : '' }}>Selesai</option>
           </select>
         </div>
 
@@ -484,6 +503,9 @@
             <svg class="icon"><use href="#ic-check"/></svg>
             Simpan Event
           </button>
+          <a href="{{ route('tax-calendar.index') }}" class="cc-btn cc-btn-ghost">
+            Batal
+          </a>
         </div>
       </div>
 
@@ -493,10 +515,26 @@
 
   <!-- SVG Icons -->
   <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
-    <symbol id="ic-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
-    <symbol id="ic-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
-    <symbol id="ic-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
-    <symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+    <defs>
+      <symbol id="ic-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </symbol>
+      <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </symbol>
+      <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="16" x2="12" y2="12"/>
+        <line x1="12" y1="8" x2="12.01" y2="8"/>
+      </symbol>
+      <symbol id="ic-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </symbol>
+    </defs>
   </svg>
 
   <script>
@@ -505,6 +543,10 @@
       const buttons = document.querySelectorAll('.cc-btn');
       buttons.forEach(btn => {
         btn.addEventListener('click', function(e) {
+          // Skip jika ini link
+          if (this.tagName === 'A' && this.getAttribute('href') && this.getAttribute('href') !== '#') {
+            return;
+          }
           const rect = this.getBoundingClientRect();
           const ripple = document.createElement('span');
           ripple.className = 'ripple';
@@ -513,7 +555,9 @@
           ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
           ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
           this.appendChild(ripple);
-          setTimeout(() => { ripple.remove(); }, 600);
+          setTimeout(function() { 
+            if (ripple.parentNode) ripple.remove(); 
+          }, 600);
         });
       });
     });

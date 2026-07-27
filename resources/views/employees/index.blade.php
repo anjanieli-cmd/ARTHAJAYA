@@ -5,7 +5,6 @@
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-        // Data dari session (sudah passing $employees dari controller)
         $employees = $employees ?? [
             ['id' => 1, 'name' => 'Budi Santoso',      'position' => 'Pengrajin Batik', 'department' => 'Produksi', 'email' => 'budi@arthajaya.com', 'phone' => '0812-3456-7890', 'salary' => 4500000, 'status' => 'active', 'joined' => '2023-01-15'],
             ['id' => 2, 'name' => 'Siti Rahayu',        'position' => 'Desainer',        'department' => 'Kreatif',  'email' => 'siti@arthajaya.com', 'phone' => '0813-4567-8901', 'salary' => 5200000, 'status' => 'active', 'joined' => '2023-03-01'],
@@ -14,6 +13,11 @@
             ['id' => 5, 'name' => 'Hendra Gunawan',     'position' => 'Pengrajin Batik', 'department' => 'Produksi', 'email' => 'hendra@arthajaya.com', 'phone' => '0816-7890-1234', 'salary' => 4500000, 'status' => 'inactive', 'joined' => '2022-11-01'],
             ['id' => 6, 'name' => 'Rina Marlina',       'position' => 'Quality Control', 'department' => 'Produksi', 'email' => 'rina@arthajaya.com', 'phone' => '0817-8901-2345', 'salary' => 4200000, 'status' => 'active', 'joined' => '2024-01-05'],
         ];
+
+        // >>> TAMBAHAN INI: Seed ke session kalau belum ada <<<
+        if (!session()->has('employees') && !request()->filled('q')) {
+            session(['employees' => $employees]);
+        }
 
         $employeesCollection = collect($employees);
         $statusLabel = ['active' => 'Aktif', 'inactive' => 'Tidak Aktif'];
@@ -27,7 +31,6 @@
         
         $departments = $employeesCollection->pluck('department')->unique()->values();
         
-        // Fungsi helper untuk format tanggal
         function formatTanggal($date) {
             if (empty($date)) return '-';
             try {
@@ -36,13 +39,97 @@
                 return $date;
             }
         }
+
+        function formatAngkaPendek($angka, $currency = 'Rp') {
+            if ($angka === null || $angka === '') return $currency . '0';
+            
+            $angka = (float) $angka;
+            
+            if ($angka >= 1000000000) {
+                return $currency . number_format($angka / 1000000000, 1, ',', '.') . ' M';
+            } elseif ($angka >= 1000000) {
+                return $currency . number_format($angka / 1000000, 1, ',', '.') . ' Jt';
+            } elseif ($angka >= 1000) {
+                return $currency . number_format($angka / 1000000, 1, ',', '.') . ' Jt';
+            } else {
+                return $currency . number_format($angka, 0, ',', '.');
+            }
+        }
+
+        function formatAngkaPendekNoCurrency($angka) {
+            if ($angka === null || $angka === '') return '0';
+            
+            $angka = (float) $angka;
+            
+            if ($angka >= 1000000000) {
+                return number_format($angka / 1000000000, 1, ',', '.') . ' M';
+            } elseif ($angka >= 1000000) {
+                return number_format($angka / 1000000, 1, ',', '.') . ' Jt';
+            } elseif ($angka >= 1000) {
+                return number_format($angka / 1000, 0, ',', '.') . ' Rb';
+            } else {
+                return number_format($angka, 0, ',', '.');
+            }
+        }
     @endphp
 
+    <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </symbol>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </symbol>
+            <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/>
+            </symbol>
+            <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </symbol>
+            <symbol id="ic-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </symbol>
+            <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </symbol>
+            <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </symbol>
+            <symbol id="ic-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </symbol>
+            <symbol id="ic-user-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <polyline points="16 11 18 13 22 9"/>
+            </symbol>
+            <symbol id="ic-user-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <line x1="18" y1="8" x2="23" y2="13"/>
+                <line x1="23" y1="8" x2="18" y2="13"/>
+            </symbol>
+            <symbol id="ic-credit-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                <line x1="2" y1="11" x2="22" y2="11"/>
+            </symbol>
+            <symbol id="ic-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+            </symbol>
+        </defs>
+    </svg>
+
     <style>
-        /* ============================================
-           EMPLOYEES - Profile Card Style
-           ============================================ */
-        
         .emp-wrap {
             --theme-primary: var(--emerald);
             --theme-light: var(--emerald);
@@ -66,6 +153,7 @@
             
             --danger: #E85A5A;
             --danger-soft: rgba(232, 90, 90, 0.12);
+            --danger-rgb: 232, 90, 90;
             
             --radius-sm: 10px;
             --radius-md: 16px;
@@ -73,6 +161,7 @@
             
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
+            padding: 0 24px;
         }
 
         .emp-wrap * { box-sizing: border-box; }
@@ -104,10 +193,14 @@
             }
         }
 
+        @keyframes rippleAnim {
+            to { transform: scale(4); opacity: 0; }
+        }
+
         .emp-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
         .emp-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-        /* SUCCESS MESSAGE */
+        /* ===== SUCCESS ===== */
         .emp-success {
             background: var(--success-soft);
             border: 1px solid var(--success);
@@ -120,16 +213,10 @@
             gap: 10px;
         }
 
-        .emp-success .icon {
-            width: 20px;
-            height: 20px;
-        }
+        .emp-success .icon { width: 20px; height: 20px; }
+        .emp-success .message { font-weight: 500; }
 
-        .emp-success .message {
-            font-weight: 500;
-        }
-
-        /* HEADER */
+        /* ===== HEADER ===== */
         .emp-header {
             display: flex;
             justify-content: space-between;
@@ -208,6 +295,7 @@
             color: var(--text-secondary);
             position: relative;
             overflow: hidden;
+            font-family: 'Inter', sans-serif;
         }
 
         .emp-btn .icon { width: 16px; height: 16px; }
@@ -247,11 +335,7 @@
             pointer-events: none;
         }
 
-        @keyframes rippleAnim {
-            to { transform: scale(4); opacity: 0; }
-        }
-
-        /* STATS ROW */
+        /* ===== STATS ===== */
         .emp-stats {
             display: flex;
             gap: 16px;
@@ -309,7 +393,7 @@
         .emp-stat .info .value.red { color: var(--danger); }
         .emp-stat .info .value.purple { color: var(--theme-primary); }
 
-        /* SEARCH & FILTER */
+        /* ===== TOOLBAR ===== */
         .emp-toolbar {
             display: flex;
             align-items: center;
@@ -353,6 +437,7 @@
             outline: none;
             color: var(--text-primary);
             font-size: 13px;
+            font-family: inherit;
         }
 
         .emp-toolbar .search input::placeholder {
@@ -363,6 +448,7 @@
             display: flex;
             gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .emp-toolbar .filter-group select {
@@ -376,16 +462,28 @@
             cursor: pointer;
             outline: none;
             transition: all 0.2s ease;
+            font-family: inherit;
         }
 
         .emp-toolbar .filter-group select:hover { border-color: var(--border-hover); }
         .emp-toolbar .filter-group select:focus { border-color: var(--theme-primary); }
 
-        /* PROFILE CARD GRID */
+        .emp-toolbar .filter-group .emp-btn {
+            padding: 8px 14px;
+            font-size: 12px;
+        }
+
+        /* ===== GRID ===== */
         .emp-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 16px;
+        }
+
+        .emp-grid.loading {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
         .emp-profile {
@@ -514,7 +612,6 @@
             color: var(--danger);
         }
 
-        /* ACTION BUTTONS - Updated with full actions */
         .emp-profile .actions {
             display: flex;
             justify-content: center;
@@ -579,7 +676,16 @@
             border-color: var(--danger);
         }
 
-        /* EMPTY */
+        .emp-profile.hidden-item {
+            display: none;
+        }
+
+        .emp-profile.visible-item {
+            display: block;
+            animation: fadeSlideUp 0.3s ease forwards;
+        }
+
+        /* ===== EMPTY ===== */
         .emp-empty {
             text-align: center;
             padding: 60px 20px;
@@ -610,125 +716,203 @@
             font-size: 14px;
         }
 
-        /* ----- MODAL DELETE ----- */
+        .emp-empty.hidden {
+            display: none;
+        }
+
+        /* ============================================================
+           MODAL DELETE
+           ============================================================ */
         .emp-modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
-            z-index: 999;
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
             align-items: center;
             justify-content: center;
             padding: 20px;
             animation: modalFadeIn 0.3s ease;
         }
+
         .emp-modal-overlay.active {
             display: flex;
         }
+
+        [data-theme="dark"] .emp-modal-box { 
+            background: #0F1520; 
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        [data-theme="light"] .emp-modal-box { 
+            background: #FFFFFF; 
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
         .emp-modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
+            border-radius: 24px;
             max-width: 440px;
             width: 100%;
             padding: 32px 36px;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
             animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             text-align: center;
         }
+
         [data-theme="light"] .emp-modal-box {
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
         }
+
         .emp-modal-box .icon-danger {
             width: 56px;
             height: 56px;
-            color: var(--danger);
-            margin: 0 auto 16px;
-            background: var(--danger-soft);
+            background: #FEE2E2;
             border-radius: 50%;
-            padding: 12px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        [data-theme="dark"] .emp-modal-box .icon-danger {
+            background: rgba(220, 38, 38, 0.2);
+        }
+
+        .emp-modal-box .icon-danger svg {
+            width: 28px;
+            height: 28px;
+            stroke: #DC2626;
+        }
+
+        [data-theme="dark"] .emp-modal-box .icon-danger svg {
+            stroke: #F87171;
+        }
+
         .emp-modal-box h3 {
             font-size: 20px;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin: 0 0 8px 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         .emp-modal-box p {
             font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 4px;
+            margin: 0 0 4px 0;
             line-height: 1.6;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
+
         .emp-modal-box .emp-desc-text {
+            font-family: 'IBM Plex Mono', monospace;
             font-weight: 600;
             color: var(--text-primary);
             background: var(--bg-card-active);
-            padding: 2px 12px;
-            border-radius: 6px;
+            padding: 4px 14px;
+            border-radius: 8px;
             display: inline-block;
+            margin-top: 4px;
+            font-size: 15px;
         }
+
         .emp-modal-box .warning-text {
             font-size: 13px;
-            color: var(--danger);
+            color: #DC2626;
             font-weight: 500;
-            margin-top: 12px;
+            margin-top: 16px;
             padding: 10px 16px;
-            background: var(--danger-soft);
-            border-radius: var(--radius-sm);
+            background: #FEE2E2;
+            border-radius: 10px;
             display: inline-block;
         }
+
+        [data-theme="dark"] .emp-modal-box .warning-text {
+            color: #F87171;
+            background: rgba(220, 38, 38, 0.15);
+        }
+
         .emp-modal-actions {
             display: flex;
             gap: 12px;
             justify-content: center;
             margin-top: 24px;
         }
+
         .emp-modal-actions .btn {
             min-width: 100px;
             justify-content: center;
             padding: 10px 22px;
-            border-radius: var(--radius-sm);
+            border-radius: 10px;
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             border: none;
             transition: all 0.25s ease;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
+
         .emp-modal-actions .btn .icon {
             width: 16px;
             height: 16px;
         }
+
         .emp-modal-actions .btn-outline {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
         }
+
         .emp-modal-actions .btn-outline:hover {
             background: var(--bg-card-hover);
             border-color: var(--border-hover);
             transform: translateY(-2px);
             color: var(--text-primary);
         }
+
         .emp-modal-actions .btn-danger {
-            background: var(--danger);
+            background: #DC2626;
             color: #fff;
         }
+
         .emp-modal-actions .btn-danger:hover {
-            background: #d14a4a;
+            background: #B91C1C;
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(232, 90, 90, 0.4);
+            box-shadow: 0 8px 22px rgba(220, 38, 38, 0.35);
         }
 
-        /* ============================================
-           RESPONSIVE
-           ============================================ */
+        [data-theme="dark"] .emp-modal-actions .btn-danger {
+            background: #DC2626;
+        }
+
+        [data-theme="dark"] .emp-modal-actions .btn-danger:hover {
+            background: #B91C1C;
+        }
+
+        /* CSS UNTUK NAVBAR TIDAK KE-BLUR */
+        body.aj-modal-open main {
+            position: relative;
+            z-index: 9998;
+        }
+
+        body.aj-modal-open .sidebar,
+        body.aj-modal-open .topbar {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        body.aj-modal-open .sidebar *,
+        body.aj-modal-open .topbar * {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .emp-stats { flex-direction: column; }
             .emp-stat { min-width: auto; }
@@ -738,6 +922,9 @@
             .emp-toolbar .filter-group select { flex: 1; }
             .emp-grid { grid-template-columns: 1fr 1fr; }
             .emp-profile .details { grid-template-columns: 1fr 1fr; }
+            .emp-modal-box { padding: 24px 20px; margin: 10px; }
+            .emp-modal-actions { flex-direction: column; }
+            .emp-modal-actions .btn { width: 100%; }
         }
 
         @media (max-width: 640px) {
@@ -746,6 +933,10 @@
             .emp-actions .emp-btn { flex: 1; justify-content: center; }
             .emp-grid { grid-template-columns: 1fr; }
             .emp-profile .details { grid-template-columns: 1fr 1fr; }
+            .emp-modal-box { padding: 20px 16px; }
+            .emp-modal-box h3 { font-size: 18px; }
+            .emp-modal-box .icon-danger { width: 48px; height: 48px; }
+            .emp-modal-box .icon-danger svg { width: 24px; height: 24px; }
         }
 
         @media (max-width: 400px) {
@@ -773,24 +964,16 @@
                 <h1>Data Karyawan</h1>
                 <p class="subtitle">
                     Kelola data karyawan perusahaan — 
-                    <strong>{{ $totalEmployees }}</strong> karyawan terdaftar
+                    <strong id="empTotalCount">{{ $totalEmployees }}</strong> karyawan terdaftar
                 </p>
             </div>
             <div class="emp-actions">
                 <a href="{{ route('payroll.index') }}" class="emp-btn emp-btn-ghost">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-file-text"/></svg>
                     Slip Gaji
                 </a>
                 <a href="{{ route('employees.create') }}" class="emp-btn emp-btn-primary">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-plus"/></svg>
                     Tambah Karyawan
                 </a>
             </div>
@@ -799,89 +982,80 @@
         <!-- ===== SUCCESS MESSAGE ===== -->
         @if(session('success'))
             <div class="emp-success animate-in" style="animation-delay: 0.08s;">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
+                <svg class="icon"><use href="#ic-check-circle"/></svg>
                 <span class="message">{{ session('success') }}</span>
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="emp-success" style="background:var(--danger-soft);border-color:var(--danger);color:var(--danger);">
+                <svg class="icon"><use href="#ic-alert-triangle"/></svg>
+                <span class="message">{{ session('error') }}</span>
+            </div>
+        @endif
+
         <!-- ===== STATS ===== -->
-        <div class="emp-stats animate-in" style="animation-delay: 0.10s;">
+        <div class="emp-stats animate-in" style="animation-delay: 0.10s;" id="empStats">
             <div class="emp-stat">
                 <div class="ic">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-users"/></svg>
                 </div>
                 <div class="info">
                     <div class="label">Total Karyawan</div>
-                    <div class="value purple">{{ $totalEmployees }}</div>
+                    <div class="value purple" id="statTotal">{{ $totalEmployees }}</div>
                 </div>
             </div>
             <div class="emp-stat">
                 <div class="ic">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                        <polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-user-check"/></svg>
                 </div>
                 <div class="info">
                     <div class="label">Aktif</div>
-                    <div class="value green">{{ $totalActive }}</div>
+                    <div class="value green" id="statActive">{{ $totalActive }}</div>
                 </div>
             </div>
             <div class="emp-stat">
                 <div class="ic">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-user-x"/></svg>
                 </div>
                 <div class="info">
                     <div class="label">Tidak Aktif</div>
-                    <div class="value red">{{ $totalInactive }}</div>
+                    <div class="value red" id="statInactive">{{ $totalInactive }}</div>
                 </div>
             </div>
             <div class="emp-stat">
                 <div class="ic">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-credit-card"/></svg>
                 </div>
                 <div class="info">
                     <div class="label">Total Gaji</div>
-                    <div class="value purple mono">{{ $currencySymbol }}{{ number_format($totalSalary, 0, ',', '.') }}</div>
+                    <div class="value purple mono" id="statSalary">{{ formatAngkaPendek($totalSalary, $currencySymbol) }}</div>
                 </div>
             </div>
         </div>
 
         <!-- ===== TOOLBAR ===== -->
-        <div class="emp-toolbar animate-in" style="animation-delay: 0.15s;">
+        <div class="emp-toolbar animate-in" style="animation-delay: 0.15s;" id="empToolbar">
             <div class="search">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <input type="text" placeholder="Cari karyawan..." id="searchEmployee" onkeyup="filterEmployees()">
+                <svg class="icon"><use href="#ic-search"/></svg>
+                <input type="text" placeholder="Cari karyawan..." id="searchEmployee">
             </div>
             <div class="filter-group">
-                <select id="filterDepartment" onchange="filterEmployees()">
+                <select id="filterDepartment">
                     <option value="">Semua Departemen</option>
                     @foreach($departments as $dept)
                         <option value="{{ $dept }}">{{ $dept }}</option>
                     @endforeach
                 </select>
-                <select id="filterStatus" onchange="filterEmployees()">
+                <select id="filterStatus">
                     <option value="">Semua Status</option>
                     <option value="active">Aktif</option>
                     <option value="inactive">Tidak Aktif</option>
                 </select>
+                <button class="emp-btn emp-btn-ghost" id="resetBtn" style="padding: 8px 14px; font-size: 12px;">
+                    <svg class="icon"><use href="#ic-x"/></svg>
+                    Reset
+                </button>
             </div>
         </div>
 
@@ -892,14 +1066,16 @@
                     $colors = ['#EC4C93', '#34B583', '#F0A83C', '#4E8FF0', '#9B7BE0', '#E85A5A'];
                     $color = $colors[($index + $loop->iteration) % count($colors)];
                     $statusClass = $e['status'] == 'active' ? 'status-active' : 'status-inactive';
-                    $itemId = $e['id'] ?? $index;
+                    // PERBAIKAN: Pakai index array, bukan field 'id'
+                    $itemId = $index;
                     $joined = formatTanggal($e['joined']);
                 @endphp
-                <div class="emp-profile {{ $statusClass }} animate-in employee-item" 
+                <div class="emp-profile {{ $statusClass }} animate-in employee-item visible-item" 
                      style="animation-delay: {{ 0.20 + ($index * 0.04) }}s;"
                      data-name="{{ strtolower($e['name']) }}"
                      data-department="{{ $e['department'] }}"
-                     data-status="{{ $e['status'] }}">
+                     data-status="{{ $e['status'] }}"
+                     data-salary="{{ $e['salary'] }}">
                     
                     <div class="avatar-lg" style="background: {{ $color }};">
                         {{ mb_substr($e['name'], 0, 1) }}
@@ -918,7 +1094,7 @@
                         <span class="lbl">Bergabung</span>
                         <span class="val">{{ $joined }}</span>
                         <span class="lbl">Gaji</span>
-                        <span class="val mono">{{ $currencySymbol }}{{ number_format($e['salary'], 0, ',', '.') }}</span>
+                        <span class="val mono">{{ formatAngkaPendek($e['salary'], $currencySymbol) }}</span>
                     </div>
 
                     <span class="status-badge {{ $statusPill[$e['status']] }}">
@@ -926,53 +1102,28 @@
                     </span>
 
                     <div class="actions">
-                        <!-- Show Button -->
-                        <a href="/employees/show/{{ $itemId }}" class="btn-action show" title="Lihat Detail">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/>
-                                <circle cx="12" cy="12" r="3"/>
-                            </svg>
+                        <a href="{{ route('employees.show', ['index' => $itemId]) }}" class="btn-action show" title="Lihat Detail">
+                            <svg class="icon"><use href="#ic-eye"/></svg>
                             Detail
                         </a>
-
-                        <!-- Edit Button -->
-                        <a href="/employees/edit/{{ $itemId }}" class="btn-action edit" title="Edit Data">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                                <path d="M15 5l4 4"/>
-                            </svg>
+                        <a href="{{ route('employees.edit', ['index' => $itemId]) }}" class="btn-action edit" title="Edit Data">
+                            <svg class="icon"><use href="#ic-edit"/></svg>
                             Edit
                         </a>
-
-                        <!-- Delete Button -->
                         <button type="button" class="btn-action delete" title="Hapus"
                                 onclick="openDeleteModal('{{ $itemId }}', '{{ addslashes($e['name']) }}')">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 6h18"/>
-                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                <path d="M10 11v6"/>
-                                <path d="M14 11v6"/>
-                            </svg>
+                            <svg class="icon"><use href="#ic-trash"/></svg>
                             Hapus
                         </button>
                     </div>
                 </div>
             @empty
-                <div class="emp-empty">
-                    <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
+                <div class="emp-empty" id="emptyState">
+                    <svg class="empty-icon"><use href="#ic-users"/></svg>
                     <h3>Belum Ada Data Karyawan</h3>
                     <p>Belum ada karyawan yang tercatat di sistem.</p>
                     <a href="{{ route('employees.create') }}" class="emp-btn emp-btn-primary" style="display: inline-flex;">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="12" y1="5" x2="12" y2="19"/>
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-plus"/></svg>
                         Tambah Karyawan Pertama
                     </a>
                 </div>
@@ -981,37 +1132,42 @@
 
     </div>
 
-    <!-- ===== MODAL DELETE ===== -->
+    <!-- ============================================================
+         MODAL DELETE
+         ============================================================ -->
     <div class="emp-modal-overlay" id="deleteModal">
         <div class="emp-modal-box">
-            <svg class="icon-danger" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="8" x2="12" y2="12"/>
-                <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
+            <div class="icon-danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+
             <h3>Hapus Karyawan?</h3>
+
             <p>
                 Anda yakin ingin menghapus data karyawan
                 <br>
                 <span class="emp-desc-text" id="deleteDesc">-</span>
             </p>
+
             <div class="warning-text">
-                Data yang dihapus tidak dapat dikembalikan!
+                ⚠️ Data yang dihapus tidak dapat dikembalikan!
             </div>
+
             <div class="emp-modal-actions">
                 <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">
                     Batal
                 </button>
-                <form id="deleteForm" action="" method="POST" style="display:inline;">
+                <form id="deleteForm" action="{{ route('employees.destroy', ['index' => 0]) }}" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
-                            <path d="M3 6h18"/>
-                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                            <path d="M10 11v6"/>
-                            <path d="M14 11v6"/>
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                         </svg>
                         Ya, Hapus!
                     </button>
@@ -1021,21 +1177,64 @@
     </div>
 
     <script>
+        // ===== DELETE MODAL =====
+        function openDeleteModal(id, description) {
+            document.getElementById('deleteDesc').textContent = description;
+            // PERBAIKAN: Pakai index parameter sesuai route
+            var url = '{{ route("employees.destroy", ["index" => 0]) }}';
+            url = url.replace(/\/0$/, '/' + id);
+            document.getElementById('deleteForm').action = url;
+            document.getElementById('deleteModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.body.classList.add('aj-modal-open');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            document.body.style.overflow = '';
+            document.body.classList.remove('aj-modal-open');
+        }
+
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDeleteModal();
+            }
+        });
+
         // ===== FILTER FUNCTION =====
         function filterEmployees() {
             const searchInput = document.getElementById('searchEmployee');
             const departmentFilter = document.getElementById('filterDepartment');
             const statusFilter = document.getElementById('filterStatus');
             const items = document.querySelectorAll('.employee-item');
+            const emptyState = document.getElementById('emptyState');
+            const totalCountEl = document.getElementById('empTotalCount');
+            const statTotal = document.getElementById('statTotal');
+            const statActive = document.getElementById('statActive');
+            const statInactive = document.getElementById('statInactive');
+            const statSalary = document.getElementById('statSalary');
+            const currencySymbol = '{{ $currencySymbol }}';
             
             const searchTerm = searchInput.value.toLowerCase().trim();
             const department = departmentFilter.value;
             const status = statusFilter.value;
 
+            let visibleCount = 0;
+            let activeCount = 0;
+            let inactiveCount = 0;
+            let totalSalary = 0;
+
             items.forEach(item => {
                 const name = item.dataset.name;
                 const itemDepartment = item.dataset.department;
                 const itemStatus = item.dataset.status;
+                const salary = parseFloat(item.dataset.salary) || 0;
                 
                 let show = true;
                 
@@ -1051,40 +1250,176 @@
                     show = false;
                 }
                 
-                item.style.display = show ? '' : 'none';
+                if (show) {
+                    item.style.display = '';
+                    item.classList.add('visible-item');
+                    visibleCount++;
+                    totalSalary += salary;
+                    if (itemStatus === 'active') activeCount++;
+                    else if (itemStatus === 'inactive') inactiveCount++;
+                } else {
+                    item.style.display = 'none';
+                    item.classList.remove('visible-item');
+                }
             });
-        }
 
-        // ===== DELETE MODAL =====
-        function openDeleteModal(id, description) {
-            document.getElementById('deleteDesc').textContent = description;
-            var url = '/employees/delete/' + id;
-            document.getElementById('deleteForm').action = url;
-            document.getElementById('deleteModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+            // Update stats
+            statTotal.textContent = visibleCount;
+            statActive.textContent = activeCount;
+            statInactive.textContent = inactiveCount;
+            statSalary.textContent = formatAngkaPendek(totalSalary, currencySymbol);
+            totalCountEl.textContent = visibleCount;
 
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        // Close modal on overlay click
-        document.getElementById('deleteModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeDeleteModal();
+            // Show/hide empty state
+            if (emptyState) {
+                if (visibleCount === 0 && items.length > 0) {
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('h3').textContent = 'Tidak Ada Hasil Pencarian';
+                    emptyState.querySelector('p').textContent = 'Tidak ditemukan karyawan yang sesuai dengan filter yang dipilih.';
+                    const btn = emptyState.querySelector('.emp-btn');
+                    if (btn) btn.style.display = 'none';
+                    emptyState.classList.remove('hidden');
+                } else if (visibleCount === 0 && items.length === 0) {
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('h3').textContent = 'Belum Ada Data Karyawan';
+                    emptyState.querySelector('p').textContent = 'Belum ada karyawan yang tercatat di sistem.';
+                    const btn = emptyState.querySelector('.emp-btn');
+                    if (btn) btn.style.display = 'inline-flex';
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.style.display = 'none';
+                    emptyState.classList.add('hidden');
+                }
             }
-        });
+        }
 
-        // Close modal on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeDeleteModal();
+        function formatAngkaPendek(num, currency = 'Rp') {
+            if (num === null || num === '' || isNaN(num)) return currency + '0';
+            num = parseFloat(num);
+            
+            if (num >= 1000000000) {
+                return currency + (num / 1000000000).toFixed(1).replace('.', ',') + ' M';
+            } else if (num >= 1000000) {
+                return currency + (num / 1000000).toFixed(1).replace('.', ',') + ' Jt';
+            } else if (num >= 1000) {
+                return currency + Math.round(num / 1000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + ' Rb';
+            } else {
+                return currency + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
-        });
+        }
 
-        // ===== RIPPLE EFFECT =====
+        function resetFilters() {
+            const searchInput = document.getElementById('searchEmployee');
+            const departmentFilter = document.getElementById('filterDepartment');
+            const statusFilter = document.getElementById('filterStatus');
+            const items = document.querySelectorAll('.employee-item');
+            const emptyState = document.getElementById('emptyState');
+            const totalCountEl = document.getElementById('empTotalCount');
+            const statTotal = document.getElementById('statTotal');
+            const statActive = document.getElementById('statActive');
+            const statInactive = document.getElementById('statInactive');
+            const statSalary = document.getElementById('statSalary');
+            const currencySymbol = '{{ $currencySymbol }}';
+
+            searchInput.value = '';
+            departmentFilter.value = '';
+            statusFilter.value = '';
+
+            let visibleCount = 0;
+            let activeCount = 0;
+            let inactiveCount = 0;
+            let totalSalary = 0;
+
+            items.forEach(item => {
+                item.style.display = '';
+                item.classList.add('visible-item');
+                visibleCount++;
+                const salary = parseFloat(item.dataset.salary) || 0;
+                totalSalary += salary;
+                const itemStatus = item.dataset.status;
+                if (itemStatus === 'active') activeCount++;
+                else if (itemStatus === 'inactive') inactiveCount++;
+            });
+
+            statTotal.textContent = visibleCount;
+            statActive.textContent = activeCount;
+            statInactive.textContent = inactiveCount;
+            statSalary.textContent = formatAngkaPendek(totalSalary, currencySymbol);
+            totalCountEl.textContent = visibleCount;
+
+            if (emptyState) {
+                if (visibleCount === 0) {
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('h3').textContent = 'Belum Ada Data Karyawan';
+                    emptyState.querySelector('p').textContent = 'Belum ada karyawan yang tercatat di sistem.';
+                    const btn = emptyState.querySelector('.emp-btn');
+                    if (btn) btn.style.display = 'inline-flex';
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.style.display = 'none';
+                    emptyState.classList.add('hidden');
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Search input
+            const searchInput = document.getElementById('searchEmployee');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    filterEmployees();
+                });
+            }
+
+            // Department filter
+            const departmentFilter = document.getElementById('filterDepartment');
+            if (departmentFilter) {
+                departmentFilter.addEventListener('change', function() {
+                    filterEmployees();
+                });
+            }
+
+            // Status filter
+            const statusFilter = document.getElementById('filterStatus');
+            if (statusFilter) {
+                statusFilter.addEventListener('change', function() {
+                    filterEmployees();
+                });
+            }
+
+            // Reset button
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    resetFilters();
+                });
+            }
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+                if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    const activeElement = document.activeElement;
+                    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+                        return;
+                    }
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            });
+
+            // ===== RIPPLE EFFECT =====
             const buttons = document.querySelectorAll('.emp-btn');
             buttons.forEach(btn => {
                 btn.addEventListener('click', function(e) {
@@ -1101,6 +1436,9 @@
                     }, 600);
                 });
             });
+
+            // Initial filter
+            resetFilters();
         });
     </script>
 

@@ -10,9 +10,6 @@
             <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/>
             </symbol>
-            <symbol id="ic-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </symbol>
             <symbol id="ic-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </symbol>
@@ -71,11 +68,20 @@
             --radius-md: 16px;
             --radius-lg: 22px;
             color: var(--text);
+            padding: 0 24px;
         }
         .quote-detail-wrap *{ box-sizing:border-box; }
 
         @keyframes fadeSlideUp{ from{ opacity:0; transform:translateY(20px);} to{ opacity:1; transform:translateY(0);} }
         @keyframes pulseGlow{ 0%,100%{ opacity:1;} 50%{ opacity:.55;} }
+        @keyframes modalFadeIn{ from{ opacity:0; } to{ opacity:1; } }
+        @keyframes modalSlideUp{ 
+            from{ opacity:0; transform:translateY(30px) scale(0.95); } 
+            to{ opacity:1; transform:translateY(0) scale(1); } 
+        }
+        @keyframes rippleAnim{
+            to{ transform:scale(4); opacity:0; }
+        }
         .quote-detail-wrap .animate-in{ animation:fadeSlideUp .5s cubic-bezier(.16,1,.3,1) forwards; opacity:0; }
 
         /* ===== BREADCRUMB ===== */
@@ -113,29 +119,29 @@
         /* ===== BUTTONS ===== */
         .btn{
             display:inline-flex; align-items:center; justify-content:center; gap:8px;
-            padding:11px 22px; border-radius:var(--radius-sm); font-size:13.5px; font-weight:600;
+            padding:10px 20px; border-radius:var(--radius-sm); font-size:13px; font-weight:600;
             cursor:pointer; border:none; transition:all .22s cubic-bezier(.16,1,.3,1);
             white-space:nowrap; text-decoration:none; position:relative; overflow:hidden;
         }
         .btn .icon{ width:16px; height:16px; flex-shrink:0; }
+        .btn:hover{ transform:translateY(-2px); }
+        .btn:active{ transform:translateY(0) scale(0.97); }
         .btn-primary{
             background:linear-gradient(135deg, var(--accent), var(--accent-dim));
             color:#052117; box-shadow:0 4px 18px var(--accent-glow);
         }
-        .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 28px var(--accent-glow); }
+        .btn-primary:hover{ box-shadow:0 10px 28px var(--accent-glow); color:#052117; }
         .btn-outline{
-            background:var(--surface); border:1px solid var(--border); color:var(--text);
+            background:var(--surface); border:1px solid var(--border); color:var(--text-secondary);
         }
         .btn-outline:hover{
-            background:var(--surface-strong); border-color:var(--border-hover); transform:translateY(-2px);
-        }
-        .btn-danger{
-            background:var(--danger); color:#fff; border:1px solid var(--danger);
-        }
-        .btn-danger:hover{
-            background:var(--danger-hover); transform:translateY(-2px); box-shadow:0 8px 22px rgba(var(--danger-rgb),0.35);
+            background:var(--surface-strong); border-color:var(--border-hover); color:var(--text-primary);
         }
         .btn-sm{ padding:8px 16px; font-size:12.5px; }
+        .btn .ripple{
+            position:absolute; border-radius:50%; background:rgba(255,255,255,0.25);
+            transform:scale(0); animation:rippleAnim .6s ease-out forwards; pointer-events:none;
+        }
 
         /* ===== STATUS BADGE ===== */
         .status-badge{
@@ -226,8 +232,6 @@
             display:flex; align-items:center; gap:6px;
         }
         .detail-item .k .icon{ width:13px; height:13px; color:var(--text-muted); }
-        
-        /* ===== FIX: DETAIL VALUE JELAS ===== */
         .detail-item .v{
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             font-size:16px; 
@@ -270,49 +274,158 @@
             line-height:1.7;
         }
 
-        /* ===== MODAL ===== */
+        /* ============================================================
+           MODAL DELETE
+           ============================================================ */
         .modal-overlay{
-            position:fixed; inset:0; background:rgba(3,6,12,0.6); backdrop-filter:blur(8px);
-            z-index:999; display:none; align-items:center; justify-content:center; padding:20px;
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: modalFadeIn 0.3s ease;
         }
-        .modal-overlay.open{ display:flex; }
-        @keyframes modalSlideUp{
-            from{ opacity:0; transform:translateY(24px) scale(.96);}
-            to{ opacity:1; transform:translateY(0) scale(1);}
+
+        .modal-overlay.open.active{
+            display: flex;
         }
+
         .modal-box{
-            background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
-            padding:32px 36px; max-width:420px; width:100%;
-            box-shadow:0 40px 90px rgba(0,0,0,0.5);
-            animation:modalSlideUp .3s cubic-bezier(.16,1,.3,1); text-align:center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            max-width: 440px;
+            width: 100%;
+            padding: 32px 36px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+            animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            position: relative;
         }
-        .modal-ic{
-            width:56px; height:56px; border-radius:50%;
-            background:rgba(var(--danger-rgb),0.12); color:var(--danger);
-            display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
+
+        [data-theme="light"] .modal-box {
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
         }
-        .modal-ic .icon{ width:26px; height:26px; }
+
+        .modal-box .modal-icon{
+            width: 56px;
+            height: 56px;
+            color: var(--danger);
+            margin: 0 auto 16px;
+            background: var(--danger-soft);
+            border-radius: 50%;
+            padding: 12px;
+        }
+
+        .modal-box .modal-icon .icon{
+            width: 28px;
+            height: 28px;
+        }
+
         .modal-box h3{
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            font-size:18px; font-weight:700; margin-bottom:8px; color:var(--text);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
         }
+
         .modal-box p{
-            font-size:13.5px; color:var(--text-muted); margin-bottom:6px; line-height:1.6;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            line-height: 1.6;
         }
-        .modal-box p b{
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            font-weight:700; color:var(--text);
-            background:var(--surface-hover); padding:4px 14px; border-radius:6px; 
-            display:inline-block; margin-top:4px;
-            border:1px solid var(--border);
+
+        .modal-box .item-name{
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--bg-card-active);
+            padding: 2px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 4px;
         }
-        .modal-warn{
-            font-size:12.5px; color:var(--danger); font-weight:600;
-            margin-top:14px; padding:10px 16px;
-            background:rgba(var(--danger-rgb),0.08); border-radius:10px; display:inline-block;
+
+        .modal-box .warning-text{
+            font-size: 13px;
+            color: var(--danger);
+            font-weight: 500;
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: var(--danger-soft);
+            border-radius: var(--radius-sm);
+            display: inline-block;
         }
-        .modal-actions{ display:flex; gap:10px; justify-content:center; margin-top:22px; }
-        .modal-actions .btn{ flex:1; justify-content:center; }
+
+        .modal-actions{
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .modal-actions .btn{
+            min-width: 100px;
+            justify-content: center;
+            padding: 10px 22px;
+            font-size: 13px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .25s ease;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-actions .btn .icon{ width:16px; height:16px; }
+        .modal-actions .btn-outline{
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        .modal-actions .btn-outline:hover{
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            color: var(--text-primary);
+        }
+        .modal-actions .btn-danger{
+            background: var(--danger);
+            color: #fff;
+        }
+        .modal-actions .btn-danger:hover{
+            background: #d14a4a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(var(--danger-rgb),0.35);
+        }
+
+        /* ============================================================
+           CSS UNTUK NAVBAR TIDAK KE-BLUR
+           ============================================================ */
+        body.aj-modal-open main {
+            position: relative;
+            z-index: 9998;
+        }
+
+        body.aj-modal-open .sidebar,
+        body.aj-modal-open .topbar {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        body.aj-modal-open .sidebar *,
+        body.aj-modal-open .topbar * {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 900px){ 
@@ -320,6 +433,7 @@
             .amount-hero{ font-size:30px; }
         }
         @media (max-width: 768px){
+            .quote-detail-wrap { padding: 0 16px; }
             .page-head{ flex-direction:column; }
             .head-actions{ width:100%; }
             .head-actions .btn{ flex:1; }
@@ -327,15 +441,21 @@
             .main-card-body{ padding:20px; }
             .detail-grid{ grid-template-columns:1fr; gap:12px; }
             .amount-hero{ font-size:26px; display:block; text-align:center; }
-            .modal-box{ padding:24px 20px; }
+            .modal-box{ padding:24px 20px; margin:10px; }
             .page-head h1{ font-size:22px; flex-direction:column; align-items:flex-start; }
             .page-head h1 .quote-number{ font-size:16px; }
+            .modal-actions{ flex-direction:column; }
+            .modal-actions .btn{ width:100%; }
         }
         @media (max-width: 480px){
             .main-card-header .left{ flex-wrap:wrap; }
             .amount-hero{ font-size:22px; padding:10px 16px; }
             .detail-item .v{ font-size:14px; }
             .detail-item .v.mono{ font-size:13px; }
+            .modal-box{ padding:20px 16px; }
+            .modal-box h3{ font-size:18px; }
+            .modal-box .modal-icon{ width:48px; height:48px; }
+            .modal-box .modal-icon .icon{ width:24px; height:24px; }
         }
     </style>
 
@@ -372,10 +492,6 @@
                     <svg class="icon"><use href="#ic-edit"/></svg>
                     Edit
                 </a>
-                <button type="button" class="btn btn-danger btn-sm" onclick="document.getElementById('deleteModal').classList.add('open')">
-                    <svg class="icon"><use href="#ic-trash"/></svg>
-                    Hapus
-                </button>
             </div>
         </div>
 
@@ -470,38 +586,20 @@
         </div>
     </div>
 
-    {{-- ===== DELETE MODAL ===== --}}
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div class="modal-ic">
-                <svg class="icon"><use href="#ic-alert-triangle"/></svg>
-            </div>
-            <h3>Hapus Penawaran Ini?</h3>
-            <p>Penawaran <br><b>{{ $quote->quote_number }}</b></p>
-            <p style="margin-top:4px;">akan dihapus permanen dan tidak bisa dikembalikan.</p>
-            <div class="modal-warn">⚠️ Klien tidak akan bisa lagi mengakses tautan penawaran ini.</div>
-            <form method="POST" action="{{ route('quotes.destroy', $quote) }}">
-                @csrf
-                @method('DELETE')
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-outline" onclick="document.getElementById('deleteModal').classList.remove('open')">Batal</button>
-                    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
-        // ===== Modal =====
-        document.getElementById('deleteModal').addEventListener('click', function(e){
-            if(e.target === this) this.classList.remove('open');
-        });
-
-        // ===== ESC =====
-        document.addEventListener('keydown', function(e){
-            if(e.key === 'Escape'){
-                document.getElementById('deleteModal').classList.remove('open');
-            }
+        // ===== RIPPLE EFFECT =====
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+                ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
         });
     </script>
 </x-app-layout>
