@@ -1036,6 +1036,12 @@
                 </a>
             </div>
         </div>
+        <div class="head-actions">
+            <a href="{{ route('neraca.create') }}" class="btn btn-primary">
+                <svg class="icon"><use href="#ic-plus"/></svg> Tambah Pos
+            </a>
+        </div>
+    </div>
 
         {{-- ===== SEARCH ===== --}}
         <div class="nr-search animate-in" style="animation-delay: 0.08s;">
@@ -1199,6 +1205,10 @@
                         <span>Total Kewajiban + Modal</span>
                         <span>{{ $currencySymbol }}{{ formatRupiah($totalPasiva ?? 0) }}</span>
                     </div>
+                @endforeach
+                <div class="nr-subtotal">
+                    <span>Subtotal {{ $category }}</span>
+                    <span class="nr-amount">Rp{{ number_format($groupItems->sum('amount'), 0, ',', '.') }}</span>
                 </div>
             </div>
 
@@ -1230,6 +1240,10 @@
                         <div class="k">Total Modal</div>
                         <div class="v blue">{{ $currencySymbol }}{{ formatRupiah($totalModal ?? 0) }}</div>
                     </div>
+                @endforeach
+                <div class="nr-subtotal">
+                    <span>Subtotal {{ $category }}</span>
+                    <span class="nr-amount">Rp{{ number_format($groupItems->sum('amount'), 0, ',', '.') }}</span>
                 </div>
             </div>
         @else
