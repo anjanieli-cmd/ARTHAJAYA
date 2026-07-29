@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\SystemSettingController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminSecurityController;
+use App\Http\Controllers\Admin\TicketController;
 
 // Homepage
 Route::get('/', function () {
@@ -1870,6 +1871,12 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::get('/security', [AdminSecurityController::class, 'index'])->name('security.index');
     Route::put('/security/password', [AdminSecurityController::class, 'updatePassword'])->name('security.password.update');
     Route::post('/security/two-factor/toggle', [AdminSecurityController::class, 'toggleTwoFactor'])->name('security.two-factor.toggle');
+
+    Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
+    Route::put('/tickets/{ticket}/status', [TicketController::class, 'updateStatus'])->name('tickets.status');
+    Route::delete('/tickets/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
 
     });
 

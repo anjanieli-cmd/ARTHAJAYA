@@ -230,8 +230,6 @@
     <a href="{{ route('admin.stats.index') }}" class="admin-link {{ request()->routeIs('admin.stats.*') ? 'active' : '' }}">
       <svg class="icon"><use href="#ic-a-activity"/></svg> Statistik Sistem
     </a>
-
-    {{-- ===== RENCANA PENGEMBANGAN — belum aktif, tinggal pengingat ===== --}}
     <a href="{{ route('admin.activity.index') }}" class="admin-link {{ request()->routeIs('admin.activity.*') ? 'active' : '' }}">
       <svg class="icon"><use href="#ic-a-history"/></svg> Log Aktivitas
     </a>
@@ -244,9 +242,8 @@
     <a href="{{ route('admin.announcements.index') }}" class="admin-link {{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}">
       <svg class="icon"><use href="#ic-a-megaphone"/></svg> Broadcast Pengumuman
     </a>
-    <a href="#" class="admin-link soon">
+    <a href="{{ route('admin.tickets.index') }}" class="admin-link {{ request()->routeIs('admin.tickets.*') ? 'active' : '' }}">
       <svg class="icon"><use href="#ic-a-help"/></svg> Support / Tiket
-      <span class="badge-soon">Segera</span>
     </a>
   </div>
 

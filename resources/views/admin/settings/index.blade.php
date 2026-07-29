@@ -6,7 +6,7 @@
         @keyframes slideUpBar{ from{ opacity:0; transform:translateY(100%);} to{ opacity:1; transform:translateY(0);} }
         @keyframes checkPop{ 0%{ transform:scale(0.6); opacity:0;} 60%{ transform:scale(1.15);} 100%{ transform:scale(1); opacity:1;} }
 
-        .settings-wrap{ max-width:720px; }
+        .settings-wrap{ width:100%; }
         .animate-in{ animation:fadeSlideUp .5s cubic-bezier(.16,1,.3,1) backwards; }
 
         .page-head{ margin-bottom:24px; }
@@ -20,17 +20,17 @@
         .settings-section-label{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); font-weight:700; margin-bottom:10px; padding-left:4px; }
 
         .settings-list{ background:var(--surface); border:1px solid var(--border); border-radius:18px; overflow:hidden; }
-        .setting-row{ display:flex; align-items:center; gap:16px; padding:18px 22px; border-bottom:1px solid var(--border); transition:background .15s ease; }
+        .setting-row{ display:flex; align-items:center; gap:24px; padding:22px 28px; border-bottom:1px solid var(--border); transition:background .15s ease; }
         .setting-row:last-child{ border-bottom:none; }
         .setting-row:hover{ background:var(--surface-strong); }
         .setting-row .sr-body{ flex:1; min-width:0; }
-        .setting-row .sr-title{ font-size:13.5px; font-weight:600; color:var(--text); margin-bottom:2px; }
-        .setting-row .sr-desc{ font-size:12px; color:var(--text-faint); line-height:1.4; }
-        .setting-row .sr-control{ flex-shrink:0; }
+        .setting-row .sr-title{ font-size:14px; font-weight:600; color:var(--text); margin-bottom:3px; }
+        .setting-row .sr-desc{ font-size:12.5px; color:var(--text-faint); line-height:1.5; max-width:520px; }
+        .setting-row .sr-control{ flex-shrink:0; width:380px; }
 
-        .field-inline{ width:220px; padding:9px 12px; border-radius:10px; background:var(--surface-strong); border:1px solid var(--border); color:var(--text); font-size:13px; outline:none; }
+        .field-inline{ width:100%; padding:11px 14px; border-radius:10px; background:var(--surface-strong); border:1px solid var(--border); color:var(--text); font-size:13.5px; outline:none; transition:border-color .15s ease; }
         .field-inline:focus{ border-color:var(--border-hover); }
-        textarea.field-inline{ width:260px; min-height:60px; resize:vertical; }
+        textarea.field-inline{ min-height:80px; resize:vertical; }
 
         /* Toggle switch */
         .switch{ position:relative; width:44px; height:25px; flex-shrink:0; }
@@ -55,21 +55,21 @@
         .btn-primary{ background:var(--emerald); color:#1a1005; }
         .btn-ghost{ background:none; color:var(--text-mute); border:1px solid var(--border); }
 
-        @media (max-width:900px){ .save-bar{ left:16px; right:16px; } }
-        @media (max-width:640px){
-            .setting-row{ flex-direction:column; align-items:flex-start; }
-            .field-inline, textarea.field-inline{ width:100%; }
+        @media (max-width:1100px){
+            .setting-row{ flex-wrap:wrap; }
+            .setting-row .sr-control{ width:100%; }
         }
+        @media (max-width:900px){ .save-bar{ left:16px; right:16px; } }
     </style>
 
     <div class="settings-wrap">
-        <div class="page-head animate-in" style="animation-delay:.05s;">
+        <div class="page-head animate-in" style="animation-delay:.03s;">
             <h1>Pengaturan Sistem</h1>
             <p>Konfigurasi umum untuk seluruh platform Arvessa.</p>
         </div>
 
         @if(session('success'))
-            <div class="alert-success animate-in" style="animation-delay:.08s;">
+            <div class="alert-success animate-in" style="animation-delay:.06s;">
                 <span class="check">✓</span> {{ session('success') }}
             </div>
         @endif
@@ -78,7 +78,7 @@
             @csrf
             @method('PUT')
 
-            <div class="settings-section animate-in" style="animation-delay:.12s;">
+            <div class="settings-section animate-in" style="animation-delay:.1s;">
                 <div class="settings-section-label">Umum</div>
                 <div class="settings-list">
                     <div class="setting-row">
@@ -102,7 +102,7 @@
                 </div>
             </div>
 
-            <div class="settings-section animate-in" style="animation-delay:.18s;">
+            <div class="settings-section animate-in" style="animation-delay:.16s;">
                 <div class="settings-section-label">Mode Perawatan</div>
                 <div class="settings-list">
                     <div class="setting-row">
@@ -110,7 +110,7 @@
                             <div class="sr-title">Aktifkan Mode Maintenance</div>
                             <div class="sr-desc">Jika aktif, semua user (kecuali admin) akan melihat halaman perawatan.</div>
                         </div>
-                        <div class="sr-control">
+                        <div class="sr-control" style="width:auto;">
                             <label class="switch">
                                 <input type="checkbox" name="maintenance_mode" value="1" {{ old('maintenance_mode', ($settings['maintenance_mode'] ?? '0') == '1') ? 'checked' : '' }}>
                                 <span class="switch-track"></span>

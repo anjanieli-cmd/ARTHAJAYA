@@ -2,6 +2,9 @@
     <x-slot name="title">Edit Paket Langganan</x-slot>
 
     <style>
+        @keyframes fadeSlideUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:translateY(0);} }
+        .animate-in{ animation:fadeSlideUp .5s cubic-bezier(.16,1,.3,1) backwards; }
+
         .page-head{ margin-bottom:28px; }
         .page-head h1{ font-size:26px; margin-bottom:6px; font-family:'Space Grotesk',sans-serif; }
         .page-head p{ font-size:13.5px; color:var(--text-mute); }
@@ -10,8 +13,7 @@
             background:var(--surface); 
             border:1px solid var(--border); 
             border-radius:18px; 
-            padding:32px; 
-            max-width:800px; /* Diperlebar */
+            padding:36px 40px;
         }
         .form-card-header{
             padding-bottom:20px;
@@ -61,7 +63,7 @@
         }
         textarea.form-control{ 
             resize:vertical; 
-            min-height:100px; 
+            min-height:120px; 
             font-family:inherit;
         }
         .form-error{ 
@@ -108,9 +110,10 @@
         .form-actions{ 
             display:flex; 
             gap:12px; 
-            margin-top:28px;
-            padding-top:24px;
+            margin-top:32px;
+            padding-top:26px;
             border-top:1px solid var(--border);
+            justify-content:flex-end;
         }
         .btn{ 
             display:inline-flex; 
@@ -146,10 +149,12 @@
             color:var(--text); 
         }
 
+        @media (max-width:1100px){
+            .grid-3{ grid-template-columns:1fr 1fr; }
+        }
         @media (max-width:768px){
-            .grid-2{ grid-template-columns:1fr; }
-            .grid-3{ grid-template-columns:1fr; }
-            .form-card{ padding:20px; }
+            .grid-2, .grid-3{ grid-template-columns:1fr; }
+            .form-card{ padding:24px 20px; }
             .toggle-row{ flex-wrap:wrap; }
             .toggle-row .toggle-hint{ margin-left:0; width:100%; }
         }
@@ -172,12 +177,12 @@
         </defs>
     </svg>
 
-    <div class="page-head">
+    <div class="page-head animate-in" style="animation-delay:.03s;">
         <h1>Edit Paket Langganan</h1>
         <p>Ubah detail paket <strong>{{ $plan->name }}</strong> — perubahan akan langsung berlaku untuk perusahaan yang menggunakan paket ini.</p>
     </div>
 
-    <div class="form-card">
+    <div class="form-card animate-in" style="animation-delay:.08s;">
         <div class="form-card-header">
             <h2>Informasi Paket</h2>
             <p>Atur nama, harga, dan fitur dasar paket langganan.</p>
@@ -209,7 +214,7 @@
                 @enderror
             </div>
 
-            <div class="grid-2">
+            <div class="grid-3">
                 <div class="form-group">
                     <label>Harga <span class="label-desc">(Rp)</span></label>
                     <input type="number" name="price" class="form-control" value="{{ old('price', $plan->price) }}" min="0" required placeholder="0">
@@ -233,17 +238,16 @@
                         </div>
                     @enderror
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label>Maksimal User <span class="label-desc">(kosongkan jika tidak terbatas)</span></label>
-                <input type="number" name="max_users" class="form-control" value="{{ old('max_users', $plan->max_users) }}" min="1" placeholder="contoh: 10">
-                @error('max_users')
-                    <div class="form-error">
-                        <svg><use href="#ic-alert-circle"/></svg>
-                        {{ $message }}
-                    </div>
-                @enderror
+                <div class="form-group">
+                    <label>Maksimal User <span class="label-desc">(opsional)</span></label>
+                    <input type="number" name="max_users" class="form-control" value="{{ old('max_users', $plan->max_users) }}" min="1" placeholder="tak terbatas">
+                    @error('max_users')
+                        <div class="form-error">
+                            <svg><use href="#ic-alert-circle"/></svg>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
             </div>
 
             <div class="form-group">
@@ -261,14 +265,14 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    <svg><use href="#ic-save"/></svg>
-                    Simpan Perubahan
-                </button>
                 <a href="{{ route('admin.subscription-plans.index') }}" class="btn btn-outline">
                     <svg><use href="#ic-x"/></svg>
                     Batal
                 </a>
+                <button type="submit" class="btn btn-primary">
+                    <svg><use href="#ic-save"/></svg>
+                    Simpan Perubahan
+                </button>
             </div>
         </form>
     </div>
