@@ -1839,7 +1839,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     })->name('dashboard');
 
     Route::resource('users', UserManagementController::class)
-        ->except(['create', 'store', 'show']);
+    ->except(['show']);
 
     Route::get('/companies', [CompanyManagementController::class, 'index'])->name('companies.index');
     Route::get('/companies/{company}/edit', [CompanyManagementController::class, 'edit'])->name('companies.edit');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\AccessLevel;
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,47 @@ class UserManagementController extends Controller
             'users' => $users,
             'accessLevels' => AccessLevel::options(),
         ]);
+    }
+
+    /**
+     * Tampilkan form buat user baru (dibuatkan langsung oleh admin).
+     */
+    public function create()
+    {
+        return view('admin.users.create', [
+            'accessLevels' => AccessLevel::options(),
+        ]);
+    }
+
+    /**
+     * Simpan user baru yang dibuat langsung oleh admin.
+     * Karena access_level ditentukan sejak awal, akun ini TIDAK akan
+     * pernah kena middleware onboarding (kalau dibuat sebagai admin/staff).
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'name'         => ['required', 'string', 'max:255'],
+            'email'        => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password'     => ['required', 'string', 'min:8'],
+            'access_level' => ['required', 'in:admin,staff,user'],
+        ]);
+
+        $user = User::create([
+            'name'         => $data['name'],
+            'email'        => $data['email'],
+            'password'     => Hash::make($data['password']),
+            'access_level' => $data['access_level'],
+        ]);
+
+        ActivityLog::record(
+            'create_user',
+            "Membuat akun baru untuk {$user->name} ({$user->email}) dengan access level {$data['access_level']}.",
+            $user
+        );
+
+        return redirect()->route('admin.users.index')
+            ->with('success', "Akun {$user->name} berhasil dibuat.");
     }
 
     /**

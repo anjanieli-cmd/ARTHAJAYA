@@ -97,6 +97,7 @@
             background:linear-gradient(135deg, var(--text) 55%, var(--accent)); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
         }
         .adm-header p{ font-size:14px; color:var(--text-mute); margin:0; }
+        .adm-header .btn{ flex-shrink:0; }
 
         /* ===== STAT CARDS ===== */
         .stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
@@ -201,6 +202,8 @@
         .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 20px; border-radius:var(--radius-sm); font-size:13.5px; font-weight:600; cursor:pointer; border:none; transition:all .22s cubic-bezier(.16,1,.3,1); white-space:nowrap; text-decoration:none; }
         .btn-outline{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
         .btn-outline:hover{ background:var(--surface-strong); border-color:var(--border-hover); transform:translateY(-2px); }
+        .btn-primary{ background:var(--emerald); color:#1a1005; }
+        .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 8px 22px var(--accent-glow); }
         .btn-danger{ background:var(--danger); color:#fff; }
         .btn-danger:hover{ background:#d14a4a; transform:translateY(-2px); box-shadow:0 8px 22px rgba(232,90,90,.35); }
 
@@ -228,6 +231,7 @@
                 <h1>Kelola User</h1>
                 <p>Atur access level (admin / staff / user) untuk semua akun yang terdaftar.</p>
             </div>
+            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">+ Tambah User</a>
         </div>
 
         {{-- ===== STAT CARDS ===== --}}
