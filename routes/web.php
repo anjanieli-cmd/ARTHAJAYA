@@ -1864,8 +1864,16 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', function () {
-        $user = Auth::user();
-        return view('admin.dashboard', compact('user'));
+    $user = Auth::user();
+
+    $stats = [
+        'total_users'      => \App\Models\User::count(),
+        'total_companies'  => \App\Models\Company::count(),
+        'total_admins'     => \App\Models\User::where('access_level', 'admin')->count(),
+        'recent_activity'  => \App\Models\ActivityLog::with('user')->orderByDesc('created_at')->limit(5)->get(),
+    ];
+
+    return view('admin.dashboard', compact('user', 'stats'));
     })->name('dashboard');
 
     Route::resource('users', UserManagementController::class)
