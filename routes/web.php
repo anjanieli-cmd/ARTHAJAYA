@@ -1869,7 +1869,7 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
     })->name('dashboard');
 
     Route::resource('users', UserManagementController::class)
-        ->except(['create', 'store', 'show']);
+    ->except(['show']);
 
     Route::get('/companies', [CompanyManagementController::class, 'index'])->name('companies.index');
     Route::get('/companies/{company}/edit', [CompanyManagementController::class, 'edit'])->name('companies.edit');
