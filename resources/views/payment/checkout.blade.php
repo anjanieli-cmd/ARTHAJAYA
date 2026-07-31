@@ -295,7 +295,7 @@
       box-shadow: 0 0 0 3px rgba({{ $accentRgb }}, 0.1);
     }
 
-    /* ===== FIX: DARK MODE DROPDOWN ===== */
+    /* ===== FIX: DROPDOWN STYLING - NO DOUBLE ICON ===== */
     .payment-detail select {
       appearance: auto;
       -webkit-appearance: auto;
@@ -303,60 +303,20 @@
       color: var(--text);
       border: 1px solid var(--border);
       cursor: pointer;
+      padding-right: 14px;
     }
 
     .payment-detail select option {
-      background-color: #1e293b;
-      color: #f1f5f9;
+      background-color: var(--surface);
+      color: var(--text);
       padding: 8px 12px;
     }
 
     .payment-detail select option:hover,
     .payment-detail select option:checked,
     .payment-detail select option:focus {
-      background-color: rgba(var(--emerald-rgb), 0.2);
-      color: var(--emerald-light);
-    }
-
-    .payment-detail select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      padding-right: 36px;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      .payment-detail select {
-        background-color: #1a2332;
-        color: #f1f5f9;
-        border-color: rgba(255,255,255,0.08);
-      }
-
-      .payment-detail select option {
-        background-color: #1a2332;
-        color: #f1f5f9;
-      }
-
-      .payment-detail select option:hover,
-      .payment-detail select option:checked {
-        background-color: rgba(var(--emerald-rgb), 0.2);
-        color: var(--emerald-light);
-      }
-
-      .payment-detail input {
-        background-color: #1a2332;
-        color: #f1f5f9;
-        border-color: rgba(255,255,255,0.08);
-      }
-
-      .payment-detail input::placeholder {
-        color: #64748b;
-      }
-
-      .payment-detail input:focus {
-        border-color: {{ $accentColor }};
-        box-shadow: 0 0 0 3px rgba({{ $accentRgb }}, 0.15);
-      }
+      background-color: rgba(var(--emerald-rgb), 0.15);
+      color: var(--emerald);
     }
 
     .payment-detail .input-group {
@@ -412,6 +372,72 @@
       .payment-detail .bank-list {
         grid-template-columns: repeat(2, 1fr);
       }
+    }
+
+    /* ===== FIX: THEME-BASED STYLING (bukan prefers-color-scheme) ===== */
+    [data-theme="dark"] .payment-detail select {
+      background-color: #1a2332;
+      color: #f1f5f9;
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    [data-theme="dark"] .payment-detail select option {
+      background-color: #1a2332;
+      color: #f1f5f9;
+    }
+
+    [data-theme="dark"] .payment-detail select option:hover,
+    [data-theme="dark"] .payment-detail select option:checked {
+      background-color: rgba(var(--emerald-rgb), 0.2);
+      color: var(--emerald-light);
+    }
+
+    [data-theme="dark"] .payment-detail input {
+      background-color: #1a2332;
+      color: #f1f5f9;
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    [data-theme="dark"] .payment-detail input::placeholder {
+      color: #64748b;
+    }
+
+    [data-theme="dark"] .payment-detail input:focus {
+      border-color: {{ $accentColor }};
+      box-shadow: 0 0 0 3px rgba({{ $accentRgb }}, 0.15);
+    }
+
+    /* Light theme override untuk memastikan input terlihat normal */
+    [data-theme="light"] .payment-detail select {
+      background-color: #f1f5f9;
+      color: #1a2332;
+      border-color: rgba(0,0,0,0.1);
+    }
+
+    [data-theme="light"] .payment-detail select option {
+      background-color: #f1f5f9;
+      color: #1a2332;
+    }
+
+    [data-theme="light"] .payment-detail select option:hover,
+    [data-theme="light"] .payment-detail select option:checked {
+      background-color: rgba(var(--emerald-rgb), 0.15);
+      color: var(--emerald);
+    }
+
+    [data-theme="light"] .payment-detail input {
+      background-color: #f1f5f9;
+      color: #1a2332;
+      border-color: rgba(0,0,0,0.1);
+    }
+
+    [data-theme="light"] .payment-detail input::placeholder {
+      color: #8a96ae;
+    }
+
+    [data-theme="light"] .payment-detail input:focus {
+      border-color: {{ $accentColor }};
+      box-shadow: 0 0 0 3px rgba({{ $accentRgb }}, 0.15);
     }
 
     /* ===== ERROR ===== */

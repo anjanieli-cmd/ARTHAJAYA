@@ -121,7 +121,9 @@ class OnboardingController extends Controller
             'fiscal_start_month'  => 'nullable|string',
             'fiscal_year'         => 'nullable|integer',
             'bank_name'           => 'nullable|string',
-            'initial_balance'     => 'nullable|numeric|min:0',
+            'initial_balance'     => 'nullable|numeric|min:0|max:9999999999999.99',
+        ], [
+            'initial_balance.max' => 'Saldo awal terlalu besar, cek kembali angkanya.',
         ]);
     }
 }

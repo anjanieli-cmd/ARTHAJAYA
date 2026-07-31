@@ -84,7 +84,6 @@
   .bg-glow{ position:fixed; top:-25%; right:-10%; width:900px; height:900px; background:radial-gradient(circle, rgba(var(--emerald-rgb),var(--glow1-a)) 0%, transparent 70%); pointer-events:none; z-index:0; }
   .bg-glow-2{ position:fixed; bottom:-15%; left:-15%; width:700px; height:700px; background:radial-gradient(circle, rgba(var(--emerald-rgb),var(--glow2-a)) 0%, transparent 70%); pointer-events:none; z-index:0; }
 
-  /* ===== AMBIENT DRIFTING BLOBS ===== */
   .ambient{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
   .ambient-blob{ position:absolute; border-radius:50%; filter:blur(70px); opacity:.55; }
   .ambient-blob.b1{ width:380px; height:380px; top:8%; left:62%; background:radial-gradient(circle, rgba(var(--emerald-rgb),0.35), transparent 70%); animation: driftA 22s ease-in-out infinite; }
@@ -95,7 +94,7 @@
   @keyframes driftC{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-30px,-40px) scale(1.1);} }
   @media (prefers-reduced-motion: reduce){ .ambient-blob{ animation:none !important; } }
 
-  .topbar{ position:relative; z-index:5; display:flex; align-items:center; justify-content:space-between; padding:22px 40px; max-width:1180px; margin:0 auto; }
+  .topbar{ position:relative; z-index:5; display:flex; align-items:center; justify-content:space-between; padding:22px 40px; max-width:100%; margin:0 auto; }
   .logo{ display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:18px; }
   .logo-mark{ width:40px; height:40px; border-radius:12px; background:var(--surface-strong); border:1px solid var(--border-hover); display:flex; align-items:center; justify-content:center; overflow:hidden; padding:6px; }
   .logo-mark img{ width:100%; height:100%; object-fit:contain; }
@@ -114,9 +113,16 @@
   .exit-link:hover{ color:var(--text); }
   .exit-link .icon{ width:14px; height:14px; }
 
-  /* ===== PROGRESS STEPS (desktop, clickable) ===== */
-  .progress-row{ max-width:1180px; margin:0 auto; padding:0 40px 8px; position:relative; z-index:5; }
-  .progress-track{ display:flex; align-items:center; gap:0; max-width:520px; }
+  /* ===== PROGRESS STEPS - FULL WIDTH ===== */
+  .progress-row{ max-width:100%; margin:0 auto; padding:0 40px 8px; position:relative; z-index:5; }
+  .progress-track{ 
+    display:flex; 
+    align-items:center; 
+    gap:0; 
+    max-width:100%; 
+    width:100%; 
+    justify-content:flex-start; 
+  }
   .progress-step{ display:flex; align-items:center; gap:9px; background:none; border:none; cursor:pointer; padding:4px 2px; border-radius:8px; transition: opacity .2s ease; }
   .progress-step:hover{ opacity:.8; }
   .progress-step .dot{ width:26px; height:26px; border-radius:50%; background:var(--surface-strong); border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; font-family:'IBM Plex Mono'; color:var(--text-faint); transition: all .3s ease; flex-shrink:0; }
@@ -125,11 +131,16 @@
   .progress-step.done .dot{ background:var(--emerald); color:#052117; }
   .progress-step .lbl{ font-size:12.5px; color:var(--text-faint); font-weight:500; white-space:nowrap; }
   .progress-step.active .lbl, .progress-step.done .lbl{ color:var(--text); }
-  .progress-line{ width:44px; height:1.5px; background:var(--border); margin:0 8px; transition: background .3s ease; }
+  .progress-line{ 
+    flex:1; 
+    height:1.5px; 
+    background:var(--border); 
+    margin:0 8px; 
+    transition: background .3s ease; 
+  }
   .progress-line.done{ background:var(--emerald); }
   @media (max-width:900px){ .progress-row{ display:none; } }
 
-  /* ===== MOBILE STEP DOTS (compact, sticky) ===== */
   .mobile-steps{ display:none; }
   @media (max-width:900px){
     .mobile-steps{
@@ -144,21 +155,36 @@
     .mobile-steps .m-pct{ font-family:'IBM Plex Mono'; font-size:11px; color:var(--emerald); margin-left:8px; font-weight:600; }
   }
 
-  /* ===== OVERALL COMPLETION BAR ===== */
-  .completion-row{ max-width:1180px; margin:0 auto; padding:2px 40px 0; position:relative; z-index:5; display:flex; align-items:center; gap:14px; }
-  .completion-bar{ flex:1; max-width:520px; height:6px; border-radius:100px; background:var(--surface-strong); overflow:hidden; }
+  /* ===== COMPLETION BAR - FULL WIDTH ===== */
+  .completion-row{ max-width:100%; margin:0 auto; padding:2px 40px 0; position:relative; z-index:5; display:flex; align-items:center; gap:14px; }
+  .completion-bar{ 
+    flex:1; 
+    max-width:none; 
+    height:6px; 
+    border-radius:100px; 
+    background:var(--surface-strong); 
+    overflow:hidden; 
+  }
   .completion-fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--emerald-dim),var(--emerald)); border-radius:100px; transition: width .5s cubic-bezier(.4,0,.2,1); position:relative; }
   .completion-fill::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent); width:40%; animation: shimmerBar 2.2s ease-in-out infinite; }
   @keyframes shimmerBar{ 0%{ transform:translateX(-120%); } 100%{ transform:translateX(340%); } }
   .completion-pct{ font-family:'IBM Plex Mono'; font-size:12px; color:var(--emerald); font-weight:600; min-width:38px; }
   @media (max-width:900px){ .completion-row{ display:none; } }
 
-  .wrap{ position:relative; z-index:2; max-width:1180px; margin:0 auto; padding:14px 40px 80px; }
+  .wrap{ position:relative; z-index:2; max-width:100%; margin:0 auto; padding:14px 40px 80px; }
 
-  .intro{ margin-bottom:26px; max-width:600px; }
+  /* ===== INTRO - FULL WIDTH & BIGGER ===== */
+  .intro{ 
+    margin-bottom:26px; 
+    max-width:100%; 
+    width:100%;
+  }
   .intro .tag{ font-size:12.5px; color:var(--emerald); font-weight:600; text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; display:flex; align-items:center; gap:7px; }
   .intro .tag .icon{ width:13px; height:13px; }
-  .intro h1{ font-size:29px; margin-bottom:8px; }
+  .intro h1{ 
+    font-size:34px; 
+    margin-bottom:8px; 
+  }
   .intro h1 .accent{
     background: linear-gradient(100deg, var(--emerald), var(--gold) 60%, var(--emerald));
     background-size: 200% auto;
@@ -166,10 +192,13 @@
     animation: shineText 5s ease-in-out infinite;
   }
   @keyframes shineText{ 0%,100%{ background-position: 0% center; } 50%{ background-position: 100% center; } }
-  .intro p{ font-size:14px; color:var(--text-mute); max-width:520px; }
+  .intro p{ 
+    font-size:15px; 
+    color:var(--text-mute); 
+    max-width:100%; 
+  }
 
-  /* ===== LAYOUT 2 KOLOM ===== */
-  .setup-grid{ display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start; }
+  .setup-grid{ display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start; width:100%; }
   @media (max-width:980px){ .setup-grid{ grid-template-columns:1fr; } .preview-col{ order:-1; } }
 
   .panel{
@@ -177,6 +206,7 @@
     backdrop-filter:blur(10px); position:relative; overflow:hidden;
     background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
     background-size: 16px 16px;
+    width:100%;
   }
   .panel::before{
     content:''; position:absolute; top:-30%; right:-20%; width:280px; height:280px; border-radius:50%;
@@ -212,34 +242,135 @@
   }
   .field-tip:hover .tip-bubble{ opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); }
 
-  .field input[type=text], .field input[type=number], .field select{
-    width:100%; padding:12px 14px; border-radius:12px; background:var(--surface-strong); border:1px solid var(--border);
-    color:var(--text); font-family:'Inter'; font-size:14px; outline:none; transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
-    appearance:none;
+  /* ===== FIX DROPDOWN - HAPUS ICON DOUBLE ===== */
+  .field input[type=text], 
+  .field input[type=number], 
+  .field select {
+    width:100%; 
+    padding:12px 14px; 
+    border-radius:12px; 
+    background:var(--surface-strong); 
+    border:1px solid var(--border);
+    color:var(--text); 
+    font-family:'Inter'; 
+    font-size:14px; 
+    outline:none; 
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
   }
-  .field select{
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A96AE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-    background-repeat:no-repeat; background-position: right 14px center; background-size:14px; padding-right:38px;
+
+  .field select {
+    appearance: auto;
+    -webkit-appearance: auto;
+    padding-right: 14px;
+    cursor: pointer;
+    background-color: var(--surface-strong);
   }
-  .field input:focus, .field select:focus{ border-color: var(--border-hover); background:var(--surface); box-shadow: 0 0 0 4px rgba(var(--emerald-rgb),0.1); }
+
+  .field-icon select {
+    padding-left: 38px !important;
+    padding-right: 14px !important;
+  }
+
+  .field select option {
+    background-color: var(--bg);
+    color: var(--text);
+    padding: 8px 12px;
+  }
+
+  .field select option:hover,
+  .field select option:checked {
+    background-color: rgba(var(--emerald-rgb), 0.2);
+    color: var(--emerald);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .field select {
+      background-color: #1a2332;
+      color: #f1f5f9;
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .field select option {
+      background-color: #1a2332;
+      color: #f1f5f9;
+    }
+
+    .field select option:hover,
+    .field select option:checked {
+      background-color: rgba(var(--emerald-rgb), 0.2);
+      color: var(--emerald-light, #34E0A1);
+    }
+
+    .field input[type=text],
+    .field input[type=number] {
+      background-color: #1a2332;
+      color: #f1f5f9;
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .field input[type=text]::placeholder,
+    .field input[type=number]::placeholder {
+      color: #64748b;
+    }
+  }
+
+  .field input:focus, 
+  .field select:focus { 
+    border-color: var(--border-hover); 
+    background:var(--surface); 
+    box-shadow: 0 0 0 4px rgba(var(--emerald-rgb),0.1); 
+  }
   .field-hint{ font-size:11.5px; color:var(--text-faint); margin-top:6px; }
   .field-error{ font-size:12px; color:var(--danger); margin-top:2px; }
 
-  /* icon-prefixed inputs */
   .field-icon{ position:relative; }
-  .field-icon .fi-ic{ position:absolute; left:14px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text-faint); pointer-events:none; transition: color .2s ease; z-index:1; }
-  .field-icon input, .field-icon select{ padding-left:38px !important; }
-  .field-icon input:focus ~ .fi-ic, .field-icon:focus-within .fi-ic{ color:var(--emerald); }
+  .field-icon .fi-ic{ 
+    position:absolute; 
+    left:14px; 
+    top:50%; 
+    transform:translateY(-50%); 
+    width:15px; 
+    height:15px; 
+    color:var(--text-faint); 
+    pointer-events:none; 
+    transition: color .2s ease; 
+    z-index:1; 
+  }
+  .field-icon input, 
+  .field-icon select{ 
+    padding-left:38px !important; 
+  }
+  .field-icon input:focus ~ .fi-ic, 
+  .field-icon:focus-within .fi-ic{ 
+    color:var(--emerald); 
+  }
 
-  /* valid-state checkmark badge inside field */
   .field-icon .fi-valid{
-    position:absolute; right:12px; top:50%; transform:translateY(-50%) scale(.5); width:16px; height:16px;
-    border-radius:50%; background:var(--emerald); color:#052117; display:flex; align-items:center; justify-content:center;
-    opacity:0; transition: opacity .2s ease, transform .25s cubic-bezier(.34,1.56,.64,1); pointer-events:none;
+    position:absolute; 
+    right:12px; 
+    top:50%; 
+    transform:translateY(-50%) scale(.5); 
+    width:16px; 
+    height:16px;
+    border-radius:50%; 
+    background:var(--emerald); 
+    color:#052117; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center;
+    opacity:0; 
+    transition: opacity .2s ease, transform .25s cubic-bezier(.34,1.56,.64,1); 
+    pointer-events:none;
   }
   .field-icon .fi-valid .icon{ width:9px; height:9px; }
-  .field-icon.is-valid .fi-valid{ opacity:1; transform:translateY(-50%) scale(1); }
-  .field-icon.is-valid input, .field-icon.is-valid select{ padding-right:34px; }
+  .field-icon.is-valid .fi-valid{ 
+    opacity:1; 
+    transform:translateY(-50%) scale(1); 
+  }
+  .field-icon.is-valid input, 
+  .field-icon.is-valid select{ 
+    padding-right:34px; 
+  }
 
   .logo-upload{ display:flex; align-items:center; gap:14px; margin-bottom:18px; }
   .logo-drop{
@@ -274,14 +405,14 @@
   .trust-row span{ display:flex; align-items:center; gap:7px; font-size:12px; color:var(--text-faint); }
   .trust-row .icon{ width:13px; height:13px; color:var(--emerald); flex-shrink:0; }
 
-  /* ===== LIVE PREVIEW CARD (with torn-receipt signature edge) ===== */
-  .preview-col{ position:sticky; top:24px; opacity:0; transform:translateY(18px); transition: opacity .6s cubic-bezier(.4,0,.2,1) .1s, transform .6s cubic-bezier(.4,0,.2,1) .1s; }
+  /* ===== PREVIEW ===== */
+  .preview-col{ position:sticky; top:24px; opacity:0; transform:translateY(18px); transition: opacity .6s cubic-bezier(.4,0,.2,1) .1s, transform .6s cubic-bezier(.4,0,.2,1) .1s; width:100%; }
   .preview-col.in-view{ opacity:1; transform:translateY(0); }
   .preview-label{ font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
   .preview-label .live-dot{ width:6px; height:6px; border-radius:50%; background:var(--emerald); animation: pulseDot 1.6s ease-in-out infinite; }
   @keyframes pulseDot{ 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
 
-  .preview-card-wrap{ filter: drop-shadow(0 20px 46px rgba(0,0,0,0.28)); transition: filter .3s ease, transform .3s cubic-bezier(.4,0,.2,1); transform-style: preserve-3d; }
+  .preview-card-wrap{ filter: drop-shadow(0 20px 46px rgba(0,0,0,0.28)); transition: filter .3s ease, transform .3s cubic-bezier(.4,0,.2,1); transform-style: preserve-3d; width:100%; }
   .preview-card-wrap:hover{ filter: drop-shadow(0 28px 58px rgba(0,0,0,0.34)); }
 
   .preview-card{
@@ -289,11 +420,11 @@
     border:1px solid var(--border-hover); border-top-left-radius:22px; border-top-right-radius:22px;
     padding:26px 26px 20px; position:relative; overflow:hidden;
     transition: border-color .3s ease;
+    width:100%;
   }
   .preview-card-wrap:hover .preview-card{ border-color: var(--emerald); }
   .preview-card::before{ content:''; position:absolute; top:-40%; right:-30%; width:200px; height:200px; background:radial-gradient(circle, rgba(var(--emerald-rgb),0.25), transparent 70%); pointer-events:none; }
 
-  /* torn / perforated bottom edge, like a receipt stub — the signature element */
   .receipt-tear{
     height:14px; margin-top:-1px;
     background-image: radial-gradient(circle at 10px 0, transparent 9px, var(--bg) 9.5px);
@@ -301,6 +432,7 @@
     background-position: -2px 0;
     background-repeat: repeat-x;
     position:relative; z-index:2;
+    width:100%;
   }
   [data-theme="light"] .receipt-tear{ background-image: radial-gradient(circle at 10px 0, transparent 9px, #F4F6FA 9.5px); }
   .receipt-dashes{
@@ -330,6 +462,14 @@
   .pv-balance .lbl{ font-size:11px; color:var(--text-faint); margin-bottom:6px; }
   .pv-balance .amt{ font-family:'Space Grotesk'; font-size:24px; font-weight:700; color:var(--emerald); transition: transform .15s ease; }
   .pv-balance .amt.bump{ transform: scale(1.06); }
+  
+  .pv-balance .amt .small-currency {
+    font-size:16px;
+    font-weight:500;
+    color:var(--text-mute);
+    margin-right:2px;
+  }
+  
   .pv-spark{ display:flex; align-items:flex-end; gap:3px; height:26px; margin-top:12px; position:relative; z-index:1; }
   .pv-spark i{ flex:1; background:linear-gradient(180deg,var(--emerald),transparent); border-radius:2px; opacity:.7; height:12%; transition: height .6s cubic-bezier(.4,0,.2,1); }
 
@@ -643,8 +783,11 @@
                 </div>
               </div>
               <div class="field">
-                <label>Saldo awal (Rp)</label>
-                <input type="number" name="initial_balance" id="f-balance" value="{{ old('initial_balance', 0) }}" min="0">
+                <label>Saldo awal</label>
+                <div class="field-icon">
+                  <svg class="icon fi-ic"><use href="#ic-wallet"/></svg>
+                  <input type="number" name="initial_balance" id="f-balance" value="{{ old('initial_balance', 0) }}" min="0" placeholder="0">
+                </div>
                 <div class="field-hint">Belum tahu pastinya? Isi 0 dulu, sesuaikan nanti.</div>
               </div>
             </div>
@@ -693,7 +836,7 @@
 
               <div class="pv-balance">
                 <div class="lbl">Saldo Awal</div>
-                <div class="amt" id="pvBalance">Rp0</div>
+                <div class="amt" id="pvBalance"><span class="small-currency">Rp</span>0</div>
                 <div class="pv-spark" id="pvSpark">
                   <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
                 </div>
@@ -715,6 +858,20 @@
 @endif
 
 <script>
+  // ===== FORMAT ANGKA PENDEK =====
+  function formatAngkaPendek(angka) {
+    angka = parseInt(angka || 0, 10);
+    if (angka >= 1000000000) {
+      return (angka / 1000000000).toFixed(1) + ' M';
+    } else if (angka >= 1000000) {
+      return (angka / 1000000).toFixed(1) + ' Jt';
+    } else if (angka >= 1000) {
+      return (angka / 1000).toFixed(0) + ' Rb';
+    } else {
+      return angka.toString();
+    }
+  }
+
   // starfield
   const field = document.getElementById('starfield');
   if(field){
@@ -917,11 +1074,6 @@
     'CIMB Niaga':'#8B1D2C','Kas Tunai (tanpa bank)':'#34E0A1','Lainnya':'#8A96AE'
   };
 
-  function formatRupiah(n){
-    n = parseInt(n || 0, 10);
-    return n.toLocaleString('id-ID');
-  }
-
   function computeCompletion(){
     let score = 0;
     if(fCompany.value.trim()) score += 25;
@@ -944,10 +1096,14 @@
     pvBank.textContent = fBank.value || 'Belum dipilih';
     pvBankDot.style.background = fBank.value ? (bankColors[fBank.value] || '#8A96AE') : 'var(--border)';
 
+    // Format angka pendek untuk saldo
     const symbol = currencySymbols[fCurrency.value] || 'Rp';
-    const newBalanceStr = symbol + formatRupiah(fBalance.value);
+    const balanceNum = parseInt(fBalance.value || 0, 10);
+    const formattedBalance = formatAngkaPendek(balanceNum);
+    const newBalanceStr = symbol + formattedBalance;
+    
     if(newBalanceStr !== lastBalanceStr){
-      pvBalance.textContent = newBalanceStr;
+      pvBalance.innerHTML = '<span class="small-currency">' + symbol + '</span>' + formattedBalance;
       pvBalance.classList.add('bump');
       setTimeout(() => pvBalance.classList.remove('bump'), 160);
       lastBalanceStr = newBalanceStr;
