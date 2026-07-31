@@ -46,6 +46,7 @@
       
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
+      padding: 0 24px;
     }
 
     .bill-create-wrap * { box-sizing: border-box; }
@@ -59,6 +60,10 @@
     @keyframes pulseGlow {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.6; }
+    }
+
+    @keyframes rippleAnim {
+      to { transform: scale(4); opacity: 0; }
     }
 
     .bill-create-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
@@ -180,10 +185,6 @@
       pointer-events: none;
     }
 
-    @keyframes rippleAnim {
-      to { transform: scale(4); opacity: 0; }
-    }
-
     /* FORM */
     .bc-form {
       display: grid;
@@ -244,11 +245,89 @@
       outline: none;
     }
 
+    /* FIX: DROPDOWN DARK MODE */
+    .bc-form-group select {
+      appearance: auto;
+      -webkit-appearance: auto;
+      background-color: var(--bg-card-active);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      padding-right: 36px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+
+    .bc-form-group select:focus {
+      border-color: var(--theme-primary);
+      background-color: var(--bg-card-hover);
+      box-shadow: 0 0 0 3px var(--theme-soft);
+    }
+
+    .bc-form-group select option {
+      background-color: var(--bg-card);
+      color: var(--text-primary);
+      padding: 8px 12px;
+    }
+
+    .bc-form-group select option:hover,
+    .bc-form-group select option:checked,
+    .bc-form-group select option:focus {
+      background-color: var(--theme-soft);
+      color: var(--theme-primary);
+    }
+
+    /* Dark mode specific */
+    @media (prefers-color-scheme: dark) {
+      .bc-form-group select {
+        background-color: #1a2332;
+        color: #f1f5f9;
+        border-color: rgba(255,255,255,0.08);
+      }
+
+      .bc-form-group select option {
+        background-color: #1a2332;
+        color: #f1f5f9;
+      }
+
+      .bc-form-group select option:hover,
+      .bc-form-group select option:checked {
+        background-color: rgba(var(--emerald-rgb), 0.2);
+        color: var(--emerald-light);
+      }
+
+      .bc-form-group select:focus {
+        border-color: var(--emerald);
+        box-shadow: 0 0 0 3px rgba(var(--emerald-rgb), 0.15);
+      }
+
+      .bc-form-group input,
+      .bc-form-group textarea {
+        background-color: #1a2332;
+        color: #f1f5f9;
+        border-color: rgba(255,255,255,0.08);
+      }
+
+      .bc-form-group input::placeholder,
+      .bc-form-group textarea::placeholder {
+        color: #64748b;
+      }
+
+      .bc-form-group input:focus,
+      .bc-form-group textarea:focus {
+        border-color: var(--emerald);
+        box-shadow: 0 0 0 3px rgba(var(--emerald-rgb), 0.15);
+        background-color: #1e293b;
+      }
+    }
+
     .bc-form-group input:focus,
     .bc-form-group select:focus,
     .bc-form-group textarea:focus {
       border-color: var(--theme-primary);
       background: var(--bg-card-hover);
+      box-shadow: 0 0 0 3px var(--theme-soft);
     }
 
     .bc-form-group input::placeholder,
@@ -259,11 +338,6 @@
     .bc-form-group textarea {
       resize: vertical;
       min-height: 80px;
-    }
-
-    .bc-form-group select option {
-      background: var(--bg-card);
-      color: var(--text-primary);
     }
 
     .bc-form-row {
@@ -443,6 +517,7 @@
     }
 
     @media (max-width: 640px) {
+      .bill-create-wrap { padding: 0 12px; }
       .bc-header { flex-direction: column; }
       .bc-actions { width: 100%; }
       .bc-actions .bc-btn { flex: 1; justify-content: center; }

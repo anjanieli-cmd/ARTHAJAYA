@@ -1064,12 +1064,6 @@
                 </a>
             </div>
         </div>
-        <div class="head-actions">
-            <a href="{{ route('laba-rugi.create') }}" class="btn btn-primary">
-                <svg class="icon"><use href="#ic-plus"/></svg> Tambah Pos
-            </a>
-        </div>
-    </div>
 
         {{-- ===== SEARCH ===== --}}
         <div class="lr-search animate-in" style="animation-delay: 0.08s;">
@@ -1206,10 +1200,6 @@
                         <span>Total Beban</span>
                         <span>{{ $currencySymbol }}{{ formatCompact($totalBeban ?? 0) }}</span>
                     </div>
-                @endforeach
-                <div class="lr-subtotal">
-                    <span>Subtotal {{ $category }}</span>
-                    <span class="lr-amount">Rp{{ number_format($groupItems->sum('amount'), 0, ',', '.') }}</span>
                 </div>
             </div>
 
@@ -1283,50 +1273,6 @@
                 </form>
             </div>
         </div>
-
-        {{-- KANAN: BEBAN --}}
-        <div class="lr-col beban">
-            <div class="lr-col-header">
-                <div class="ic"><svg class="icon"><use href="#ic-trending-down"/></svg></div>
-                <h3>Beban</h3>
-            </div>
-
-            @forelse($beban as $category => $groupItems)
-                <div class="lr-group-title">{{ $category }}</div>
-                @foreach($groupItems as $item)
-                    <div class="lr-row">
-                        <span class="lr-row-name">{{ $item->name }}</span>
-                        <span class="lr-amount">Rp{{ number_format($item->amount, 0, ',', '.') }}</span>
-                        <div class="lr-row-actions">
-                            <a href="{{ route('laba-rugi.show', $item) }}" class="lra-btn view" title="Lihat">
-                                <svg class="icon"><use href="#ic-eye"/></svg>
-                            </a>
-                            <a href="{{ route('laba-rugi.edit', $item) }}" class="lra-btn edit" title="Edit">
-                                <svg class="icon"><use href="#ic-edit"/></svg>
-                            </a>
-                            <form method="POST" action="{{ route('laba-rugi.destroy', $item) }}" onsubmit="return confirm('Hapus pos ini?')" style="display:contents;">
-                                @csrf @method('DELETE')
-                                <span class="lra-btn del" title="Hapus">
-                                    <button type="submit"><svg class="icon"><use href="#ic-trash"/></svg></button>
-                                </span>
-                            </form>
-                        </div>
-                    </div>
-                @endforeach
-                <div class="lr-subtotal">
-                    <span>Subtotal {{ $category }}</span>
-                    <span class="lr-amount">Rp{{ number_format($groupItems->sum('amount'), 0, ',', '.') }}</span>
-                </div>
-            @empty
-                <div class="lr-empty">Belum ada pos beban untuk periode ini.</div>
-            @endforelse
-
-            <div class="lr-col-total">
-                <span>Total Beban</span>
-                <span class="lr-amount">Rp{{ number_format($totalBeban, 0, ',', '.') }}</span>
-            </div>
-        </div>
-
     </div>
 
     <script>

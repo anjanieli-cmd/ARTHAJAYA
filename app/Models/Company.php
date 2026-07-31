@@ -9,12 +9,14 @@ class Company extends Model
     protected $fillable = [
         'name',
         'status',
+        'plan',
+        'plan_upgraded_at',
     ];
 
     protected function casts(): array
     {
         return [
-            //
+            'plan_upgraded_at' => 'datetime',
         ];
     }
 
@@ -46,5 +48,18 @@ class Company extends Model
     public function isActive(): bool
     {
         return $this->status === 'active';
+    }
+
+    /**
+     * Cek apakah plan company ini punya akses ke fitur tertentu.
+     * $key harus cocok dengan key yang ada di config/features.php
+     *
+     * Contoh pakai: $company->hasFeature('payroll')
+     */
+    public function hasFeature(string $key): bool
+    {
+        $allowed = config("features.$key", []);
+
+        return in_array($this->plan, $allowed);
     }
 }
