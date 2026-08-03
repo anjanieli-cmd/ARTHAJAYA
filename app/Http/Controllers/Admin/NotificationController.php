@@ -1,60 +1,51 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\AdminNotification;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class NotificationController extends Controller
 {
-    /**
-     * Kembalikan daftar notifikasi + jumlah yang belum dibaca (format JSON).
-     */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        $notifications = AdminNotification::orderByDesc('created_at')
-            ->limit(20)
+        $user = $request->user();
+
+        $notifications = $user->notifications()
+            ->latest()
+            ->take(15)
             ->get()
-            ->map(function ($n) {
-                return [
-                    'id'         => $n->id,
-                    'title'      => $n->title,
-                    'message'    => $n->message,
-                    'icon'       => $n->icon,
-                    'url'        => $n->url ?? '#',
-                    'is_read'    => $n->is_read,
-                    'created_at' => $n->created_at->diffForHumans(),
-                ];
-            });
+            ->map(fn ($n) => [
+                'id'         => $n->id,
+                'title'      => $n->data['title'] ?? '',
+                'message'    => $n->data['message'] ?? '',
+                'icon'       => $n->data['icon'] ?? 'bell',
+                'level'      => $n->data['level'] ?? 'default',
+                'url'        => $n->data['url'] ?? '#',
+                'is_read'    => (bool) $n->read_at,
+                'created_at' => $n->created_at->diffForHumans(),
+            ]);
 
         return response()->json([
-            'unread_count'  => AdminNotification::where('is_read', false)->count(),
             'notifications' => $notifications,
+            'unread_count'  => $user->unreadNotifications()->count(),
         ]);
     }
 
-    /**
-     * Tandai 1 notifikasi sudah dibaca.
-     */
-    public function markAsRead(Request $request, $id)
+    public function markAsRead(Request $request, string $id): JsonResponse
     {
-        AdminNotification::where('id', $id)->update(['is_read' => true]);
+        $notification = $request->user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
 
         return response()->json([
-            'unread_count' => AdminNotification::where('is_read', false)->count(),
+            'unread_count' => $request->user()->unreadNotifications()->count(),
         ]);
     }
 
-    /**
-     * Tandai semua notifikasi sudah dibaca.
-     */
-    public function markAllAsRead(Request $request)
+    public function markAllAsRead(Request $request): JsonResponse
     {
-        AdminNotification::where('is_read', false)->update(['is_read' => true]);
+        $request->user()->unreadNotifications->markAsRead();
 
-        return response()->json([
-            'unread_count' => 0,
-        ]);
+        return response()->json(['unread_count' => 0]);
     }
 }

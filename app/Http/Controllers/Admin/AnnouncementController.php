@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Announcement;
+use App\Models\User;
+use App\Notifications\AnnouncementNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class AnnouncementController extends Controller
 {
@@ -30,6 +33,8 @@ class AnnouncementController extends Controller
             'message'    => $data['message'],
             'created_by' => auth()->id(),
         ]);
+
+        Notification::send(User::all(), new AnnouncementNotification($announcement));
 
         ActivityLog::record(
             'broadcast_announcement',

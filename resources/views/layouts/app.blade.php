@@ -309,7 +309,7 @@
   .dropdown .danger:hover{ background:rgba(232,90,90,0.1); color:var(--danger); }
   .dropdown hr{ border:none; border-top:1px solid var(--border); margin:6px 0; }
 
-  /* ===== NOTIFIKASI PANEL ===== */
+  /* ===== NOTIFIKASI PANEL - TANPA ICON, JUDUL UNREAD MERAH ===== */
   .notif-panel{ position:absolute; top:calc(100% + 10px); right:0; width:340px; max-height:420px; background:var(--modal-bg); border:1px solid var(--border); border-radius:16px; box-shadow:0 30px 70px rgba(0,0,0,0.4); opacity:0; visibility:hidden; transform: translateY(8px) scale(.97); transition: all .2s ease; z-index:60; overflow:hidden; display:flex; flex-direction:column; }
   .notif-panel.open{ opacity:1; visibility:visible; transform: translateY(0) scale(1); }
   .notif-panel-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
@@ -320,9 +320,17 @@
   .notif-item:first-child{ border-top:none; }
   .notif-item:hover{ background:var(--surface-strong); }
   .notif-item.unread{ background:rgba(var(--emerald-rgb),0.05); }
-  .notif-item .n-ic{ width:34px; height:34px; border-radius:10px; background:var(--surface-strong); display:flex; align-items:center; justify-content:center; color:var(--text-mute); flex-shrink:0; }
-  .notif-item .n-ic .icon{ width:15px; height:15px; }
-  .notif-item .n-title{ font-size:13px; font-weight:600; margin-bottom:2px; }
+  .notif-item .n-title{ 
+    font-size:13px; 
+    font-weight:600; 
+    margin-bottom:2px; 
+    color: var(--text-mute);
+  }
+  /* UNREAD - judul MERAH */
+  .notif-item.unread .n-title{ 
+    color: var(--danger); 
+    font-weight:700;
+  }
   .notif-item .n-msg{ font-size:12px; color:var(--text-mute); line-height:1.4; }
   .notif-item .n-time{ font-size:11px; color:var(--text-faint); margin-top:4px; }
   .notif-empty{ padding:32px 16px; text-align:center; font-size:13px; color:var(--text-faint); }
@@ -332,13 +340,11 @@
 
   main{ padding:28px; position:relative; z-index:1; }
   
-  /* ===== MODAL OVERLAY - SAMA KAYA LABA RUGI ===== */
-  /* Saat modal terbuka, main naik di atas topbar & sidebar */
+  /* ===== MODAL OVERLAY ===== */
   body.aj-modal-open main {
     z-index: 10001;
   }
   
-  /* Saat modal terbuka, matikan backdrop-filter di sidebar & topbar agar tidak ke-blur */
   body.aj-modal-open .sidebar,
   body.aj-modal-open .topbar {
     backdrop-filter: none !important;
@@ -527,7 +533,7 @@
       </div>
     </header>
 
-    <!-- PAGE HEADER SEDERHANA (opsional, dari Breeze $header) -->
+    <!-- PAGE HEADER SEDERHANA -->
     @isset($header)
       <div class="page-header-simple">
         <h2>{{ $header }}</h2>
@@ -579,7 +585,7 @@
     const searchBox = document.getElementById('searchBox');
     let searchTimeout = null;
 
-    // Daftar halaman yang bisa dicari — sesuaikan url pakai route() Laravel
+    // Daftar halaman yang bisa dicari
     const pages = [
       { title: 'Dashboard', desc: 'Ringkasan keuangan bisnis', icon: 'ic-activity', url: '{{ route('dashboard') }}' },
       { title: 'Faktur / Invoice', desc: 'Daftar semua faktur', icon: 'ic-invoice', url: '{{ route('invoices.index') }}' },
@@ -655,14 +661,12 @@
       searchResults.classList.add('open');
     }
 
-    // Input event with debounce
     searchInput.addEventListener('input', function() {
       clearTimeout(searchTimeout);
       const query = this.value.trim();
       searchTimeout = setTimeout(() => performSearch(query), 200);
     });
 
-    // Clear button
     searchClear.addEventListener('click', function() {
       searchInput.value = '';
       searchBox.classList.remove('has-value');
@@ -671,14 +675,12 @@
       searchInput.focus();
     });
 
-    // Close results on outside click
     document.addEventListener('click', function(e) {
       if (!searchBox.contains(e.target)) {
         searchResults.classList.remove('open');
       }
     });
 
-    // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
@@ -694,7 +696,6 @@
       }
     });
 
-    // Focus on search
     searchInput.addEventListener('focus', function() {
       if (this.value.trim()) performSearch(this.value.trim());
     });
@@ -715,7 +716,7 @@
     });
   }
 
-  // ===== notifikasi dropdown =====
+  // ===== NOTIFIKASI - TANPA ICON, JUDUL UNREAD MERAH =====
   (function(){
     const notifBtn   = document.getElementById('notifBtn');
     const notifPanel = document.getElementById('notifPanel');
@@ -744,6 +745,7 @@
       notifDot.style.display = count > 0 ? 'block' : 'none';
     }
 
+    // ===== RENDER LIST TANPA ICON, JUDUL UNREAD MERAH =====
     function renderList(items){
       if(!items.length){
         notifList.innerHTML = '<div class="notif-empty">Tidak ada notifikasi.</div>';
@@ -751,7 +753,6 @@
       }
       notifList.innerHTML = items.map(n => `
         <div class="notif-item ${n.is_read ? '' : 'unread'}" data-id="${n.id}" data-url="${n.url}">
-          <div class="n-ic"><svg class="icon"><use href="#ic-${n.icon}"/></svg></div>
           <div>
             <div class="n-title">${n.title}</div>
             <div class="n-msg">${n.message}</div>
@@ -809,11 +810,7 @@
     setInterval(loadNotifications, 30000);
   })();
 
-  // ===== GLOBAL: deteksi otomatis modal overlay (delete/confirm dsb) di halaman manapun =====
-  // Berlaku untuk SEMUA elemen yang class-nya mengandung "modal-overlay" (mis. pl-modal-overlay,
-  // exp-modal-overlay, dt-modal-overlay, dst) yang juga punya class "active".
-  // Saat modal terbuka -> body dapat class "aj-modal-open" -> <main> naik di atas topbar & sidebar
-  // -> topbar & sidebar ikut ke-blur oleh overlay modal. Tidak perlu edit JS di tiap halaman lagi.
+  // ===== GLOBAL: deteksi otomatis modal overlay =====
   (function(){
     function syncModalOpenState(){
       var anyOpen = document.querySelector('[class*="modal-overlay"].active');
