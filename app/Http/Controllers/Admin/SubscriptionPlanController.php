@@ -28,6 +28,7 @@ class SubscriptionPlanController extends Controller
     {
         $data = $this->validateData($request);
         $data['slug'] = Str::slug($data['name']);
+        $data['is_active'] = $request->boolean('is_active');
 
         $plan = SubscriptionPlan::create($data);
 
@@ -50,6 +51,7 @@ class SubscriptionPlanController extends Controller
     {
         $data = $this->validateData($request);
         $data['slug'] = Str::slug($data['name']);
+        $data['is_active'] = $request->boolean('is_active');
 
         $subscriptionPlan->update($data);
 
@@ -63,11 +65,31 @@ class SubscriptionPlanController extends Controller
             ->with('success', "Paket {$subscriptionPlan->name} berhasil diperbarui.");
     }
 
+    /**
+     * Toggle aktif/nonaktif paket.
+     * Nama method "toggle" - HARUS SAMA dengan yang dipanggil di routes/web.php.
+     */
+    public function toggle(SubscriptionPlan $subscriptionPlan)
+    {
+        $subscriptionPlan->update(['is_active' => !$subscriptionPlan->is_active]);
+
+        ActivityLog::record(
+            'toggle_subscription_plan',
+            ($subscriptionPlan->is_active ? 'Mengaktifkan' : 'Menonaktifkan') . " paket langganan: {$subscriptionPlan->name}.",
+            $subscriptionPlan
+        );
+
+        return redirect()->route('admin.subscription-plans.index')
+            ->with('success', "Status paket {$subscriptionPlan->name} berhasil diubah.");
+    }
+
     public function destroy(SubscriptionPlan $subscriptionPlan)
     {
-        if ($subscriptionPlan->companies()->count() > 0) {
+        $count = $subscriptionPlan->companies()->count();
+
+        if ($count > 0) {
             return back()->withErrors([
-                'delete' => "Tidak bisa menghapus paket {$subscriptionPlan->name} karena masih dipakai oleh {$subscriptionPlan->companies()->count()} perusahaan.",
+                'delete' => "Tidak bisa menghapus paket {$subscriptionPlan->name} karena masih dipakai oleh {$count} perusahaan.",
             ]);
         }
 
@@ -88,7 +110,9 @@ class SubscriptionPlanController extends Controller
             'price'          => 'required|integer|min:0',
             'billing_period' => 'required|in:monthly,yearly',
             'max_users'      => 'nullable|integer|min:1',
-            'is_active'      => 'boolean',
+            'is_active'      => 'sometimes|boolean',
+            'color'          => 'nullable|string|max:20',
+            'icon'           => 'nullable|string|max:30',
         ]);
     }
 }

@@ -1864,20 +1864,20 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', function () {
-    $user = Auth::user();
+        $user = Auth::user();
 
-    $stats = [
-        'total_users'      => \App\Models\User::count(),
-        'total_companies'  => \App\Models\Company::count(),
-        'total_admins'     => \App\Models\User::where('access_level', 'admin')->count(),
-        'recent_activity'  => \App\Models\ActivityLog::with('user')->orderByDesc('created_at')->limit(5)->get(),
-    ];
+        $stats = [
+            'total_users'      => \App\Models\User::count(),
+            'total_companies'  => \App\Models\Company::count(),
+            'total_admins'     => \App\Models\User::where('access_level', 'admin')->count(),
+            'recent_activity'  => \App\Models\ActivityLog::with('user')->orderByDesc('created_at')->limit(5)->get(),
+        ];
 
-    return view('admin.dashboard', compact('user', 'stats'));
+        return view('admin.dashboard', compact('user', 'stats'));
     })->name('dashboard');
 
     Route::resource('users', UserManagementController::class)
-    ->except(['show']);
+        ->except(['show']);
 
     Route::get('/companies', [CompanyManagementController::class, 'index'])->name('companies.index');
     Route::get('/companies/{company}/edit', [CompanyManagementController::class, 'edit'])->name('companies.edit');
@@ -1892,9 +1892,15 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
     });
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity.index');
+    Route::delete('/activity-logs/{log}', [ActivityLogController::class, 'destroy'])->name('logs.destroy');
+    Route::delete('/activity-logs', [ActivityLogController::class, 'destroyAll'])->name('logs.destroy-all');
 
+    // ── Subscription Plans ──────────────────────────────────────
     Route::resource('subscription-plans', SubscriptionPlanController::class)
         ->except(['show']);
+    Route::patch('/subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggle'])
+    ->name('subscription-plans.toggle');
+    // ────────────────────────────────────────────────────────────
 
     Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SystemSettingController::class, 'update'])->name('settings.update');

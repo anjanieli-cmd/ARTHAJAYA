@@ -370,12 +370,6 @@
                     <p>Ringkasan penggunaan aplikasi secara keseluruhan.</p>
                 </a>
 
-                <a href="{{ route('admin.activity.index') }}" class="bento-card acc-neutral animate-in" style="animation-delay:.32s;">
-                    <div class="bc-icon"><svg class="icon"><use href="#ic-a-history"/></svg></div>
-                    <h3>Log Aktivitas <svg class="icon go"><use href="#ic-arrow-right"/></svg></h3>
-                    <p>Riwayat semua aksi admin di sistem.</p>
-                </a>
-
                 <a href="{{ route('admin.subscription-plans.index') }}" class="bento-card acc-emerald animate-in" style="animation-delay:.36s;">
                     <div class="bc-icon"><svg class="icon"><use href="#ic-a-card"/></svg></div>
                     <h3>Kelola Langganan <svg class="icon go"><use href="#ic-arrow-right"/></svg></h3>
