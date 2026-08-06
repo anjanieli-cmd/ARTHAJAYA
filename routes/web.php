@@ -35,6 +35,12 @@ use App\Http\Controllers\Admin\AdminSecurityController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\PricingController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\UserDashboardController; // <-- TAMBAHKAN INI
+use App\Http\Controllers\StaffExpenseApprovalController;
+use App\Http\Controllers\StaffTicketController;
+use App\Http\Controllers\Admin\TicketController as AdminTicketController;
+
 
 // Homepage
 Route::get('/', function () {
@@ -60,9 +66,9 @@ Route::middleware('auth')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ================================================================
-// DASHBOARD & PROTECTED ROUTES (auth + onboarding complete)
+// DASHBOARD & PROTECTED ROUTES (auth + onboarding complete + STAFF ONLY)
 // ================================================================
-Route::middleware(['auth', 'onboarding.complete'])->group(function () {
+Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(function () {
 
     // ===== DASHBOARD =====
     Route::get('/dashboard', function () {
@@ -70,7 +76,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         $company = $user->company;
         $account = $company ? $company->accounts()->first() : null;
 
-        return view('dashboard', compact('user', 'company', 'account'));
+        return view('staff.dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
 
     // ===== NOTIFIKASI =====
@@ -285,13 +291,13 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 
             if (request()->filled('q')) {
                 $q = strtolower(request('q'));
-                
+
                 $arRows = array_filter($arRows, function ($row) use ($q) {
                     return str_contains(strtolower($row['name']), $q)
                         || str_contains(strtolower($row['invoice']), $q);
                 });
                 $arRows = array_values($arRows);
-                
+
                 $apRows = array_filter($apRows, function ($row) use ($q) {
                     return str_contains(strtolower($row['name']), $q)
                         || str_contains(strtolower($row['invoice']), $q);
@@ -496,112 +502,125 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         return redirect()->route('expenses.index')->with('success', 'Pengeluaran berhasil dihapus!');
     })->name('expenses.destroy');
 
-    Route::get('/expense-categories', function () {
-        $user = Auth::user();
-        $company = $user->company;
+    // ===== KATEGORI BIAYA =====
+Route::get('/expense-categories', function () {
+    $user = Auth::user();
+    $company = $user->company;
 
-        $defaultCategories = [
-            ['name' => 'Bahan Baku', 'desc' => 'Kain, pewarna, malam, dan perlengkapan batik', 'count' => 2, 'total' => 3475000],
-            ['name' => 'Transportasi', 'desc' => 'Pengiriman bahan & produk jadi', 'count' => 1, 'total' => 350000],
-            ['name' => 'Utilitas', 'desc' => 'Listrik, air, dan internet workshop', 'count' => 1, 'total' => 820000],
-            ['name' => 'Produksi', 'desc' => 'Upah pengrajin & biaya proses produksi', 'count' => 1, 'total' => 4200000],
-            ['name' => 'Marketing', 'desc' => 'Promosi, konten, dan iklan online', 'count' => 1, 'total' => 600000],
+    $query = \App\Models\ExpenseCategory::where('company_id', $company->id);
+
+    if (request()->filled('q')) {
+        $q = strtolower(request('q'));
+        $query->where(function ($sub) use ($q) {
+            $sub->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"])
+                ->orWhereRaw('LOWER(desc) LIKE ?', ["%{$q}%"]);
+        });
+    }
+
+    $categoriesRaw = $query->orderBy('name')->get();
+
+    // Hitung count & total transaksi per kategori dari data expenses (masih session)
+    $expenses = session('expenses', []);
+    $categories = $categoriesRaw->map(function ($cat) use ($expenses) {
+        $matching = array_filter($expenses, fn ($e) => ($e['kategori'] ?? '') === $cat->name);
+        return [
+            'id'    => $cat->id,
+            'name'  => $cat->name,
+            'desc'  => $cat->desc,
+            'count' => count($matching),
+            'total' => array_sum(array_column($matching, 'amount')),
         ];
+    })->values();
 
-        $categories = session()->has('expense_categories') ? session('expense_categories') : $defaultCategories;
+    if (request()->ajax()) {
+        return view('expense-categories.index', compact('user', 'company', 'categories'))->render();
+    }
 
-        if (request()->filled('q')) {
-            $q = strtolower(request('q'));
-            $categories = array_filter($categories, function ($c) use ($q) {
-                return str_contains(strtolower($c['name']), $q)
-                    || str_contains(strtolower($c['desc']), $q);
-            });
-            $categories = array_values($categories);
-        }
+    return view('expense-categories.index', compact('user', 'company', 'categories'));
+})->name('expense-categories.index');
 
-        if (request()->ajax()) {
-            return view('expense-categories.index', compact('user', 'company', 'categories'))->render();
-        }
+Route::get('/expense-categories/create', function () {
+    $user = Auth::user();
+    $company = $user->company;
+    return view('expense-categories.create', compact('user', 'company'));
+})->name('expense-categories.create');
 
-        return view('expense-categories.index', compact('user', 'company', 'categories'));
-    })->name('expense-categories.index');
+Route::post('/expense-categories', function () {
+    $user = Auth::user();
+    $company = $user->company;
 
-    Route::get('/expense-categories/create', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('expense-categories.create', compact('user', 'company'));
-    })->name('expense-categories.create');
+    request()->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+    ]);
 
-    Route::post('/expense-categories', function () {
-        $name = request('name');
-        $description = request('description');
+    \App\Models\ExpenseCategory::create([
+        'company_id' => $company->id,
+        'name'       => request('name'),
+        'desc'       => request('description'),
+    ]);
 
-        $categories = session('expense_categories', []);
-        $newCategory = [
-            'name' => $name,
-            'desc' => $description,
-            'count' => 0,
-            'total' => 0,
-        ];
+    return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil dibuat!');
+})->name('expense-categories.store');
 
-        array_unshift($categories, $newCategory);
-        session(['expense_categories' => $categories]);
+Route::get('/expense-categories/show/{category}', function (\App\Models\ExpenseCategory $category) {
+    $user = Auth::user();
+    $company = $user->company;
 
-        return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil dibuat!');
-    })->name('expense-categories.store');
+    abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
 
-    Route::get('/expense-categories/show/{index}', function ($index) {
-        $user = Auth::user();
-        $company = $user->company;
-        $categories = session('expense_categories', []);
+    $expenses = session('expenses', []);
+    $matching = array_filter($expenses, fn ($e) => ($e['kategori'] ?? '') === $category->name);
 
-        if (!isset($categories[$index])) {
-            abort(404, 'Kategori tidak ditemukan');
-        }
+    $categoryData = [
+        'id'    => $category->id,
+        'name'  => $category->name,
+        'desc'  => $category->desc,
+        'count' => count($matching),
+        'total' => array_sum(array_column($matching, 'amount')),
+    ];
 
-        $category = $categories[$index];
-        return view('expense-categories.show', compact('user', 'company', 'category', 'index'));
-    })->name('expense-categories.show');
+    return view('expense-categories.show', compact('user', 'company', 'categoryData'));
+})->name('expense-categories.show');
 
-    Route::get('/expense-categories/edit/{index}', function ($index) {
-        $user = Auth::user();
-        $company = $user->company;
-        $categories = session('expense_categories', []);
+Route::get('/expense-categories/edit/{category}', function (\App\Models\ExpenseCategory $category) {
+    $user = Auth::user();
+    $company = $user->company;
 
-        if (!isset($categories[$index])) {
-            abort(404, 'Kategori tidak ditemukan');
-        }
+    abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
 
-        $category = $categories[$index];
-        return view('expense-categories.edit', compact('user', 'company', 'category', 'index'));
-    })->name('expense-categories.edit');
+    return view('expense-categories.edit', compact('user', 'company', 'category'));
+})->name('expense-categories.edit');
 
-    Route::put('/expense-categories/update/{index}', function ($index) {
-        $categories = session('expense_categories', []);
+Route::put('/expense-categories/update/{category}', function (\App\Models\ExpenseCategory $category) {
+    $user = Auth::user();
+    $company = $user->company;
 
-        if (!isset($categories[$index])) {
-            abort(404, 'Kategori tidak ditemukan');
-        }
+    abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
 
-        $categories[$index]['name'] = request('name', $categories[$index]['name']);
-        $categories[$index]['desc'] = request('desc', $categories[$index]['desc']);
+    request()->validate([
+        'name' => 'required|string|max:255',
+        'desc' => 'nullable|string',
+    ]);
 
-        session(['expense_categories' => $categories]);
+    $category->update([
+        'name' => request('name'),
+        'desc' => request('desc'),
+    ]);
 
-        return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil diupdate!');
-    })->name('expense-categories.update');
+    return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil diupdate!');
+})->name('expense-categories.update');
 
-    Route::delete('/expense-categories/delete/{index}', function ($index) {
-        $categories = session('expense_categories', []);
+Route::delete('/expense-categories/delete/{category}', function (\App\Models\ExpenseCategory $category) {
+    $user = Auth::user();
+    $company = $user->company;
 
-        if (isset($categories[$index])) {
-            unset($categories[$index]);
-        }
+    abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
 
-        session(['expense_categories' => array_values($categories)]);
+    $category->delete();
 
-        return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil dihapus!');
-    })->name('expense-categories.destroy');
+    return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil dihapus!');
+})->name('expense-categories.destroy');
 
     // ===== PERBANKAN =====
     Route::middleware(['feature:perbankan'])->group(function () {
@@ -901,61 +920,63 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
         })->name('payroll.index');
 
         Route::get('/payroll/create', function () {
-            $user = Auth::user();
-            $company = $user->company;
-            return view('payroll.create', compact('user', 'company'));
-        })->name('payroll.create');
+    $user = Auth::user();
+    $company = $user->company;
 
-        Route::post('/payroll', function () {
-            $employee_id = request('employee_id');
-            $period = request('period');
-            $basic_salary = request('basic_salary');
-            $allowance = request('allowance') ?? 0;
-            $deduction = request('deduction') ?? 0;
-            $status = request('status');
-            $notes = request('notes');
+    $employees = \App\Models\User::where('company_id', $company->id)
+        ->where('access_level', \App\Enums\AccessLevel::User)
+        ->with('employeeProfile')
+        ->orderBy('name')
+        ->get();
 
-            $employees = [
-                1 => ['name' => 'Budi Santoso', 'position' => 'Pengrajin Batik'],
-                2 => ['name' => 'Siti Rahayu', 'position' => 'Desainer'],
-                3 => ['name' => 'Agus Wijaya', 'position' => 'Marketing'],
-                4 => ['name' => 'Dewi Lestari', 'position' => 'Admin'],
-                5 => ['name' => 'Hendra Gunawan', 'position' => 'Pengrajin Batik'],
-            ];
+    return view('payroll.create', compact('user', 'company', 'employees'));
+})->name('payroll.create');
 
-            $total = (int) $basic_salary + (int) $allowance - (int) $deduction;
+    Route::post('/payroll', function () {
+    $employee_id = request('employee_id');
+    $position = request('position');   // ← TAMBAHKAN INI
+    $period = request('period');
+    $basic_salary = request('basic_salary');
+    $allowance = request('allowance') ?? 0;
+    $deduction = request('deduction') ?? 0;
+    $status = request('status');
+    $notes = request('notes');
 
-            $payrolls = session('payrolls', []);
-            $newPayroll = [
-                'employee' => $employees[$employee_id]['name'] ?? 'Unknown',
-                'position' => $employees[$employee_id]['position'] ?? '-',
-                'period' => $period,
-                'basic_salary' => (int) $basic_salary,
-                'allowance' => (int) $allowance,
-                'deduction' => (int) $deduction,
-                'total' => $total,
-                'status' => $status,
-                'notes' => $notes,
-            ];
+    $employee = \App\Models\User::find($employee_id);
 
-            array_unshift($payrolls, $newPayroll);
-            session(['payrolls' => $payrolls]);
+    $total = (int) $basic_salary + (int) $allowance - (int) $deduction;
 
-            return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dibuat!');
-        })->name('payroll.store');
+    $payrolls = session('payrolls', []);
+    $newPayroll = [
+        'employee' => $employee->name ?? 'Unknown',
+        'position' => $position ?: '-',   // ← AMBIL DARI INPUT FORM
+        'period' => $period,
+        'basic_salary' => (int) $basic_salary,
+        'allowance' => (int) $allowance,
+        'deduction' => (int) $deduction,
+        'total' => $total,
+        'status' => $status,
+        'notes' => $notes,
+    ];
+
+    array_unshift($payrolls, $newPayroll);
+    session(['payrolls' => $payrolls]);
+
+    return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dibuat!');
+})->name('payroll.store');
 
         Route::get('/payroll/show/{index}', function ($index) {
-            $user = Auth::user();
-            $company = $user->company;
-            $payrolls = session('payrolls', []);
+    $user = Auth::user();
+    $company = $user->company;
+    $payrolls = session('payrolls', []);
 
-            if (!isset($payrolls[$index])) {
-                abort(404, 'Payroll tidak ditemukan');
-            }
+    if (!isset($payrolls[$index])) {
+        abort(404, 'Payroll tidak ditemukan');
+    }
 
-            $payroll = $payrolls[$index];
-            return view('payroll.show', compact('user', 'company', 'payroll', 'index'));
-        })->name('payroll.show');
+    $payroll = $payrolls[$index];
+    return view('payroll.show', compact('user', 'company', 'payroll', 'index'));
+})->name('payroll.show');
 
         Route::get('/payroll/edit/{index}', function ($index) {
             $user = Auth::user();
@@ -1008,132 +1029,18 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
             return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dihapus!');
         })->name('payroll.destroy');
 
-        Route::get('/employees', function () {
-            $user = Auth::user();
-            $company = $user->company;
-
-            $defaultEmployees = [
-                ['name' => 'Budi Santoso', 'position' => 'Pengrajin Batik', 'department' => 'Produksi', 'email' => 'budi@arvessa.com', 'phone' => '0812-3456-7890', 'salary' => 4500000, 'status' => 'active', 'joined' => '2023-01-15'],
-                ['name' => 'Siti Rahayu', 'position' => 'Desainer', 'department' => 'Kreatif', 'email' => 'siti@arvessa.com', 'phone' => '0813-4567-8901', 'salary' => 5200000, 'status' => 'active', 'joined' => '2023-03-01'],
-                ['name' => 'Agus Wijaya', 'position' => 'Marketing', 'department' => 'Marketing', 'email' => 'agus@arvessa.com', 'phone' => '0814-5678-9012', 'salary' => 4800000, 'status' => 'active', 'joined' => '2023-06-10'],
-                ['name' => 'Dewi Lestari', 'position' => 'Admin', 'department' => 'Operasional', 'email' => 'dewi@arvessa.com', 'phone' => '0815-6789-0123', 'salary' => 4000000, 'status' => 'active', 'joined' => '2023-08-20'],
-            ];
-
-            $employees = session()->has('employees') ? session('employees') : $defaultEmployees;
-
-            if (request()->filled('q')) {
-                $q = strtolower(request('q'));
-                $employees = array_filter($employees, function ($e) use ($q) {
-                    return str_contains(strtolower($e['name']), $q)
-                        || str_contains(strtolower($e['position']), $q)
-                        || str_contains(strtolower($e['department']), $q)
-                        || str_contains(strtolower($e['email']), $q);
-                });
-                $employees = array_values($employees);
-            }
-
-            if (request()->ajax()) {
-                return view('employees.index', compact('user', 'company', 'employees'))->render();
-            }
-
-            return view('employees.index', compact('user', 'company', 'employees'));
-        })->name('employees.index');
+        // ===== EMPLOYEES / DATA KARYAWAN =====
+        Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
 
         Route::get('/employees/create', function () {
-            $user = Auth::user();
-            $company = $user->company;
-            return view('employees.create', compact('user', 'company'));
+            return redirect()->route('staff.invitations.index')
+                ->with('info', 'Karyawan baru bergabung otomatis lewat kode undangan. Buat undangan di sini.');
         })->name('employees.create');
 
-        Route::post('/employees', function () {
-            $name = request('name');
-            $position = request('position');
-            $department = request('department');
-            $email = request('email');
-            $phone = request('phone');
-            $joined = request('joined');
-            $salary = request('salary');
-            $status = request('status');
-            $address = request('address');
-
-            $employees = session('employees', []);
-            $newEmployee = [
-                'name' => $name,
-                'position' => $position,
-                'department' => $department,
-                'email' => $email,
-                'phone' => $phone,
-                'joined' => $joined,
-                'salary' => (int) $salary,
-                'status' => $status,
-                'address' => $address,
-            ];
-
-            array_unshift($employees, $newEmployee);
-            session(['employees' => $employees]);
-
-            return redirect()->route('employees.index')->with('success', 'Karyawan berhasil ditambahkan!');
-        })->name('employees.store');
-
-        Route::get('/employees/show/{index}', function ($index) {
-            $user = Auth::user();
-            $company = $user->company;
-            $employees = session('employees', []);
-
-            if (!isset($employees[$index])) {
-                abort(404, 'Karyawan tidak ditemukan');
-            }
-
-            $employee = $employees[$index];
-            return view('employees.show', compact('user', 'company', 'employee', 'index'));
-        })->name('employees.show');
-
-        Route::get('/employees/edit/{index}', function ($index) {
-            $user = Auth::user();
-            $company = $user->company;
-            $employees = session('employees', []);
-
-            if (!isset($employees[$index])) {
-                abort(404, 'Karyawan tidak ditemukan');
-            }
-
-            $employee = $employees[$index];
-            return view('employees.edit', compact('user', 'company', 'employee', 'index'));
-        })->name('employees.edit');
-
-        Route::put('/employees/update/{index}', function ($index) {
-            $employees = session('employees', []);
-
-            if (!isset($employees[$index])) {
-                abort(404, 'Karyawan tidak ditemukan');
-            }
-
-            $employees[$index]['name']       = request('name', $employees[$index]['name']);
-            $employees[$index]['position']   = request('position', $employees[$index]['position']);
-            $employees[$index]['department'] = request('department', $employees[$index]['department']);
-            $employees[$index]['email']      = request('email', $employees[$index]['email']);
-            $employees[$index]['phone']      = request('phone', $employees[$index]['phone']);
-            $employees[$index]['joined']     = request('joined', $employees[$index]['joined']);
-            $employees[$index]['salary']     = (int) request('salary', $employees[$index]['salary']);
-            $employees[$index]['status']     = request('status', $employees[$index]['status']);
-            $employees[$index]['address']    = request('address', $employees[$index]['address'] ?? '');
-
-            session(['employees' => $employees]);
-
-            return redirect()->route('employees.index')->with('success', 'Karyawan berhasil diupdate!');
-        })->name('employees.update');
-
-        Route::delete('/employees/delete/{index}', function ($index) {
-            $employees = session('employees', []);
-
-            if (isset($employees[$index])) {
-                unset($employees[$index]);
-            }
-
-            session(['employees' => array_values($employees)]);
-
-            return redirect()->route('employees.index')->with('success', 'Karyawan berhasil dihapus!');
-        })->name('employees.destroy');
+        Route::get('/employees/show/{index}', [EmployeeController::class, 'show'])->name('employees.show');
+        Route::get('/employees/edit/{index}', [EmployeeController::class, 'edit'])->name('employees.edit');
+        Route::put('/employees/update/{index}', [EmployeeController::class, 'update'])->name('employees.update');
+        Route::delete('/employees/delete/{index}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
     });
 
     // ===== PAJAK - PPH =====
@@ -1856,7 +1763,7 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
     Route::get('/payment/checkout/{plan}', [PaymentController::class, 'checkout'])->name('payment.checkout');
     Route::post('/payment/checkout/{plan}', [PaymentController::class, 'process'])->name('payment.process');
 
-}); // ← INI MENUTUP GRUP BESAR Route::middleware(['auth', 'onboarding.complete'])
+}); // ← INI MENUTUP GRUP BESAR Route::middleware(['auth', 'onboarding.complete', 'access:staff'])
 
 // ================================================================
 // ADMIN ROUTES (hanya admin)
@@ -1864,20 +1771,20 @@ Route::middleware(['auth', 'onboarding.complete'])->group(function () {
 Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/dashboard', function () {
-    $user = Auth::user();
+        $user = Auth::user();
 
-    $stats = [
-        'total_users'      => \App\Models\User::count(),
-        'total_companies'  => \App\Models\Company::count(),
-        'total_admins'     => \App\Models\User::where('access_level', 'admin')->count(),
-        'recent_activity'  => \App\Models\ActivityLog::with('user')->orderByDesc('created_at')->limit(5)->get(),
-    ];
+        $stats = [
+            'total_users'      => \App\Models\User::count(),
+            'total_companies'  => \App\Models\Company::count(),
+            'total_admins'     => \App\Models\User::where('access_level', 'admin')->count(),
+            'recent_activity'  => \App\Models\ActivityLog::with('user')->orderByDesc('created_at')->limit(5)->get(),
+        ];
 
-    return view('admin.dashboard', compact('user', 'stats'));
+        return view('admin.dashboard', compact('user', 'stats'));
     })->name('dashboard');
 
     Route::resource('users', UserManagementController::class)
-    ->except(['show']);
+        ->except(['show']);
 
     Route::get('/companies', [CompanyManagementController::class, 'index'])->name('companies.index');
     Route::get('/companies/{company}/edit', [CompanyManagementController::class, 'edit'])->name('companies.edit');
@@ -1918,11 +1825,60 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
 });
 
 // ================================================================
-// STAFF ROUTES (admin & staff boleh masuk)
+// STAFF ROUTES (hanya staff) - DENGAN ONBOARDING.COMPLETE
 // ================================================================
-Route::middleware(['auth', 'access:admin,staff'])->prefix('staff')->name('staff.')->group(function () {
+Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->prefix('staff')->name('staff.')->group(function () {
     Route::get('/dashboard', function () {
         $user = Auth::user();
-        return view('staff.dashboard', compact('user'));
+        $company = $user->company;
+        $account = $company ? $company->accounts()->first() : null;
+        $teamMembers = $company ? $company->users()->where('id', '!=', $user->id)->get() : collect();
+
+        return view('staff.dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
+
+    // ===== INVITATIONS =====
+    Route::get('/invitations', [InvitationController::class, 'index'])->name('invitations.index');
+    Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
+});
+
+// ================================================================
+// USER ROUTES (hanya user biasa)
+// ================================================================
+Route::middleware(['auth', 'access:user'])->prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+    
+    // Profile Routes
+    Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
+    Route::put('/profile', [UserDashboardController::class, 'updateProfile'])->name('profile.update');
+    
+    // Expenses
+    Route::get('/expenses/create', [UserDashboardController::class, 'createExpense'])->name('expenses.create');
+    Route::post('/expenses', [UserDashboardController::class, 'storeExpense'])->name('expenses.store');
+    Route::get('/expenses', [UserDashboardController::class, 'expenseHistory'])->name('expenses.index');
+    Route::get('/expenses/summary', [UserDashboardController::class, 'expenseSummary'])->name('expenses.summary');
+});
+
+Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->prefix('staff')->name('staff.')->group(function () {
+    // ... route dashboard & invitations yang udah ada, biarin aja ...
+
+    // ===== APPROVAL PENGELUARAN =====
+    Route::get('/expense-approvals', [StaffExpenseApprovalController::class, 'index'])->name('expense-approvals.index');
+    Route::post('/expense-approvals/{submission}/approve', [StaffExpenseApprovalController::class, 'approve'])->name('expense-approvals.approve');
+    Route::post('/expense-approvals/{submission}/reject', [StaffExpenseApprovalController::class, 'reject'])->name('expense-approvals.reject');
+});
+
+Route::prefix('staff')->name('staff.')->group(function () {
+    Route::get('/tickets', [StaffTicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/create', [StaffTicketController::class, 'create'])->name('tickets.create');
+    Route::post('/tickets', [StaffTicketController::class, 'store'])->name('tickets.store');
+    Route::get('/tickets/{ticket}', [StaffTicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [StaffTicketController::class, 'reply'])->name('tickets.reply');
+});
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/tickets', [AdminTicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/{ticket}', [AdminTicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [AdminTicketController::class, 'reply'])->name('tickets.reply');
+    Route::patch('/tickets/{ticket}/status', [AdminTicketController::class, 'updateStatus'])->name('tickets.updateStatus');
+    Route::delete('/tickets/{ticket}', [AdminTicketController::class, 'destroy'])->name('tickets.destroy');
 });

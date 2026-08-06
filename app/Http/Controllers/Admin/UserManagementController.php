@@ -13,13 +13,24 @@ use Illuminate\Support\Facades\Hash;
 class UserManagementController extends Controller
 {
     /**
-     * Tampilkan daftar semua user di sistem.
+     * Tampilkan daftar semua user di sistem dengan filter & pagination.
      */
-    public function index()
+    public function index(Request $request)
     {
         $users = User::with('company')
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $q = $request->q;
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('name', 'like', "%{$q}%")
+                        ->orWhere('email', 'like', "%{$q}%");
+                });
+            })
+            ->when($request->filled('access_level'), function ($query) use ($request) {
+                $query->where('access_level', $request->access_level);
+            })
             ->orderByDesc('created_at')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return view('admin.users.index', [
             'users' => $users,

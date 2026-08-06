@@ -33,6 +33,7 @@ class User extends Authenticatable
         'name', 'email', 'password', 'company_id',
         'phone', 'position', 'avatar', 'role', 'access_level',
         'two_factor_enabled', 'password_changed_at',
+        'profile_photo', // Tambahkan ini
     ];
 
     /**
@@ -59,5 +60,70 @@ class User extends Authenticatable
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Relasi ke data kerja karyawan (posisi, departemen, gaji).
+     * Diisi/diedit oleh Staff, bukan si karyawan sendiri.
+     */
+    public function employeeProfile()
+    {
+        return $this->hasOne(EmployeeProfile::class);
+    }
+
+    /**
+     * Cek apakah user adalah staff atau admin (bisa mengelola data)
+     */
+    public function isStaff(): bool
+    {
+        return $this->access_level === AccessLevel::Staff || $this->access_level === AccessLevel::Admin;
+    }
+
+    /**
+     * Cek apakah user adalah user biasa (bukan staff/admin)
+     */
+    public function isRegularUser(): bool
+    {
+        return $this->access_level === AccessLevel::User;
+    }
+
+    /**
+     * Ambil nama lengkap user
+     */
+    public function getFullNameAttribute(): string
+    {
+        return $this->name ?? 'Pengguna';
+    }
+
+    /**
+     * Ambil inisial user untuk avatar
+     */
+    public function getInitialsAttribute(): string
+    {
+        $name = $this->name ?? 'U';
+        $parts = explode(' ', $name);
+        if (count($parts) >= 2) {
+            return strtoupper(substr($parts[0], 0, 1) . substr($parts[1], 0, 1));
+        }
+        return strtoupper(substr($name, 0, 1));
+    }
+
+    /**
+     * Cek apakah user memiliki foto profil
+     */
+    public function hasProfilePhoto(): bool
+    {
+        return !empty($this->profile_photo);
+    }
+
+    /**
+     * Ambil URL foto profil
+     */
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        if ($this->profile_photo) {
+            return asset('storage/' . $this->profile_photo);
+        }
+        return '';
     }
 }

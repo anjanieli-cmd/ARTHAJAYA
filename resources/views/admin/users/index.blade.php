@@ -42,14 +42,31 @@
             <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
             </symbol>
+            <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </symbol>
         </defs>
     </svg>
 
     @php
+        // Helper: works whether access_level is a plain string OR a PHP Enum instance
+        $levelValueOf = function ($level) {
+            if ($level instanceof \BackedEnum) {
+                return $level->value;
+            }
+            return $level;
+        };
+        $levelLabelOf = function ($level) {
+            if (is_object($level) && method_exists($level, 'label')) {
+                return $level->label();
+            }
+            return ucfirst((string) $level);
+        };
+
         $totalUsers = $users->total();
-        $adminCount = $users->getCollection()->where('access_level.value', 'admin')->count();
-        $staffCount = $users->getCollection()->where('access_level.value', 'staff')->count();
-        $userCount  = $users->getCollection()->where('access_level.value', 'user')->count();
+        $adminCount = $users->getCollection()->filter(fn($u) => $levelValueOf($u->access_level) === 'admin')->count();
+        $staffCount = $users->getCollection()->filter(fn($u) => $levelValueOf($u->access_level) === 'staff')->count();
+        $userCount  = $users->getCollection()->filter(fn($u) => $levelValueOf($u->access_level) === 'user')->count();
     @endphp
 
     <style>
@@ -287,6 +304,95 @@
 
         @keyframes rippleAnim {
             to { transform: scale(4); opacity: 0; }
+        }
+
+        /* ===== FILTER BAR ===== */
+        .filter-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 14px 20px;
+            margin-bottom: 16px;
+        }
+
+        .filter-form {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .search-wrap .icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--text-tertiary);
+            pointer-events: none;
+        }
+
+        .filter-form input[type=text] {
+            width: 100%;
+            padding: 10px 16px 10px 42px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card-active);
+            border: 1px solid transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .filter-form input[type=text]:focus {
+            border-color: var(--theme-primary);
+            background: var(--bg-card);
+            box-shadow: 0 0 0 3px var(--theme-soft);
+        }
+
+        .filter-select {
+            padding: 10px 34px 10px 16px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card-active);
+            border: 1px solid transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+            font-family: inherit;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A96AE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+            min-width: 180px;
+        }
+
+        .filter-select:focus {
+            border-color: var(--theme-primary);
+        }
+
+        @media (max-width: 768px) {
+            .filter-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-wrap {
+                min-width: 100%;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
         }
 
         /* ===== STAT CARDS ===== */
@@ -845,6 +951,10 @@
         }
 
         @media (max-width: 768px) {
+            .adm-wrap {
+                padding: 0 16px;
+            }
+
             .adm-header {
                 flex-direction: column;
             }
@@ -989,6 +1099,36 @@
             </div>
         </div>
 
+        <!-- ===== FILTER BAR ===== -->
+        <div class="filter-bar animate-in" style="animation-delay: 0.27s;">
+            <form method="GET" action="{{ route('admin.users.index') }}" class="filter-form" id="filterForm">
+                <div class="search-wrap">
+                    <svg class="icon"><use href="#ic-search"/></svg>
+                    <input type="text" name="q" id="searchInput" value="{{ request('q') }}" placeholder="Cari nama atau email..." autocomplete="off">
+                </div>
+                <select name="access_level" class="filter-select" onchange="this.form.submit()">
+                    <option value="">Semua Access Level</option>
+                    @foreach($accessLevels as $level)
+                        @php
+                            $optValue = $levelValueOf($level);
+                            $optLabel = $levelLabelOf($level);
+                        @endphp
+                        <option value="{{ $optValue }}" {{ request('access_level') === $optValue ? 'selected' : '' }}>
+                            {{ $optLabel }}
+                        </option>
+                    @endforeach
+                </select>
+                <button type="submit" class="adm-btn adm-btn-primary" style="padding:9px 18px;">
+                    <svg class="icon"><use href="#ic-search"/></svg> Cari
+                </button>
+                @if(request()->filled('q') || request()->filled('access_level'))
+                    <a href="{{ route('admin.users.index') }}" class="adm-btn adm-btn-ghost" style="padding:9px 14px;">
+                        <svg class="icon"><use href="#ic-x"/></svg> Reset
+                    </a>
+                @endif
+            </form>
+        </div>
+
         <!-- ===== TABLE ===== -->
         <div class="table-card animate-in" style="animation-delay: 0.30s;">
             <div class="table-scroll">
@@ -1007,6 +1147,8 @@
                             @php
                                 $rowColors = ['#EC4C93', '#34B583', '#F0A83C', '#4E8FF0', '#9B7BE0', '#E85A5A'];
                                 $avColor = $rowColors[$loop->index % count($rowColors)];
+                                $uLevelValue = $levelValueOf($u->access_level);
+                                $uLevelLabel = $levelLabelOf($u->access_level);
                             @endphp
                             <tr>
                                 <td>
@@ -1023,8 +1165,8 @@
                                 </td>
                                 <td>{{ $u->company->name ?? '—' }}</td>
                                 <td>
-                                    <span class="level-badge {{ $u->access_level->value }}">
-                                        <span class="sdot"></span>{{ $u->access_level->label() }}
+                                    <span class="level-badge {{ $uLevelValue }}">
+                                        <span class="sdot"></span>{{ $uLevelLabel }}
                                     </span>
                                 </td>
                                 <td class="joined-cell">{{ $u->created_at->format('d M Y') }}</td>
@@ -1182,6 +1324,33 @@
                     }, 600);
                 });
             });
+        });
+
+        // ===== DEBOUNCE SEARCH =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const filterForm = document.getElementById('filterForm');
+            let debounceTimer = null;
+
+            if (searchInput && filterForm) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    
+                    // Get current value
+                    const currentValue = this.value;
+                    
+                    // If empty, submit immediately to clear filter
+                    if (currentValue === '') {
+                        filterForm.submit();
+                        return;
+                    }
+                    
+                    // Otherwise debounce
+                    debounceTimer = setTimeout(function() {
+                        filterForm.submit();
+                    }, 400); // 400ms delay after user stops typing
+                });
+            }
         });
     </script>
 </x-admin-layout>

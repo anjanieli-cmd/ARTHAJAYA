@@ -5,32 +5,27 @@
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-        $employees = $employees ?? [
-            ['id' => 1, 'name' => 'Budi Santoso',      'position' => 'Pengrajin Batik', 'department' => 'Produksi', 'email' => 'budi@arthajaya.com', 'phone' => '0812-3456-7890', 'salary' => 4500000, 'status' => 'active', 'joined' => '2023-01-15'],
-            ['id' => 2, 'name' => 'Siti Rahayu',        'position' => 'Desainer',        'department' => 'Kreatif',  'email' => 'siti@arthajaya.com', 'phone' => '0813-4567-8901', 'salary' => 5200000, 'status' => 'active', 'joined' => '2023-03-01'],
-            ['id' => 3, 'name' => 'Agus Wijaya',        'position' => 'Marketing',       'department' => 'Marketing', 'email' => 'agus@arthajaya.com', 'phone' => '0814-5678-9012', 'salary' => 4800000, 'status' => 'active', 'joined' => '2023-06-10'],
-            ['id' => 4, 'name' => 'Dewi Lestari',       'position' => 'Admin',           'department' => 'Operasional', 'email' => 'dewi@arthajaya.com', 'phone' => '0815-6789-0123', 'salary' => 4000000, 'status' => 'active', 'joined' => '2023-08-20'],
-            ['id' => 5, 'name' => 'Hendra Gunawan',     'position' => 'Pengrajin Batik', 'department' => 'Produksi', 'email' => 'hendra@arthajaya.com', 'phone' => '0816-7890-1234', 'salary' => 4500000, 'status' => 'inactive', 'joined' => '2022-11-01'],
-            ['id' => 6, 'name' => 'Rina Marlina',       'position' => 'Quality Control', 'department' => 'Produksi', 'email' => 'rina@arthajaya.com', 'phone' => '0817-8901-2345', 'salary' => 4200000, 'status' => 'active', 'joined' => '2024-01-05'],
-        ];
+        // $employees sekarang koleksi Eloquent User (relasi employeeProfile sudah di-eager-load dari controller)
+        $employees = $employees ?? collect();
 
-        // >>> TAMBAHAN INI: Seed ke session kalau belum ada <<<
-        if (!session()->has('employees') && !request()->filled('q')) {
-            session(['employees' => $employees]);
-        }
+        $statusOf  = fn($e) => optional($e->employeeProfile)->status ?? 'incomplete';
+        $salaryOf  = fn($e) => optional($e->employeeProfile)->basic_salary ?? 0;
 
-        $employeesCollection = collect($employees);
-        $statusLabel = ['active' => 'Aktif', 'inactive' => 'Tidak Aktif'];
-        $statusPill  = ['active' => 'active', 'inactive' => 'inactive'];
+        $statusLabel = ['active' => 'Aktif', 'inactive' => 'Nonaktif', 'incomplete' => 'Belum Dilengkapi'];
+        $statusPill  = ['active' => 'active', 'inactive' => 'inactive', 'incomplete' => 'incomplete'];
 
-        $totalEmployees = $employeesCollection->count();
-        $totalActive    = $employeesCollection->where('status', 'active')->count();
-        $totalInactive  = $employeesCollection->where('status', 'inactive')->count();
-        $totalSalary    = $employeesCollection->sum('salary');
+        $totalEmployees = $employees->count();
+        $totalActive    = $employees->filter(fn($e) => $statusOf($e) === 'active')->count();
+        $totalInactive  = $employees->filter(fn($e) => $statusOf($e) === 'inactive')->count();
+        $totalSalary    = $employees->sum($salaryOf);
         $avgSalary      = $totalEmployees > 0 ? round($totalSalary / $totalEmployees) : 0;
-        
-        $departments = $employeesCollection->pluck('department')->unique()->values();
-        
+
+        $departments = $employees
+            ->map(fn($e) => optional($e->employeeProfile)->department)
+            ->filter()
+            ->unique()
+            ->values();
+
         function formatTanggal($date) {
             if (empty($date)) return '-';
             try {
@@ -42,9 +37,9 @@
 
         function formatAngkaPendek($angka, $currency = 'Rp') {
             if ($angka === null || $angka === '') return $currency . '0';
-            
+
             $angka = (float) $angka;
-            
+
             if ($angka >= 1000000000) {
                 return $currency . number_format($angka / 1000000000, 1, ',', '.') . ' M';
             } elseif ($angka >= 1000000) {
@@ -53,22 +48,6 @@
                 return $currency . number_format($angka / 1000000, 1, ',', '.') . ' Jt';
             } else {
                 return $currency . number_format($angka, 0, ',', '.');
-            }
-        }
-
-        function formatAngkaPendekNoCurrency($angka) {
-            if ($angka === null || $angka === '') return '0';
-            
-            $angka = (float) $angka;
-            
-            if ($angka >= 1000000000) {
-                return number_format($angka / 1000000000, 1, ',', '.') . ' M';
-            } elseif ($angka >= 1000000) {
-                return number_format($angka / 1000000, 1, ',', '.') . ' Jt';
-            } elseif ($angka >= 1000) {
-                return number_format($angka / 1000, 0, ',', '.') . ' Rb';
-            } else {
-                return number_format($angka, 0, ',', '.');
             }
         }
     @endphp
@@ -137,28 +116,28 @@
             --theme-glow: rgba(var(--emerald-rgb), 0.25);
             --theme-soft: rgba(var(--emerald-rgb), 0.12);
             --theme-gradient: linear-gradient(135deg, var(--emerald), var(--emerald-dim));
-            
+
             --text-primary: var(--text);
             --text-secondary: var(--text-mute);
             --text-tertiary: var(--text-faint);
-            
+
             --bg-card: var(--surface);
             --bg-card-hover: var(--surface-strong);
             --bg-card-active: rgba(255, 255, 255, 0.04);
             --border-color: var(--border);
             --border-hover: var(--border-hover);
-            
+
             --success: #34B583;
             --success-soft: rgba(52, 181, 131, 0.14);
-            
+
             --danger: #E85A5A;
             --danger-soft: rgba(232, 90, 90, 0.12);
             --danger-rgb: 232, 90, 90;
-            
+
             --radius-sm: 10px;
             --radius-md: 16px;
             --radius-lg: 24px;
-            
+
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
             padding: 0 24px;
@@ -519,6 +498,7 @@
 
         .emp-profile.status-active::before { background: var(--success); }
         .emp-profile.status-inactive::before { background: var(--danger); }
+        .emp-profile.status-incomplete::before { background: var(--text-tertiary); }
 
         .emp-profile .avatar-lg {
             width: 72px;
@@ -610,6 +590,12 @@
         .emp-profile .status-badge.inactive {
             background: var(--danger-soft);
             color: var(--danger);
+        }
+
+        .emp-profile .status-badge.incomplete {
+            background: var(--bg-card-active);
+            color: var(--text-tertiary);
+            border: 1px solid var(--border-color);
         }
 
         .emp-profile .actions {
@@ -721,7 +707,7 @@
         }
 
         /* ============================================================
-           MODAL DELETE
+           MODAL NONAKTIFKAN
            ============================================================ */
         .emp-modal-overlay {
             display: none;
@@ -741,12 +727,12 @@
             display: flex;
         }
 
-        [data-theme="dark"] .emp-modal-box { 
-            background: #0F1520; 
+        [data-theme="dark"] .emp-modal-box {
+            background: #0F1520;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        [data-theme="light"] .emp-modal-box { 
-            background: #FFFFFF; 
+        [data-theme="light"] .emp-modal-box {
+            background: #FFFFFF;
             border: 1px solid rgba(0, 0, 0, 0.08);
         }
 
@@ -963,7 +949,7 @@
                 </div>
                 <h1>Data Karyawan</h1>
                 <p class="subtitle">
-                    Kelola data karyawan perusahaan — 
+                    Kelola data karyawan perusahaan —
                     <strong id="empTotalCount">{{ $totalEmployees }}</strong> karyawan terdaftar
                 </p>
             </div>
@@ -972,9 +958,9 @@
                     <svg class="icon"><use href="#ic-file-text"/></svg>
                     Slip Gaji
                 </a>
-                <a href="{{ route('employees.create') }}" class="emp-btn emp-btn-primary">
+                <a href="{{ route('staff.invitations.index') }}" class="emp-btn emp-btn-primary">
                     <svg class="icon"><use href="#ic-plus"/></svg>
-                    Tambah Karyawan
+                    Undang Karyawan
                 </a>
             </div>
         </div>
@@ -1050,7 +1036,8 @@
                 <select id="filterStatus">
                     <option value="">Semua Status</option>
                     <option value="active">Aktif</option>
-                    <option value="inactive">Tidak Aktif</option>
+                    <option value="inactive">Nonaktif</option>
+                    <option value="incomplete">Belum Dilengkapi</option>
                 </select>
                 <button class="emp-btn emp-btn-ghost" id="resetBtn" style="padding: 8px 14px; font-size: 12px;">
                     <svg class="icon"><use href="#ic-x"/></svg>
@@ -1063,42 +1050,53 @@
         <div class="emp-grid" id="employeeGrid">
             @forelse($employees as $index => $e)
                 @php
+                    $profile = $e->employeeProfile;
                     $colors = ['#EC4C93', '#34B583', '#F0A83C', '#4E8FF0', '#9B7BE0', '#E85A5A'];
                     $color = $colors[($index + $loop->iteration) % count($colors)];
-                    $statusClass = $e['status'] == 'active' ? 'status-active' : 'status-inactive';
-                    // PERBAIKAN: Pakai index array, bukan field 'id'
-                    $itemId = $index;
-                    $joined = formatTanggal($e['joined']);
+                    $status = $statusOf($e);
+                    $statusClass = 'status-' . $status;
+                    $itemId = $e->id;
+                    $joined = $profile && $profile->joined_date ? formatTanggal($profile->joined_date) : '-';
+                    $position = $profile->position ?? 'Belum diisi';
+                    $department = $profile->department ?? 'Belum diisi';
+                    $phone = $profile->phone ?? '-';
+                    $salary = $salaryOf($e);
                 @endphp
-                <div class="emp-profile {{ $statusClass }} animate-in employee-item visible-item" 
+                <div class="emp-profile {{ $statusClass }} animate-in employee-item visible-item"
                      style="animation-delay: {{ 0.20 + ($index * 0.04) }}s;"
-                     data-name="{{ strtolower($e['name']) }}"
-                     data-department="{{ $e['department'] }}"
-                     data-status="{{ $e['status'] }}"
-                     data-salary="{{ $e['salary'] }}">
-                    
-                    <div class="avatar-lg" style="background: {{ $color }};">
-                        {{ mb_substr($e['name'], 0, 1) }}
-                    </div>
-                    <div class="name">{{ $e['name'] }}</div>
-                    <div class="position">{{ $e['position'] }}</div>
-                    <span class="dept">{{ $e['department'] }}</span>
+                     data-name="{{ strtolower($e->name) }}"
+                     data-department="{{ $department }}"
+                     data-status="{{ $status }}"
+                     data-salary="{{ $salary }}">
+
+                    @if($e->profile_photo)
+                        <div class="avatar-lg" style="padding:0; overflow:hidden;">
+                            <img src="{{ asset('storage/' . $e->profile_photo) }}" alt="{{ $e->name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                        </div>
+                    @else
+                        <div class="avatar-lg" style="background: {{ $color }};">
+                            {{ mb_substr($e->name, 0, 1) }}
+                        </div>
+                    @endif
+                    <div class="name">{{ $e->name }}</div>
+                    <div class="position">{{ $position }}</div>
+                    <span class="dept">{{ $department }}</span>
 
                     <hr class="divider">
 
                     <div class="details">
                         <span class="lbl">Email</span>
-                        <span class="val">{{ $e['email'] }}</span>
+                        <span class="val">{{ $e->email }}</span>
                         <span class="lbl">Telepon</span>
-                        <span class="val">{{ $e['phone'] }}</span>
+                        <span class="val">{{ $phone }}</span>
                         <span class="lbl">Bergabung</span>
                         <span class="val">{{ $joined }}</span>
                         <span class="lbl">Gaji</span>
-                        <span class="val mono">{{ formatAngkaPendek($e['salary'], $currencySymbol) }}</span>
+                        <span class="val mono">{{ formatAngkaPendek($salary, $currencySymbol) }}</span>
                     </div>
 
-                    <span class="status-badge {{ $statusPill[$e['status']] }}">
-                        {{ $statusLabel[$e['status']] }}
+                    <span class="status-badge {{ $statusPill[$status] }}">
+                        {{ $statusLabel[$status] }}
                     </span>
 
                     <div class="actions">
@@ -1108,12 +1106,12 @@
                         </a>
                         <a href="{{ route('employees.edit', ['index' => $itemId]) }}" class="btn-action edit" title="Edit Data">
                             <svg class="icon"><use href="#ic-edit"/></svg>
-                            Edit
+                            {{ $status === 'incomplete' ? 'Lengkapi' : 'Edit' }}
                         </a>
-                        <button type="button" class="btn-action delete" title="Hapus"
-                                onclick="openDeleteModal('{{ $itemId }}', '{{ addslashes($e['name']) }}')">
+                        <button type="button" class="btn-action delete" title="Nonaktifkan"
+                                onclick="openDeleteModal('{{ $itemId }}', '{{ addslashes($e->name) }}')">
                             <svg class="icon"><use href="#ic-trash"/></svg>
-                            Hapus
+                            Nonaktifkan
                         </button>
                     </div>
                 </div>
@@ -1121,10 +1119,10 @@
                 <div class="emp-empty" id="emptyState">
                     <svg class="empty-icon"><use href="#ic-users"/></svg>
                     <h3>Belum Ada Data Karyawan</h3>
-                    <p>Belum ada karyawan yang tercatat di sistem.</p>
-                    <a href="{{ route('employees.create') }}" class="emp-btn emp-btn-primary" style="display: inline-flex;">
+                    <p>Belum ada karyawan yang bergabung. Undang karyawan pakai kode undangan.</p>
+                    <a href="{{ route('staff.invitations.index') }}" class="emp-btn emp-btn-primary" style="display: inline-flex;">
                         <svg class="icon"><use href="#ic-plus"/></svg>
-                        Tambah Karyawan Pertama
+                        Undang Karyawan Pertama
                     </a>
                 </div>
             @endforelse
@@ -1133,7 +1131,7 @@
     </div>
 
     <!-- ============================================================
-         MODAL DELETE
+         MODAL NONAKTIFKAN
          ============================================================ -->
     <div class="emp-modal-overlay" id="deleteModal">
         <div class="emp-modal-box">
@@ -1145,16 +1143,16 @@
                 </svg>
             </div>
 
-            <h3>Hapus Karyawan?</h3>
+            <h3>Nonaktifkan Karyawan?</h3>
 
             <p>
-                Anda yakin ingin menghapus data karyawan
+                Anda yakin ingin menonaktifkan
                 <br>
                 <span class="emp-desc-text" id="deleteDesc">-</span>
             </p>
 
             <div class="warning-text">
-                ⚠️ Data yang dihapus tidak dapat dikembalikan!
+                ⚠️ Akun karyawan tetap ada, tapi statusnya jadi nonaktif.
             </div>
 
             <div class="emp-modal-actions">
@@ -1169,7 +1167,7 @@
                             <polyline points="3 6 5 6 21 6"/>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                         </svg>
-                        Ya, Hapus!
+                        Ya, Nonaktifkan!
                     </button>
                 </form>
             </div>
@@ -1177,10 +1175,9 @@
     </div>
 
     <script>
-        // ===== DELETE MODAL =====
+        // ===== DELETE (NONAKTIFKAN) MODAL =====
         function openDeleteModal(id, description) {
             document.getElementById('deleteDesc').textContent = description;
-            // PERBAIKAN: Pakai index parameter sesuai route
             var url = '{{ route("employees.destroy", ["index" => 0]) }}';
             url = url.replace(/\/0$/, '/' + id);
             document.getElementById('deleteForm').action = url;
@@ -1220,7 +1217,7 @@
             const statInactive = document.getElementById('statInactive');
             const statSalary = document.getElementById('statSalary');
             const currencySymbol = '{{ $currencySymbol }}';
-            
+
             const searchTerm = searchInput.value.toLowerCase().trim();
             const department = departmentFilter.value;
             const status = statusFilter.value;
@@ -1235,21 +1232,21 @@
                 const itemDepartment = item.dataset.department;
                 const itemStatus = item.dataset.status;
                 const salary = parseFloat(item.dataset.salary) || 0;
-                
+
                 let show = true;
-                
+
                 if (searchTerm && !name.includes(searchTerm)) {
                     show = false;
                 }
-                
+
                 if (department && itemDepartment !== department) {
                     show = false;
                 }
-                
+
                 if (status && itemStatus !== status) {
                     show = false;
                 }
-                
+
                 if (show) {
                     item.style.display = '';
                     item.classList.add('visible-item');
@@ -1263,14 +1260,12 @@
                 }
             });
 
-            // Update stats
             statTotal.textContent = visibleCount;
             statActive.textContent = activeCount;
             statInactive.textContent = inactiveCount;
             statSalary.textContent = formatAngkaPendek(totalSalary, currencySymbol);
             totalCountEl.textContent = visibleCount;
 
-            // Show/hide empty state
             if (emptyState) {
                 if (visibleCount === 0 && items.length > 0) {
                     emptyState.style.display = 'block';
@@ -1282,7 +1277,7 @@
                 } else if (visibleCount === 0 && items.length === 0) {
                     emptyState.style.display = 'block';
                     emptyState.querySelector('h3').textContent = 'Belum Ada Data Karyawan';
-                    emptyState.querySelector('p').textContent = 'Belum ada karyawan yang tercatat di sistem.';
+                    emptyState.querySelector('p').textContent = 'Belum ada karyawan yang bergabung. Undang karyawan pakai kode undangan.';
                     const btn = emptyState.querySelector('.emp-btn');
                     if (btn) btn.style.display = 'inline-flex';
                     emptyState.classList.remove('hidden');
@@ -1296,7 +1291,7 @@
         function formatAngkaPendek(num, currency = 'Rp') {
             if (num === null || num === '' || isNaN(num)) return currency + '0';
             num = parseFloat(num);
-            
+
             if (num >= 1000000000) {
                 return currency + (num / 1000000000).toFixed(1).replace('.', ',') + ' M';
             } else if (num >= 1000000) {
@@ -1351,7 +1346,7 @@
                 if (visibleCount === 0) {
                     emptyState.style.display = 'block';
                     emptyState.querySelector('h3').textContent = 'Belum Ada Data Karyawan';
-                    emptyState.querySelector('p').textContent = 'Belum ada karyawan yang tercatat di sistem.';
+                    emptyState.querySelector('p').textContent = 'Belum ada karyawan yang bergabung. Undang karyawan pakai kode undangan.';
                     const btn = emptyState.querySelector('.emp-btn');
                     if (btn) btn.style.display = 'inline-flex';
                     emptyState.classList.remove('hidden');
@@ -1363,7 +1358,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Search input
             const searchInput = document.getElementById('searchEmployee');
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
@@ -1371,7 +1365,6 @@
                 });
             }
 
-            // Department filter
             const departmentFilter = document.getElementById('filterDepartment');
             if (departmentFilter) {
                 departmentFilter.addEventListener('change', function() {
@@ -1379,7 +1372,6 @@
                 });
             }
 
-            // Status filter
             const statusFilter = document.getElementById('filterStatus');
             if (statusFilter) {
                 statusFilter.addEventListener('change', function() {
@@ -1387,7 +1379,6 @@
                 });
             }
 
-            // Reset button
             const resetBtn = document.getElementById('resetBtn');
             if (resetBtn) {
                 resetBtn.addEventListener('click', function(e) {
@@ -1396,7 +1387,6 @@
                 });
             }
 
-            // Keyboard shortcuts
             document.addEventListener('keydown', function(e) {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
                     e.preventDefault();
@@ -1419,7 +1409,6 @@
                 }
             });
 
-            // ===== RIPPLE EFFECT =====
             const buttons = document.querySelectorAll('.emp-btn');
             buttons.forEach(btn => {
                 btn.addEventListener('click', function(e) {
@@ -1437,7 +1426,6 @@
                 });
             });
 
-            // Initial filter
             resetFilters();
         });
     </script>

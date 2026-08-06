@@ -1,6 +1,29 @@
 <x-app-layout>
     <x-slot name="title">Kategori Baru</x-slot>
 
+    <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <symbol id="ic-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </symbol>
+            <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </symbol>
+            <symbol id="ic-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+            </symbol>
+            <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </symbol>
+            <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="M15 5l4 4"/>
+            </symbol>
+        </defs>
+    </svg>
+
     <style>
         /* ============================================
            CREATE CATEGORY - Premium Design
@@ -38,6 +61,7 @@
             
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
+            padding: 0 24px;
         }
 
         .cc-wrap * { box-sizing: border-box; }
@@ -58,6 +82,7 @@
 
         .cc-wrap .animate-in { animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
         .cc-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .cc-wrap svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
         /* HEADER */
         .cc-header {
@@ -359,6 +384,7 @@
         }
 
         @media (max-width: 768px) {
+            .cc-wrap { padding: 0 12px; }
             .cc-card { padding: 24px 20px; }
             .cc-header { flex-direction: column; align-items: flex-start; }
             .cc-actions { width: 100%; }
@@ -367,6 +393,7 @@
         }
 
         @media (max-width: 640px) {
+            .cc-wrap { padding: 0 8px; }
             .cc-card { padding: 20px 16px; border-radius: var(--radius-sm); }
             .cc-actions-form { flex-direction: column; }
             .cc-actions-form .cc-btn { flex: 1; }
@@ -396,10 +423,7 @@
             </div>
             <div class="cc-actions">
                 <a href="{{ route('expense-categories.index') }}" class="cc-btn cc-btn-ghost">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="19" y1="12" x2="5" y2="12"/>
-                        <polyline points="12 19 5 12 12 5"/>
-                    </svg>
+                    <svg class="icon"><use href="#ic-x"/></svg>
                     Kembali
                 </a>
             </div>
@@ -408,12 +432,22 @@
         <!-- ALERT -->
         @if(session('error'))
             <div class="cc-alert error animate-in" style="animation-delay: 0.08s;">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="12"/>
-                    <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
+                <svg class="icon"><use href="#ic-alert-triangle"/></svg>
                 <span>{{ session('error') }}</span>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="cc-alert error animate-in" style="animation-delay: 0.08s;">
+                <svg class="icon"><use href="#ic-alert-triangle"/></svg>
+                <div>
+                    <strong>Terjadi kesalahan:</strong>
+                    <ul style="padding-left: 20px; margin: 4px 0 0;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
         @endif
 
@@ -426,10 +460,7 @@
                 <!-- Card Header -->
                 <div class="cc-card-header">
                     <div class="icon-box">
-                        <!-- Icon Folder untuk kategori -->
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-tag"/></svg>
                     </div>
                     <div class="title-group">
                         <div class="title">Informasi Kategori</div>
@@ -445,22 +476,12 @@
                     </label>
                     <input type="text" name="name" placeholder="Contoh: Bahan Baku" required value="{{ old('name') }}">
                     <span class="helper">
-                        <!-- Icon Info -->
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="16" x2="12" y2="12"/>
-                            <line x1="12" y1="8" x2="12.01" y2="8"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-info"/></svg>
                         Nama kategori harus unik dan mudah diingat
                     </span>
                     @error('name')
                         <span class="error-text">
-                            <!-- Icon Alert -->
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="12" y1="8" x2="12" y2="12"/>
-                                <line x1="12" y1="16" x2="12.01" y2="16"/>
-                            </svg>
+                            <svg class="icon"><use href="#ic-alert-triangle"/></svg>
                             {{ $message }}
                         </span>
                     @enderror
@@ -471,21 +492,12 @@
                     <label>Deskripsi</label>
                     <textarea name="description" placeholder="Contoh: Biaya untuk pembelian bahan baku produksi...">{{ old('description') }}</textarea>
                     <span class="helper">
-                        <!-- Icon Edit/Note -->
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 20h9"/>
-                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-edit"/></svg>
                         Deskripsi opsional, untuk menjelaskan kategori lebih detail
                     </span>
                     @error('description')
                         <span class="error-text">
-                            <!-- Icon Alert -->
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="12" y1="8" x2="12" y2="12"/>
-                                <line x1="12" y1="16" x2="12.01" y2="16"/>
-                            </svg>
+                            <svg class="icon"><use href="#ic-alert-triangle"/></svg>
                             {{ $message }}
                         </span>
                     @enderror
@@ -494,19 +506,11 @@
                 <!-- Actions -->
                 <div class="cc-actions-form">
                     <a href="{{ route('expense-categories.index') }}" class="cc-btn cc-btn-ghost">
-                        <!-- Icon X/Close -->
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"/>
-                            <line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-x"/></svg>
                         Batal
                     </a>
                     <button type="submit" class="cc-btn cc-btn-primary">
-                        <!-- Icon Save/Check -->
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/>
-                            <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/>
-                        </svg>
+                        <svg class="icon"><use href="#ic-check-circle"/></svg>
                         Simpan Kategori
                     </button>
                 </div>

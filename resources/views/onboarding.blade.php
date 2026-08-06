@@ -42,6 +42,7 @@
     --glow1-a: 0.16;
     --glow2-a: 0.11;
     --danger: #E8637A;
+    --danger-rgb: 232,99,122;
     --gold: #F0C05A;
   }
   [data-theme="light"]{
@@ -242,9 +243,12 @@
   }
   .field-tip:hover .tip-bubble{ opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); }
 
-  /* ===== FIX DROPDOWN - HAPUS ICON DOUBLE ===== */
+  /* ===== FIELD INPUT - TANPA @media (prefers-color-scheme: dark) ===== */
   .field input[type=text], 
   .field input[type=number], 
+  .field input[type=email],
+  .field input[type=password],
+  .field textarea,
   .field select {
     width:100%; 
     padding:12px 14px; 
@@ -266,11 +270,6 @@
     background-color: var(--surface-strong);
   }
 
-  .field-icon select {
-    padding-left: 38px !important;
-    padding-right: 14px !important;
-  }
-
   .field select option {
     background-color: var(--bg);
     color: var(--text);
@@ -283,45 +282,42 @@
     color: var(--emerald);
   }
 
-  @media (prefers-color-scheme: dark) {
-    .field select {
-      background-color: #1a2332;
-      color: #f1f5f9;
-      border-color: rgba(255,255,255,0.08);
-    }
-
-    .field select option {
-      background-color: #1a2332;
-      color: #f1f5f9;
-    }
-
-    .field select option:hover,
-    .field select option:checked {
-      background-color: rgba(var(--emerald-rgb), 0.2);
-      color: var(--emerald-light, #34E0A1);
-    }
-
-    .field input[type=text],
-    .field input[type=number] {
-      background-color: #1a2332;
-      color: #f1f5f9;
-      border-color: rgba(255,255,255,0.08);
-    }
-
-    .field input[type=text]::placeholder,
-    .field input[type=number]::placeholder {
-      color: #64748b;
-    }
-  }
-
   .field input:focus, 
-  .field select:focus { 
+  .field select:focus,
+  .field textarea:focus { 
     border-color: var(--border-hover); 
     background:var(--surface); 
     box-shadow: 0 0 0 4px rgba(var(--emerald-rgb),0.1); 
   }
+
+  /* ===== FIELD ERROR ===== */
+  .field-error {
+    font-size:12px;
+    color:var(--danger);
+    margin-top:4px;
+  }
+
+  /* ===== ALERT ERROR ===== */
+  .alert-error {
+    background:rgba(var(--danger-rgb),0.08);
+    border:1px solid rgba(var(--danger-rgb),0.25);
+    color:var(--danger);
+    padding:14px 18px;
+    border-radius:12px;
+    font-size:13.5px;
+    margin-bottom:20px;
+  }
+  .alert-error strong {
+    display:block;
+    margin-bottom:4px;
+  }
+  .alert-error ul {
+    margin:0;
+    padding-left:20px;
+    list-style:disc;
+  }
+
   .field-hint{ font-size:11.5px; color:var(--text-faint); margin-top:6px; }
-  .field-error{ font-size:12px; color:var(--danger); margin-top:2px; }
 
   .field-icon{ position:relative; }
   .field-icon .fi-ic{ 
@@ -337,10 +333,10 @@
     z-index:1; 
   }
   .field-icon input, 
-  .field-icon select{ 
+  .field-icon select,
+  .field-icon textarea { 
     padding-left:38px !important; 
   }
-  .field-icon input:focus ~ .fi-ic, 
   .field-icon:focus-within .fi-ic{ 
     color:var(--emerald); 
   }
@@ -368,7 +364,8 @@
     transform:translateY(-50%) scale(1); 
   }
   .field-icon.is-valid input, 
-  .field-icon.is-valid select{ 
+  .field-icon.is-valid select,
+  .field-icon.is-valid textarea { 
     padding-right:34px; 
   }
 
@@ -383,8 +380,9 @@
   .logo-drop img{ width:100%; height:100%; object-fit:cover; display:none; }
   .logo-drop .icon{ width:19px; height:19px; }
   .logo-upload-copy{ font-size:12.5px; color:var(--text-mute); }
-  .logo-upload-copy .lu-actions{ display:flex; gap:8px; margin-top:6px; }
+  .logo-upload-copy .lu-actions{ display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; }
   .logo-upload-copy button{ padding:7px 12px; font-size:12px; }
+  .logo-upload-copy .file-info{ font-size:11px; color:var(--text-faint); margin-top:4px; }
   .btn-remove-logo{ display:none; background:none; border:1px solid var(--border); color:var(--danger); border-radius:12px; cursor:pointer; }
   .btn-remove-logo.show{ display:inline-flex; align-items:center; gap:6px; }
   .btn-remove-logo .icon{ width:12px; height:12px; }
@@ -394,9 +392,9 @@
   .btn-primary{ background:var(--emerald); color:#052117; box-shadow:0 4px 24px rgba(var(--emerald-rgb),0.35); width:100%; padding:14px; font-size:15px; position:relative; overflow:hidden; }
   .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 32px rgba(var(--emerald-rgb),0.5); }
   .btn-primary:hover .icon{ transform: translateX(3px); }
+  .btn-primary:disabled{ opacity:.4; cursor:not-allowed; transform:none !important; }
   .btn-outline{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
   .btn-outline:hover{ background:var(--surface-strong); border-color: var(--border-hover); }
-  .btn:disabled{ opacity:.4; cursor:not-allowed; }
 
   .submit-row{ margin-top:32px; position:relative; z-index:1; }
   .submit-hint{ text-align:center; font-size:12px; color:var(--text-faint); margin-top:12px; }
@@ -664,6 +662,18 @@
     <form id="onboardingForm" method="POST" action="{{ route('onboarding.store') }}" enctype="multipart/form-data">
       @csrf
 
+      {{-- ===== ALERT ERROR UMUM ===== --}}
+      @if($errors->any())
+        <div class="alert-error">
+          <strong>⚠️ Ada kesalahan pada form:</strong>
+          <ul>
+            @foreach($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+
       <div class="setup-grid">
 
         {{-- ===== KOLOM KIRI: FORM ===== --}}
@@ -680,18 +690,24 @@
             <div class="logo-upload">
               <div class="logo-drop" id="logoDrop"><svg class="icon"><use href="#ic-image"/></svg><img id="logoPreview" alt=""></div>
               <div class="logo-upload-copy">
-                <div>Logo perusahaan <span class="opt">(opsional)</span></div>
+                <div>Logo perusahaan <span class="opt">(opsional, maks 5MB)</span></div>
                 <div class="lu-actions">
                   <button type="button" class="btn btn-outline" onclick="document.getElementById('logoInput').click()">Pilih File</button>
                   <button type="button" class="btn-remove-logo" id="btnRemoveLogo"><svg class="icon"><use href="#ic-image"/></svg> Hapus</button>
                 </div>
+                <div class="file-info" id="fileInfo"></div>
                 <input type="file" name="logo" id="logoInput" accept="image/*" style="display:none;">
               </div>
             </div>
 
+            {{-- ERROR LOGO --}}
+            @error('logo')
+              <div class="field-error">{{ $message }}</div>
+            @enderror
+
             <div class="field-grid">
               <div class="field full">
-                <label>Nama perusahaan</label>
+                <label>Nama perusahaan <span style="color:var(--danger);">*</span></label>
                 <div class="field-icon" id="wrapCompany">
                   <svg class="icon fi-ic"><use href="#ic-tag"/></svg>
                   <input type="text" name="company_name" id="f-company" value="{{ old('company_name') }}" placeholder="cth. PT Andalas Maju Bersama">
@@ -710,6 +726,7 @@
                     <option value="{{ $opt }}" @selected(old('industry')===$opt)>{{ $opt }}</option>
                   @endforeach
                 </select>
+                @error('industry') <div class="field-error">{{ $message }}</div> @enderror
               </div>
               <div class="field">
                 <label>
@@ -721,6 +738,7 @@
                   <input type="text" name="city" id="f-city" value="{{ old('city') }}" placeholder="cth. Surabaya">
                   <span class="fi-valid"><svg class="icon"><use href="#ic-check"/></svg></span>
                 </div>
+                @error('city') <div class="field-error">{{ $message }}</div> @enderror
               </div>
             </div>
           </div>
@@ -735,27 +753,30 @@
               <div class="field">
                 <label>Mata uang utama</label>
                 <select name="currency" id="f-currency">
-                  <option value="IDR">IDR — Rupiah Indonesia</option>
-                  <option value="USD">USD — Dolar Amerika</option>
-                  <option value="SGD">SGD — Dolar Singapura</option>
-                  <option value="MYR">MYR — Ringgit Malaysia</option>
+                  <option value="IDR" @selected(old('currency')==='IDR')>IDR — Rupiah Indonesia</option>
+                  <option value="USD" @selected(old('currency')==='USD')>USD — Dolar Amerika</option>
+                  <option value="SGD" @selected(old('currency')==='SGD')>SGD — Dolar Singapura</option>
+                  <option value="MYR" @selected(old('currency')==='MYR')>MYR — Ringgit Malaysia</option>
                 </select>
+                @error('currency') <div class="field-error">{{ $message }}</div> @enderror
               </div>
               <div class="field">
                 <label>Tahun buku aktif</label>
                 @php($currentYear = date('Y'))
                 <select name="fiscal_year" id="f-fiscalyear">
-                  <option>{{ $currentYear }}</option>
-                  <option>{{ $currentYear + 1 }}</option>
+                  <option value="{{ $currentYear }}" @selected(old('fiscal_year')==$currentYear)>{{ $currentYear }}</option>
+                  <option value="{{ $currentYear + 1 }}" @selected(old('fiscal_year')==$currentYear+1)>{{ $currentYear + 1 }}</option>
                 </select>
+                @error('fiscal_year') <div class="field-error">{{ $message }}</div> @enderror
               </div>
               <div class="field full">
                 <label>Bulan mulai tahun fiskal</label>
                 <select name="fiscal_start_month" id="f-fiscalstart">
                   @foreach(['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'] as $m)
-                    <option @selected(old('fiscal_start_month')===$m)>{{ $m }}</option>
+                    <option value="{{ $m }}" @selected(old('fiscal_start_month')===$m)>{{ $m }}</option>
                   @endforeach
                 </select>
+                @error('fiscal_start_month') <div class="field-error">{{ $message }}</div> @enderror
                 <div class="field-hint">Kebanyakan bisnis di Indonesia pakai Januari–Desember.</div>
               </div>
             </div>
@@ -776,18 +797,25 @@
                   <svg class="icon fi-ic"><use href="#ic-bank"/></svg>
                   <select name="bank_name" id="f-bank">
                     <option value="">Pilih bank</option>
-                    <option>BCA</option><option>BRI</option><option>BNI</option><option>Mandiri</option>
-                    <option>CIMB Niaga</option><option>Kas Tunai (tanpa bank)</option><option>Lainnya</option>
+                    <option value="BCA" @selected(old('bank_name')==='BCA')>BCA</option>
+                    <option value="BRI" @selected(old('bank_name')==='BRI')>BRI</option>
+                    <option value="BNI" @selected(old('bank_name')==='BNI')>BNI</option>
+                    <option value="Mandiri" @selected(old('bank_name')==='Mandiri')>Mandiri</option>
+                    <option value="CIMB Niaga" @selected(old('bank_name')==='CIMB Niaga')>CIMB Niaga</option>
+                    <option value="Kas Tunai (tanpa bank)" @selected(old('bank_name')==='Kas Tunai (tanpa bank)')>Kas Tunai (tanpa bank)</option>
+                    <option value="Lainnya" @selected(old('bank_name')==='Lainnya')>Lainnya</option>
                   </select>
                   <span class="fi-valid"><svg class="icon"><use href="#ic-check"/></svg></span>
                 </div>
+                @error('bank_name') <div class="field-error">{{ $message }}</div> @enderror
               </div>
               <div class="field">
                 <label>Saldo awal</label>
                 <div class="field-icon">
                   <svg class="icon fi-ic"><use href="#ic-wallet"/></svg>
-                  <input type="number" name="initial_balance" id="f-balance" value="{{ old('initial_balance', 0) }}" min="0" placeholder="0">
+                  <input type="number" name="initial_balance" id="f-balance" value="{{ old('initial_balance', 0) }}" min="0" placeholder="0" step="0.01">
                 </div>
+                @error('initial_balance') <div class="field-error">{{ $message }}</div> @enderror
                 <div class="field-hint">Belum tahu pastinya? Isi 0 dulu, sesuaikan nanti.</div>
               </div>
             </div>
@@ -985,9 +1013,30 @@
   const pvLogoImg = document.getElementById('pvLogoImg');
   const pvLogoInitial = document.getElementById('pvLogoInitial');
   const btnRemoveLogo = document.getElementById('btnRemoveLogo');
+  const fileInfo = document.getElementById('fileInfo');
 
   function loadLogoFile(file){
     if(!file) return;
+    
+    // Cek ukuran file (5MB = 5242880 bytes)
+    if(file.size > 5242880) {
+      fileInfo.textContent = '⚠️ Ukuran file terlalu besar (maks 5MB)';
+      fileInfo.style.color = 'var(--danger)';
+      logoInput.value = '';
+      return;
+    }
+    
+    // Cek tipe file
+    if(!file.type.startsWith('image/')) {
+      fileInfo.textContent = '⚠️ Hanya file gambar yang didukung';
+      fileInfo.style.color = 'var(--danger)';
+      logoInput.value = '';
+      return;
+    }
+    
+    fileInfo.textContent = '✅ ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+    fileInfo.style.color = 'var(--emerald)';
+    
     const reader = new FileReader();
     reader.onload = e=>{
       logoPreview.src = e.target.result; logoPreview.style.display='block';
@@ -1001,7 +1050,9 @@
 
   if(logoDrop){
     logoDrop.addEventListener('click', ()=> logoInput.click());
-    logoInput.addEventListener('change', ()=> loadLogoFile(logoInput.files[0]));
+    logoInput.addEventListener('change', ()=> {
+      if(logoInput.files[0]) loadLogoFile(logoInput.files[0]);
+    });
 
     ['dragenter','dragover'].forEach(evt => {
       logoDrop.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); logoDrop.classList.add('drag-over'); });
@@ -1027,6 +1078,7 @@
       pvLogoImg.src = ''; pvLogoImg.style.display='none';
       pvLogoInitial.style.display='block';
       btnRemoveLogo.classList.remove('show');
+      fileInfo.textContent = '';
       syncPreview();
     });
   }

@@ -3,6 +3,11 @@
     <rect x="3" y="11" width="18" height="11" rx="2"></rect>
     <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
   </symbol>
+  <!-- ===== TAMBAHAN ICON HEADSET UNTUK TIKET BANTUAN ===== -->
+  <symbol id="ic-headset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+    <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+  </symbol>
 </svg>
 
 <aside class="sidebar" id="sidebar">
@@ -93,8 +98,11 @@
     </div>
   </div>
 
-  {{-- ===== PEMBELIAN & BIAYA — FREE ===== --}}
-  @php $g3 = request()->routeIs(['expenses.*','expense-categories.*']); @endphp
+  {{-- ===== PEMBELIAN & BIAYA — FREE, Persetujuan butuh multi_user ===== --}}
+  @php
+    $g3 = request()->routeIs(['expenses.*','expense-categories.*','staff.expense-approvals.*']);
+    $lockedApproval = !$hasFeature('multi_user');
+  @endphp
   <div class="sb-accordion {{ $g3 ? 'open' : '' }}">
     <button type="button" class="sb-link sb-parent" data-acc-toggle>
       <span class="sb-link-main">
@@ -109,6 +117,25 @@
       <div class="sb-submenu-inner">
         <a href="{{ sb_url('expenses.index') }}" class="sb-sublink {{ request()->routeIs('expenses.*') ? 'active' : '' }} {{ \Route::has('expenses.index') ? '' : 'soon' }}">Pengeluaran</a>
         <a href="{{ sb_url('expense-categories.index') }}" class="sb-sublink {{ request()->routeIs('expense-categories.*') ? 'active' : '' }} {{ \Route::has('expense-categories.index') ? '' : 'soon' }}">Kategori Biaya</a>
+        
+        @if($lockedApproval)
+          <a href="{{ route('pricing.index') }}" class="sb-sublink locked">
+            <span>Persetujuan Pengeluaran</span>
+            <svg class="icon-lock-sm"><use href="#ic-lock"/></svg>
+          </a>
+        @else
+          <a href="{{ sb_url('staff.expense-approvals.index') }}" class="sb-sublink {{ request()->routeIs('staff.expense-approvals.*') ? 'active' : '' }} {{ \Route::has('staff.expense-approvals.index') ? '' : 'soon' }}">
+            <span>Persetujuan Pengeluaran</span>
+            @php
+              $pendingCount = \App\Models\ExpenseSubmission::where('company_id', auth()->user()->company_id ?? 0)
+                  ->where('status', 'pending')
+                  ->count();
+            @endphp
+            @if($pendingCount > 0)
+              <span class="badge" style="background:rgba(var(--emerald-rgb),0.18);color:var(--emerald);font-size:10px;padding:1px 8px;">{{ $pendingCount }}</span>
+            @endif
+          </a>
+        @endif
       </div>
     </div>
   </div>
@@ -300,6 +327,26 @@
 
   {{-- ===== LAINNYA ===== --}}
   <div class="sb-group-label">Lainnya</div>
+
+  {{-- ===== TIKET BANTUAN — single link, gak ada lock, khusus staff ===== --}}
+  @php
+    $openTicketCount = \App\Models\Ticket::where('user_id', auth()->id())
+        ->where('status', '!=', 'closed')
+        ->count();
+  @endphp
+  <a href="{{ sb_url('staff.tickets.index') }}" class="sb-link {{ request()->routeIs('staff.tickets.*') ? 'active' : '' }} {{ \Route::has('staff.tickets.index') ? '' : 'soon' }}">
+    <span class="sb-link-main">
+      <svg class="icon"><use href="#ic-headset"/></svg>
+      <span class="sb-link-text">Tiket Bantuan</span>
+    </span>
+    @if($openTicketCount > 0)
+      <span class="sb-link-end">
+        <span class="badge" style="background:rgba(var(--emerald-rgb),0.18);color:var(--emerald);font-size:10px;padding:1px 8px;">{{ $openTicketCount }}</span>
+      </span>
+    @endif
+  </a>
+
+  {{-- ===== PENGATURAN (accordion) ===== --}}
   @php
     $lockedTeam = !$hasFeature('multi_user');
     $g9 = request()->routeIs(['team-members.*','integrations.*','security.*','profile.*']);

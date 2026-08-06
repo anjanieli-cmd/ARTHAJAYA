@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\TicketReply;
+use App\Notifications\TicketReplied;
 use Illuminate\Http\Request;
 
 class TicketController extends Controller
@@ -49,7 +50,7 @@ class TicketController extends Controller
             'message' => ['required', 'string'],
         ]);
 
-        TicketReply::create([
+        $reply = TicketReply::create([
             'ticket_id'      => $ticket->id,
             'user_id'        => auth()->id(),
             'is_admin_reply' => true,
@@ -59,6 +60,9 @@ class TicketController extends Controller
         if ($ticket->status === 'open') {
             $ticket->update(['status' => 'in_progress']);
         }
+
+        // Notify staff pemilik tiket
+        $ticket->user->notify(new TicketReplied($ticket, $reply));
 
         return redirect()->route('admin.tickets.show', $ticket)
             ->with('success', 'Balasan berhasil dikirim.');

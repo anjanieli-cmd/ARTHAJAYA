@@ -184,7 +184,7 @@
       align-items: flex-start;
       gap: 24px;
       flex-wrap: wrap;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
       padding: 0 4px;
     }
 
@@ -291,6 +291,116 @@
 
     @keyframes rippleAnim {
       to { transform: scale(4); opacity: 0; }
+    }
+
+    /* ===== INVITATION BANNER (di atas, setelah header) ===== */
+    .dash-invite-banner {
+      background: linear-gradient(135deg, rgba(var(--emerald-rgb), 0.08), var(--bg-card));
+      border: 1px solid rgba(var(--emerald-rgb), 0.2);
+      border-radius: var(--radius-md);
+      padding: 16px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      transition: all 0.3s ease;
+    }
+
+    .dash-invite-banner:hover {
+      border-color: rgba(var(--emerald-rgb), 0.35);
+      background: linear-gradient(135deg, rgba(var(--emerald-rgb), 0.12), var(--bg-card-hover));
+    }
+
+    .dash-invite-banner .invite-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .dash-invite-banner .invite-left .invite-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--theme-soft);
+      color: var(--theme-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .dash-invite-banner .invite-left .invite-icon .icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .dash-invite-banner .invite-left .invite-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 2px;
+      color: var(--text-primary);
+    }
+
+    .dash-invite-banner .invite-left .invite-info p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .dash-invite-banner .invite-right {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .dash-invite-banner .invite-btn {
+      padding: 8px 20px;
+      border-radius: var(--radius-sm);
+      background: var(--theme-gradient);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      position: relative;   /* TAMBAHKAN - biar ripple kekurung */
+      overflow: hidden;      /* TAMBAHKAN - biar ripple kekurung */
+    }
+
+    .dash-invite-banner .invite-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px var(--theme-glow);
+    }
+
+    .dash-invite-banner .invite-btn .icon {
+      width: 14px;
+      height: 14px;
+    }
+
+    .dash-invite-banner .invite-btn .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(0);
+      animation: rippleAnim 0.6s ease-out forwards;
+      pointer-events: none;
+    }
+
+    .dash-invite-banner .invite-badge {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--theme-primary);
+      background: rgba(var(--emerald-rgb), 0.1);
+      padding: 2px 12px;
+      border-radius: 100px;
+      border: 1px solid rgba(var(--emerald-rgb), 0.15);
     }
 
     /* ===== COMPANY CARD ===== */
@@ -949,14 +1059,14 @@
       color: var(--text-tertiary);
     }
 
+    .dash-inv-row .info .date.overdue {
+      color: var(--danger);
+    }
+
     .dash-inv-row .amount {
       font-weight: 600;
       font-family: 'IBM Plex Mono', monospace;
       color: var(--text-primary);
-    }
-
-    .dash-inv-row .info .date.overdue {
-      color: var(--danger);
     }
 
     /* ===== CASH FLOW CARD ===== */
@@ -1106,6 +1216,8 @@
       .dash-balance .balance-actions { grid-template-columns: repeat(2, 1fr); }
       .dash-card { padding: 20px; }
       .dash-cashflow-grid { grid-template-columns: 1fr; }
+      .dash-invite-banner { flex-direction: column; text-align: center; }
+      .dash-invite-banner .invite-left { flex-direction: column; text-align: center; }
     }
 
     @media (max-width: 640px) {
@@ -1140,6 +1252,26 @@
         </a>
         <a href="{{ Route::has('invoices.create') ? route('invoices.create') : '#' }}" class="dash-btn dash-btn-primary">
           <svg class="icon"><use href="#ic-plus"/></svg> Faktur Baru
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== INVITATION BANNER - DITARO ATAS ===== -->
+    <div class="dash-invite-banner animate-in" style="animation-delay: 0.07s;">
+      <div class="invite-left">
+        <div class="invite-icon">
+          <svg class="icon"><use href="#ic-badge"/></svg>
+        </div>
+        <div class="invite-info">
+          <h4>Kode Undangan User</h4>
+          <p>Generate kode undangan untuk User baru bergabung ke perusahaan.</p>
+        </div>
+      </div>
+      <div class="invite-right">
+        <span class="invite-badge">Staff Only</span>
+        <a href="{{ route('staff.invitations.index') }}" class="invite-btn">
+          <svg class="icon"><use href="#ic-plus"/></svg>
+          Generate Kode
         </a>
       </div>
     </div>
@@ -1271,7 +1403,7 @@
           </div>
         </div>
 
-        <!-- TRANSACTIONS TABLE - Dari Buku Besar -->
+        <!-- TRANSACTIONS TABLE -->
         <div class="dash-card animate-in" style="animation-delay: 0.20s;">
           <div class="card-head">
             <h3>Transaksi Terbaru</h3>
@@ -1321,7 +1453,7 @@
           @endif
         </div>
 
-        <!-- ===== CASH FLOW CARD ===== -->
+        <!-- CASH FLOW CARD -->
         <div class="dash-card animate-in" style="animation-delay: 0.25s;">
           <div class="card-head">
             <h3>Arus Kas 6 Bulan Terakhir</h3>
@@ -1330,7 +1462,6 @@
             </a>
           </div>
           
-          <!-- Ringkasan Angka -->
           <div class="dash-cashflow-grid">
             @php
               $totalIn = array_sum(array_column($monthlyData, 'income'));
@@ -1358,7 +1489,6 @@
             </div>
           </div>
 
-          <!-- Bar Chart -->
           <div class="dash-cashflow-bars">
             @foreach($monthlyData as $month => $data)
               @php
@@ -1386,7 +1516,6 @@
             @endforeach
           </div>
 
-          <!-- Legend -->
           <div class="dash-cf-legend">
             <span class="leg-item">
               <span class="dot in"></span> Pemasukan
@@ -1501,7 +1630,7 @@
         </div>
 
         <!-- UPCOMING INVOICES -->
-        <div class="dash-card animate-in" style="animation-delay: 0.45s;">
+        <div class="dash-card animate-in" style="animation-delay: 0.50s;">
           <div class="card-head">
             <h3>Faktur Akan Jatuh Tempo</h3>
             <a href="{{ Route::has('invoices.index') ? route('invoices.index') : '#' }}" class="sub-link">
@@ -1549,12 +1678,13 @@
     <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
     <symbol id="ic-more" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></symbol>
     <symbol id="ic-briefcase" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+    <symbol id="ic-badge" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M9 14.5 7 22l5-3 5 3-2-7.5"/></symbol>
   </svg>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Ripple effect
-      const buttons = document.querySelectorAll('.dash-btn');
+      const buttons = document.querySelectorAll('.dash-btn, .invite-btn');
       buttons.forEach(btn => {
         btn.addEventListener('click', function(e) {
           const rect = this.getBoundingClientRect();
@@ -1569,8 +1699,7 @@
         });
       });
 
-      // Spark bars grow-in
-      document.querySelectorAll('.dash-spark .spark-bar').forEach((bar, i) => {
+      // Spark bars grow-in      document.querySelectorAll('.dash-spark .spark-bar').forEach((bar, i) => {
         setTimeout(() => {
           bar.style.height = bar.dataset.h + '%';
         }, i * 60 + 300);

@@ -30,6 +30,12 @@
             <symbol id="ic-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/>
             </symbol>
+            <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </symbol>
+            <symbol id="ic-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </symbol>
         </defs>
     </svg>
 
@@ -264,7 +270,7 @@
             to { transform: scale(4); opacity: 0; }
         }
 
-        /* ===== STAT CARDS (bukan pills) ===== */
+        /* ===== STAT CARDS ===== */
         .stat-row {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -471,6 +477,9 @@
             text-decoration: none;
             transition: all 0.25s ease;
             font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-sm:hover {
@@ -489,6 +498,11 @@
         .btn-sm-primary:hover {
             box-shadow: 0 4px 16px var(--theme-glow);
             color: #fff;
+        }
+
+        .btn-sm .icon {
+            width: 14px;
+            height: 14px;
         }
 
         /* ===== CARD GRID ===== */
@@ -869,19 +883,23 @@
 
         <!-- ===== FILTER ===== -->
         <div class="cmw-filter animate-in" style="animation-delay: 0.14s;">
-            <form method="GET" action="{{ route('admin.companies.index') }}">
+            <form method="GET" action="{{ route('admin.companies.index') }}" id="filterForm">
                 <div class="search-wrap">
                     <svg class="icon"><use href="#ic-search"/></svg>
-                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama company...">
+                    <input type="text" name="q" id="searchInput" value="{{ request('q') }}" placeholder="Cari nama company...">
                 </div>
-                <select name="status" onchange="this.form.submit()">
+                <select name="status" id="statusSelect" onchange="this.form.submit()">
                     <option value="">Semua Status</option>
                     <option value="active" {{ request('status')==='active' ? 'selected':'' }}>Aktif</option>
                     <option value="suspended" {{ request('status')==='suspended' ? 'selected':'' }}>Disuspend</option>
                 </select>
-                <button type="submit" class="btn-sm btn-sm-primary">Cari</button>
+                <button type="submit" class="btn-sm btn-sm-primary">
+                    <svg class="icon"><use href="#ic-search"/></svg> Cari
+                </button>
                 @if(request()->anyFilled(['q','status']))
-                    <a href="{{ route('admin.companies.index') }}" class="btn-sm">Reset</a>
+                    <a href="{{ route('admin.companies.index') }}" class="btn-sm">
+                        <svg class="icon"><use href="#ic-x"/></svg> Reset
+                    </a>
                 @endif
             </form>
         </div>
@@ -986,6 +1004,39 @@
                     }, 600);
                 });
             });
+        });
+
+        // ===== DEBOUNCE SEARCH =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const filterForm = document.getElementById('filterForm');
+            const statusSelect = document.getElementById('statusSelect');
+            let debounceTimer = null;
+
+            if (searchInput && filterForm) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    
+                    const currentValue = this.value;
+                    
+                    if (currentValue === '') {
+                        filterForm.submit();
+                        return;
+                    }
+                    
+                    debounceTimer = setTimeout(function() {
+                        filterForm.submit();
+                    }, 400);
+                });
+            }
+
+            // Status select tetap auto-submit via onchange
+            if (statusSelect) {
+                statusSelect.addEventListener('change', function() {
+                    // Clear any pending search debounce
+                    clearTimeout(debounceTimer);
+                });
+            }
         });
     </script>
 </x-admin-layout>

@@ -4,12 +4,14 @@
     @php
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
-        
-        // Data employee dari route (array)
-        // $employee sudah dikirim dari route employees.show
+
+        $profile = $employee->employeeProfile ?? null;
+
+        // Gunakan status dari profile, fallback ke 'active'
+        $statusValue = $profile->status ?? 'active';
         $statusLabel = ['active' => 'Aktif', 'inactive' => 'Tidak Aktif'];
         $statusPill  = ['active' => 'active', 'inactive' => 'inactive'];
-        
+
         function formatTanggal($date) {
             if (empty($date)) return '-';
             try {
@@ -21,9 +23,9 @@
 
         function formatAngkaPendek($angka, $currency = 'Rp') {
             if ($angka === null || $angka === '') return $currency . '0';
-            
+
             $angka = (float) $angka;
-            
+
             if ($angka >= 1000000000) {
                 return $currency . number_format($angka / 1000000000, 1, ',', '.') . ' M';
             } elseif ($angka >= 1000000) {
@@ -104,27 +106,27 @@
             --theme-glow: rgba(var(--emerald-rgb), 0.25);
             --theme-soft: rgba(var(--emerald-rgb), 0.12);
             --theme-gradient: linear-gradient(135deg, var(--emerald), var(--emerald-dim));
-            
+
             --text-primary: var(--text);
             --text-secondary: var(--text-mute);
             --text-tertiary: var(--text-faint);
-            
+
             --bg-card: var(--surface);
             --bg-card-hover: var(--surface-strong);
             --bg-card-active: rgba(255, 255, 255, 0.04);
             --border-color: var(--border);
             --border-hover: var(--border-hover);
-            
+
             --success: #34B583;
             --success-soft: rgba(52, 181, 131, 0.14);
-            
+
             --danger: #E85A5A;
             --danger-soft: rgba(232, 90, 90, 0.12);
-            
+
             --radius-sm: 10px;
             --radius-md: 16px;
             --radius-lg: 24px;
-            
+
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
             padding: 0 24px;
@@ -278,6 +280,15 @@
             font-size: 32px;
             color: #fff;
             flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        /* ===== FOTO PROFIL: Tampilkan gambar jika ada ===== */
+        .detail-card .avatar-xl img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
         }
 
         .detail-card .header-info h2 {
@@ -389,7 +400,7 @@
                 <h1>Detail Karyawan</h1>
             </div>
             <div class="detail-actions">
-                <a href="{{ route('employees.edit', ['index' => $index ?? 0]) }}" class="emp-btn emp-btn-primary">
+                <a href="{{ route('employees.edit', ['index' => $employee->id]) }}" class="emp-btn emp-btn-primary">
                     <svg class="icon"><use href="#ic-edit"/></svg>
                     Edit
                 </a>
@@ -401,19 +412,23 @@
             <div class="card-header">
                 @php
                     $colors = ['#EC4C93', '#34B583', '#F0A83C', '#4E8FF0', '#9B7BE0', '#E85A5A'];
-                    $color = $colors[($index ?? 0) % count($colors)];
-                    $initial = isset($employee['name']) ? mb_substr($employee['name'], 0, 1) : '?';
+                    $color = $colors[$employee->id % count($colors)];
+                    $initial = mb_substr($employee->name ?? '?', 0, 1);
                 @endphp
                 <div class="avatar-xl" style="background: {{ $color }};">
-                    {{ $initial }}
+                    @if(!empty($employee->profile_photo))
+                        <img src="{{ asset('storage/' . $employee->profile_photo) }}" alt="{{ $employee->name }}">
+                    @else
+                        {{ strtoupper($initial) }}
+                    @endif
                 </div>
                 <div class="header-info">
-                    <h2>{{ $employee['name'] ?? 'Nama Tidak Diketahui' }}</h2>
-                    <div class="position-text">{{ $employee['position'] ?? '-' }}</div>
-                    <span class="dept-badge">{{ $employee['department'] ?? '-' }}</span>
+                    <h2>{{ $employee->name ?? 'Nama Tidak Diketahui' }}</h2>
+                    <div class="position-text">{{ $profile->position ?? 'Belum diatur' }}</div>
+                    <span class="dept-badge">{{ $profile->department ?? '-' }}</span>
                 </div>
-                <span class="status-badge-lg {{ $statusPill[$employee['status'] ?? 'inactive'] }}">
-                    {{ $statusLabel[$employee['status'] ?? 'inactive'] }}
+                <span class="status-badge-lg {{ $statusPill[$statusValue] ?? 'inactive' }}">
+                    {{ $statusLabel[$statusValue] ?? 'Tidak Aktif' }}
                 </span>
             </div>
 
@@ -421,37 +436,37 @@
                 <div class="detail-grid">
                     <div class="detail-item">
                         <span class="label">Nama Lengkap</span>
-                        <span class="value">{{ $employee['name'] ?? '-' }}</span>
+                        <span class="value">{{ $employee->name ?? '-' }}</span>
                     </div>
                     <div class="detail-item">
                         <span class="label">Posisi / Jabatan</span>
-                        <span class="value">{{ $employee['position'] ?? '-' }}</span>
+                        <span class="value">{{ $profile->position ?? '-' }}</span>
                     </div>
                     <div class="detail-item">
                         <span class="label">Departemen</span>
-                        <span class="value">{{ $employee['department'] ?? '-' }}</span>
+                        <span class="value">{{ $profile->department ?? '-' }}</span>
                     </div>
                     <div class="detail-item">
                         <span class="label">Email</span>
-                        <span class="value">{{ $employee['email'] ?? '-' }}</span>
+                        <span class="value">{{ $employee->email ?? '-' }}</span>
                     </div>
                     <div class="detail-item">
                         <span class="label">Telepon</span>
-                        <span class="value">{{ $employee['phone'] ?? '-' }}</span>
+                        <span class="value">{{ $profile->phone ?? '-' }}</span>
                     </div>
                     <div class="detail-item">
                         <span class="label">Gaji / Bulan</span>
-                        <span class="value mono">{{ isset($employee['salary']) ? formatAngkaPendek($employee['salary'], $currencySymbol) : '-' }}</span>
+                        <span class="value mono">{{ formatAngkaPendek($profile->basic_salary ?? null, $currencySymbol) }}</span>
                     </div>
                     <div class="detail-item">
                         <span class="label">Tanggal Bergabung</span>
-                        <span class="value">{{ isset($employee['joined']) ? formatTanggal($employee['joined']) : '-' }}</span>
+                        <span class="value">{{ formatTanggal($profile->joined_date ?? null) }}</span>
                     </div>
                     <div class="detail-item">
                         <span class="label">Status</span>
                         <span class="value">
-                            <span class="status-badge-lg {{ $statusPill[$employee['status'] ?? 'inactive'] }}" style="display:inline-block; margin:0; font-size:11px; padding:4px 12px;">
-                                {{ $statusLabel[$employee['status'] ?? 'inactive'] }}
+                            <span class="status-badge-lg {{ $statusPill[$statusValue] ?? 'inactive' }}" style="display:inline-block; margin:0; font-size:11px; padding:4px 12px;">
+                                {{ $statusLabel[$statusValue] ?? 'Tidak Aktif' }}
                             </span>
                         </span>
                     </div>

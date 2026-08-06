@@ -5,17 +5,31 @@
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-        // 🔧 SEEDING SESSION — biar show/edit/delete bisa nemu datanya
-        if (!session()->has('expense_categories')) {
-            session(['expense_categories' => $categories]);
+        // Pastikan $categories adalah collection, jika array kosong buat collection kosong
+        if (!is_array($categories) && !is_object($categories)) {
+            $categories = collect();
+        }
+        
+        // Jika array, konversi ke collection
+        if (is_array($categories)) {
+            $categories = collect($categories);
         }
 
-        $categoriesCollection = collect($categories);
-        $totalKategori     = $categoriesCollection->count();
-        $totalSemuaBiaya   = $categoriesCollection->sum('total');
-        $kategoriTerbesar  = $categoriesCollection->sortByDesc('total')->first();
-        $totalTransaksi    = $categoriesCollection->sum('count');
+        // Hitung statistik dari data
+        $totalKategori = $categories->count();
+        $totalSemuaBiaya = 0;
+        $totalTransaksi = 0;
         
+        // Iterasi manual untuk menghitung total
+        foreach ($categories as $cat) {
+            $totalSemuaBiaya += isset($cat['total']) ? $cat['total'] : (isset($cat->total) ? $cat->total : 0);
+            $totalTransaksi += isset($cat['count']) ? $cat['count'] : (isset($cat->count) ? $cat->count : 0);
+        }
+        
+        $kategoriTerbesar = $categories->sortByDesc(function($item) {
+            return isset($item['total']) ? $item['total'] : (isset($item->total) ? $item->total : 0);
+        })->first();
+
         $colors = ['#EC4C93', '#34B583', '#F0A83C', '#4E8FF0', '#9B7BE0', '#E85A5A', '#14B8A6', '#F97316'];
 
         function formatAngkaPendek($angka) {
@@ -28,6 +42,16 @@
             } else {
                 return number_format($angka, 0, ',', '.');
             }
+        }
+        
+        // Helper untuk mendapatkan nilai dari object atau array
+        function getValue($item, $key, $default = 0) {
+            if (is_array($item)) {
+                return $item[$key] ?? $default;
+            } elseif (is_object($item)) {
+                return $item->$key ?? $default;
+            }
+            return $default;
         }
     @endphp
 
@@ -123,15 +147,8 @@
             padding: 0 24px;
         }
 
-        .cat-modern * {
-            box-sizing: border-box;
-        }
-
-        .cat-modern .mono {
-            font-family: 'IBM Plex Mono', monospace;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: -0.02em;
-        }
+        .cat-modern * { box-sizing: border-box; }
+        .cat-modern .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 
         @keyframes fadeSlideUp {
             from { opacity: 0; transform: translateY(24px); }
@@ -149,33 +166,13 @@
         }
 
         @keyframes modalSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .cat-modern .animate-in {
-            animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-        }
-
-        .cat-modern .icon {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-            display: inline-block;
-            vertical-align: middle;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
+        .cat-modern .animate-in { animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        .cat-modern .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .cat-modern svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
         /* ===== TOAST ===== */
         .toast-container{
@@ -241,9 +238,7 @@
             transition: color 0.3s ease;
         }
 
-        .search-wrap:focus-within .icon {
-            color: var(--theme-primary);
-        }
+        .search-wrap:focus-within .icon { color: var(--theme-primary); }
 
         .filter-bar input[type=text]{
             width:100%;
@@ -264,9 +259,7 @@
             box-shadow:0 0 0 3px rgba(var(--emerald-rgb),0.1);
         }
 
-        .filter-bar input[type=text]::placeholder{
-            color:var(--text-tertiary);
-        }
+        .filter-bar input[type=text]::placeholder{ color:var(--text-tertiary); }
 
         .filter-actions{
             display:flex;
@@ -274,12 +267,8 @@
             align-items:center;
         }
 
-        .filter-actions .cat-btn {
-            padding: 8px 14px;
-            font-size: 12px;
-        }
+        .filter-actions .cat-btn { padding: 8px 14px; font-size: 12px; }
 
-        /* SEARCH INDICATOR */
         .search-indicator {
             font-size: 12px;
             color: var(--text-tertiary);
@@ -292,14 +281,8 @@
             gap: 6px;
         }
 
-        .search-indicator.active {
-            display: inline-flex;
-        }
-
-        .search-indicator .count {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
+        .search-indicator.active { display: inline-flex; }
+        .search-indicator .count { font-weight: 600; color: var(--text-primary); }
 
         /* HEADER */
         .cat-header {
@@ -312,10 +295,7 @@
             padding: 0 4px;
         }
 
-        .cat-header-left {
-            flex: 1;
-            min-width: 200px;
-        }
+        .cat-header-left { flex: 1; min-width: 200px; }
 
         .cat-badge {
             display: inline-flex;
@@ -358,10 +338,7 @@
             margin: 0;
         }
 
-        .cat-header .subtitle strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
+        .cat-header .subtitle strong { color: var(--text-primary); font-weight: 600; }
 
         .cat-header-actions {
             display: flex;
@@ -389,18 +366,9 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .cat-btn .icon {
-            width: 16px;
-            height: 16px;
-        }
-
-        .cat-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .cat-btn:active {
-            transform: translateY(0) scale(0.97);
-        }
+        .cat-btn .icon { width: 16px; height: 16px; }
+        .cat-btn:hover { transform: translateY(-2px); }
+        .cat-btn:active { transform: translateY(0) scale(0.97); }
 
         .cat-btn-primary {
             background: var(--theme-gradient);
@@ -435,12 +403,7 @@
             pointer-events: none;
         }
 
-        @keyframes rippleAnim {
-            to {
-                transform: scale(4);
-                opacity: 0;
-            }
-        }
+        @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
 
         /* SUCCESS MESSAGE */
         .cat-success {
@@ -457,15 +420,8 @@
             font-size: 13px;
         }
 
-        .cat-success .icon {
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
-        }
-
-        .cat-success .message {
-            font-weight: 500;
-        }
+        .cat-success .icon { width: 20px; height: 20px; flex-shrink: 0; }
+        .cat-success .message { font-weight: 500; }
 
         /* STATS */
         .cat-stats {
@@ -511,10 +467,7 @@
             color: var(--theme-primary);
         }
 
-        .cat-stat-card .stat-head .ic .icon {
-            width: 17px;
-            height: 17px;
-        }
+        .cat-stat-card .stat-head .ic .icon { width: 17px; height: 17px; }
 
         .cat-stat-card .stat-head .label {
             font-size: 11px;
@@ -531,13 +484,8 @@
             padding-left: 4px;
         }
 
-        .cat-stat-card .stat-value.primary {
-            color: var(--theme-primary);
-        }
-
-        .cat-stat-card .stat-value.warning {
-            color: #F0A83C;
-        }
+        .cat-stat-card .stat-value.primary { color: var(--theme-primary); }
+        .cat-stat-card .stat-value.warning { color: #F0A83C; }
 
         .cat-stat-card .stat-sub {
             font-size: 12px;
@@ -586,9 +534,7 @@
             opacity: 0.7;
         }
 
-        .cat-item:hover .color-bar {
-            opacity: 1;
-        }
+        .cat-item:hover .color-bar { opacity: 1; }
 
         .cat-item .cat-top {
             display: flex;
@@ -622,6 +568,7 @@
             color: var(--text-secondary);
             margin-bottom: 16px;
             line-height: 1.5;
+            word-break: break-word;
         }
 
         .cat-item .cat-footer {
@@ -671,9 +618,7 @@
             transition: opacity 0.25s ease;
         }
 
-        .cat-item:hover .cat-actions {
-            opacity: 1;
-        }
+        .cat-item:hover .cat-actions { opacity: 1; }
 
         .cat-actions .btn-action {
             width: 32px;
@@ -690,33 +635,21 @@
             cursor: pointer;
         }
 
-        .cat-actions .btn-action .icon {
-            width: 14px;
-            height: 14px;
-        }
+        .cat-actions .btn-action .icon { width: 14px; height: 14px; }
 
-        .cat-actions .btn-action.show {
-            color: var(--theme-primary);
-        }
-
+        .cat-actions .btn-action.show { color: var(--theme-primary); }
         .cat-actions .btn-action.show:hover {
             background: var(--theme-soft);
             border-color: var(--theme-primary);
         }
 
-        .cat-actions .btn-action.edit {
-            color: #4FA6E8;
-        }
-
+        .cat-actions .btn-action.edit { color: #4FA6E8; }
         .cat-actions .btn-action.edit:hover {
             background: rgba(79, 166, 232, 0.12);
             border-color: #4FA6E8;
         }
 
-        .cat-actions .btn-action.danger {
-            color: var(--danger);
-        }
-
+        .cat-actions .btn-action.danger { color: var(--danger); }
         .cat-actions .btn-action.danger:hover {
             background: var(--danger-soft);
             border-color: var(--danger);
@@ -753,9 +686,7 @@
             font-size: 14px;
         }
 
-        /* ============================================================
-           MODAL DELETE - PINGGIRAN BULAT 24px (SAMA KAYA AGING)
-           ============================================================ */
+        /* ===== MODAL DELETE ===== */
         .cat-modal-overlay {
             display: none;
             position: fixed;
@@ -770,9 +701,7 @@
             animation: modalFadeIn 0.3s ease;
         }
 
-        .cat-modal-overlay.active {
-            display: flex;
-        }
+        .cat-modal-overlay.active { display: flex; }
 
         [data-theme="dark"] .cat-modal-box { 
             background: #0F1520; 
@@ -784,7 +713,7 @@
         }
 
         .cat-modal-box {
-            border-radius: 24px;              /* <--- INI BIKIN GA LANCIP! */
+            border-radius: 24px;
             max-width: 440px;
             width: 100%;
             padding: 32px 36px;
@@ -890,10 +819,7 @@
             gap: 8px;
         }
 
-        .cat-modal-actions .btn .icon {
-            width: 16px;
-            height: 16px;
-        }
+        .cat-modal-actions .btn .icon { width: 16px; height: 16px; }
 
         .cat-modal-actions .btn-outline {
             background: var(--bg-card);
@@ -947,30 +873,20 @@
 
         /* RESPONSIVE */
         @media (max-width: 1200px) {
-            .cat-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .cat-stats { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 768px) {
-            .cat-grid {
-                grid-template-columns: 1fr;
-            }
-            .cat-actions {
-                opacity: 1;
-            }
+            .cat-grid { grid-template-columns: 1fr; }
+            .cat-actions { opacity: 1; }
             .filter-bar {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 10px;
                 padding: 12px 16px;
             }
-            .filter-bar form {
-                flex-direction: column;
-            }
-            .search-wrap {
-                min-width: 100%;
-            }
+            .filter-bar form { flex-direction: column; }
+            .search-wrap { min-width: 100%; }
             .filter-actions {
                 width: 100%;
                 justify-content: flex-end;
@@ -980,12 +896,8 @@
                 padding: 24px 20px;
                 margin: 10px;
             }
-            .cat-modal-actions {
-                flex-direction: column;
-            }
-            .cat-modal-actions .btn {
-                width: 100%;
-            }
+            .cat-modal-actions { flex-direction: column; }
+            .cat-modal-actions .btn { width: 100%; }
         }
 
         @media (max-width: 640px) {
@@ -993,35 +905,23 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
             .cat-header-actions {
                 width: 100%;
             }
-            
             .cat-header-actions .cat-btn {
                 flex: 1;
                 justify-content: center;
             }
-
             .cat-stats {
                 grid-template-columns: 1fr;
                 gap: 12px;
             }
-
-            .cat-stat-card .stat-value {
-                font-size: 22px;
-            }
-
-            .cat-item {
-                padding: 18px 16px;
-            }
-
+            .cat-stat-card .stat-value { font-size: 22px; }
+            .cat-item { padding: 18px 16px; }
             .cat-modal-box {
                 padding: 20px 16px;
             }
-            .cat-modal-box h3 {
-                font-size: 18px;
-            }
+            .cat-modal-box h3 { font-size: 18px; }
             .cat-modal-box .icon-danger {
                 width: 48px;
                 height: 48px;
@@ -1033,9 +933,7 @@
         }
 
         @media (max-width: 380px) {
-            .cat-header h1 {
-                font-size: 22px;
-            }
+            .cat-header h1 { font-size: 22px; }
             .cat-btn {
                 font-size: 12px;
                 padding: 8px 14px;
@@ -1135,11 +1033,11 @@
                     <span class="label">Kategori Terbesar</span>
                 </div>
                 <div class="stat-value warning" id="catStatTerbesar">{{ $kategoriTerbesar['name'] ?? '-' }}</div>
-                <div class="stat-sub mono" id="catStatTerbesarTotal">{{ $kategoriTerbesar ? $currencySymbol . formatAngkaPendek($kategoriTerbesar['total']) : 'Tidak ada data' }}</div>
+                <div class="stat-sub mono" id="catStatTerbesarTotal">{{ $kategoriTerbesar ? $currencySymbol . formatAngkaPendek($kategoriTerbesar['total'] ?? 0) : 'Tidak ada data' }}</div>
             </div>
         </div>
 
-        <!-- ===== FILTER BAR (DI ANTARA STATS DAN GRID) ===== -->
+        <!-- ===== FILTER BAR ===== -->
         <div class="filter-bar animate-in" style="animation-delay: 0.27s;">
             <form method="GET" action="{{ route('expense-categories.index') }}" id="filterForm">
                 <div class="search-wrap">
@@ -1160,41 +1058,56 @@
 
         <!-- CATEGORY GRID -->
         <div class="cat-grid" id="catGrid">
-            @forelse($categories as $index => $c)
+            @forelse($categories as $category)
                 @php
-                    $color = $colors[$index % count($colors)];
+                    $color = $colors[$loop->index % count($colors)];
+                    
+                    // Handle jika array atau object
+                    if (is_array($category)) {
+                        $id = $category['id'] ?? $loop->index;
+                        $name = $category['name'] ?? 'Kategori';
+                        $desc = $category['description'] ?? (isset($category['desc']) ? $category['desc'] : '-');
+                        $total = $category['total'] ?? (isset($category['total_expenses']) ? $category['total_expenses'] : 0);
+                        $count = $category['count'] ?? (isset($category['count_expenses']) ? $category['count_expenses'] : 0);
+                    } else {
+                        $id = $category->id ?? $loop->index;
+                        $name = $category->name ?? 'Kategori';
+                        $desc = $category->description ?? (isset($category->desc) ? $category->desc : '-');
+                        $total = $category->total ?? (isset($category->total_expenses) ? $category->total_expenses : 0);
+                        $count = $category->count ?? (isset($category->count_expenses) ? $category->count_expenses : 0);
+                    }
                 @endphp
-                <div class="cat-item animate-in" style="animation-delay: {{ 0.30 + ($index * 0.05) }}s;" data-id="{{ $index }}">
+                <div class="cat-item animate-in" style="animation-delay: {{ 0.30 + ($loop->index * 0.05) }}s;" data-id="{{ $id }}">
                     <div class="color-bar" style="background: {{ $color }};"></div>
                     
                     <div class="cat-top">
                         <div class="cat-avatar" style="background: {{ $color }};">
-                            {{ mb_substr($c['name'], 0, 1) }}
+                            {{ mb_substr($name, 0, 1) }}
                         </div>
                         <div class="cat-actions">
-                            <a href="/expense-categories/show/{{ $index }}" class="btn-action show" title="Lihat Detail">
+                            <a href="{{ route('expense-categories.show', $id) }}" class="btn-action show" title="Lihat Detail">
                                 <svg class="icon"><use href="#ic-eye"/></svg>
                             </a>
-                            <a href="/expense-categories/edit/{{ $index }}" class="btn-action edit" title="Edit">
+                            <a href="{{ route('expense-categories.edit', $id) }}" class="btn-action edit" title="Edit">
                                 <svg class="icon"><use href="#ic-edit"/></svg>
                             </a>
                             <button type="button" class="btn-action danger" title="Hapus"
-                                    onclick="openDeleteModal('{{ $index }}', '{{ $c['name'] }}')">
+                                    onclick="openDeleteModal('{{ $id }}', '{{ $name }}')">
                                 <svg class="icon"><use href="#ic-trash"/></svg>
                             </button>
                         </div>
                     </div>
 
-                    <div class="cat-name">{{ $c['name'] }}</div>
-                    <div class="cat-desc">{{ $c['desc'] }}</div>
+                    <div class="cat-name">{{ $name }}</div>
+                    <div class="cat-desc">{{ $desc }}</div>
 
                     <div class="cat-footer">
                         <div class="stat">
                             <svg class="icon"><use href="#ic-file-text"/></svg>
                             <span class="label">Transaksi</span>
-                            <span class="value mono">{{ $c['count'] }}</span>
+                            <span class="value mono">{{ $count }}</span>
                         </div>
-                        <div class="total mono">{{ $currencySymbol }}{{ formatAngkaPendek($c['total']) }}</div>
+                        <div class="total mono">{{ $currencySymbol }}{{ formatAngkaPendek($total) }}</div>
                     </div>
                 </div>
             @empty
@@ -1212,12 +1125,9 @@
 
     </div>
 
-    <!-- ============================================================
-         MODAL DELETE - PINGGIRAN BULAT 24px (SAMA KAYA AGING)
-         ============================================================ -->
+    <!-- ===== MODAL DELETE ===== -->
     <div class="cat-modal-overlay" id="deleteModal">
         <div class="cat-modal-box">
-            <!-- ICON DANGER -->
             <div class="icon-danger">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
@@ -1226,26 +1136,16 @@
                 </svg>
             </div>
 
-            <!-- JUDUL -->
             <h3>Hapus Kategori?</h3>
-
-            <!-- DESKRIPSI -->
             <p>
                 Anda yakin ingin menghapus kategori
                 <br>
                 <span class="category-name" id="deleteCategoryName">-</span>
             </p>
+            <div class="warning-text">⚠️ Data yang dihapus tidak dapat dikembalikan!</div>
 
-            <!-- WARNING -->
-            <div class="warning-text">
-                ⚠️ Data yang dihapus tidak dapat dikembalikan!
-            </div>
-
-            <!-- TOMBOL -->
             <div class="cat-modal-actions">
-                <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">
-                    Batal
-                </button>
+                <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Batal</button>
                 <form id="deleteForm" action="" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')
@@ -1289,10 +1189,9 @@
         }
 
         // ===== DELETE MODAL =====
-        function openDeleteModal(index, categoryName) {
+        function openDeleteModal(id, categoryName) {
             document.getElementById('deleteCategoryName').textContent = categoryName;
-            var url = '/expense-categories/delete/' + index;
-            document.getElementById('deleteForm').action = url;
+            document.getElementById('deleteForm').action = '/expense-categories/' + id;
             document.getElementById('deleteModal').classList.add('active');
             document.body.style.overflow = 'hidden';
             document.body.classList.add('aj-modal-open');
@@ -1338,7 +1237,7 @@
 
                 var url = new URL(window.location.href);
                 url.searchParams.delete('q');
-                window.history.replaceState({}, '', url.toString());
+                window.history.replaceState({}, {}, url.toString());
 
                 updateResults(true);
             }
@@ -1418,7 +1317,7 @@
                     } else {
                         url.searchParams.delete('q');
                     }
-                    window.history.replaceState({}, '', url.toString());
+                    window.history.replaceState({}, {}, url.toString());
 
                     loadingTimeout = setTimeout(function() {
                         updateResults(false);

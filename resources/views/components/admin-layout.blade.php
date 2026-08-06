@@ -44,7 +44,7 @@
     --nav-bg:rgba(244,246,250,0.82);
     --modal-bg: linear-gradient(160deg, #FFFFFF, #F2F5F9 60%);
   }
-  /* ===== ACCENT SWITCHER (sama seperti sisi user) ===== */
+  /* ===== ACCENT SWITCHER ===== */
   [data-accent="orange"]{ --emerald:#F0A25A; --emerald-dim:#C97A2E; --emerald-rgb:240,162,90; }
   [data-accent="emerald"]{ --emerald:#34E0A1; --emerald-dim:#1E8F6B; --emerald-rgb:52,224,161; }
   [data-accent="blue"]{ --emerald:#4E8FF0; --emerald-dim:#3465C4; --emerald-rgb:78,143,240; }
@@ -81,7 +81,6 @@
   .admin-link.active{ color:var(--emerald); background:rgba(var(--emerald-rgb),0.1); font-weight:600; }
   .admin-link .icon{ width:16px; height:16px; flex-shrink:0; }
 
-  /* ===== Sidebar item "Segera" (belum aktif) ===== */
   .admin-link.soon{ color:var(--text-faint); cursor:default; pointer-events:none; }
   .admin-link.soon:hover{ background:none; color:var(--text-faint); }
   .admin-link .badge-soon{
@@ -94,13 +93,11 @@
 
   .admin-topbar-right{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
 
-  /* ===== ICON BUTTON (notifikasi) ===== */
   .icon-btn{ width:38px; height:38px; border-radius:11px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-mute); cursor:pointer; transition: all .2s ease; position:relative; flex-shrink:0; }
   .icon-btn:hover{ color:var(--text); background:var(--surface-strong); border-color:var(--border-hover); }
   .icon-btn .icon{ width:16px; height:16px; }
   .icon-btn .dot-alert{ position:absolute; top:8px; right:9px; width:7px; height:7px; border-radius:50%; background:var(--emerald); box-shadow:0 0 0 2px var(--nav-bg); }
 
-  /* ===== NOTIFIKASI PANEL ===== */
   .user-menu{ position:relative; }
   .notif-panel{ position:absolute; top:calc(100% + 10px); right:0; width:320px; max-height:400px; background:var(--modal-bg); border:1px solid var(--border); border-radius:16px; box-shadow:0 30px 70px rgba(0,0,0,0.4); opacity:0; visibility:hidden; transform: translateY(8px) scale(.97); transition: all .2s ease; z-index:60; overflow:hidden; display:flex; flex-direction:column; }
   .notif-panel.open{ opacity:1; visibility:visible; transform: translateY(0) scale(1); }
@@ -117,10 +114,27 @@
   .notif-item .n-msg{ font-size:12px; color:var(--text-mute); line-height:1.4; }
   .notif-item .n-time{ font-size:11px; color:var(--text-faint); margin-top:4px; }
 
-  /* ===== USER DROPDOWN ===== */
   .user-trigger{ display:flex; align-items:center; gap:9px; padding:5px 10px 5px 5px; border-radius:100px; border:1px solid var(--border); background:var(--surface); cursor:pointer; transition: all .2s ease; }
   .user-trigger:hover{ border-color:var(--border-hover); background:var(--surface-strong); }
-  .user-avatar{ width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,var(--emerald),var(--emerald-dim)); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk'; font-weight:700; font-size:12px; color:#1a1005; flex-shrink:0; }
+  .user-avatar{ 
+    width:30px; height:30px; border-radius:50%; 
+    display:flex; align-items:center; justify-content:center; 
+    font-family:'Space Grotesk'; font-weight:700; font-size:12px; 
+    color:#fff; flex-shrink:0; 
+    overflow:hidden;
+    background:linear-gradient(135deg, var(--emerald), var(--emerald-dim));
+  }
+  .user-avatar img{ 
+    width:100%; height:100%; object-fit:cover; 
+  }
+  .user-avatar .fallback{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; height:100%;
+    color:#fff;
+    font-weight:700;
+    font-size:12px;
+    background:linear-gradient(135deg, var(--emerald), var(--emerald-dim));
+  }
   .user-trigger .name{ font-size:13px; font-weight:600; }
   .user-trigger .icon{ width:13px; height:13px; color:var(--text-faint); }
 
@@ -143,7 +157,7 @@
 
   main{ padding:28px; position:relative; z-index:1; }
 
-  /* ===== FLOATING SETTINGS WIDGET (multi warna) ===== */
+  /* ===== FLOATING SETTINGS WIDGET ===== */
   .settings-fab{ position:fixed; right:22px; bottom:22px; z-index:150; width:50px; height:50px; border-radius:50%; background:var(--surface-strong); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text); box-shadow:0 10px 30px rgba(0,0,0,0.35); backdrop-filter:blur(10px); transition: transform .25s ease, border-color .25s ease; }
   .settings-fab:hover{ transform: translateY(-3px) rotate(20deg); border-color:var(--border-hover); }
   .settings-fab .icon{ width:20px; height:20px; }
@@ -166,13 +180,159 @@
   .lang-opt:hover{ color:var(--text); border-color:var(--border-hover); }
   .lang-opt.active{ color:var(--emerald); border-color:var(--emerald); background:rgba(var(--emerald-rgb),0.08); }
 
+  /* ===== PERBAIKAN: FIELD INPUT ===== */
+  .field input[type=text],
+  .field input[type=number],
+  .field input[type=email],
+  .field input[type=password],
+  .field textarea,
+  .field select {
+    width:100%;
+    padding:12px 14px;
+    border-radius:12px;
+    background:var(--surface-strong);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:'Inter';
+    font-size:14px;
+    outline:none;
+    transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+  }
+
+  .field select {
+    appearance: auto;
+    -webkit-appearance: auto;
+    padding-right: 14px;
+    cursor: pointer;
+    background-color: var(--surface-strong);
+  }
+
+  .field select option {
+    background-color: var(--bg);
+    color: var(--text);
+    padding: 8px 12px;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--border-hover);
+    background:var(--surface);
+    box-shadow: 0 0 0 4px rgba(var(--emerald-rgb),0.1);
+  }
+
+  /* ===== HAPUS @media (prefers-color-scheme: dark) ===== */
+  /* Tidak pakai lagi karena sudah pakai data-theme */
+
+  .field-error {
+    font-size:12px;
+    color:var(--danger);
+    margin-top:4px;
+  }
+
+  .field-hint {
+    font-size:11.5px;
+    color:var(--text-faint);
+    margin-top:6px;
+  }
+
+  .field-icon {
+    position:relative;
+  }
+  .field-icon .fi-ic {
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    width:15px;
+    height:15px;
+    color:var(--text-faint);
+    pointer-events:none;
+    transition: color .2s ease;
+    z-index:1;
+  }
+  .field-icon input,
+  .field-icon select,
+  .field-icon textarea {
+    padding-left:38px !important;
+  }
+  .field-icon:focus-within .fi-ic {
+    color:var(--emerald);
+  }
+  .field-icon .fi-valid {
+    position:absolute;
+    right:12px;
+    top:50%;
+    transform:translateY(-50%) scale(.5);
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background:var(--emerald);
+    color:#052117;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    opacity:0;
+    transition: opacity .2s ease, transform .25s cubic-bezier(.34,1.56,.64,1);
+    pointer-events:none;
+  }
+  .field-icon .fi-valid .icon {
+    width:9px;
+    height:9px;
+  }
+  .field-icon.is-valid .fi-valid {
+    opacity:1;
+    transform:translateY(-50%) scale(1);
+  }
+  .field-icon.is-valid input,
+  .field-icon.is-valid select,
+  .field-icon.is-valid textarea {
+    padding-right:34px;
+  }
+
+  /* ===== ALERT ===== */
+  .alert-error {
+    background:rgba(var(--danger-rgb),0.08);
+    border:1px solid rgba(var(--danger-rgb),0.25);
+    color:var(--danger);
+    padding:14px 18px;
+    border-radius:12px;
+    font-size:13.5px;
+    margin-bottom:20px;
+  }
+  .alert-error strong {
+    display:block;
+    margin-bottom:4px;
+  }
+  .alert-error ul {
+    margin:0;
+    padding-left:20px;
+    list-style:disc;
+  }
+
+  .alert-success {
+    background:rgba(var(--emerald-rgb),0.08);
+    border:1px solid rgba(var(--emerald-rgb),0.25);
+    color:var(--emerald);
+    padding:14px 18px;
+    border-radius:12px;
+    font-size:13.5px;
+    margin-bottom:20px;
+  }
+
   @media (max-width:900px){
     .admin-shell{ grid-template-columns:1fr; }
     .admin-sidebar{ display:none; }
+    .admin-topbar{ padding:12px 16px; }
+    main{ padding:16px; }
   }
   @media (max-width:480px){
     .settings-fab{ right:16px; bottom:16px; width:46px; height:46px; }
     .settings-panel{ right:16px; bottom:74px; width:calc(100vw - 32px); }
+    .admin-title-badge{ font-size:10px; padding:4px 10px; }
+    .user-trigger .name{ display:none; }
+    .user-trigger{ padding:4px; }
+    .notif-panel{ right:-10px; width:calc(100vw - 24px); }
   }
 </style>
 </head>
@@ -252,7 +412,7 @@
       <div class="admin-title-badge">🛡️ Panel Admin Sistem</div>
 
       <div class="admin-topbar-right">
-        {{-- ===== NOTIFIKASI (tersambung ke data asli) ===== --}}
+        {{-- ===== NOTIFIKASI ===== --}}
         <div class="user-menu">
           <div class="icon-btn" id="adminNotifBtn" aria-label="Notifikasi">
             <svg class="icon"><use href="#ic-bell"/></svg>
@@ -272,7 +432,20 @@
         {{-- ===== USER DROPDOWN ===== --}}
         <div class="user-menu">
           <div class="user-trigger" id="adminUserTrigger">
-            <div class="user-avatar">{{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}</div>
+            <div class="user-avatar" id="adminUserAvatar">
+              @php
+                $user = Auth::user();
+                // LANGSUNG PAKAI $user->avatar (kolom users)
+                $avatarPath = $user && $user->avatar ? storage_path('app/public/' . $user->avatar) : null;
+                $avatarUrl = $user && $user->avatar ? asset('storage/' . $user->avatar) : null;
+                $hasAvatar = $avatarUrl && file_exists($avatarPath);
+              @endphp
+              @if($hasAvatar)
+                <img src="{{ $avatarUrl }}" alt="{{ $user->name ?? 'Admin' }}" id="adminAvatarImg">
+              @else
+                <span class="fallback">{{ strtoupper(substr($user->name ?? 'A', 0, 1)) }}</span>
+              @endif
+            </div>
             <span class="name">{{ Auth::user()->name ?? 'Admin' }}</span>
             <svg class="icon"><use href="#ic-chevron"/></svg>
           </div>
@@ -300,13 +473,37 @@
     </header>
 
     <main>
+      {{-- ===== FLASH MESSAGES ===== --}}
+      @if(session('success'))
+        <div class="alert-success">
+          <strong>✅ Berhasil!</strong> {{ session('success') }}
+        </div>
+      @endif
+
+      @if(session('error'))
+        <div class="alert-error">
+          <strong>❌ Error!</strong> {{ session('error') }}
+        </div>
+      @endif
+
+      @if($errors->any())
+        <div class="alert-error">
+          <strong>⚠️ Ada kesalahan pada form:</strong>
+          <ul>
+            @foreach($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+
       {{ $slot }}
     </main>
   </div>
 
 </div>
 
-{{-- ===== FLOATING SETTINGS WIDGET (multi warna, tema, bahasa) ===== --}}
+{{-- ===== FLOATING SETTINGS WIDGET ===== --}}
 <div class="settings-fab" id="adminSettingsFab" aria-label="Pengaturan tampilan"><svg class="icon"><use href="#ic-gear"/></svg></div>
 <div class="settings-panel" id="adminSettingsPanel">
   <div class="settings-block">
@@ -336,7 +533,7 @@
 </div>
 
 <script>
-  // ===== notifikasi dropdown (tersambung ke data asli) =====
+  // ===== NOTIFIKASI DROPDOWN =====
   (function(){
     var btn      = document.getElementById('adminNotifBtn');
     var panel    = document.getElementById('adminNotifPanel');
@@ -432,7 +629,7 @@
     setInterval(loadNotifications, 30000);
   })();
 
-  // ===== user dropdown =====
+  // ===== USER DROPDOWN =====
   (function(){
     var trigger = document.getElementById('adminUserTrigger');
     var dropdown = document.getElementById('adminUserDropdown');
@@ -448,7 +645,7 @@
     });
   })();
 
-  // ===== SETTINGS WIDGET: theme, accent, language =====
+  // ===== SETTINGS WIDGET =====
   (function(){
     var root = document.documentElement;
     var fab = document.getElementById('adminSettingsFab');
@@ -489,6 +686,19 @@
     });
     document.querySelectorAll('.lang-opt').forEach(function(el){
       el.classList.toggle('active', el.getAttribute('data-lang-opt') === getSaved('aj-lang', 'id'));
+    });
+  })();
+
+  // ===== AUTO-HIDE FLASH MESSAGES =====
+  (function(){
+    var alerts = document.querySelectorAll('.alert-success, .alert-error');
+    alerts.forEach(function(alert){
+      setTimeout(function(){
+        alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(-10px)';
+        setTimeout(function(){ alert.style.display = 'none'; }, 500);
+      }, 5000);
     });
   })();
 </script>

@@ -6,7 +6,6 @@
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
         // ===== AMBIL DATA KARYAWAN DARI SESSION =====
-        // Data dummy default (sama dengan employees/index.blade.php)
         $defaultEmployees = [
             ['name' => 'Budi Santoso', 'position' => 'Pengrajin Batik', 'salary' => 4500000],
             ['name' => 'Siti Rahayu', 'position' => 'Desainer', 'salary' => 5200000],
@@ -16,10 +15,8 @@
             ['name' => 'Rina Marlina', 'position' => 'Quality Control', 'salary' => 4200000],
         ];
 
-        // Ambil dari session, kalau kosong pake default
         $employeesRaw = session('employees', $defaultEmployees);
 
-        // Format ulang sesuai kebutuhan form payroll
         $employees = collect($employeesRaw)->map(function ($emp, $index) {
             return [
                 'id' => $index,
@@ -30,7 +27,6 @@
         })->values()->all();
 
         // ===== DATA PAYROLL =====
-        // DUMMY data - nanti diganti dengan data dari database
         $payroll = $payroll ?? [
             'id' => 1,
             'employee_id' => 1,
@@ -64,9 +60,6 @@
             </symbol>
             <symbol id="ic-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </symbol>
-            <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
             </symbol>
             <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -252,7 +245,6 @@
             pointer-events: none;
         }
 
-        /* FORM - FULL WIDTH */
         .pe-form {
             width: 100%;
             max-width: 100%;
@@ -352,24 +344,24 @@
             cursor: pointer;
             appearance: auto;
             -webkit-appearance: auto;
-            color-scheme: dark;
+            color-scheme: light dark;
         }
 
         .pe-form-group select option {
-            background-color: #12181f;
-            color: #f2f4f7;
+            background-color: var(--bg-card);
+            color: var(--text-primary);
             padding: 10px 14px;
             font-size: 14px;
         }
 
         .pe-form-group select option:checked,
         .pe-form-group select option:hover {
-            background-color: #17352c;
-            color: #34d399;
+            background-color: var(--theme-soft);
+            color: var(--theme-primary);
         }
 
         .pe-form-group select option:disabled {
-            color: #6b7280;
+            color: var(--text-tertiary);
         }
 
         .pe-form-row {
@@ -497,7 +489,6 @@
             font-size: 14px;
         }
 
-        /* RESPONSIVE */
         @media (max-width: 768px) {
             .pe-wrap { padding: 0 12px; }
             .pe-card { padding: 20px 24px; }
@@ -572,10 +563,9 @@
                         <option value="">Pilih Karyawan...</option>
                         @foreach($employees as $e)
                             <option value="{{ $e['id'] }}" 
-                                    data-salary="{{ $e['basic_salary'] }}" 
-                                    data-position="{{ $e['position'] }}"
+                                    data-salary="{{ $e['basic_salary'] }}"
                                     {{ (isset($payroll['employee_id']) && $e['id'] == $payroll['employee_id']) ? 'selected' : '' }}>
-                                {{ $e['name'] }} — {{ $e['position'] }} ({{ $currencySymbol }}{{ number_format($e['basic_salary'], 0, ',', '.') }})
+                                {{ $e['name'] }} ({{ $currencySymbol }}{{ number_format($e['basic_salary'], 0, ',', '.') }})
                             </option>
                         @endforeach
                     </select>
@@ -584,6 +574,15 @@
                             ⚠️ Belum ada data karyawan. Silakan tambahkan karyawan terlebih dahulu.
                         </div>
                     @endif
+                </div>
+
+                <!-- Jabatan (Position) - Dapat DIKETIK -->
+                <div class="pe-form-group">
+                    <label>Jabatan <span class="required">*</span></label>
+                    <input type="text" name="position" id="positionInput" 
+                           placeholder="Contoh: Manager, Staff, Admin, dll" 
+                           value="{{ old('position', $payroll['position'] ?? '') }}"
+                           style="background: var(--bg-card-active);">
                 </div>
 
                 <!-- Period & Status -->
@@ -639,6 +638,10 @@
                 <div class="pe-summary">
                     <div class="summary-title">📊 Ringkasan Gaji</div>
                     <div class="pe-summary-item">
+                        <span class="label">Jabatan</span>
+                        <span class="value" id="summaryPosition">{{ $payroll['position'] ?? '—' }}</span>
+                    </div>
+                    <div class="pe-summary-item">
                         <span class="label">Gaji Pokok</span>
                         <span class="value mono" id="summaryBasic">{{ $currencySymbol }}{{ number_format($payroll['basic_salary'] ?? 0, 0, ',', '.') }}</span>
                     </div>
@@ -676,10 +679,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const employeeSelect = document.getElementById('employeeSelect');
+            const positionInput = document.getElementById('positionInput');
             const basicSalaryInput = document.getElementById('basicSalary');
             const allowanceInput = document.getElementById('allowance');
             const deductionInput = document.getElementById('deduction');
 
+            const summaryPosition = document.getElementById('summaryPosition');
             const summaryBasic = document.getElementById('summaryBasic');
             const summaryAllowance = document.getElementById('summaryAllowance');
             const summaryDeduction = document.getElementById('summaryDeduction');
@@ -699,6 +704,12 @@
                 summaryTotal.textContent = currencySymbol + total.toLocaleString('id-ID');
             }
 
+            // Update position saat user mengetik
+            positionInput.addEventListener('input', function() {
+                summaryPosition.textContent = this.value || '—';
+            });
+
+            // Update salary saat pilih karyawan
             employeeSelect.addEventListener('change', function() {
                 const selectedOption = this.options[this.selectedIndex];
                 const salary = selectedOption.dataset.salary;

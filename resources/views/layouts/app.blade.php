@@ -597,6 +597,7 @@
       { title: 'Aging Piutang & Utang', desc: 'Analisis umur piutang/utang', icon: 'ic-target', url: '{{ route('aging.index') }}' },
       { title: 'Pengeluaran', desc: 'Catatan pembelian & biaya', icon: 'ic-invoice', url: '{{ route('expenses.index') }}' },
       { title: 'Kategori Pengeluaran', desc: 'Kelompok biaya operasional', icon: 'ic-doc', url: '{{ route('expense-categories.index') }}' },
+      { title: 'Persetujuan Pengeluaran', desc: 'Setujui pengajuan pengeluaran staff', icon: 'ic-doc', url: '{{ route('staff.expense-approvals.index') }}' },
       { title: 'Rekonsiliasi Bank', desc: 'Cocokkan saldo bank & buku', icon: 'ic-bank', url: '{{ route('reconciliation.index') }}' },
       { title: 'Mutasi Bank', desc: 'Riwayat transaksi rekening', icon: 'ic-receive', url: '{{ route('bank-mutations.index') }}' },
       { title: 'Laba Rugi', desc: 'Laporan laba rugi', icon: 'ic-trending', url: '{{ route('laba-rugi.index') }}' },

@@ -5,30 +5,6 @@
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-        // ===== AMBIL DATA KARYAWAN DARI SESSION =====
-        // Data dummy default (sama dengan employees/index.blade.php)
-        $defaultEmployees = [
-            ['name' => 'Budi Santoso', 'position' => 'Pengrajin Batik', 'salary' => 4500000],
-            ['name' => 'Siti Rahayu', 'position' => 'Desainer', 'salary' => 5200000],
-            ['name' => 'Agus Wijaya', 'position' => 'Marketing', 'salary' => 4800000],
-            ['name' => 'Dewi Lestari', 'position' => 'Admin', 'salary' => 4000000],
-            ['name' => 'Hendra Gunawan', 'position' => 'Pengrajin Batik', 'salary' => 4500000],
-            ['name' => 'Rina Marlina', 'position' => 'Quality Control', 'salary' => 4200000],
-        ];
-
-        // Ambil dari session, kalau kosong pake default
-        $employeesRaw = session('employees', $defaultEmployees);
-
-        // Format ulang sesuai kebutuhan form payroll
-        $employees = collect($employeesRaw)->map(function ($emp, $index) {
-            return [
-                'id' => $index,
-                'name' => $emp['name'],
-                'position' => $emp['position'],
-                'basic_salary' => $emp['salary'],
-            ];
-        })->values()->all();
-
         $months = [
             'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -50,9 +26,6 @@
             <symbol id="ic-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </symbol>
-            <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </symbol>
             <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </symbol>
@@ -67,28 +40,28 @@
             --theme-glow: rgba(var(--emerald-rgb), 0.25);
             --theme-soft: rgba(var(--emerald-rgb), 0.12);
             --theme-gradient: linear-gradient(135deg, var(--emerald), var(--emerald-dim));
-            
+
             --text-primary: var(--text);
             --text-secondary: var(--text-mute);
             --text-tertiary: var(--text-faint);
-            
+
             --bg-card: var(--surface);
             --bg-card-hover: var(--surface-strong);
             --bg-card-active: rgba(255, 255, 255, 0.04);
             --border-color: var(--border);
             --border-hover: var(--border-hover);
-            
+
             --danger: #E85A5A;
             --danger-soft: rgba(232, 90, 90, 0.12);
             --success: #34B583;
             --success-soft: rgba(52, 181, 131, 0.14);
             --warning: #F0A83C;
             --warning-soft: rgba(240, 168, 60, 0.14);
-            
+
             --radius-sm: 10px;
             --radius-md: 16px;
             --radius-lg: 24px;
-            
+
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
             padding: 0 24px;
@@ -339,24 +312,24 @@
             cursor: pointer;
             appearance: auto;
             -webkit-appearance: auto;
-            color-scheme: dark;
+            color-scheme: light dark;
         }
 
         .pc-form-group select option {
-            background-color: #12181f;
-            color: #f2f4f7;
+            background-color: var(--bg-card);
+            color: var(--text-primary);
             padding: 10px 14px;
             font-size: 14px;
         }
 
         .pc-form-group select option:checked,
         .pc-form-group select option:hover {
-            background-color: #17352c;
-            color: #34d399;
+            background-color: var(--theme-soft);
+            color: var(--theme-primary);
         }
 
         .pc-form-group select option:disabled {
-            color: #6b7280;
+            color: var(--text-tertiary);
         }
 
         .pc-form-row {
@@ -380,7 +353,6 @@
             .pc-form-row-3 { grid-template-columns: 1fr; gap: 0; }
         }
 
-        /* INFO BOX */
         .pc-info-box {
             background: var(--theme-soft);
             border: 1px solid var(--theme-glow);
@@ -410,7 +382,6 @@
             color: var(--text-primary);
         }
 
-        /* SUMMARY PREVIEW */
         .pc-summary {
             margin-top: 24px;
             padding-top: 24px;
@@ -471,7 +442,6 @@
             font-family: 'IBM Plex Mono', monospace;
         }
 
-        /* FORM ACTIONS */
         .pc-form-actions {
             display: flex;
             gap: 12px;
@@ -487,7 +457,6 @@
             font-size: 14px;
         }
 
-        /* RESPONSIVE */
         @media (max-width: 768px) {
             .payroll-create-wrap { padding: 0 12px; }
             .pc-card { padding: 20px 24px; }
@@ -550,7 +519,7 @@
                 <div class="pc-info-box">
                     <svg class="icon"><use href="#ic-info"/></svg>
                     <div class="message">
-                        <strong>Perhatian:</strong> Pilih karyawan dan periode untuk membuat slip gaji. 
+                        <strong>Perhatian:</strong> Pilih karyawan dan periode untuk membuat slip gaji.
                         Gaji pokok akan otomatis terisi dari data karyawan.
                     </div>
                 </div>
@@ -561,8 +530,13 @@
                     <select name="employee_id" id="employeeSelect" required>
                         <option value="">Pilih Karyawan...</option>
                         @foreach($employees as $e)
-                            <option value="{{ $e['id'] }}" data-salary="{{ $e['basic_salary'] }}" data-position="{{ $e['position'] }}">
-                                {{ $e['name'] }} — {{ $e['position'] }} ({{ $currencySymbol }}{{ number_format($e['basic_salary'], 0, ',', '.') }})
+                            @php
+                                $profile = $e->employeeProfile;
+                                $salary = $profile->basic_salary ?? 0;
+                            @endphp
+                            <option value="{{ $e->id }}"
+                                    data-salary="{{ $salary }}">
+                                {{ $e->name }} ({{ $currencySymbol }}{{ number_format($salary, 0, ',', '.') }})
                             </option>
                         @endforeach
                     </select>
@@ -571,6 +545,15 @@
                             ⚠️ Belum ada data karyawan. Silakan tambahkan karyawan terlebih dahulu.
                         </div>
                     @endif
+                </div>
+
+                <!-- Jabatan (Position) - Dapat DIKETIK -->
+                <div class="pc-form-group">
+                    <label>Jabatan <span class="required">*</span></label>
+                    <input type="text" name="position" id="positionInput" 
+                           placeholder="Contoh: Manager, Staff, Admin, dll" 
+                           value="{{ old('position') }}"
+                           style="background: var(--bg-card-active);">
                 </div>
 
                 <!-- Period & Status -->
@@ -626,6 +609,10 @@
                 <div class="pc-summary">
                     <div class="summary-title">📊 Ringkasan Gaji</div>
                     <div class="pc-summary-item">
+                        <span class="label">Jabatan</span>
+                        <span class="value" id="summaryPosition">—</span>
+                    </div>
+                    <div class="pc-summary-item">
                         <span class="label">Gaji Pokok</span>
                         <span class="value mono" id="summaryBasic">{{ $currencySymbol }}0</span>
                     </div>
@@ -663,10 +650,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const employeeSelect = document.getElementById('employeeSelect');
+            const positionInput = document.getElementById('positionInput');
             const basicSalaryInput = document.getElementById('basicSalary');
             const allowanceInput = document.getElementById('allowance');
             const deductionInput = document.getElementById('deduction');
 
+            const summaryPosition = document.getElementById('summaryPosition');
             const summaryBasic = document.getElementById('summaryBasic');
             const summaryAllowance = document.getElementById('summaryAllowance');
             const summaryDeduction = document.getElementById('summaryDeduction');
@@ -686,10 +675,11 @@
                 summaryTotal.textContent = currencySymbol + total.toLocaleString('id-ID');
             }
 
-            employeeSelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                const salary = selectedOption.dataset.salary;
-                
+            function updateSalary() {
+                const selectedOption = employeeSelect.options[employeeSelect.selectedIndex];
+                const salary = selectedOption.dataset.salary || 0;
+
+                // Update salary
                 if (salary) {
                     basicSalaryInput.value = salary;
                     allowanceInput.value = 0;
@@ -699,13 +689,21 @@
                     basicSalaryInput.value = '';
                     calculateTotal();
                 }
+            }
+
+            // Update position saat user mengetik
+            positionInput.addEventListener('input', function() {
+                summaryPosition.textContent = this.value || '—';
             });
+
+            employeeSelect.addEventListener('change', updateSalary);
 
             basicSalaryInput.addEventListener('input', calculateTotal);
             allowanceInput.addEventListener('input', calculateTotal);
             deductionInput.addEventListener('input', calculateTotal);
 
-            setTimeout(calculateTotal, 100);
+            // Initial calculation
+            setTimeout(updateSalary, 100);
 
             // Ripple effect
             const buttons = document.querySelectorAll('.pc-btn');
