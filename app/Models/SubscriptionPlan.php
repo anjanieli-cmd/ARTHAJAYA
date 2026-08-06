@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class SubscriptionPlan extends Model
 {
     protected $fillable = [
-        'name', 'slug', 'description', 'price', 'billing_period', 'max_users', 'is_active',
+        'name', 'slug', 'description', 'price', 'billing_period',
+        'max_users', 'is_active', 'color', 'icon', 'features',
     ];
 
     protected function casts(): array
@@ -15,6 +16,7 @@ class SubscriptionPlan extends Model
         return [
             'is_active' => 'boolean',
             'price'     => 'integer',
+            'features'  => 'array',
         ];
     }
 
