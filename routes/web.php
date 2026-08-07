@@ -32,24 +32,22 @@ use App\Http\Controllers\Admin\SystemSettingController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\AdminSecurityController;
-use App\Http\Controllers\Admin\TicketController as AdminTicketController;
+use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\PricingController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\InvitationController;
-use App\Http\Controllers\UserDashboardController;
+use App\Http\Controllers\UserDashboardController; // <-- TAMBAHKAN INI
 use App\Http\Controllers\StaffExpenseApprovalController;
 use App\Http\Controllers\StaffTicketController;
+use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 
-// ================================================================
-// HOMEPAGE
-// ================================================================
+
+// Homepage
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// ================================================================
-// AUTH ROUTES (guest only)
-// ================================================================
+// Auth routes (guest only)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
@@ -57,22 +55,18 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
-// ================================================================
-// ONBOARDING ROUTES (auth required)
-// ================================================================
+// Onboarding routes (auth required)
 Route::middleware('auth')->group(function () {
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
     Route::post('/onboarding/update', [OnboardingController::class, 'update'])->name('onboarding.update');
 });
 
-// ================================================================
-// LOGOUT
-// ================================================================
+// Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ================================================================
-// STAFF ROUTES (auth + onboarding.complete + access:staff)
+// DASHBOARD & PROTECTED ROUTES (auth + onboarding complete + STAFF ONLY)
 // ================================================================
 Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(function () {
 
@@ -81,36 +75,15 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         $user = Auth::user();
         $company = $user->company;
         $account = $company ? $company->accounts()->first() : null;
+
         return view('staff.dashboard', compact('user', 'company', 'account'));
     })->name('dashboard');
 
-    // ===== NOTIFICATIONS =====
+    // ===== NOTIFIKASI =====
     Route::controller(NotificationController::class)->group(function () {
         Route::get('/notifications', 'index')->name('notifications.index');
         Route::post('/notifications/{id}/read', 'markAsRead')->name('notifications.read');
         Route::post('/notifications/read-all', 'markAllAsRead')->name('notifications.readAll');
-    });
-
-    // ===== STAFF TICKETS =====
-    Route::prefix('staff')->name('staff.')->group(function () {
-        Route::get('/tickets', [StaffTicketController::class, 'index'])->name('tickets.index');
-        Route::get('/tickets/create', [StaffTicketController::class, 'create'])->name('tickets.create');
-        Route::post('/tickets', [StaffTicketController::class, 'store'])->name('tickets.store');
-        Route::get('/tickets/{ticket}', [StaffTicketController::class, 'show'])->name('tickets.show');
-        Route::post('/tickets/{ticket}/reply', [StaffTicketController::class, 'reply'])->name('tickets.reply');
-    });
-
-    // ===== EXPENSE APPROVALS =====
-    Route::prefix('staff')->name('staff.')->group(function () {
-        Route::get('/expense-approvals', [StaffExpenseApprovalController::class, 'index'])->name('expense-approvals.index');
-        Route::post('/expense-approvals/{submission}/approve', [StaffExpenseApprovalController::class, 'approve'])->name('expense-approvals.approve');
-        Route::post('/expense-approvals/{submission}/reject', [StaffExpenseApprovalController::class, 'reject'])->name('expense-approvals.reject');
-    });
-
-    // ===== INVITATIONS =====
-    Route::prefix('staff')->name('staff.')->group(function () {
-        Route::get('/invitations', [InvitationController::class, 'index'])->name('invitations.index');
-        Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
     });
 
     // ===== INVOICES =====
@@ -151,6 +124,7 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         Route::put('/receivables/{receivable}', [ReceivableController::class, 'update'])->name('receivables.update');
         Route::delete('/receivables/{receivable}', [ReceivableController::class, 'destroy'])->name('receivables.destroy');
 
+        // ===== PAYABLES =====
         Route::get('/payables', function () {
             $user = Auth::user();
             $company = $user->company;
@@ -291,6 +265,7 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
             return redirect()->route('payables.index')->with('success', 'Tagihan berhasil dihapus!');
         })->name('payables.destroy');
 
+        // ===== AGING =====
         Route::get('/aging', function () {
             $user = Auth::user();
             $company = $user->company;
@@ -402,7 +377,7 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         })->name('aging.export-excel');
     });
 
-    // ===== EXPENSES =====
+    // ===== PEMBELIAN & BIAYA =====
     Route::get('/expenses', function () {
         $user = Auth::user();
         $company = $user->company;
@@ -527,124 +502,125 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         return redirect()->route('expenses.index')->with('success', 'Pengeluaran berhasil dihapus!');
     })->name('expenses.destroy');
 
-    // ===== EXPENSE CATEGORIES =====
-    Route::get('/expense-categories', function () {
-        $user = Auth::user();
-        $company = $user->company;
+    // ===== KATEGORI BIAYA =====
+Route::get('/expense-categories', function () {
+    $user = Auth::user();
+    $company = $user->company;
 
-        $query = \App\Models\ExpenseCategory::where('company_id', $company->id);
+    $query = \App\Models\ExpenseCategory::where('company_id', $company->id);
 
-        if (request()->filled('q')) {
-            $q = strtolower(request('q'));
-            $query->where(function ($sub) use ($q) {
-                $sub->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"])
-                    ->orWhereRaw('LOWER(desc) LIKE ?', ["%{$q}%"]);
-            });
-        }
+    if (request()->filled('q')) {
+        $q = strtolower(request('q'));
+        $query->where(function ($sub) use ($q) {
+            $sub->whereRaw('LOWER(name) LIKE ?', ["%{$q}%"])
+                ->orWhereRaw('LOWER(desc) LIKE ?', ["%{$q}%"]);
+        });
+    }
 
-        $categoriesRaw = $query->orderBy('name')->get();
+    $categoriesRaw = $query->orderBy('name')->get();
 
-        $expenses = session('expenses', []);
-        $categories = $categoriesRaw->map(function ($cat) use ($expenses) {
-            $matching = array_filter($expenses, fn ($e) => ($e['kategori'] ?? '') === $cat->name);
-            return [
-                'id'    => $cat->id,
-                'name'  => $cat->name,
-                'desc'  => $cat->desc,
-                'count' => count($matching),
-                'total' => array_sum(array_column($matching, 'amount')),
-            ];
-        })->values();
-
-        if (request()->ajax()) {
-            return view('expense-categories.index', compact('user', 'company', 'categories'))->render();
-        }
-
-        return view('expense-categories.index', compact('user', 'company', 'categories'));
-    })->name('expense-categories.index');
-
-    Route::get('/expense-categories/create', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        return view('expense-categories.create', compact('user', 'company'));
-    })->name('expense-categories.create');
-
-    Route::post('/expense-categories', function () {
-        $user = Auth::user();
-        $company = $user->company;
-
-        request()->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        \App\Models\ExpenseCategory::create([
-            'company_id' => $company->id,
-            'name'       => request('name'),
-            'desc'       => request('description'),
-        ]);
-
-        return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil dibuat!');
-    })->name('expense-categories.store');
-
-    Route::get('/expense-categories/show/{category}', function (\App\Models\ExpenseCategory $category) {
-        $user = Auth::user();
-        $company = $user->company;
-
-        abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
-
-        $expenses = session('expenses', []);
-        $matching = array_filter($expenses, fn ($e) => ($e['kategori'] ?? '') === $category->name);
-
-        $categoryData = [
-            'id'    => $category->id,
-            'name'  => $category->name,
-            'desc'  => $category->desc,
+    // Hitung count & total transaksi per kategori dari data expenses (masih session)
+    $expenses = session('expenses', []);
+    $categories = $categoriesRaw->map(function ($cat) use ($expenses) {
+        $matching = array_filter($expenses, fn ($e) => ($e['kategori'] ?? '') === $cat->name);
+        return [
+            'id'    => $cat->id,
+            'name'  => $cat->name,
+            'desc'  => $cat->desc,
             'count' => count($matching),
             'total' => array_sum(array_column($matching, 'amount')),
         ];
+    })->values();
 
-        return view('expense-categories.show', compact('user', 'company', 'categoryData'));
-    })->name('expense-categories.show');
+    if (request()->ajax()) {
+        return view('expense-categories.index', compact('user', 'company', 'categories'))->render();
+    }
 
-    Route::get('/expense-categories/edit/{category}', function (\App\Models\ExpenseCategory $category) {
-        $user = Auth::user();
-        $company = $user->company;
+    return view('expense-categories.index', compact('user', 'company', 'categories'));
+})->name('expense-categories.index');
 
-        abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
+Route::get('/expense-categories/create', function () {
+    $user = Auth::user();
+    $company = $user->company;
+    return view('expense-categories.create', compact('user', 'company'));
+})->name('expense-categories.create');
 
-        return view('expense-categories.edit', compact('user', 'company', 'category'));
-    })->name('expense-categories.edit');
+Route::post('/expense-categories', function () {
+    $user = Auth::user();
+    $company = $user->company;
 
-    Route::put('/expense-categories/update/{category}', function (\App\Models\ExpenseCategory $category) {
-        $user = Auth::user();
-        $company = $user->company;
+    request()->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+    ]);
 
-        abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
+    \App\Models\ExpenseCategory::create([
+        'company_id' => $company->id,
+        'name'       => request('name'),
+        'desc'       => request('description'),
+    ]);
 
-        request()->validate([
-            'name' => 'required|string|max:255',
-            'desc' => 'nullable|string',
-        ]);
+    return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil dibuat!');
+})->name('expense-categories.store');
 
-        $category->update([
-            'name' => request('name'),
-            'desc' => request('desc'),
-        ]);
+Route::get('/expense-categories/show/{category}', function (\App\Models\ExpenseCategory $category) {
+    $user = Auth::user();
+    $company = $user->company;
 
-        return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil diupdate!');
-    })->name('expense-categories.update');
+    abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
 
-    Route::delete('/expense-categories/delete/{category}', function (\App\Models\ExpenseCategory $category) {
-        $user = Auth::user();
-        $company = $user->company;
+    $expenses = session('expenses', []);
+    $matching = array_filter($expenses, fn ($e) => ($e['kategori'] ?? '') === $category->name);
 
-        abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
+    $categoryData = [
+        'id'    => $category->id,
+        'name'  => $category->name,
+        'desc'  => $category->desc,
+        'count' => count($matching),
+        'total' => array_sum(array_column($matching, 'amount')),
+    ];
 
-        $category->delete();
+    return view('expense-categories.show', compact('user', 'company', 'categoryData'));
+})->name('expense-categories.show');
 
-        return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil dihapus!');
-    })->name('expense-categories.destroy');
+Route::get('/expense-categories/edit/{category}', function (\App\Models\ExpenseCategory $category) {
+    $user = Auth::user();
+    $company = $user->company;
+
+    abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
+
+    return view('expense-categories.edit', compact('user', 'company', 'category'));
+})->name('expense-categories.edit');
+
+Route::put('/expense-categories/update/{category}', function (\App\Models\ExpenseCategory $category) {
+    $user = Auth::user();
+    $company = $user->company;
+
+    abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
+
+    request()->validate([
+        'name' => 'required|string|max:255',
+        'desc' => 'nullable|string',
+    ]);
+
+    $category->update([
+        'name' => request('name'),
+        'desc' => request('desc'),
+    ]);
+
+    return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil diupdate!');
+})->name('expense-categories.update');
+
+Route::delete('/expense-categories/delete/{category}', function (\App\Models\ExpenseCategory $category) {
+    $user = Auth::user();
+    $company = $user->company;
+
+    abort_unless($category->company_id === $company->id, 404, 'Kategori tidak ditemukan');
+
+    $category->delete();
+
+    return redirect()->route('expense-categories.index')->with('success', 'Kategori berhasil dihapus!');
+})->name('expense-categories.destroy');
 
     // ===== PERBANKAN =====
     Route::middleware(['feature:perbankan'])->group(function () {
@@ -944,63 +920,63 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         })->name('payroll.index');
 
         Route::get('/payroll/create', function () {
-            $user = Auth::user();
-            $company = $user->company;
+    $user = Auth::user();
+    $company = $user->company;
 
-            $employees = \App\Models\User::where('company_id', $company->id)
-                ->where('access_level', \App\Enums\AccessLevel::User)
-                ->with('employeeProfile')
-                ->orderBy('name')
-                ->get();
+    $employees = \App\Models\User::where('company_id', $company->id)
+        ->where('access_level', \App\Enums\AccessLevel::User)
+        ->with('employeeProfile')
+        ->orderBy('name')
+        ->get();
 
-            return view('payroll.create', compact('user', 'company', 'employees'));
-        })->name('payroll.create');
+    return view('payroll.create', compact('user', 'company', 'employees'));
+})->name('payroll.create');
 
-        Route::post('/payroll', function () {
-            $employee_id = request('employee_id');
-            $position = request('position');
-            $period = request('period');
-            $basic_salary = request('basic_salary');
-            $allowance = request('allowance') ?? 0;
-            $deduction = request('deduction') ?? 0;
-            $status = request('status');
-            $notes = request('notes');
+    Route::post('/payroll', function () {
+    $employee_id = request('employee_id');
+    $position = request('position');   // ← TAMBAHKAN INI
+    $period = request('period');
+    $basic_salary = request('basic_salary');
+    $allowance = request('allowance') ?? 0;
+    $deduction = request('deduction') ?? 0;
+    $status = request('status');
+    $notes = request('notes');
 
-            $employee = \App\Models\User::find($employee_id);
+    $employee = \App\Models\User::find($employee_id);
 
-            $total = (int) $basic_salary + (int) $allowance - (int) $deduction;
+    $total = (int) $basic_salary + (int) $allowance - (int) $deduction;
 
-            $payrolls = session('payrolls', []);
-            $newPayroll = [
-                'employee' => $employee->name ?? 'Unknown',
-                'position' => $position ?: '-',
-                'period' => $period,
-                'basic_salary' => (int) $basic_salary,
-                'allowance' => (int) $allowance,
-                'deduction' => (int) $deduction,
-                'total' => $total,
-                'status' => $status,
-                'notes' => $notes,
-            ];
+    $payrolls = session('payrolls', []);
+    $newPayroll = [
+        'employee' => $employee->name ?? 'Unknown',
+        'position' => $position ?: '-',   // ← AMBIL DARI INPUT FORM
+        'period' => $period,
+        'basic_salary' => (int) $basic_salary,
+        'allowance' => (int) $allowance,
+        'deduction' => (int) $deduction,
+        'total' => $total,
+        'status' => $status,
+        'notes' => $notes,
+    ];
 
-            array_unshift($payrolls, $newPayroll);
-            session(['payrolls' => $payrolls]);
+    array_unshift($payrolls, $newPayroll);
+    session(['payrolls' => $payrolls]);
 
-            return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dibuat!');
-        })->name('payroll.store');
+    return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dibuat!');
+})->name('payroll.store');
 
         Route::get('/payroll/show/{index}', function ($index) {
-            $user = Auth::user();
-            $company = $user->company;
-            $payrolls = session('payrolls', []);
+    $user = Auth::user();
+    $company = $user->company;
+    $payrolls = session('payrolls', []);
 
-            if (!isset($payrolls[$index])) {
-                abort(404, 'Payroll tidak ditemukan');
-            }
+    if (!isset($payrolls[$index])) {
+        abort(404, 'Payroll tidak ditemukan');
+    }
 
-            $payroll = $payrolls[$index];
-            return view('payroll.show', compact('user', 'company', 'payroll', 'index'));
-        })->name('payroll.show');
+    $payroll = $payrolls[$index];
+    return view('payroll.show', compact('user', 'company', 'payroll', 'index'));
+})->name('payroll.show');
 
         Route::get('/payroll/edit/{index}', function ($index) {
             $user = Auth::user();
@@ -1053,6 +1029,7 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
             return redirect()->route('payroll.index')->with('success', 'Payroll berhasil dihapus!');
         })->name('payroll.destroy');
 
+        // ===== EMPLOYEES / DATA KARYAWAN =====
         Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
 
         Route::get('/employees/create', function () {
@@ -1066,7 +1043,7 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         Route::delete('/employees/delete/{index}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
     });
 
-    // ===== PAJAK =====
+    // ===== PAJAK - PPH =====
     Route::middleware(['feature:pajak'])->group(function () {
         Route::get('/taxes/pph', function () {
             $user = Auth::user();
@@ -1207,6 +1184,7 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
             return redirect()->route('taxes.pph')->with('error', 'Data PPh tidak ditemukan!');
         })->name('taxes.pph.pay');
 
+        // ===== PAJAK - PPN =====
         Route::get('/taxes/ppn', function () {
             $user = Auth::user();
             $company = $user->company;
@@ -1343,6 +1321,7 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
             return redirect()->route('taxes.ppn')->with('error', 'Data PPN tidak ditemukan!');
         })->name('taxes.ppn.pay');
 
+        // ===== TAX CALENDAR =====
         Route::get('/tax-calendar', function () {
             $user = Auth::user();
             $company = $user->company;
@@ -1753,47 +1732,38 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         return view('users.index', compact('user', 'company'));
     })->name('users.index');
 
+    // Multi-User & Hak Akses (pakai TeamMemberController) - HANYA UNTUK PLAN GOLD
     Route::middleware(['feature:multi_user'])->group(function () {
         Route::resource('team-members', TeamMemberController::class);
     });
 
+    // Profil Perusahaan (pakai CompanyController)
     Route::get('/company/edit', [CompanyController::class, 'edit'])->name('company.edit');
     Route::patch('/company', [CompanyController::class, 'update'])->name('company.update');
 
+    // Integrasi (pakai IntegrationController)
     Route::resource('integrations', IntegrationController::class);
 
+    // Keamanan (pakai SecurityController)
     Route::get('/security', [SecurityController::class, 'index'])->name('security.index');
     Route::put('/security/password', [SecurityController::class, 'updatePassword'])->name('security.password.update');
     Route::post('/security/two-factor/toggle', [SecurityController::class, 'toggleTwoFactor'])->name('security.two-factor.toggle');
     Route::delete('/security/sessions/{sessionId}', [SecurityController::class, 'revokeSession'])->name('security.sessions.revoke');
     Route::post('/security/sessions/revoke-others', [SecurityController::class, 'revokeOtherSessions'])->name('security.sessions.revoke-others');
 
+    // Profile (pakai ProfileController)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // ===== PRICING & PAYMENT =====
     Route::get('/pricing', [PricingController::class, 'index'])->name('pricing.index');
     Route::post('/pricing/select/{plan}', [PricingController::class, 'select'])->name('pricing.select');
 
     Route::get('/payment/checkout/{plan}', [PaymentController::class, 'checkout'])->name('payment.checkout');
     Route::post('/payment/checkout/{plan}', [PaymentController::class, 'process'])->name('payment.process');
 
-}); // TUTUP GRUP STAFF
-
-// ================================================================
-// USER ROUTES (hanya user biasa)
-// ================================================================
-Route::middleware(['auth', 'access:user'])->prefix('user')->name('user.')->group(function () {
-    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-    
-    Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
-    Route::put('/profile', [UserDashboardController::class, 'updateProfile'])->name('profile.update');
-    
-    Route::get('/expenses/create', [UserDashboardController::class, 'createExpense'])->name('expenses.create');
-    Route::post('/expenses', [UserDashboardController::class, 'storeExpense'])->name('expenses.store');
-    Route::get('/expenses', [UserDashboardController::class, 'expenseHistory'])->name('expenses.index');
-    Route::get('/expenses/summary', [UserDashboardController::class, 'expenseSummary'])->name('expenses.summary');
-});
+}); // ← INI MENUTUP GRUP BESAR Route::middleware(['auth', 'onboarding.complete', 'access:staff'])
 
 // ================================================================
 // ADMIN ROUTES (hanya admin)
@@ -1829,13 +1799,9 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
     });
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity.index');
-    Route::delete('/activity-logs/{log}', [ActivityLogController::class, 'destroy'])->name('logs.destroy');
-    Route::delete('/activity-logs', [ActivityLogController::class, 'destroyAll'])->name('logs.destroy-all');
 
     Route::resource('subscription-plans', SubscriptionPlanController::class)
         ->except(['show']);
-    Route::patch('/subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggle'])
-        ->name('subscription-plans.toggle');
 
     Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
@@ -1851,10 +1817,61 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
     Route::put('/security/password', [AdminSecurityController::class, 'updatePassword'])->name('security.password.update');
     Route::post('/security/two-factor/toggle', [AdminSecurityController::class, 'toggleTwoFactor'])->name('security.two-factor.toggle');
 
-    // ===== ADMIN TICKETS =====
-    Route::get('/tickets', [AdminTicketController::class, 'index'])->name('tickets.index');
-    Route::get('/tickets/{ticket}', [AdminTicketController::class, 'show'])->name('tickets.show');
-    Route::post('/tickets/{ticket}/reply', [AdminTicketController::class, 'reply'])->name('tickets.reply');
-    Route::patch('/tickets/{ticket}/status', [AdminTicketController::class, 'updateStatus'])->name('tickets.updateStatus');
-    Route::delete('/tickets/{ticket}', [AdminTicketController::class, 'destroy'])->name('tickets.destroy');
+    Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [TicketController::class, 'reply'])->name('tickets.reply');
+    Route::put('/tickets/{ticket}/status', [TicketController::class, 'updateStatus'])->name('tickets.status');
+    Route::delete('/tickets/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
+});
+
+// ================================================================
+// STAFF ROUTES (hanya staff) - DENGAN ONBOARDING.COMPLETE
+// ================================================================
+Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->prefix('staff')->name('staff.')->group(function () {
+    Route::get('/dashboard', function () {
+        $user = Auth::user();
+        $company = $user->company;
+        $account = $company ? $company->accounts()->first() : null;
+        $teamMembers = $company ? $company->users()->where('id', '!=', $user->id)->get() : collect();
+
+        return view('staff.dashboard', compact('user', 'company', 'account'));
+    })->name('dashboard');
+
+    // ===== INVITATIONS =====
+    Route::get('/invitations', [InvitationController::class, 'index'])->name('invitations.index');
+    Route::post('/invitations', [InvitationController::class, 'store'])->name('invitations.store');
+});
+
+// ================================================================
+// USER ROUTES (hanya user biasa)
+// ================================================================
+Route::middleware(['auth', 'access:user'])->prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+    
+    // Profile Routes
+    Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
+    Route::put('/profile', [UserDashboardController::class, 'updateProfile'])->name('profile.update');
+    
+    // Expenses
+    Route::get('/expenses/create', [UserDashboardController::class, 'createExpense'])->name('expenses.create');
+    Route::post('/expenses', [UserDashboardController::class, 'storeExpense'])->name('expenses.store');
+    Route::get('/expenses', [UserDashboardController::class, 'expenseHistory'])->name('expenses.index');
+    Route::get('/expenses/summary', [UserDashboardController::class, 'expenseSummary'])->name('expenses.summary');
+});
+
+Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->prefix('staff')->name('staff.')->group(function () {
+    // ... route dashboard & invitations yang udah ada, biarin aja ...
+
+    // ===== APPROVAL PENGELUARAN =====
+    Route::get('/expense-approvals', [StaffExpenseApprovalController::class, 'index'])->name('expense-approvals.index');
+    Route::post('/expense-approvals/{submission}/approve', [StaffExpenseApprovalController::class, 'approve'])->name('expense-approvals.approve');
+    Route::post('/expense-approvals/{submission}/reject', [StaffExpenseApprovalController::class, 'reject'])->name('expense-approvals.reject');
+});
+
+Route::prefix('staff')->name('staff.')->group(function () {
+    Route::get('/tickets', [StaffTicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/create', [StaffTicketController::class, 'create'])->name('tickets.create');
+    Route::post('/tickets', [StaffTicketController::class, 'store'])->name('tickets.store');
+    Route::get('/tickets/{ticket}', [StaffTicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket}/reply', [StaffTicketController::class, 'reply'])->name('tickets.reply');
 });
