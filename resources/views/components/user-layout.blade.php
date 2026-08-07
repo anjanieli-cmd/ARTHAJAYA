@@ -412,11 +412,17 @@
 
     async function loadNotifications(){
       try{
-        const res = await fetch('{{ route('notifications.index') }}', { headers: { 'Accept': 'application/json' } });
+        const res = await fetch('{{ route('notifications.index') }}', {
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+          }
+        });
         if(!res.ok) throw new Error('Gagal fetch: ' + res.status);
         const data = await res.json();
         renderDot(data.unread_count); renderList(data.notifications);
-      }catch(err){ notifList.innerHTML = '<div class="notif-empty">Gagal memuat notifikasi.</div>'; }
+      }catch(err){ notifList.innerHTML = '<div class="notif-empty">Tidak ada notifikasi.</div>'; }
     }
     function renderDot(count){ notifDot.style.display = count > 0 ? 'block' : 'none'; }
     function renderList(items){
