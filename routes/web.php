@@ -1799,9 +1799,15 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
     });
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity.index');
+    Route::delete('/activity-logs/{log}', [ActivityLogController::class, 'destroy'])->name('logs.destroy');
+    Route::delete('/activity-logs', [ActivityLogController::class, 'destroyAll'])->name('logs.destroy-all');
 
+    // ── Subscription Plans ──────────────────────────────────────
     Route::resource('subscription-plans', SubscriptionPlanController::class)
         ->except(['show']);
+    Route::patch('/subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggleActive'])
+        ->name('subscription-plans.toggle');
+    // ────────────────────────────────────────────────────────────
 
     Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
