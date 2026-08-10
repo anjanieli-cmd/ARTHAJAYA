@@ -1,2920 +1,1381 @@
-{{--
-    Arvessa — Halaman Utama / Landing Page (welcome.blade.php)
-    ==========================================================
-    Desain konsisten dengan halaman pricing (dark theme, glassmorphism,
-    starfield, Space Grotesk / Inter / IBM Plex Mono, aksen emerald).
-
-    Section: Hero (laptop mockup dashboard) → Logo strip → Fitur →
-    Dashboard preview → Testimoni → Keamanan → Pricing (Free/Platinum/Gold)
-    → FAQ → CTA → Footer. Plus settings widget (tema/aksen/bahasa) &
-    mobile menu. Fully responsive (3/2/1 kolom).
-
-    Cara pakai (Laravel):
-      1. Simpan sebagai resources/views/welcome.blade.php
-      2. Route default Laravel sudah memuatnya di '/' (web.php):
-            Route::get('/', fn () => view('welcome'))->name('welcome');
-         Pastikan juga ada route pricing:
-            Route::get('/pricing', fn () => view('pricing'))->name('pricing');
-      3. Login  → {{ route('login') }}   (biasanya /login)
-         Daftar → {{ route('register') }} (biasanya /register)
-    --}}
 <!DOCTYPE html>
-<html lang="id" data-theme="dark" data-accent="emerald" data-language="id">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Arvessa — platform manajemen keuangan & bisnis untuk UMKM Indonesia. Kelola faktur, piutang, payroll, hingga forecasting dalam satu aplikasi. Mulai gratis hari ini.">
-    <meta name="theme-color" content="#0a0f14">
-    <title>Arvessa — Kelola Keuangan Bisnis UMKM dalam Satu Aplikasi</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arvessa — Akuntansi Bisnis, Secepat Langkahmu</title>
 
-    {{-- Google Fonts (format URL valid — jangan tambahkan tanda kurung kurawal) --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Favicon menggunakan logos.png -->
+<link rel="icon" type="image/png" sizes="32x32" href="logos.png">
+<link rel="icon" type="image/png" sizes="16x16" href="logos.png">
+<link rel="apple-touch-icon" href="logos.png">
 
-    <style>
-        /* ============================================================
-           VARIABEL TEMA — dikontrol lewat atribut [data-theme] pada <html>
-           Catatan perbaikan: selector yang benar adalah `[data-theme="light"]`
-           (tanpa asterisk di depan — `*[data-theme="light"]*` adalah bug CSS).
-           ============================================================ */
-        :root,
-        [data-theme="dark"] {
-            --bg: #0a0f14;
-            --bg-elevated: #0e151b;
-            --bg-card: rgba(19, 26, 34, 0.72);
-            --bg-card-solid: #131a22;
-            --bg-soft: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --border-strong: rgba(255, 255, 255, 0.14);
-            --text-primary: #f1f5f9;
-            --text-secondary: #9ca3af;
-            --text-muted: #64748b;
-            --accent: #4ade80;          /* emerald default */
-            --accent-soft: rgba(74, 222, 128, 0.14);
-            --accent-glow: rgba(74, 222, 128, 0.35);
-            --accent-grad-a: #2ecc71;
-            --accent-grad-b: #1abc9c;
-            --blue: #3b82f6;
-            --blue-soft: rgba(59, 130, 246, 0.14);
-            --blue-glow: rgba(59, 130, 246, 0.35);
-            --blue-grad-a: #4facfe;
-            --blue-grad-b: #00f2fe;
-            --orange: #f59e0b;
-            --orange-soft: rgba(245, 158, 11, 0.14);
-            --orange-glow: rgba(245, 158, 11, 0.35);
-            --orange-grad-a: #f6d365;
-            --orange-grad-b: #fda085;
-            --btn-grey-bg: #1e293b;
-            --btn-grey-text: #cbd5e1;
-            --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.55);
-            --shadow-glow: 0 0 40px var(--accent-glow);
-            --radius-lg: 20px;
-            --radius-md: 14px;
-            --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-            --font-body: 'Inter', system-ui, sans-serif;
-            --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-        }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  (function(){
+    try{
+      var t = localStorage.getItem('aj-theme') || 'dark';
+      var a = localStorage.getItem('aj-accent') || 'emerald';
+      document.documentElement.setAttribute('data-theme', t);
+      document.documentElement.setAttribute('data-accent', a);
+    }catch(e){}
+  })();
+</script>
+<style>
+  :root{
+    --bg: #070B13;
+    --surface: rgba(255,255,255,0.04);
+    --surface-strong: rgba(255,255,255,0.08);
+    --border: rgba(255,255,255,0.09);
+    --border-hover: rgba(var(--emerald-rgb),0.35);
+    --emerald: #34E0A1;
+    --emerald-dim: #1E8F6B;
+    --blue: #4E8FF0;
+    --blue-dim: #2B6CCF;
+    --orange: #F0A25A;
+    --orange-dim: #C97A2E;
+    --text: #EAF0F6;
+    --text-mute: #8A96AE;
+    --text-faint: #545E73;
+    --radius: 20px;
+    --nav-bg: rgba(7,11,19,0.75);
+    --mobile-bg: #0B101B;
+    --modal-bg: linear-gradient(160deg, #0F1520, #0A0D14 60%);
+    --star-op: 1;
+    --emerald-rgb: 52,224,161;
+    --blue-rgb: 78,143,240;
+    --orange-rgb: 240,162,90;
+    --glow1-a: 0.16;
+    --glow2-a: 0.11;
+  }
 
-        /* Tema terang (opsional — konsisten dengan settings widget) */
-        [data-theme="light"] {
-            --bg: #f4f6f9;
-            --bg-elevated: #ffffff;
-            --bg-card: rgba(255, 255, 255, 0.78);
-            --bg-card-solid: #ffffff;
-            --bg-soft: rgba(15, 23, 42, 0.04);
-            --border: rgba(15, 23, 42, 0.10);
-            --border-strong: rgba(15, 23, 42, 0.18);
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --accent-soft: rgba(16, 185, 129, 0.12);
-            --accent-glow: rgba(16, 185, 129, 0.30);
-            --blue-soft: rgba(59, 130, 246, 0.12);
-            --orange-soft: rgba(245, 158, 11, 0.12);
-            --btn-grey-bg: #e2e8f0;
-            --btn-grey-text: #334155;
-            --shadow-card: 0 20px 60px rgba(15, 23, 42, 0.12);
-            --shadow-glow: 0 0 40px var(--accent-glow);
-        }
+  /* LIGHT THEME */
+  [data-theme="light"]{
+    --bg: #F4F6FA;
+    --surface: rgba(15,25,40,0.035);
+    --surface-strong: rgba(15,25,40,0.07);
+    --border: rgba(15,25,40,0.10);
+    --border-hover: rgba(var(--emerald-rgb),0.45);
+    --emerald-dim: #17A374;
+    --text: #131A26;
+    --text-mute: #565F72;
+    --text-faint: #838C9E;
+    --nav-bg: rgba(244,246,250,0.78);
+    --mobile-bg: #FFFFFF;
+    --modal-bg: linear-gradient(160deg, #FFFFFF, #F2F5F9 60%);
+    --star-op: 0;
+    --glow1-a: 0.22;
+    --glow2-a: 0.16;
+  }
 
-        /* Aksen tambahan (dipilih lewat settings widget) */
-        [data-accent="teal"] {
-            --accent: #2dd4bf;
-            --accent-soft: rgba(45, 212, 191, 0.14);
-            --accent-glow: rgba(45, 212, 191, 0.35);
-            --accent-grad-a: #14b8a6;
-            --accent-grad-b: #2dd4bf;
-        }
-        [data-accent="sky"] {
-            --accent: #38bdf8;
-            --accent-soft: rgba(56, 189, 248, 0.14);
-            --accent-glow: rgba(56, 189, 248, 0.35);
-            --accent-grad-a: #0ea5e9;
-            --accent-grad-b: #38bdf8;
-        }
-        [data-accent="violet"] {
-            --accent: #a78bfa;
-            --accent-soft: rgba(167, 139, 250, 0.14);
-            --accent-glow: rgba(167, 139, 250, 0.35);
-            --accent-grad-a: #8b5cf6;
-            --accent-grad-b: #a78bfa;
-        }
-        [data-accent="rose"] {
-            --accent: #fb7185;
-            --accent-soft: rgba(251, 113, 133, 0.14);
-            --accent-glow: rgba(251, 113, 133, 0.35);
-            --accent-grad-a: #f43f5e;
-            --accent-grad-b: #fb7185;
-        }
+  /* ACCENT COLOR VARIANTS */
+  [data-accent="blue"]{ --emerald:#4E8FF0; --emerald-dim:#3465C4; --emerald-rgb:78,143,240; }
+  [data-accent="purple"]{ --emerald:#9B7BE0; --emerald-dim:#6E4FBE; --emerald-rgb:155,123,224; }
+  [data-accent="orange"]{ --emerald:#F0A25A; --emerald-dim:#C97A2E; --emerald-rgb:240,162,90; }
+  [data-accent="pink"]{ --emerald:#E85A9C; --emerald-dim:#B83A78; --emerald-rgb:232,90,156; }
 
-        /* ============================================================
-           RESET & DASAR
-           ============================================================ */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{ color-scheme: dark; }
+  html[data-theme="light"]{ color-scheme: light; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.5;
+    overflow-x:hidden;
+    transition: background .35s ease, color .35s ease;
+  }
+  #starfield{ transition: opacity .35s ease; opacity: var(--star-op); }
+  .bg-glow, .bg-glow-2{ transition: background .35s ease; }
+  h1,h2,h3,.display{ font-family:'Space Grotesk', sans-serif; letter-spacing:-0.02em; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  a{ text-decoration:none; color:inherit; }
+  ul{ list-style:none; }
+  svg{ display:block; }
+  .icon{ width:1em; height:1em; }
 
-        html { scroll-behavior: smooth; }
+  /* STARFIELD */
+  #starfield{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .star{ position:absolute; border-radius:50%; background:#fff; animation: twinkle 3s ease-in-out infinite; }
+  @keyframes twinkle{ 0%,100%{opacity:.15;} 50%{opacity:.9;} }
 
-        body {
-            font-family: var(--font-body);
-            background: var(--bg);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            transition: background .4s ease, color .4s ease;
-        }
+  .bg-glow{ position:fixed; top:-25%; right:-10%; width:900px; height:900px; background:radial-gradient(circle, rgba(var(--emerald-rgb),var(--glow1-a)) 0%, transparent 70%); pointer-events:none; z-index:0; }
+  .bg-glow-2{ position:fixed; bottom:-15%; left:-15%; width:700px; height:700px; background:radial-gradient(circle, rgba(var(--emerald-rgb),var(--glow2-a)) 0%, transparent 70%); pointer-events:none; z-index:0; }
 
-        a { color: inherit; text-decoration: none; }
-        ul { list-style: none; }
-        img { max-width: 100%; display: block; }
-        button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
-        input, select { font-family: inherit; }
+  .wrap{ max-width:1220px; margin:0 auto; padding:0 32px; position:relative; z-index:2; }
 
-        ::selection { background: var(--accent); color: #0a0f14; }
+  /* reveal on scroll */
+  .reveal{ opacity:0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in-view{ opacity:1; transform: translateY(0); }
 
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin-inline: auto;
-            padding-inline: 24px;
-        }
+  /* NAV */
+  nav{ position:sticky; top:0; z-index:50; background:var(--nav-bg); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); transition: background .35s ease, border-color .35s ease; }
+  .nav-inner{ display:flex; align-items:center; justify-content:space-between; padding:18px 32px; max-width:1220px; margin:0 auto; }
+  .logo{ display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:19px; }
+  .logo-mark{
+    width:40px; height:40px; border-radius:12px;
+    background:var(--surface-strong);
+    border:1px solid var(--border-hover);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden; flex-shrink:0; padding:6px;
+    transition:border-color .25s ease, transform .25s ease;
+  }
+  .logo-mark img{
+    width:100%; 
+    height:100%; 
+    object-fit:contain; 
+    transform:scale(1);
+  }
+  .logo:hover .logo-mark, a:hover .logo-mark{ border-color:var(--emerald); }
+  .logo .dot{ color:var(--emerald); }
+  .logo .wordmark{
+    font-family:'Inter', sans-serif;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    white-space:nowrap;
+    word-spacing:0;
+    display:inline-flex;
+    align-items:baseline;
+  }
+  .logo .wordmark .dot{ margin:0; padding:0; letter-spacing:inherit; }
+  .nav-links{ display:flex; gap:34px; font-size:14.5px; color:var(--text-mute); }
+  .nav-links a{ display:flex; align-items:center; gap:5px; position:relative; padding:4px 0; transition: color .2s ease; }
+  .nav-links a::after{ content:''; position:absolute; left:0; bottom:0; width:0; height:1.5px; background:var(--emerald); transition: width .25s ease; }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-links a:hover::after{ width:100%; }
+  .nav-links .icon{ width:14px; height:14px; }
+  .nav-right{ display:flex; align-items:center; gap:22px; }
+  .btn-ghost{ font-size:14.5px; color:var(--text-mute); transition: color .2s ease; }
+  .btn-ghost:hover{ color:var(--text); }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:11px 22px; border-radius:12px; font-size:14.5px; font-weight:600; cursor:pointer; border:none; transition:all .25s ease; }
+  .btn .icon{ width:16px; height:16px; transition: transform .25s ease; }
+  .btn-primary{ background:var(--emerald); color:#052117; box-shadow:0 4px 24px rgba(var(--emerald-rgb),0.35); }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 32px rgba(var(--emerald-rgb),0.5); }
+  .btn-primary:hover .icon{ transform: translateX(3px); }
+  .btn-outline{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
+  .btn-outline:hover{ background:var(--surface-strong); border-color: var(--border-hover); transform: translateY(-2px); }
 
-        .section { padding: 96px 0; position: relative; }
+  /* HERO */
+  .hero{ padding:56px 0 32px; display:grid; grid-template-columns:1.05fr 1fr; gap:30px; align-items:center; position:relative; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:100px; background:var(--surface); border:1px solid var(--border); font-size:13px; color:var(--emerald); font-weight:500; margin-bottom:24px; }
+  .eyebrow::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--emerald); box-shadow:0 0 8px var(--emerald); }
+  .hero h1{ font-size:54px; line-height:1.08; font-weight:700; margin-bottom:22px; }
+  .hero h1 .accent{ color:var(--emerald); }
+  .hero p.sub{ font-size:17px; color:var(--text-mute); max-width:440px; margin-bottom:32px; }
+  .hero-cta{ display:flex; gap:14px; margin-bottom:44px; }
+  .stat-row{ display:flex; gap:36px; flex-wrap:wrap; }
+  .stat-row .stat{ cursor:default; transition: transform .25s ease; }
+  .stat-row .stat:hover{ transform: translateY(-4px); }
+  .stat-row .num{ font-family:'Space Grotesk'; font-size:26px; font-weight:700; }
+  .stat-row .num.green{ color:var(--emerald); }
+  .stat-row .lbl{ font-size:12.5px; color:var(--text-faint); margin-top:3px; }
 
-        /* ============================================================
-           STARFIELD BACKGROUND — bintang + nebula, sama seperti
-           welcome.blade.php
-           ============================================================ */
-        .starfield {
-            position: fixed;
-            inset: 0;
-            z-index: -2;
-            background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(74, 222, 128, 0.08), transparent 60%),
-                        radial-gradient(ellipse 60% 50% at 85% 110%, rgba(59, 130, 246, 0.06), transparent 60%),
-                        var(--bg);
-            overflow: hidden;
-        }
-        .starfield::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image:
-                radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.7), transparent 100%),
-                radial-gradient(1px 1px at 40% 70%, rgba(255, 255, 255, 0.5), transparent 100%),
-                radial-gradient(1.5px 1.5px at 60% 20%, rgba(255, 255, 255, 0.6), transparent 100%),
-                radial-gradient(1px 1px at 80% 50%, rgba(255, 255, 255, 0.4), transparent 100%),
-                radial-gradient(1.5px 1.5px at 15% 80%, rgba(255, 255, 255, 0.5), transparent 100%),
-                radial-gradient(1px 1px at 70% 85%, rgba(255, 255, 255, 0.6), transparent 100%),
-                radial-gradient(1px 1px at 90% 15%, rgba(255, 255, 255, 0.4), transparent 100%),
-                radial-gradient(1.2px 1.2px at 30% 10%, rgba(74, 222, 128, 0.6), transparent 100%),
-                radial-gradient(1px 1px at 55% 55%, rgba(59, 130, 246, 0.5), transparent 100%),
-                radial-gradient(1px 1px at 85% 75%, rgba(245, 158, 11, 0.5), transparent 100%);
-            animation: twinkle 8s ease-in-out infinite alternate;
-        }
-        .starfield::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle 420px at 50% 38%, rgba(74, 222, 128, 0.05), transparent 70%);
-            animation: nebula 14s ease-in-out infinite alternate;
-        }
-        @keyframes twinkle {
-            0%   { opacity: .55; }
-            100% { opacity: 1; }
-        }
-        @keyframes nebula {
-            0%   { transform: translateX(-3%) scale(1); }
-            100% { transform: translateX(3%) scale(1.08); }
-        }
+  /* HERO VISUAL */
+  .visual-stage{ position:relative; height:620px; }
+  .swirl{ position:absolute; top:50%; left:52%; width:480px; height:480px; margin:-240px 0 0 -240px; border-radius:50%; background: conic-gradient(from 0deg, transparent 0%, rgba(var(--emerald-rgb),0.35) 15%, transparent 32%, transparent 100%); filter: blur(8px); animation: swirlSpin 9s linear infinite; }
+  @keyframes swirlSpin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
 
-        /* ============================================================
-           SVG SPRITE (symbols) — ikon yang sama seperti welcome.blade.php
-           ============================================================ */
-        .icon { width: 20px; height: 20px; flex-shrink: 0; }
+  .asteroid{ position:absolute; border-radius:50%; background: linear-gradient(160deg, rgba(255,255,255,0.15), rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.12); box-shadow: inset -4px -4px 8px rgba(0,0,0,0.4), 0 6px 16px rgba(0,0,0,0.4); }
+  .a1{ width:20px; height:20px; top:10%; left:6%; animation: floatSlow 6s ease-in-out infinite; }
+  .a2{ width:14px; height:14px; top:68%; left:2%; animation: floatSlow 7.5s ease-in-out infinite 1s; }
+  .a3{ width:26px; height:26px; top:4%; right:4%; animation: floatSlow 8s ease-in-out infinite .5s; }
+  .a4{ width:16px; height:16px; top:80%; right:10%; animation: floatSlow 6.5s ease-in-out infinite 1.5s; }
+  @keyframes floatSlow{ 0%,100%{transform:translateY(0px);} 50%{transform:translateY(-18px);} }
 
-        /* ============================================================
-           NAVBAR
-           ============================================================ */
-        .navbar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 100;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            background: rgba(10, 15, 20, 0.7);
-            border-bottom: 1px solid var(--border);
-            transition: background .3s ease, box-shadow .3s ease;
-        }
-        [data-theme="light"] .navbar { background: rgba(255, 255, 255, 0.75); }
-        .navbar.scrolled {
-            background: rgba(10, 15, 20, 0.9);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        [data-theme="light"] .navbar.scrolled { background: rgba(255, 255, 255, 0.92); }
-        .nav-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 72px;
-            gap: 16px;
-        }
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: 1.25rem;
-            letter-spacing: -0.02em;
-            color: var(--text-primary);
-        }
-        .nav-logo-mark {
-            width: 34px; height: 34px;
-            display: grid;
-            place-items: center;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--accent-grad-a), var(--accent-grad-b));
-            color: #06120b;
-            box-shadow: 0 0 18px var(--accent-glow);
-        }
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .nav-links a {
-            padding: 8px 14px;
-            border-radius: 10px;
-            color: var(--text-secondary);
-            transition: color .2s ease, background .2s ease;
-        }
-        .nav-links a:hover { color: var(--text-primary); background: var(--bg-soft); }
-        .nav-links a.active { color: var(--accent); }
-        .nav-actions { display: flex; align-items: center; gap: 10px; }
+  /* DASHBOARD LAPTOP MOCKUP */
+  .laptop-wrap{
+    position:absolute; top:6px; right:-70px; width:600px; z-index:2;
+    transform-style:preserve-3d; transition: filter .3s ease, opacity 1.1s cubic-bezier(.16,1,.3,1), transform 1.1s cubic-bezier(.16,1,.3,1);
+    opacity:0; transform: scale(.72) translateY(70px) rotateY(-10deg) rotateX(5deg) rotateZ(-1deg);
+    filter: blur(14px);
+  }
+  .laptop-wrap.mockup-in{ opacity:1; filter:blur(0); transform: rotateY(-10deg) rotateX(5deg) rotateZ(-1deg) translateY(0) scale(1); }
+  .laptop-wrap.floating{ animation: winFloat 6s ease-in-out infinite; }
+  .laptop-wrap:hover{ animation-play-state: paused; filter: brightness(1.05); }
+  @keyframes winFloat{ 0%,100%{ transform: rotateY(-10deg) rotateX(5deg) rotateZ(-1deg) translateY(0); } 50%{ transform: rotateY(-5deg) rotateX(3deg) rotateZ(-1deg) translateY(-16px); } }
 
-        .btn-custom {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 11px 22px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 0.92rem;
-            font-family: var(--font-display);
-            letter-spacing: 0.01em;
-            border: 1px solid transparent;
-            transition: transform .2s ease, box-shadow .25s ease, filter .2s ease, background .25s ease, color .25s ease;
-            white-space: nowrap;
-        }
-        .btn-custom:hover { transform: translateY(-2px); }
-        .btn-custom:active { transform: translateY(0) scale(0.98); }
+  .laptop-screen-frame{
+    background: linear-gradient(160deg,#1B2029,#101319);
+    border-radius: 16px 16px 5px 5px;
+    padding: 12px 12px 6px;
+    box-shadow: 0 50px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  }
+  .laptop-camera{ width:6px; height:6px; border-radius:50%; background:#3A4150; margin:0 auto 10px; box-shadow: 0 0 4px rgba(255,255,255,0.1) inset; }
+  .window{ background:var(--bg); border-radius:8px; border:1px solid var(--border); overflow:hidden; transition: background .35s ease; }
 
-        /* Tombol netral (mis. "Masuk") */
-        .btn-grey {
-            background: var(--btn-grey-bg);
-            color: var(--btn-grey-text);
-            border-color: var(--border);
-        }
-        .btn-grey:hover { filter: brightness(1.15); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); }
+  .laptop-topbar{ display:flex; align-items:center; gap:14px; padding:10px 14px; border-bottom:1px solid var(--border); }
+  .tl-dot{ width:8px; height:8px; border-radius:50%; opacity:.7; }
+  .tl-dot.r{ background:#ff5f57; } .tl-dot.y{ background:#febc2e; } .tl-dot.g{ background:#28c840; }
+  .laptop-tab{ display:flex; align-items:center; gap:7px; margin-left:6px; font-size:10.5px; color:var(--text-faint); background:var(--surface); border:1px solid var(--border); padding:4px 12px; border-radius:7px; }
+  .laptop-tab::before{ content:''; width:5px; height:5px; border-radius:50%; background:var(--emerald); box-shadow:0 0 6px var(--emerald); animation: dotPulse 2s ease-in-out infinite; }
+  @keyframes dotPulse{ 0%,100%{ opacity:.4; } 50%{ opacity:1; } }
 
-        /* Tombol aksen emerald (mis. "Mulai Gratis") */
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-grad-a), var(--accent-grad-b));
-            color: #06120b;
-            box-shadow: 0 4px 20px var(--accent-glow);
-        }
-        .btn-primary:hover { box-shadow: 0 8px 32px var(--accent-glow); filter: brightness(1.06); }
+  .dash-shell{ display:grid; grid-template-columns:52px 1fr; }
+  .dash-side{ display:flex; flex-direction:column; align-items:center; gap:16px; padding:16px 0; border-right:1px solid var(--border); background:var(--surface); transition: background .35s ease; }
+  .side-logo{ width:26px; height:26px; border-radius:8px; background:linear-gradient(135deg,var(--emerald),var(--emerald-dim)); margin-bottom:6px; }
+  .side-ic{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:var(--text-faint); transition: all .2s ease; cursor:pointer; }
+  .side-ic .icon{ width:14px; height:14px; }
+  .side-ic.active{ background:rgba(var(--emerald-rgb),0.14); color:var(--emerald); }
+  .side-ic:hover{ color:var(--text); background:var(--surface-strong); }
+  .side-ic.bottom{ margin-top:auto; }
 
-        /* Tombol biru (Platinum) */
-        .btn-blue {
-            background: linear-gradient(135deg, var(--blue-grad-a), var(--blue-grad-b));
-            color: #061223;
-            box-shadow: 0 4px 20px var(--blue-glow);
-        }
-        .btn-blue:hover { box-shadow: 0 8px 32px var(--blue-glow); filter: brightness(1.06); }
+  .dash-main{ padding:18px 20px 16px; min-width:0; }
 
-        /* Tombol oranye (Gold) */
-        .btn-orange {
-            background: linear-gradient(135deg, var(--orange-grad-a), var(--orange-grad-b));
-            color: #261204;
-            box-shadow: 0 4px 20px var(--orange-glow);
-        }
-        .btn-orange:hover { box-shadow: 0 8px 32px var(--orange-glow); filter: brightness(1.06); }
+  .w-greet{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .w-greet .hi{ font-size:14.5px; font-weight:600; }
+  .w-bell{ width:28px; height:28px; border-radius:9px; background:var(--surface-strong); display:flex; align-items:center; justify-content:center; color:var(--text-mute); transition: color .2s ease, background .2s ease; }
+  .w-bell:hover{ color: var(--emerald); background: var(--surface); cursor:pointer; }
+  .w-bell .icon{ width:14px; height:14px; }
 
-        /* Tombol "Paket Aktif" — state disabled */
-        .btn-custom[disabled], .btn-custom.disabled {
-            opacity: 1;
-            cursor: default;
-            transform: none !important;
-            background: var(--btn-grey-bg);
-            color: var(--btn-grey-text);
-            border-color: var(--border);
-            box-shadow: none;
-            filter: none;
-        }
+  .dash-row-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:18px; }
+  .w-balance-label{ font-size:11px; color:var(--text-faint); margin-bottom:6px; }
+  .w-balance{ font-family:'Space Grotesk'; font-size:26px; font-weight:700; margin-bottom:6px; white-space:nowrap; }
+  .w-delta{ font-size:11px; color:var(--emerald); display:flex; align-items:center; gap:5px; }
+  .w-delta .icon{ width:12px; height:12px; }
 
-        .btn-hamburger {
-            display: none;
-            width: 42px; height: 42px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--bg-soft);
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-hamburger .icon { width: 22px; height: 22px; }
+  .w-actions{ display:flex; gap:10px; flex-shrink:0; }
+  .w-action{ display:flex; flex-direction:column; align-items:center; gap:6px; font-size:9.5px; color:var(--text-mute); cursor:pointer; }
+  .w-action .ic{ width:34px; height:34px; border-radius:10px; background:var(--surface-strong); display:flex; align-items:center; justify-content:center; color:var(--text); transition: all .2s ease; }
+  .w-action .ic .icon{ width:15px; height:15px; }
+  .w-action:hover .ic{ background: rgba(var(--emerald-rgb),0.15); color: var(--emerald); transform: translateY(-3px); }
 
-        /* Mobile menu */
-        .mobile-menu {
-            position: fixed;
-            top: 72px; left: 0; right: 0;
-            z-index: 99;
-            background: rgba(10, 15, 20, 0.97);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 24px 24px;
-            display: none;
-            flex-direction: column;
-            gap: 4px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        [data-theme="light"] .mobile-menu { background: rgba(255, 255, 255, 0.98); }
-        .mobile-menu.open { display: flex; }
-        .mobile-menu a {
-            padding: 12px 14px;
-            border-radius: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-        .mobile-menu a:hover, .mobile-menu a.active { color: var(--accent); background: var(--bg-soft); }
-        .mobile-menu .mobile-actions { display: flex; gap: 10px; margin-top: 12px; }
-        .mobile-menu .mobile-actions .btn-custom { flex: 1; }
+  .dash-row-bottom{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
-        /* ============================================================
-           HERO — Halaman utama (welcome): headline + laptop mockup
-           ============================================================ */
-        .hero-welcome {
-            padding: 168px 0 72px;
-            position: relative;
-            text-align: center;
-            overflow: hidden;
-        }
-        .hero-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--bg-soft);
-            color: var(--accent);
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            font-family: var(--font-mono);
-            margin-bottom: 24px;
-        }
-        .hero-eyebrow .icon { width: 14px; height: 14px; }
-        .hero-title {
-            font-family: var(--font-display);
-            font-size: clamp(2.4rem, 6vw, 4.2rem);
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            line-height: 1.12;
-            margin-bottom: 20px;
-        }
-        .hero-title .grad {
-            background: linear-gradient(120deg, var(--accent-grad-a), var(--accent-grad-b));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .hero-sub {
-            max-width: 640px;
-            margin-inline: auto;
-            color: var(--text-secondary);
-            font-size: 1.08rem;
-            margin-bottom: 36px;
-        }
-        .hero-actions {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
-        .hero-actions .btn-custom { padding: 14px 30px; font-size: 1rem; }
-        .hero-trust {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 22px;
-            flex-wrap: wrap;
-            margin-top: 30px;
-            color: var(--text-muted);
-            font-size: 0.84rem;
-        }
-        .hero-trust .trust-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-        }
-        .hero-trust .trust-item .icon { width: 16px; height: 16px; color: var(--accent); }
-        .hero-trust .trust-avatars {
-            display: inline-flex;
-            align-items: center;
-        }
-        .hero-trust .trust-avatars .ava {
-            width: 28px; height: 28px;
-            border-radius: 50%;
-            border: 2px solid var(--bg);
-            margin-left: -8px;
-            display: grid;
-            place-items: center;
-            font-size: 0.66rem;
-            font-weight: 700;
-            color: #06120b;
-        }
-        .hero-trust .trust-avatars .ava:first-child { margin-left: 0; }
-        .ava-1 { background: linear-gradient(135deg, #4ade80, #2ecc71); }
-        .ava-2 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-        .ava-3 { background: linear-gradient(135deg, #f6d365, #fda085); }
-        .ava-4 { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+  .w-card{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 16px; transition: border-color .2s ease, background .2s ease; }
+  .w-card:hover{ border-color: var(--border-hover); background: var(--surface-strong); }
+  .w-card .lbl{ font-size:10.5px; color:var(--text-faint); margin-bottom:4px; }
+  .w-card .val{ font-family:'Space Grotesk'; font-size:16px; font-weight:700; }
+  .w-card .sub{ font-size:10.5px; color:var(--emerald); margin-top:2px; }
+  .w-spark{ display:flex; align-items:flex-end; gap:4px; height:44px; margin-top:12px; }
+  .w-spark i{ flex:1; background:linear-gradient(180deg,var(--emerald),var(--emerald-dim)); border-radius:2px; opacity:.85; height:4%; transition: height .8s cubic-bezier(.16,1,.3,1); }
 
-        /* Laptop mockup dashboard */
-        .hero-laptop {
-            margin: 72px auto 0;
-            max-width: 940px;
-            position: relative;
-            perspective: 1600px;
-        }
-        .laptop-glow {
-            position: absolute;
-            inset: -40px -60px;
-            background: radial-gradient(ellipse 60% 60% at 50% 40%, var(--accent-glow), transparent 70%);
-            filter: blur(30px);
-            pointer-events: none;
-            z-index: 0;
-        }
-        .laptop {
-            position: relative;
-            z-index: 1;
-            background: var(--bg-card-solid);
-            border: 1px solid var(--border-strong);
-            border-radius: 18px;
-            box-shadow: var(--shadow-card), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
-            transform: rotateX(6deg) translateY(6px);
-            transform-style: preserve-3d;
-            overflow: hidden;
-            transition: transform .4s ease;
-        }
-        .laptop:hover { transform: rotateX(0deg) translateY(0); }
-        .laptop-topbar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border);
-        }
-        .laptop-topbar .dot {
-            width: 10px; height: 10px;
-            border-radius: 50%;
-        }
-        .laptop-topbar .dot-r { background: #f87171; }
-        .laptop-topbar .dot-y { background: #fbbf24; }
-        .laptop-topbar .dot-g { background: #34d399; }
-        .laptop-topbar .laptop-url {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            margin-left: 10px;
-            padding: 6px 14px;
-            border-radius: 999px;
-            background: var(--bg-soft);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            text-align: left;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        .laptop-url .icon { width: 13px; height: 13px; color: var(--accent); flex-shrink: 0; }
-        .laptop-screen {
-            display: grid;
-            grid-template-columns: 230px 1fr;
-            background:
-                radial-gradient(circle 300px at 15% 0%, var(--accent-soft), transparent 60%),
-                var(--bg-elevated);
-        }
-        .dash-sidebar {
-            border-right: 1px solid var(--border);
-            padding: 20px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .dash-sidebar .side-logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: 0.95rem;
-            padding: 0 8px 14px;
-            color: var(--text-primary);
-        }
-        .side-logo .mini-mark {
-            width: 24px; height: 24px;
-            border-radius: 7px;
-            display: grid;
-            place-items: center;
-            background: linear-gradient(135deg, var(--accent-grad-a), var(--accent-grad-b));
-            color: #06120b;
-        }
-        .side-logo .mini-mark .icon { width: 13px; height: 13px; }
-        .side-link {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding: 8px 10px;
-            border-radius: 9px;
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-        .side-link .icon { width: 15px; height: 15px; }
-        .side-link.active {
-            color: var(--accent);
-            background: var(--accent-soft);
-        }
-        .dash-main {
-            padding: 22px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .dash-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .dash-head h4 {
-            font-family: var(--font-display);
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-        }
-        .dash-head .btn-mini {
-            padding: 6px 14px;
-            border-radius: 9px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #06120b;
-            background: linear-gradient(135deg, var(--accent-grad-a), var(--accent-grad-b));
-        }
-        .dash-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 13px;
-            padding: 14px 15px;
-        }
-        .stat-card .stat-label {
-            font-size: 0.68rem;
-            color: var(--text-muted);
-            margin-bottom: 5px;
-        }
-        .stat-card .stat-value {
-            font-family: var(--font-display);
-            font-size: 1.18rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-        .stat-card .stat-value .up { color: var(--accent); }
-        .stat-card .stat-delta {
-            font-size: 0.66rem;
-            color: var(--accent);
-            font-family: var(--font-mono);
-            margin-top: 3px;
-        }
-        .dash-body {
-            display: grid;
-            grid-template-columns: 1.4fr 1fr;
-            gap: 12px;
-        }
-        .dash-panel {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 13px;
-            padding: 16px;
-        }
-        .dash-panel .panel-title {
-            font-family: var(--font-display);
-            font-size: 0.82rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .panel-title .mini-chip {
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            color: var(--accent);
-            background: var(--accent-soft);
-            padding: 3px 8px;
-            border-radius: 999px;
-        }
-        .chart-bars {
-            display: flex;
-            align-items: flex-end;
-            gap: 9px;
-            height: 96px;
-        }
-        .chart-bars .bar {
-            flex: 1;
-            border-radius: 5px 5px 2px 2px;
-            background: var(--accent-soft);
-            border: 1px solid var(--accent);
-            opacity: 0.55;
-            animation: barRise .8s ease forwards;
-            transform-origin: bottom;
-        }
-        .chart-bars .bar.hi { opacity: 1; background: linear-gradient(180deg, var(--accent-grad-a), var(--accent-grad-b)); }
-        .chart-bars .bar.b1 { height: 38%; animation-delay: .05s; }
-        .chart-bars .bar.b2 { height: 56%; animation-delay: .12s; }
-        .chart-bars .bar.b3 { height: 44%; animation-delay: .19s; }
-        .chart-bars .bar.b4 { height: 70%; animation-delay: .26s; }
-        .chart-bars .bar.b5 { height: 62%; animation-delay: .33s; }
-        .chart-bars .bar.b6 { height: 88%; animation-delay: .40s; }
-        .chart-bars .bar.b7 { height: 76%; animation-delay: .47s; }
-        @keyframes barRise {
-            from { transform: scaleY(0.05); }
-            to   { transform: scaleY(1); }
-        }
-        .invoice-list {
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
-        }
-        .invoice-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            border-radius: 10px;
-            background: var(--bg-soft);
-            border: 1px solid var(--border);
-            font-size: 0.74rem;
-        }
-        .invoice-row .inv-ic {
-            width: 26px; height: 26px;
-            border-radius: 8px;
-            display: grid;
-            place-items: center;
-            flex-shrink: 0;
-        }
-        .invoice-row .inv-ic .icon { width: 14px; height: 14px; }
-        .inv-ic.green { background: var(--accent-soft); color: var(--accent); }
-        .inv-ic.blue { background: var(--blue-soft); color: var(--blue-grad-a); }
-        .inv-ic.orange { background: var(--orange-soft); color: var(--orange-grad-a); }
-        .invoice-row .inv-info { flex: 1; min-width: 0; }
-        .invoice-row .inv-info .inv-name {
-            color: var(--text-primary);
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .invoice-row .inv-info .inv-sub { color: var(--text-muted); font-size: 0.66rem; }
-        .invoice-row .inv-amount {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            color: var(--text-primary);
-            white-space: nowrap;
-        }
-        .laptop-base {
-            height: 12px;
-            margin: 0 auto;
-            width: 96%;
-            border-radius: 0 0 16px 16px;
-            background: linear-gradient(180deg, var(--bg-card-solid), var(--bg-elevated));
-            border: 1px solid var(--border);
-            border-top: none;
-        }
+  .tx-panel{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px 14px; overflow:hidden; }
+  .w-tx-title{ font-size:10.5px; color:var(--text-faint); margin-bottom:4px; }
+  .tx-viewport{ height:110px; overflow:hidden; position:relative; -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%); mask-image:linear-gradient(180deg, transparent 0%, #000 14%, #000 86%, transparent 100%); }
+  .tx-track{ animation: txScroll 9s linear infinite; animation-play-state: paused; }
+  .tx-track.playing{ animation-play-state: running; }
+  @keyframes txScroll{ 0%{ transform:translateY(0); } 100%{ transform:translateY(-50%); } }
+  .w-tx{ display:flex; align-items:center; gap:10px; padding:7px 4px; border-radius:10px; transition: background .2s ease; }
+  .w-tx:hover{ background: var(--surface-strong); }
+  .w-tx .ic{ width:28px; height:28px; border-radius:9px; background:var(--surface-strong); display:flex; align-items:center; justify-content:center; color:var(--text-mute); flex-shrink:0; }
+  .w-tx .ic .icon{ width:14px; height:14px; }
+  .w-tx .info{ flex:1; min-width:0; }
+  .w-tx .info .n{ font-size:11.5px; font-weight:500; }
+  .w-tx .info .d{ font-size:9.5px; color:var(--text-faint); }
+  .w-tx .amt{ font-family:'IBM Plex Mono'; font-size:11px; flex-shrink:0; }
+  .w-tx .amt.neg{ color:var(--text-mute); }
+  .w-tx .amt.pos{ color:var(--emerald); }
 
-        /* ============================================================
-           LOGO STRIP
-           ============================================================ */
-        .logo-strip {
-            padding: 0 0 64px;
-            text-align: center;
-        }
-        .logo-strip .strip-label {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 26px;
-        }
-        .logo-strip .logos {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 44px;
-            flex-wrap: wrap;
-        }
-        .logo-strip .logo-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: 1.02rem;
-            color: var(--text-muted);
-            opacity: 0.75;
-            transition: opacity .25s ease, color .25s ease;
-        }
-        .logo-strip .logo-chip:hover { opacity: 1; color: var(--text-primary); }
-        .logo-chip .chip-mark {
-            width: 26px; height: 26px;
-            border-radius: 8px;
-            display: grid;
-            place-items: center;
-            background: var(--bg-soft);
-            border: 1px solid var(--border);
-            color: var(--accent);
-        }
-        .logo-chip .chip-mark .icon { width: 14px; height: 14px; }
+  .laptop-base{
+    position: relative;
+    width: 108%;
+    margin-left: -4%;
+    height: 16px;
+    background: linear-gradient(180deg,#22272F,#12151B);
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 14px 28px rgba(0,0,0,0.5);
+  }
+  .laptop-base::before{
+    content:'';
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:64px; height:6px;
+    background: linear-gradient(180deg,#0B0D11,#080a0d);
+    border-radius: 0 0 8px 8px;
+  }
 
-        /* ============================================================
-           FEATURES — icon grid
-           ============================================================ */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        .feature-card {
-            padding: 26px 24px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: transform .3s ease, border-color .3s ease, box-shadow .3s ease;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--border-strong);
-            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35);
-        }
-        .feature-card .feat-icon {
-            width: 46px; height: 46px;
-            border-radius: 13px;
-            display: grid;
-            place-items: center;
-            margin-bottom: 18px;
-            background: var(--accent-soft);
-            border: 1px solid var(--border);
-            color: var(--accent);
-        }
-        .feature-card .feat-icon .icon { width: 22px; height: 22px; }
-        .feature-card h3 {
-            font-family: var(--font-display);
-            font-size: 1.06rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-            margin-bottom: 8px;
-        }
-        .feature-card p {
-            color: var(--text-secondary);
-            font-size: 0.88rem;
-        }
-        .features-more {
-            text-align: center;
-            margin-top: 36px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        .features-more a { color: var(--accent); font-weight: 600; }
+  /* LOGO STRIP */
+  .logo-strip{ padding:56px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .logo-strip p{ text-align:center; font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint); margin-bottom:30px; }
+  .logo-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; }
+  .logo-row span{ color:var(--text-faint); font-family:'Space Grotesk'; font-weight:600; font-size:16.5px; opacity:.5; transition: opacity .2s ease, color .2s ease; cursor:default; }
+  .logo-row span:hover{ opacity:1; color:var(--text); }
 
-        /* ============================================================
-           DASHBOARD PREVIEW (section 2)
-           ============================================================ */
-        .preview-wrap {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 56px;
-            align-items: center;
-        }
-        .preview-copy .section-kicker {
-            font-family: var(--font-mono);
-            font-size: 0.78rem;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 12px;
-        }
-        .preview-copy h2 {
-            font-family: var(--font-display);
-            font-size: clamp(1.8rem, 4vw, 2.6rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            line-height: 1.18;
-            margin-bottom: 16px;
-        }
-        .preview-copy > p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            margin-bottom: 28px;
-            max-width: 460px;
-        }
-        .preview-list { display: flex; flex-direction: column; gap: 14px; }
-        .preview-list li {
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            font-size: 0.92rem;
-            color: var(--text-secondary);
-        }
-        .preview-list li .icon { width: 20px; height: 20px; color: var(--accent); margin-top: 2px; }
-        .preview-list li strong { color: var(--text-primary); }
-        .preview-visual {
-            position: relative;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            padding: 26px;
-            box-shadow: var(--shadow-card);
-        }
-        .preview-visual::before {
-            content: "";
-            position: absolute;
-            inset: -30px;
-            background: radial-gradient(ellipse 55% 55% at 70% 30%, var(--blue-glow), transparent 70%);
-            filter: blur(26px);
-            z-index: -1;
-            pointer-events: none;
-        }
-        .pv-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 18px;
-        }
-        .pv-head h4 {
-            font-family: var(--font-display);
-            font-size: 0.95rem;
-            font-weight: 700;
-        }
-        .pv-head .pv-chip {
-            font-family: var(--font-mono);
-            font-size: 0.62rem;
-            color: var(--blue-grad-a);
-            background: var(--blue-soft);
-            border: 1px solid rgba(59, 130, 246, 0.35);
-            padding: 4px 10px;
-            border-radius: 999px;
-        }
-        .pv-bars {
-            display: flex;
-            align-items: flex-end;
-            gap: 14px;
-            height: 150px;
-            margin-bottom: 20px;
-        }
-        .pv-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .pv-bar {
-            width: 100%;
-            border-radius: 6px 6px 2px 2px;
-            background: linear-gradient(180deg, var(--blue-grad-a), var(--blue-grad-b));
-            opacity: 0.85;
-        }
-        .pv-bar.alt { background: linear-gradient(180deg, var(--accent-grad-a), var(--accent-grad-b)); }
-        .pv-bar-col span {
-            font-family: var(--font-mono);
-            font-size: 0.6rem;
-            color: var(--text-muted);
-        }
-        .pv-bar-col .pv-h1 { height: 42%; }
-        .pv-bar-col .pv-h2 { height: 68%; }
-        .pv-bar-col .pv-h3 { height: 55%; }
-        .pv-bar-col .pv-h4 { height: 84%; }
-        .pv-bar-col .pv-h5 { height: 74%; }
-        .pv-bar-col .pv-h6 { height: 96%; }
-        .pv-mini-rows { display: flex; flex-direction: column; gap: 8px; }
-        .pv-mini-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 9px 12px;
-            border-radius: 10px;
-            background: var(--bg-soft);
-            border: 1px solid var(--border);
-            font-size: 0.76rem;
-        }
-        .pv-mini-row .mini-dot {
-            width: 8px; height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .pv-mini-row .mini-dot.d-emerald { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
-        .pv-mini-row .mini-dot.d-blue { background: var(--blue-grad-a); box-shadow: 0 0 8px var(--blue-glow); }
-        .pv-mini-row .mini-dot.d-orange { background: var(--orange-grad-a); box-shadow: 0 0 8px var(--orange-glow); }
-        .pv-mini-row .pv-mini-label { flex: 1; color: var(--text-muted); }
-        .pv-mini-row .pv-mini-val {
-            font-family: var(--font-mono);
-            color: var(--text-primary);
-        }
-        .pv-float {
-            position: absolute;
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding: 11px 15px;
-            border-radius: 13px;
-            background: var(--bg-card-solid);
-            border: 1px solid var(--border-strong);
-            box-shadow: 0 16px 44px rgba(0, 0, 0, 0.45);
-            font-size: 0.76rem;
-            z-index: 2;
-        }
-        .pv-float .icon { width: 17px; height: 17px; color: var(--accent); }
-        .pv-float .f-num { font-family: var(--font-display); font-weight: 700; color: var(--text-primary); }
-        .pv-float.f1 { top: -18px; right: -14px; animation: floaty 5s ease-in-out infinite; }
-        .pv-float.f2 { bottom: -16px; left: -14px; animation: floaty 5s ease-in-out 1.2s infinite; }
-        @keyframes floaty {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-9px); }
-        }
+  /* FEATURES + DASHBOARD PREVIEW */
+  .features{ padding:60px 0; display:grid; grid-template-columns:0.85fr 1.15fr; gap:60px; align-items:center; }
+  .tag{ color:var(--emerald); font-size:13px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; margin-bottom:14px; display:block; }
+  .features h2{ font-size:34px; margin-bottom:30px; line-height:1.15; }
+  .feat-item{ display:flex; gap:16px; margin-bottom:10px; padding:14px; border-radius:14px; transition: background .25s ease, transform .25s ease; }
+  .feat-item:hover{ background: var(--surface); transform: translateX(6px); }
+  .feat-item .ic{ width:44px; height:44px; border-radius:12px; background:rgba(var(--emerald-rgb),0.12); display:flex; align-items:center; justify-content:center; color: var(--emerald); flex-shrink:0; transition: transform .25s ease; }
+  .feat-item .ic .icon{ width:20px; height:20px; }
+  .feat-item:hover .ic{ transform: scale(1.08) rotate(-4deg); }
+  .feat-item h3{ font-size:16px; margin-bottom:6px; font-weight:600; }
+  .feat-item p{ font-size:13.5px; color:var(--text-mute); line-height:1.55; }
 
-        /* ============================================================
-           TESTIMONIALS
-           ============================================================ */
-        .testi-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-        .testi-card {
-            padding: 26px 24px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            transition: transform .3s ease, border-color .3s ease;
-        }
-        .testi-card:hover { transform: translateY(-5px); border-color: var(--border-strong); }
-        .testi-card .testi-stars {
-            display: flex;
-            gap: 3px;
-            color: #fbbf24;
-        }
-        .testi-card .testi-stars .icon { width: 16px; height: 16px; }
-        .testi-card .testi-text {
-            font-size: 0.92rem;
-            color: var(--text-secondary);
-            flex: 1;
-        }
-        .testi-card .testi-text strong { color: var(--text-primary); font-weight: 600; }
-        .testi-person {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .testi-person .ava {
-            width: 42px; height: 42px;
-            border-radius: 12px;
-            display: grid;
-            place-items: center;
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: 0.95rem;
-            color: #06120b;
-            flex-shrink: 0;
-        }
-        .testi-person .testi-name {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        .testi-person .testi-role {
-            font-size: 0.76rem;
-            color: var(--text-muted);
-        }
+  .dash-grid{ display:grid; grid-template-columns:1fr; gap:18px; }
+  .dash-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:24px; backdrop-filter: blur(10px); transition: border-color .25s ease, transform .25s ease; }
+  .dash-card:hover{ border-color: var(--border-hover); transform: translateY(-4px); }
+  .dash-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; font-size:13.5px; color:var(--text-mute); }
+  .dash-head .icon{ width:13px; height:13px; }
+  .donut-wrap{ display:flex; gap:26px; align-items:center; }
+  .donut{ width:130px; height:130px; position:relative; flex-shrink:0; }
+  .donut svg{ transform:rotate(-90deg); width:100%; height:100%; }
+  .donut circle{ fill:none; stroke-width:14; }
+  .donut-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .donut-center .amt{ font-family:'Space Grotesk'; font-size:15px; font-weight:700; }
+  .donut-center .lbl{ font-size:9.5px; color:var(--text-faint); }
+  .legend{ flex:1; }
+  .legend-row{ display:flex; justify-content:space-between; align-items:center; font-size:12.5px; padding:6px 8px; border-radius:8px; color:var(--text-mute); transition: background .2s ease; }
+  .legend-row:hover{ background: var(--surface-strong); color:var(--text); }
+  .legend-row .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:8px; }
+  .legend-row .amt{ font-family:'IBM Plex Mono'; color:var(--text); }
 
-        /* ============================================================
-           SECURITY
-           ============================================================ */
-        .security-wrap {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 56px;
-            align-items: center;
-        }
-        .security-copy .section-kicker {
-            font-family: var(--font-mono);
-            font-size: 0.78rem;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 12px;
-        }
-        .security-copy h2 {
-            font-family: var(--font-display);
-            font-size: clamp(1.8rem, 4vw, 2.6rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            line-height: 1.18;
-            margin-bottom: 16px;
-        }
-        .security-copy > p {
-            color: var(--text-secondary);
-            font-size: 1rem;
-            margin-bottom: 28px;
-            max-width: 460px;
-        }
-        .security-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-        }
-        .security-item {
-            padding: 20px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border);
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: border-color .3s ease, transform .3s ease;
-        }
-        .security-item:hover { border-color: var(--border-strong); transform: translateY(-3px); }
-        .security-item .sec-icon {
-            width: 40px; height: 40px;
-            border-radius: 12px;
-            display: grid;
-            place-items: center;
-            margin-bottom: 14px;
-            background: var(--accent-soft);
-            border: 1px solid var(--border);
-            color: var(--accent);
-        }
-        .security-item .sec-icon .icon { width: 20px; height: 20px; }
-        .security-item h4 {
-            font-family: var(--font-display);
-            font-size: 0.96rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-        .security-item p {
-            color: var(--text-muted);
-            font-size: 0.82rem;
-        }
+  .dash-row2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .mini-title{ font-size:12.5px; color:var(--text-mute); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
+  .mini-title .icon{ width:15px; height:15px; color: var(--emerald); }
+  .progress-bar{ height:8px; border-radius:100px; background:var(--surface-strong); overflow:hidden; margin-top:14px; }
+  .progress-fill{ height:100%; background:linear-gradient(90deg,var(--emerald-dim),var(--emerald)); border-radius:100px; width:0%; }
+  .progress-fill.animate{ animation: fillBar 1.6s ease-out .1s forwards; }
+  @keyframes fillBar{ to{ width:42%; } }
+  .progress-labels{ display:flex; justify-content:space-between; font-size:11px; color:var(--text-faint); margin-top:8px; }
+  .mini-value{ font-family:'Space Grotesk'; font-size:19px; font-weight:700; }
+  .mini-sub{ font-size:11.5px; color:var(--emerald); margin-top:2px; }
+  .mini-chart{ display:flex; align-items:flex-end; gap:4px; height:36px; margin-top:14px; }
+  .mini-chart i{ flex:1; background:linear-gradient(180deg,var(--emerald),transparent); border-radius:2px; opacity:.8; }
 
-        /* ============================================================
-           HERO — ringkas, khusus pricing
-           ============================================================ */
-        .hero-pricing {
-            padding: 160px 0 64px;
-            text-align: center;
-            position: relative;
-        }
-        .hero-eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--bg-soft);
-            color: var(--accent);
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            font-family: var(--font-mono);
-            margin-bottom: 24px;
-        }
-        .hero-eyebrow .icon { width: 14px; height: 14px; }
-        .hero-title {
-            font-family: var(--font-display);
-            font-size: clamp(2.4rem, 6vw, 4rem);
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            line-height: 1.12;
-            margin-bottom: 20px;
-        }
-        .hero-title .grad {
-            background: linear-gradient(120deg, var(--accent-grad-a), var(--accent-grad-b));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .hero-sub {
-            max-width: 620px;
-            margin-inline: auto;
-            color: var(--text-secondary);
-            font-size: 1.08rem;
-            margin-bottom: 36px;
-        }
+  /* TESTIMONIALS */
+  .testimonials{ padding:60px 0; }
+  .testimonials-head{ text-align:center; max-width:560px; margin:0 auto 44px; }
+  .testimonials-head h2{ font-size:32px; margin-top:10px; }
+  .testi-scroll{ position:relative; margin:0 -32px; padding:0 32px; }
+  .testi-scroll::before, .testi-scroll::after{ content:''; position:absolute; top:0; bottom:0; width:60px; z-index:2; pointer-events:none; }
+  .testi-scroll::before{ left:0; background:linear-gradient(90deg, var(--bg), transparent); }
+  .testi-scroll::after{ right:0; background:linear-gradient(270deg, var(--bg), transparent); }
+  .testi-grid{ display:flex; gap:20px; overflow-x:auto; scroll-snap-type:x proximity; padding-bottom:10px; scrollbar-width:thin; scrollbar-color: var(--border-hover) transparent; }
+  .testi-grid::-webkit-scrollbar{ height:6px; }
+  .testi-grid::-webkit-scrollbar-track{ background:transparent; }
+  .testi-grid::-webkit-scrollbar-thumb{ background:var(--border); border-radius:100px; }
+  .testi-grid::-webkit-scrollbar-thumb:hover{ background:var(--border-hover); }
+  .testi-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:26px; transition: border-color .25s ease, transform .25s ease; flex:0 0 340px; scroll-snap-align:start; }
+  .testi-card:hover{ border-color:var(--border-hover); transform:translateY(-4px); }
+  .testi-stars{ display:flex; gap:3px; margin-bottom:16px; color:var(--emerald); }
+  .testi-stars .icon{ width:14px; height:14px; }
+  .testi-quote{ font-size:14.5px; color:var(--text); line-height:1.6; margin-bottom:22px; }
+  .testi-person{ display:flex; align-items:center; gap:12px; }
+  .testi-avatar{ width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--emerald),var(--emerald-dim)); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk'; font-weight:700; font-size:13px; color:#052117; flex-shrink:0; }
+  .testi-name{ font-size:13.5px; font-weight:600; }
+  .testi-role{ font-size:12px; color:var(--text-faint); }
 
-        /* Toggle bulanan / tahunan */
-        .billing-toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--bg-soft);
-            position: relative;
-        }
-        .billing-toggle button {
-            padding: 9px 20px;
-            border-radius: 999px;
-            font-size: 0.86rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            transition: color .2s ease, background .2s ease;
-        }
-        .billing-toggle button.active {
-            color: var(--text-primary);
-            background: var(--bg-card-solid);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-        .billing-toggle .save-tag {
-            font-family: var(--font-mono);
-            font-size: 0.68rem;
-            color: var(--accent);
-            background: var(--accent-soft);
-            padding: 3px 9px;
-            border-radius: 999px;
-            font-weight: 600;
-        }
+  /* FAQ */
+  /* SECURITY */
+  .security{ padding:60px 0; }
+  .security-head{ text-align:center; max-width:560px; margin:0 auto 44px; }
+  .security-head h2{ font-size:32px; margin-top:10px; }
+  .security-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+  .sec-card{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px 20px; transition: border-color .25s ease, transform .25s ease; }
+  .sec-card:hover{ border-color: var(--border-hover); transform: translateY(-3px); }
+  .sec-card .ic{ width:42px; height:42px; border-radius:11px; background:rgba(var(--emerald-rgb),0.1); border:1px solid rgba(var(--emerald-rgb),0.25); display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+  .sec-card .ic .icon{ width:20px; height:20px; color:var(--emerald); }
+  .sec-card h3{ font-size:15.5px; margin-bottom:8px; }
+  .sec-card p{ font-size:13.5px; color:var(--text-mute); line-height:1.6; }
 
-        /* ============================================================
-           PRICING GRID & KARTU — struktur kelas persis seperti
-           welcome.blade.php (badge-top-right, price-icon-wrap, dsb.)
-           ============================================================ */
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            align-items: stretch;
-        }
+  /* ========================================================== */
+  /* PRICING SECTION — REDESIGNED TO MATCH SCREENSHOT 2 */
+  /* ========================================================== */
+  .pricing{ padding:60px 0; }
+  .pricing-head{ text-align:center; max-width:560px; margin:0 auto 44px; }
+  .pricing-head h2{ font-size:32px; margin-top:10px; }
+  
+  .pricing-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:stretch; }
+  
+  .price-card{ 
+    background:var(--surface); 
+    border:1px solid var(--border); 
+    border-radius:20px; 
+    padding:30px 28px; 
+    display:flex; 
+    flex-direction:column; 
+    transition: border-color .25s ease, transform .25s ease; 
+    position:relative; 
+  }
+  .price-card:hover{ 
+    border-color: var(--border-hover); 
+    transform: translateY(-4px); 
+  }
+  
+  .price-card.popular{ 
+    border-color: var(--blue); 
+    background:linear-gradient(160deg, rgba(var(--blue-rgb),0.08), var(--surface) 60%); 
+  }
+  .price-card.golden{ 
+    border-color: var(--orange); 
+    background:linear-gradient(160deg, rgba(var(--orange-rgb),0.08), var(--surface) 60%); 
+  }
+  
+  /* Labels (AKTIF / Paling Populer) */
+  .price-card .badge-top-right{
+    position:absolute; top:16px; right:16px;
+    background:var(--border); color:var(--text-mute);
+    font-size:11px; font-weight:600; padding:4px 12px; border-radius:100px;
+    display:flex; align-items:center; gap:6px;
+    border:1px solid var(--border-hover);
+  }
+  .price-card.popular .badge-top-right{ background:#4E8FF0; color:#fff; border:none; }
+  .price-card.golden .badge-top-right{ background:var(--orange); color:#052117; border:none; }
+  
+  /* Icon Header */
+  .price-icon-wrap{
+    width:48px; height:48px; border-radius:14px;
+    background:var(--surface-strong); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-mute); margin-bottom:20px;
+  }
+  .price-icon-wrap .icon{ width:24px; height:24px; }
+  .price-card.popular .price-icon-wrap{ border-color:var(--blue); color:var(--blue); background:rgba(var(--blue-rgb),0.15); }
+  .price-card.golden .price-icon-wrap{ border-color:var(--orange); color:var(--orange); background:rgba(var(--orange-rgb),0.15); }
 
-        .pricing-card {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            padding: 32px 28px 28px;
-            border-radius: var(--radius-lg);
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow: var(--shadow-card);
-            transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
-        }
-        .pricing-card:hover {
-            transform: translateY(-6px);
-            border-color: var(--border-strong);
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
-        }
+  .price-name{ font-family:'Space Grotesk'; font-weight:700; font-size:20px; margin-bottom:6px; }
+  .price-desc{ font-size:13px; color:var(--text-mute); margin-bottom:20px; }
+  
+  .price-amount{ font-family:'Space Grotesk'; font-size:34px; font-weight:700; margin-bottom:2px; }
+  .price-amount span{ font-size:16px; font-weight:500; color:var(--text-mute); }
+  .price-period{ font-size:12.5px; color:var(--text-faint); margin-bottom:24px; }
+  
+  .price-features{ display:flex; flex-direction:column; gap:14px; margin-bottom:28px; flex:1; }
+  .price-features li{ display:flex; align-items:flex-start; gap:10px; font-size:13.5px; color:var(--text-mute); list-style:none; }
+  .price-features .icon{ width:16px; height:16px; color:var(--emerald); flex-shrink:0; margin-top:2px; }
+  .price-card.popular .price-features .icon{ color:var(--blue); }
+  .price-card.golden .price-features .icon{ color:var(--orange); }
 
-        /* Kartu Platinum — paling populer, border glow biru */
-        .pricing-card.featured {
-            border-color: rgba(59, 130, 246, 0.45);
-            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15), 0 0 48px var(--blue-glow), var(--shadow-card);
-        }
-        .pricing-card.featured:hover {
-            box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25), 0 0 64px var(--blue-glow), 0 30px 70px rgba(0, 0, 0, 0.6);
-        }
-        .pricing-card.featured::before {
-            content: "";
-            position: absolute;
-            top: -1px; left: 16px; right: 16px;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--blue), transparent);
-            opacity: 0.8;
-        }
+  /* Custom Buttons */
+  .btn-custom{ width:100%; justify-content:center; padding:12px 22px; border-radius:12px; font-weight:600; transition: all .25s ease; border:none; cursor:pointer; }
+  .btn-custom.btn-grey{ background:var(--surface-strong); color:var(--text); border:1px solid var(--border); }
+  .btn-custom.btn-grey:hover{ background:var(--surface); transform:translateY(-2px); }
+  .btn-custom.btn-blue{ background:var(--blue); color:#fff; box-shadow:0 4px 20px rgba(78,143,240,0.4); }
+  .btn-custom.btn-blue:hover{ transform:translateY(-2px); box-shadow:0 8px 28px rgba(78,143,240,0.5); }
+  .btn-custom.btn-orange{ background:var(--orange); color:#052117; box-shadow:0 4px 20px rgba(240,162,90,0.4); }
+  .btn-custom.btn-orange:hover{ transform:translateY(-2px); box-shadow:0 8px 28px rgba(240,162,90,0.5); }
+  /* ========================================================== */
 
-        /* Badge pojok kanan atas — persis welcome.blade.php */
-        .badge-top-right {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            font-family: var(--font-mono);
-            background: var(--bg-card-solid);
-            border: 1px solid var(--border-strong);
-            color: var(--text-secondary);
-        }
-        .badge-top-right .icon { width: 13px; height: 13px; }
-        .badge-top-right.badge-blue {
-            background: var(--blue-soft);
-            border-color: rgba(59, 130, 246, 0.5);
-            color: var(--blue-grad-a);
-            box-shadow: 0 0 18px var(--blue-glow);
-        }
-        .badge-top-right.badge-orange {
-            background: var(--orange-soft);
-            border-color: rgba(245, 158, 11, 0.5);
-            color: var(--orange-grad-a);
-        }
+  .faq{ padding:60px 0; }
+  .faq-head{ text-align:center; max-width:560px; margin:0 auto 40px; }
+  .faq-head h2{ font-size:32px; margin-top:10px; }
+  .faq-list{ max-width:760px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+  .faq-item{ background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; transition: border-color .25s ease; }
+  .faq-item:hover{ border-color:var(--border-hover); }
+  .faq-item.open{ border-color:var(--border-hover); background:var(--surface-strong); }
+  .faq-q{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:20px 24px; background:none; border:none; cursor:pointer; text-align:left; font-family:'Inter'; color:var(--text); font-size:15px; font-weight:600; }
+  .faq-q-icon{ width:28px; height:28px; border-radius:9px; background:var(--surface-strong); display:flex; align-items:center; justify-content:center; color:var(--text-mute); flex-shrink:0; transition: transform .35s cubic-bezier(.4,0,.2,1), background .25s ease, color .25s ease; }
+  .faq-q-icon .icon{ width:14px; height:14px; }
+  .faq-item.open .faq-q-icon{ transform: rotate(180deg); background:rgba(var(--emerald-rgb),0.15); color:var(--emerald); }
+  .faq-a-wrap{ display:grid; grid-template-rows:0fr; transition: grid-template-rows .38s cubic-bezier(.4,0,.2,1); }
+  .faq-item.open .faq-a-wrap{ grid-template-rows:1fr; }
+  .faq-a-inner{ overflow:hidden; }
+  .faq-a{ padding:0 24px 22px; font-size:14px; color:var(--text-mute); line-height:1.7; max-width:640px; }
 
-        /* Ikon paket */
-        .price-icon-wrap {
-            width: 56px; height: 56px;
-            border-radius: 16px;
-            display: grid;
-            place-items: center;
-            margin-bottom: 22px;
-            background: var(--bg-soft);
-            border: 1px solid var(--border);
-            position: relative;
-        }
-        .price-icon-wrap .icon { width: 26px; height: 26px; }
-        .pricing-card.free-card .price-icon-wrap { color: var(--accent); }
-        .pricing-card.free-card .price-icon-wrap::after {
-            content: "";
-            position: absolute;
-            inset: -6px;
-            border-radius: 20px;
-            background: radial-gradient(circle, var(--accent-glow), transparent 70%);
-            z-index: -1;
-        }
-        .pricing-card.platinum-card .price-icon-wrap { color: var(--blue); }
-        .pricing-card.platinum-card .price-icon-wrap::after {
-            content: "";
-            position: absolute;
-            inset: -6px;
-            border-radius: 20px;
-            background: radial-gradient(circle, var(--blue-glow), transparent 70%);
-            z-index: -1;
-        }
-        .pricing-card.gold-card .price-icon-wrap { color: var(--orange); }
-        .pricing-card.gold-card .price-icon-wrap::after {
-            content: "";
-            position: absolute;
-            inset: -6px;
-            border-radius: 20px;
-            background: radial-gradient(circle, var(--orange-glow), transparent 70%);
-            z-index: -1;
-        }
+  .cta-banner{ margin:0 0 64px; background:linear-gradient(135deg, rgba(var(--emerald-rgb),0.12), rgba(var(--emerald-rgb),0.06)); border:1px solid rgba(var(--emerald-rgb),0.25); border-radius:28px; padding:48px 50px; display:flex; align-items:center; justify-content:space-between; gap:30px; flex-wrap:wrap; transition: border-color .3s ease; }
+  .cta-banner:hover{ border-color: rgba(var(--emerald-rgb),0.5); }
+  .cta-banner-left{ display:flex; align-items:center; gap:22px; }
+  .cta-banner-left .logo-mark{ width:56px; height:56px; border-radius:16px; font-size:24px; }
+  .cta-banner h2{ font-size:27px; max-width:420px; }
+  .cta-checks{ display:flex; gap:18px; margin-top:12px; flex-wrap:wrap; }
+  .cta-checks span{ font-size:12.5px; color:var(--text-mute); display:flex; align-items:center; gap:6px; }
+  .cta-checks .icon{ width:13px; height:13px; color:var(--emerald); }
 
-        .price-name {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 4px;
-        }
-        .price-desc {
-            color: var(--text-secondary);
-            font-size: 0.92rem;
-            margin-bottom: 24px;
-            min-height: 2.6em;
-        }
+  /* FOOTER */
+  footer{ border-top:1px solid var(--border); padding:50px 0 36px; }
+  .footer-grid{ display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; margin-bottom:40px; }
+  .footer-grid p{ color:var(--text-mute); font-size:13.5px; max-width:260px; margin-top:14px; }
+  .footer-col h4{ font-size:13.5px; margin-bottom:16px; }
+  .footer-col a{ display:block; font-size:13.5px; color:var(--text-mute); margin-bottom:11px; transition: color .2s ease, transform .2s ease; }
+  .footer-col a:hover{ color:var(--emerald); transform: translateX(3px); }
+  .footer-bottom{ display:flex; justify-content:space-between; padding-top:26px; border-top:1px solid var(--border); font-size:12.5px; color:var(--text-faint); flex-wrap:wrap; gap:10px; }
 
-        .price-amount {
-            font-family: var(--font-display);
-            font-size: 2.6rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            line-height: 1.1;
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-        }
-        .price-amount .currency {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-        .price-period {
-            font-size: 0.86rem;
-            color: var(--text-muted);
-            margin-top: 6px;
-            margin-bottom: 20px;
-        }
-        .price-period .cancel-anytime {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--accent);
-            font-size: 0.8rem;
-            margin-top: 2px;
-        }
-        .price-period .cancel-anytime .icon { width: 14px; height: 14px; }
+  /* AUTH MODAL */
+  .auth-backdrop{ display:none; position:fixed; inset:0; background:rgba(4,7,12,0.7); backdrop-filter:blur(4px); z-index:200; opacity:0; transition:opacity .3s ease; }
+  .auth-backdrop.open{ display:block; opacity:1; }
+  .auth-modal{ display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-48%) scale(.97); width:min(420px, 92vw); max-height:88vh; overflow-y:auto; background:var(--modal-bg); border:1px solid var(--border); border-radius:22px; padding:34px 30px 28px; z-index:201; box-shadow:0 40px 100px rgba(0,0,0,0.55); opacity:0; transition: opacity .25s ease, transform .25s ease, background .35s ease; }
+  .auth-modal.open{ display:block; opacity:1; transform:translate(-50%,-50%) scale(1); }
+  .auth-modal-close{ position:absolute; top:18px; right:18px; width:32px; height:32px; border-radius:9px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-mute); transition: color .2s ease, background .2s ease; }
+  .auth-modal-close:hover{ color:var(--text); background:var(--surface-strong); }
+  .auth-modal-close .icon{ width:14px; height:14px; }
+  .auth-panel{ display:none; }
+  .auth-panel.active{ display:block; }
+  .auth-head{ margin-bottom:22px; }
+  .auth-head .logo{ margin-bottom:20px; }
+  .auth-head h2{ font-size:22px; margin-bottom:6px; }
+  .auth-head p{ font-size:13.5px; color:var(--text-mute); }
+  .auth-social{ width:100%; margin-bottom:18px; }
+  .auth-social .icon{ width:17px; height:17px; }
+  .auth-divider{ display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+  .auth-divider::before, .auth-divider::after{ content:''; flex:1; height:1px; background:var(--border); }
+  .auth-divider span{ font-size:11.5px; color:var(--text-faint); white-space:nowrap; }
+  .auth-form{ display:flex; flex-direction:column; gap:15px; }
+  .field{ display:flex; flex-direction:column; gap:7px; }
+  .field > span{ font-size:12.5px; color:var(--text-mute); font-weight:500; }
+  .field-input{ display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:12px; background:var(--surface); border:1px solid var(--border); transition: border-color .2s ease, background .2s ease; }
+  .field-input:focus-within{ border-color: var(--border-hover); background:var(--surface-strong); }
+  .field-input .icon{ width:16px; height:16px; color:var(--text-faint); flex-shrink:0; }
+  .field-input input{ flex:1; min-width:0; background:none; border:none; outline:none; color:var(--text); font-family:'Inter'; font-size:14px; }
+  .field-input input::placeholder{ color:var(--text-faint); }
+  .toggle-eye{ cursor:pointer; transition: color .2s ease; }
+  .toggle-eye:hover{ color:var(--text-mute); }
+  .field-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+  .checkbox{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-mute); cursor:pointer; }
+  .checkbox input{ accent-color: var(--emerald); width:15px; height:15px; flex-shrink:0; }
+  .checkbox.terms{ align-items:flex-start; line-height:1.5; }
+  .checkbox.terms input{ margin-top:2px; }
+  .auth-link{ font-size:12.5px; color:var(--emerald); transition: opacity .2s ease; }
+  .auth-link:hover{ opacity:.8; }
+  .auth-submit{ width:100%; margin-top:4px; padding:13px 22px; }
+  .auth-switch{ text-align:center; font-size:13px; color:var(--text-mute); margin-top:22px; }
+  .auth-switch a{ color:var(--emerald); font-weight:600; }
+  .auth-switch a:hover{ opacity:.85; }
 
-        .price-features {
-            display: flex;
-            flex-direction: column;
-            gap: 13px;
-            margin: 8px 0 28px;
-            flex: 1;
-        }
-        .price-features li {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-        .price-features li .icon {
-            width: 18px; height: 18px;
-            margin-top: 2px;
-        }
-        .free-card .price-features li .icon { color: var(--accent); }
-        .platinum-card .price-features li .icon { color: var(--blue-grad-a); }
-        .gold-card .price-features li .icon { color: var(--orange-grad-a); }
+  @media (max-width: 480px){
+    .auth-modal{ padding:26px 20px 22px; border-radius:18px; }
+    .auth-head h2{ font-size:19px; }
+  }
 
-        .price-features li strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
+  /* MOBILE NAV */
+  .nav-toggle{ display:none; width:38px; height:38px; border-radius:10px; background:var(--surface); border:1px solid var(--border); align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; }
+  .nav-toggle .icon{ width:18px; height:18px; color:var(--text); }
+  .mobile-menu{ display:none; position:fixed; top:0; right:0; height:100vh; width:min(320px, 82vw); background:var(--mobile-bg); border-left:1px solid var(--border); z-index:100; padding:22px; transform:translateX(100%); transition: transform .3s cubic-bezier(.4,0,.2,1), background .35s ease; flex-direction:column; gap:6px; overflow-y:auto; }
+  .mobile-menu.open{ transform:translateX(0); }
+  .mobile-menu-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; }
+  .mobile-menu-close{ width:34px; height:34px; border-radius:9px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .mobile-menu-close .icon{ width:16px; height:16px; }
+  .mobile-menu a.mlink{ display:flex; align-items:center; gap:8px; padding:13px 6px; font-size:15.5px; color:var(--text-mute); border-bottom:1px solid var(--border); }
+  .mobile-menu a.mlink:hover{ color:var(--text); }
+  .mobile-menu .mobile-menu-cta{ display:flex; flex-direction:column; gap:12px; margin-top:20px; }
+  .mobile-menu .mobile-menu-cta .btn{ width:100%; }
+  .menu-backdrop{ display:none; position:fixed; inset:0; background:rgba(4,7,12,0.6); backdrop-filter:blur(2px); z-index:90; opacity:0; transition:opacity .3s ease; }
+  .menu-backdrop.open{ display:block; opacity:1; }
 
-        .pricing-card .btn-custom { width: 100%; margin-top: auto; }
+  @media (max-width: 980px){
+    .hero, .features{ grid-template-columns:1fr; }
+    .security-grid{ grid-template-columns:repeat(2,1fr); }
+    /* Pricing grid respon 2 kolom di tablet, kartu ke-3 melebar penuh */
+    .pricing-grid{ grid-template-columns:repeat(2,1fr); max-width:640px; margin:0 auto; }
+    .pricing-grid .price-card:last-child{ grid-column:1 / -1; }
+    .nav-links{ display:none; }
+    .nav-toggle{ display:flex; }
+    .visual-stage{ height:440px; }
+    .laptop-wrap{ position:relative; top:0; right:0; margin:0 auto; }
+    .stat-row{ gap:26px; }
+    .footer-grid{ grid-template-columns:1fr 1fr; }
+  }
 
-        /* Catatan kecil di bawah grid */
-        .pricing-note {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: 28px;
-        }
-        .pricing-note a { color: var(--accent); }
+  @media (max-width: 760px){
+    .wrap{ padding:0 20px; }
+    .nav-inner{ padding:16px 20px; }
+    .hero{ padding:36px 0 20px; }
+    .hero h1{ font-size:38px; }
+    .hero p.sub{ font-size:15.5px; max-width:100%; }
+    .hero-cta{ flex-wrap:wrap; }
+    .visual-stage{ height:360px; overflow:hidden; position:relative; }
+    .laptop-scale-wrap{ position:absolute; top:50%; left:50%; width:600px; transform:translate(-50%,-50%) scale(.56); }
+    .laptop-wrap{ position:static !important; margin:0 !important; top:auto !important; right:auto !important; }
+    .features{ padding:40px 0; gap:36px; }
+    .features h2{ font-size:26px; }
+    .dash-row2{ grid-template-columns:1fr; }
+    .security-grid{ grid-template-columns:1fr; }
+    .security-head h2, .pricing-head h2{ font-size:26px; }
+    .pricing-grid{ grid-template-columns:1fr; max-width:400px; }
+    .pricing-grid .price-card:last-child{ grid-column:auto; }
+    .testi-card{ flex:0 0 280px; }
+    .cta-banner{ padding:32px 26px; border-radius:20px; }
+    .cta-banner h2{ font-size:22px; }
+    .cta-banner-left{ flex-wrap:wrap; }
+    .footer-grid{ grid-template-columns:1fr; gap:26px; }
+    .footer-bottom{ flex-direction:column; align-items:flex-start; }
+  }
 
-        /* ============================================================
-           COMPARE STRIP — sekilas perbandingan (opsional, ringan)
-           ============================================================ */
-        .compare-strip {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 56px;
-        }
-        .compare-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 9px;
-            padding: 10px 18px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--bg-soft);
-            font-size: 0.84rem;
-            color: var(--text-secondary);
-        }
-        .compare-item .icon { width: 16px; height: 16px; color: var(--accent); }
+  @media (max-width: 480px){
+    .logo{ font-size:16.5px; }
+    .btn-ghost{ display:none; }
+    .hero h1{ font-size:30px; }
+    .eyebrow{ font-size:11.5px; padding:6px 12px; }
+    .hero-cta{ flex-direction:column; }
+    .hero-cta .btn{ width:100%; }
+    .stat-row{ gap:18px 26px; }
+    .stat-row .num{ font-size:21px; }
+    .visual-stage{ height:290px; }
+    .laptop-scale-wrap{ transform:translate(-50%,-50%) scale(.42); }
+    .logo-strip{ padding:36px 0; }
+    .logo-row{ justify-content:center; gap:22px 30px; }
+    .testimonials-head h2, .faq-head h2{ font-size:24px; }
+    .price-card{ padding:24px 20px; }
+    .testi-card{ flex:0 0 250px; padding:20px; }
+    .faq-q{ font-size:13.5px; padding:16px 18px; }
+    .faq-a{ padding:0 18px 18px; }
+    .cta-banner-left{ gap:14px; }
+    .cta-banner-left .logo-mark{ width:44px; height:44px; font-size:19px; }
+  }
 
-        /* ============================================================
-           FAQ
-           ============================================================ */
-        .faq-section { max-width: 780px; margin-inline: auto; }
-        .section-head {
-            text-align: center;
-            margin-bottom: 56px;
-        }
-        .section-head .section-kicker {
-            font-family: var(--font-mono);
-            font-size: 0.78rem;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 12px;
-        }
-        .section-head h2 {
-            font-family: var(--font-display);
-            font-size: clamp(1.8rem, 4vw, 2.6rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 12px;
-        }
-        .section-head p { color: var(--text-secondary); max-width: 520px; margin-inline: auto; }
+  /* ===== SETTINGS WIDGET (theme / accent / language) ===== */
+  .settings-fab{
+    position:fixed; right:22px; bottom:22px; z-index:150;
+    width:50px; height:50px; border-radius:50%;
+    background:var(--surface-strong); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--text); box-shadow:0 10px 30px rgba(0,0,0,0.35);
+    backdrop-filter:blur(10px); transition: transform .25s ease, border-color .25s ease, background .35s ease;
+  }
+  .settings-fab:hover{ transform: translateY(-3px) rotate(20deg); border-color:var(--border-hover); }
+  .settings-fab .icon{ width:20px; height:20px; }
+  .settings-panel{
+    position:fixed; right:22px; bottom:82px; z-index:150;
+    width:250px; background:var(--modal-bg); border:1px solid var(--border);
+    border-radius:18px; padding:18px; box-shadow:0 30px 70px rgba(0,0,0,0.45);
+    opacity:0; visibility:hidden; transform: translateY(10px) scale(.97);
+    transition: opacity .22s ease, transform .22s ease, visibility .22s, background .35s ease;
+  }
+  .settings-panel.open{ opacity:1; visibility:visible; transform: translateY(0) scale(1); }
+  .settings-panel h4{ font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:10px; font-family:'Inter'; }
+  .settings-block{ margin-bottom:18px; }
+  .settings-block:last-child{ margin-bottom:0; }
+  .theme-toggle-row{ display:flex; gap:8px; }
+  .theme-opt{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 6px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text-mute); font-size:11px; cursor:pointer; transition: all .2s ease; }
+  .theme-opt .icon{ width:15px; height:15px; }
+  .theme-opt:hover{ color:var(--text); border-color:var(--border-hover); }
+  .theme-opt.active{ color:var(--emerald); border-color:var(--emerald); background:rgba(var(--emerald-rgb),0.08); }
+  .accent-row{ display:flex; gap:9px; }
+  .accent-dot{ width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent; position:relative; transition: transform .2s ease, border-color .2s ease; }
+  .accent-dot:hover{ transform: scale(1.1); }
+  .accent-dot.active{ border-color: var(--text); }
+  .accent-dot.active::after{ content:''; position:absolute; inset:0; border-radius:50%; box-shadow:0 0 0 2px var(--bg); }
+  .lang-row{ display:flex; gap:8px; }
+  .lang-opt{ flex:1; padding:9px 6px; text-align:center; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--text-mute); font-size:12.5px; font-weight:600; cursor:pointer; transition: all .2s ease; }
+  .lang-opt:hover{ color:var(--text); border-color:var(--border-hover); }
+  .lang-opt.active{ color:var(--emerald); border-color:var(--emerald); background:rgba(var(--emerald-rgb),0.08); }
 
-        .faq-item {
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            margin-bottom: 12px;
-            overflow: hidden;
-            transition: border-color .25s ease;
-        }
-        .faq-item.open { border-color: var(--border-strong); }
-        .faq-question {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 20px 22px;
-            font-size: 0.98rem;
-            font-weight: 600;
-            text-align: left;
-            color: var(--text-primary);
-        }
-        .faq-question .faq-icon {
-            width: 24px; height: 24px;
-            flex-shrink: 0;
-            display: grid;
-            place-items: center;
-            border-radius: 8px;
-            background: var(--bg-soft);
-            border: 1px solid var(--border);
-            color: var(--accent);
-            transition: transform .3s ease;
-        }
-        .faq-item.open .faq-icon { transform: rotate(45deg); }
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height .35s ease;
-        }
-        .faq-answer-inner {
-            padding: 0 22px 20px;
-            color: var(--text-secondary);
-            font-size: 0.92rem;
-        }
-
-        /* ============================================================
-           CTA BANNER
-           ============================================================ */
-        .cta-banner {
-            position: relative;
-            border-radius: var(--radius-lg);
-            padding: 64px 48px;
-            text-align: center;
-            border: 1px solid var(--border);
-            background:
-                radial-gradient(circle 400px at 20% 0%, var(--accent-soft), transparent 60%),
-                radial-gradient(circle 400px at 85% 100%, var(--blue-soft), transparent 60%),
-                var(--bg-card);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            overflow: hidden;
-        }
-        .cta-banner h2 {
-            font-family: var(--font-display);
-            font-size: clamp(1.7rem, 4vw, 2.5rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 14px;
-        }
-        .cta-banner p {
-            color: var(--text-secondary);
-            max-width: 520px;
-            margin-inline: auto;
-            margin-bottom: 30px;
-        }
-        .cta-banner .btn-primary { padding: 14px 34px; font-size: 1rem; }
-
-        /* ============================================================
-           FOOTER
-           ============================================================ */
-        .footer {
-            border-top: 1px solid var(--border);
-            padding: 56px 0 40px;
-            margin-top: 96px;
-            background: var(--bg-elevated);
-        }
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 1.6fr 1fr 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 48px;
-        }
-        .footer-brand p {
-            color: var(--text-muted);
-            font-size: 0.88rem;
-            margin-top: 14px;
-            max-width: 280px;
-        }
-        .footer-col h4 {
-            font-family: var(--font-display);
-            font-size: 0.85rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-        .footer-col a {
-            display: block;
-            padding: 6px 0;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            transition: color .2s ease;
-        }
-        .footer-col a:hover { color: var(--accent); }
-        .footer-bottom {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-            padding-top: 28px;
-            border-top: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 0.84rem;
-        }
-        .footer-bottom .socials { display: flex; gap: 10px; }
-        .footer-bottom .socials a {
-            width: 36px; height: 36px;
-            display: grid;
-            place-items: center;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            transition: color .2s ease, border-color .2s ease;
-        }
-        .footer-bottom .socials a:hover { color: var(--accent); border-color: var(--accent); }
-
-        /* ============================================================
-           SETTINGS WIDGET — tema / aksen / bahasa
-           ============================================================ */
-        .settings-fab {
-            position: fixed;
-            right: 22px;
-            bottom: 22px;
-            z-index: 90;
-            width: 52px; height: 52px;
-            border-radius: 16px;
-            display: grid;
-            place-items: center;
-            background: var(--bg-card-solid);
-            border: 1px solid var(--border-strong);
-            color: var(--text-secondary);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            transition: transform .25s ease, color .2s ease, border-color .2s ease;
-        }
-        .settings-fab:hover { transform: rotate(45deg); color: var(--accent); border-color: var(--accent); }
-        .settings-fab .icon { width: 22px; height: 22px; }
-        .settings-fab.rotated { transform: rotate(90deg); }
-
-        .settings-panel {
-            position: fixed;
-            right: 22px;
-            bottom: 88px;
-            z-index: 91;
-            width: 300px;
-            padding: 24px;
-            border-radius: var(--radius-lg);
-            background: var(--bg-card-solid);
-            border: 1px solid var(--border-strong);
-            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(12px) scale(0.98);
-            transition: opacity .25s ease, transform .25s ease, visibility .25s;
-        }
-        .settings-panel.open { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
-        .settings-panel h3 {
-            font-family: var(--font-display);
-            font-size: 1rem;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .settings-panel h3 .icon { width: 17px; height: 17px; color: var(--accent); }
-        .settings-group { margin-bottom: 18px; }
-        .settings-group:last-child { margin-bottom: 0; }
-        .settings-label {
-            font-size: 0.74rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-        }
-        .theme-options, .accent-options, .lang-options {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .theme-options button, .accent-options button, .lang-options button {
-            padding: 7px 13px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            background: var(--bg-soft);
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            transition: all .2s ease;
-        }
-        .theme-options button.active, .accent-options button.active, .lang-options button.active {
-            color: var(--text-primary);
-            border-color: var(--accent);
-            background: var(--accent-soft);
-            box-shadow: 0 0 14px var(--accent-glow);
-        }
-        .accent-options button { position: relative; padding-left: 30px; }
-        .accent-options button::before {
-            content: "";
-            position: absolute;
-            left: 11px; top: 50%;
-            transform: translateY(-50%);
-            width: 12px; height: 12px;
-            border-radius: 50%;
-        }
-        .accent-options button[data-accent-value="emerald"]::before { background: #4ade80; box-shadow: 0 0 8px #4ade80; }
-        .accent-options button[data-accent-value="teal"]::before { background: #2dd4bf; box-shadow: 0 0 8px #2dd4bf; }
-        .accent-options button[data-accent-value="sky"]::before { background: #38bdf8; box-shadow: 0 0 8px #38bdf8; }
-        .accent-options button[data-accent-value="violet"]::before { background: #a78bfa; box-shadow: 0 0 8px #a78bfa; }
-        .accent-options button[data-accent-value="rose"]::before { background: #fb7185; box-shadow: 0 0 8px #fb7185; }
-
-        /* ============================================================
-           RESPONSIVE — 3 kolom desktop, 2 tablet, 1 mobile
-           ============================================================ */
-        @media (max-width: 1024px) {
-            .pricing-grid { grid-template-columns: repeat(2, 1fr); }
-            .pricing-card.featured { order: -1; grid-column: 1 / -1; }
-            .features-grid, .testi-grid { grid-template-columns: repeat(2, 1fr); }
-            .laptop-screen { grid-template-columns: 190px 1fr; }
-            .preview-wrap, .security-wrap { gap: 40px; }
-            .footer-grid { grid-template-columns: 1fr 1fr; }
-        }
-
-        @media (max-width: 767px) {
-            .section { padding: 72px 0; }
-            .hero-welcome { padding: 136px 0 48px; }
-            .hero-pricing { padding: 140px 0 48px; }
-            .nav-links { display: none; }
-            .nav-actions .btn-custom { display: none; }
-            .btn-hamburger { display: inline-flex; }
-            .pricing-grid { grid-template-columns: 1fr; }
-            .pricing-card.featured { grid-column: auto; order: 0; }
-            .features-grid, .testi-grid { grid-template-columns: 1fr; }
-            .laptop-screen { grid-template-columns: 1fr; }
-            .dash-sidebar { display: none; }
-            .dash-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-            .dash-body { grid-template-columns: 1fr; }
-            .preview-wrap, .security-wrap { grid-template-columns: 1fr; gap: 36px; }
-            .preview-visual { order: -1; }
-            .security-item { padding: 16px; }
-            .pv-float.f1 { right: 0; top: -14px; }
-            .pv-float.f2 { left: 0; bottom: -14px; }
-            .cta-banner { padding: 48px 24px; }
-            .footer-grid { grid-template-columns: 1fr; gap: 32px; }
-            .logo-strip .logos { gap: 24px; }
-        }
-
-        @media (max-width: 480px) {
-            .container { padding-inline: 18px; }
-            .price-amount { font-size: 2.2rem; }
-            .dash-stats { grid-template-columns: 1fr; }
-            .settings-panel { width: calc(100vw - 44px); }
-        }
-
-        /* Motion-safe: hormati prefers-reduced-motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-                scroll-behavior: auto !important;
-            }
-        }
-    </style>
+  @media (max-width:480px){
+    .settings-fab{ right:16px; bottom:16px; width:46px; height:46px; }
+    .settings-panel{ right:16px; bottom:74px; width:calc(100vw - 32px); }
+  }
+</style>
 </head>
 <body>
 
-    {{-- ============================================================
-         SVG SPRITE — definisikan semua symbol yang dipakai
-         (ic-check, ic-star, ic-badge, ic-shield, dll. — sama seperti
-         welcome.blade.php)
-         ============================================================ --}}
-    <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
-        <symbol id="ic-check" viewBox="0 0 24 24">
-            <path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-star" viewBox="0 0 24 24">
-            <path d="M12 2l2.9 6.26 6.6.72-4.95 4.56 1.34 6.53L12 16.9 6.11 20.07l1.34-6.53L2.5 8.98l6.6-.72L12 2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-badge" viewBox="0 0 24 24">
-            <path d="M12 2l2.4 2.4 3.3-.6.6 3.3L21 9l-1.8 2.7L21 14.4l-2.7 1.9-.6 3.3-3.3-.6L12 21l-2.4-2.4-3.3.6-.6-3.3L3 14.4 4.8 11.7 3 9l2.7-1.9.6-3.3 3.3.6L12 2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-            <path d="M12 7.5l1.35 2.9 3.15.34-2.35 2.2.6 3.11L12 14.55l-2.75 1.5.6-3.11-2.35-2.2 3.15-.34L12 7.5z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-shield" viewBox="0 0 24 24">
-            <path d="M12 2l8 3.5v5.5c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5.5L12 2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-            <path d="M9 12l2 2 4-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-zap" viewBox="0 0 24 24">
-            <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-users" viewBox="0 0 24 24">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </symbol>
-        <symbol id="ic-doc" viewBox="0 0 24 24">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-            <path d="M14 2v6h6M9 13h6M9 17h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </symbol>
-        <symbol id="ic-chart" viewBox="0 0 24 24">
-            <path d="M3 3v18h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M7 14l4-4 3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-wallet" viewBox="0 0 24 24">
-            <path d="M20 7H4a2 2 0 0 1 0-4h14v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-            <path d="M20 7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5" fill="none" stroke="currentColor" stroke-width="1.8"/>
-            <circle cx="17" cy="15" r="1.4" fill="currentColor"/>
-        </symbol>
-        <symbol id="ic-coin" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M14.5 9.5c-.5-.8-1.4-1.3-2.5-1.3-1.6 0-2.8 1-2.8 2.3 0 3.2 5.6 1.6 5.6 4.8 0 1.3-1.2 2.3-2.8 2.3-1.1 0-2-.5-2.5-1.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M12 6.5v11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </symbol>
-        <symbol id="ic-cog" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.98 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.98a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1.03-1.56V3a2 2 0 1 1 4 0v.09c0 .68.4 1.29 1.03 1.56a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9c.27.62.88 1.03 1.56 1.03H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.56 1.03z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-menu" viewBox="0 0 24 24">
-            <path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </symbol>
-        <symbol id="ic-close" viewBox="0 0 24 24">
-            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </symbol>
-        <symbol id="ic-chevron-down" viewBox="0 0 24 24">
-            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-plus" viewBox="0 0 24 24">
-            <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </symbol>
-        <symbol id="ic-arrow-right" viewBox="0 0 24 24">
-            <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-globe" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z" fill="none" stroke="currentColor" stroke-width="1.8"/>
-        </symbol>
-        <symbol id="ic-sun" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </symbol>
-        <symbol id="ic-moon" viewBox="0 0 24 24">
-            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-infinity" viewBox="0 0 24 24">
-            <path d="M6.5 12c-1.6-1.8-3-1.8-4 0-1 1.8 1 3.8 3 3.8 3.5 0 2.5-3 6-3s2.5 3 6 3c2 0 4-2 3-3.8-1-1.8-2.4-1.8-4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </symbol>
-        <symbol id="ic-lock" viewBox="0 0 24 24">
-            <rect x="4" y="11" width="16" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M8 11V7a4 4 0 0 1 8 0v4" fill="none" stroke="currentColor" stroke-width="1.8"/>
-        </symbol>
-        <symbol id="ic-refresh" viewBox="0 0 24 24">
-            <path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-mail" viewBox="0 0 24 24">
-            <rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M3 7l9 6 9-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-brand" viewBox="0 0 24 24">
-            <path d="M12 2l8 4v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V6l8-4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-            <path d="M8.5 12.5l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </symbol>
-        <symbol id="ic-bolt" viewBox="0 0 24 24">
-            <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="currentColor"/>
-        </symbol>
-    </svg>
+<div id="starfield"></div>
+<div class="bg-glow"></div>
+<div class="bg-glow-2"></div>
 
-    {{-- ============================================================
-         STARFIELD BACKGROUND
-         ============================================================ --}}
-    <div class="starfield" aria-hidden="true"></div>
+<!-- SETTINGS WIDGET -->
+<div class="settings-fab" id="settingsFab" aria-label="Pengaturan tampilan"><svg class="icon"><use href="#ic-gear"/></svg></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-block">
+    <h4 data-i18n-en="Appearance">Tampilan</h4>
+    <div class="theme-toggle-row">
+      <div class="theme-opt" data-theme-opt="dark"><svg class="icon"><use href="#ic-moon"/></svg><span data-i18n-en="Dark">Gelap</span></div>
+      <div class="theme-opt" data-theme-opt="light"><svg class="icon"><use href="#ic-sun"/></svg><span data-i18n-en="Light">Terang</span></div>
+    </div>
+  </div>
+  <div class="settings-block">
+    <h4 data-i18n-en="Accent color">Warna tema</h4>
+    <div class="accent-row">
+      <div class="accent-dot" data-accent-opt="emerald" style="background:#34E0A1" title="Emerald"></div>
+      <div class="accent-dot" data-accent-opt="blue" style="background:#4E8FF0" title="Blue"></div>
+      <div class="accent-dot" data-accent-opt="purple" style="background:#9B7BE0" title="Purple"></div>
+      <div class="accent-dot" data-accent-opt="orange" style="background:#F0A25A" title="Orange"></div>
+      <div class="accent-dot" data-accent-opt="pink" style="background:#E85A9C" title="Pink"></div>
+    </div>
+  </div>
+  <div class="settings-block">
+    <h4 data-i18n-en="Language">Bahasa</h4>
+    <div class="lang-row">
+      <div class="lang-opt" data-lang-opt="id">Indonesia</div>
+      <div class="lang-opt" data-lang-opt="en">English</div>
+    </div>
+  </div>
+</div>
 
-    {{-- ============================================================
-         NAVBAR
-         ============================================================ --}}
-    <header class="navbar" id="navbar">
-        <div class="container nav-inner">
-            <a href="{{ url('/') }}" class="nav-logo">
-                <span class="nav-logo-mark">
-                    <svg class="icon"><use xlink:href="#ic-brand"/></svg>
-                </span>
-                Arvessa
-            </a>
+<!-- Reusable icon defs -->
+<svg width="0" height="0" style="position:absolute">
+<defs>
+  <symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+  <symbol id="ic-invoice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2z"/><path d="M9 7h6M9 11h6M9 15h3"/></symbol>
+  <symbol id="ic-receive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="7" x2="7" y2="17"/><polyline points="7 7 7 17 17 17"/></symbol>
+  <symbol id="ic-bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V10l7-6 7 6v11"/><path d="M9 21v-7h6v7"/></symbol>
+  <symbol id="ic-dots" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></symbol>
+  <symbol id="ic-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 12 8 12 10 6 14 18 16 12 21 12"/></symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V5l-8-3z"/><polyline points="9 12 11 14 15 10"/></symbol>
+  <symbol id="ic-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></symbol>
+  <symbol id="ic-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+  <symbol id="ic-trending" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></symbol>
+  <symbol id="ic-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></symbol>
+  <symbol id="ic-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></symbol>
+  <symbol id="ic-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="ic-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+  <symbol id="ic-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18"/><path d="M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1"/></symbol>
+  <symbol id="ic-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M9 14.5 7 22l5-3 5 3-2-7.5"/></symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.5 9 9"/></symbol>
+  <symbol id="ic-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></symbol>
+  <symbol id="ic-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7 10-7"/></symbol>
+  <symbol id="ic-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></symbol>
+  <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="ic-google" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.04 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.19a5.3 5.3 0 0 1-2.3 3.48v2.9h3.72c2.18-2 3.43-4.96 3.43-8.57z"/><path fill="#34A853" d="M12 23.5c3.1 0 5.7-1.02 7.6-2.77l-3.72-2.9c-1.03.7-2.35 1.1-3.88 1.1-2.98 0-5.5-2-6.4-4.7H1.77v2.98A11.5 11.5 0 0 0 12 23.5z"/><path fill="#FBBC05" d="M5.6 14.23A6.9 6.9 0 0 1 5.24 12c0-.77.13-1.53.36-2.23V6.79H1.77A11.5 11.5 0 0 0 .5 12c0 1.85.44 3.6 1.27 5.21z"/><path fill="#EA4335" d="M12 4.98c1.69 0 3.2.58 4.4 1.72l3.29-3.3C17.7 1.6 15.1.5 12 .5A11.5 11.5 0 0 0 1.77 6.79l3.83 2.98c.9-2.7 3.42-4.79 6.4-4.79z"/></symbol>
+  <symbol id="ic-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8"/></symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5a8.5 8.5 0 1 1-9.5-11.4 7 7 0 0 0 9.5 11.4z"/></symbol>
+  <symbol id="ic-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></symbol>
+</defs>
+</svg>
 
-            <nav class="nav-links" aria-label="Navigasi utama">
-                <a href="#fitur" class="active">Fitur</a>
-                <a href="#preview">Dashboard</a>
-                <a href="#testimoni">Testimoni</a>
-                <a href="#keamanan">Keamanan</a>
-                <a href="#harga">Harga</a>
-                <a href="#faq">FAQ</a>
-            </nav>
+<nav>
+  <div class="nav-inner">
+    <div class="logo"><span class="logo-mark"><img src="logos.png" alt="Arvessa"></span><span class="wordmark">Arves<span class="dot">sa</span></span></div>
+    <div class="nav-links">
+      <a href="#fitur"><span data-i18n-en="Features">Fitur</span></a>
+      <a href="#manfaat"><span data-i18n-en="Benefits">Manfaat</span></a>
+      <a href="#keamanan"><span data-i18n-en="Security">Keamanan</span></a>
+      <a href="#harga"><span data-i18n-en="Pricing">Harga</span></a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-right">
+      <a href="{{ route('login') }}" class="btn-ghost"><span data-i18n-en="Log In">Masuk</span></a>
+      <a href="{{ route('register') }}" class="btn btn-primary"><span data-i18n-en="Start Free">Mulai Gratis</span></a>
+      <div class="nav-toggle" id="navToggle" aria-label="Buka menu"><svg class="icon"><use href="#ic-menu"/></svg></div>
+    </div>
+  </div>
+</nav>
 
-            <div class="nav-actions">
-                <a href="{{ route('login') }}" class="btn-custom btn-grey">Masuk</a>
-                <a href="{{ route('register') }}" class="btn-custom btn-primary">Mulai Gratis</a>
-                <button class="btn-hamburger" id="btnHamburger" aria-label="Buka menu">
-                    <svg class="icon"><use xlink:href="#ic-menu"/></svg>
-                </button>
-            </div>
-        </div>
-    </header>
+<div class="menu-backdrop" id="menuBackdrop"></div>
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-head">
+    <div class="logo"><span class="logo-mark"><img src="logos.png" alt="Arvessa"></span><span class="wordmark">Arves<span class="dot">sa</span></span></div>
+    <div class="mobile-menu-close" id="menuClose"><svg class="icon"><use href="#ic-close"/></svg></div>
+  </div>
+  <a href="#fitur" class="mlink"><span data-i18n-en="Features">Fitur</span></a>
+  <a href="#manfaat" class="mlink"><span data-i18n-en="Benefits">Manfaat</span></a>
+  <a href="#keamanan" class="mlink"><span data-i18n-en="Security">Keamanan</span></a>
+  <a href="#harga" class="mlink"><span data-i18n-en="Pricing">Harga</span></a>
+  <a href="#faq" class="mlink">FAQ</a>
+  <div class="mobile-menu-cta">
+    <a href="{{ route('login') }}" class="btn btn-outline"><span data-i18n-en="Log In">Masuk</span></a>
+    <a href="{{ route('register') }}" class="btn btn-primary"><span data-i18n-en="Start Free">Mulai Gratis</span></a>
+  </div>
+</div>
 
-    {{-- Mobile menu --}}
-    <div class="mobile-menu" id="mobileMenu">
-        <a href="#fitur" class="active">Fitur</a>
-        <a href="#preview">Dashboard</a>
-        <a href="#testimoni">Testimoni</a>
-        <a href="#keamanan">Keamanan</a>
-        <a href="#harga">Harga</a>
-        <a href="#faq">FAQ</a>
-        <div class="mobile-actions">
-            <a href="{{ route('login') }}" class="btn-custom btn-grey">Masuk</a>
-            <a href="{{ route('register') }}" class="btn-custom btn-primary">Mulai Gratis</a>
-        </div>
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="eyebrow" data-i18n-en="Modern Accounting, For Your Business">Akuntansi Modern, Untuk Bisnismu</div>
+      <h1><span data-i18n-en="Accounting that moves ">Akuntansi yang bergerak </span><span class="accent" data-i18n-en="as fast as your business">secepat bisnismu</span></h1>
+      <p class="sub" data-i18n-en="Arvessa is a business accounting platform that helps you create invoices, record transactions, and manage financial reports hassle-free.">Arvessa adalah platform akuntansi bisnis yang membantu kamu membuat faktur, mencatat transaksi, dan mengelola laporan keuangan tanpa ribet.</p>
+      <div class="hero-cta">
+        <a href="{{ route('register') }}" class="btn btn-primary"><span data-i18n-en="Open a Business Account">Buka Akun Bisnis</span> <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
+        <a href="#" class="btn btn-outline"><svg class="icon"><use href="#ic-play"/></svg> <span data-i18n-en="See How It Works">Lihat Cara Kerja</span></a>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><div class="num green" data-count="500" data-suffix="+">0</div><div class="lbl" data-i18n-en="Active Companies">Perusahaan Aktif</div></div>
+        <div class="stat"><div class="num" data-count="2.1" data-prefix="Rp" data-suffix="T+" data-decimal="1">0</div><div class="lbl" data-i18n-en="Invoice Value">Nilai Faktur</div></div>
+        <div class="stat"><div class="num" data-count="99.9" data-suffix="%" data-decimal="1">0</div><div class="lbl">Uptime</div></div>
+        <div class="stat"><div class="num" data-count="4.9" data-suffix="/5" data-decimal="1">0</div><div class="lbl" data-i18n-en="User Rating">Rating Pengguna</div></div>
+      </div>
     </div>
 
-    {{-- ============================================================
-         HERO — Halaman utama: headline + laptop mockup dashboard
-         ============================================================ --}}
-    <section class="hero-welcome" id="beranda">
-        <div class="container">
-            <span class="hero-eyebrow">
-                <svg class="icon"><use xlink:href="#ic-zap"/></svg>
-                Keuangan Bisnis, Satu Platform
-            </span>
-            <h1 class="hero-title">
-                Kelola keuangan UMKM<br>
-                <span class="grad">dalam satu aplikasi</span>
-            </h1>
-            <p class="hero-sub">
-                Arvessa membantu Anda membuat faktur, memantau piutang, mengelola
-                payroll, hingga menyusun anggaran — cepat, akurat, dan aman.
-                Tanpa ribet, tanpa aplikasi berantakan.
-            </p>
+    <div class="visual-stage">
+      <div class="swirl"></div>
+      <div class="asteroid a1"></div>
+      <div class="asteroid a2"></div>
+      <div class="asteroid a3"></div>
+      <div class="asteroid a4"></div>
 
-            <div class="hero-actions">
-                <a href="{{ route('register') }}" class="btn-custom btn-primary">
-                    Mulai Gratis Sekarang
-                    <svg class="icon"><use xlink:href="#ic-arrow-right"/></svg>
-                </a>
-                <a href="#fitur" class="btn-custom btn-grey">
-                    Lihat Fitur
-                </a>
+      <div class="laptop-scale-wrap">
+      <div class="laptop-wrap" id="laptopMockup">
+        <div class="laptop-screen-frame">
+          <div class="laptop-camera"></div>
+          <div class="window">
+            <div class="laptop-topbar">
+              <div class="tl-dot r"></div><div class="tl-dot y"></div><div class="tl-dot g"></div>
+              <div class="laptop-tab">Arvessa — Dashboard</div>
             </div>
-
-            <div class="hero-trust">
-                <span class="trust-item">
-                    <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                    Gratis selamanya untuk mulai
-                </span>
-                <span class="trust-item">
-                    <svg class="icon"><use xlink:href="#ic-lock"/></svg>
-                    Data terenkripsi AES-256
-                </span>
-                <span class="trust-item">
-                    <span class="trust-avatars">
-                        <span class="ava ava-1">A</span>
-                        <span class="ava ava-2">R</span>
-                        <span class="ava ava-3">S</span>
-                        <span class="ava ava-4">+</span>
-                    </span>
-                    Dipercaya 2.500+ bisnis
-                </span>
-            </div>
-
-            <div class="hero-laptop">
-                <div class="laptop-glow" aria-hidden="true"></div>
-                <div class="laptop">
-                    <div class="laptop-topbar">
-                        <span class="dot dot-r"></span>
-                        <span class="dot dot-y"></span>
-                        <span class="dot dot-g"></span>
-                        <span class="laptop-url">
-                            <svg class="icon"><use xlink:href="#ic-lock"/></svg>
-                            app.arvessa.id/dashboard
-                        </span>
-                    </div>
-                    <div class="laptop-screen">
-                        <aside class="dash-sidebar">
-                            <div class="side-logo">
-                                <span class="mini-mark">
-                                    <svg class="icon"><use xlink:href="#ic-brand"/></svg>
-                                </span>
-                                Arvessa
-                            </div>
-                            <span class="side-link active">
-                                <svg class="icon"><use xlink:href="#ic-chart"/></svg>
-                                Dashboard
-                            </span>
-                            <span class="side-link">
-                                <svg class="icon"><use xlink:href="#ic-doc"/></svg>
-                                Faktur
-                            </span>
-                            <span class="side-link">
-                                <svg class="icon"><use xlink:href="#ic-wallet"/></svg>
-                                Piutang
-                            </span>
-                            <span class="side-link">
-                                <svg class="icon"><use xlink:href="#ic-users"/></svg>
-                                Klien
-                            </span>
-                            <span class="side-link">
-                                <svg class="icon"><use xlink:href="#ic-cog"/></svg>
-                                Pengaturan
-                            </span>
-                        </aside>
-                        <div class="dash-main">
-                            <div class="dash-head">
-                                <h4>Ringkasan Keuangan</h4>
-                                <span class="btn-mini">+ Faktur Baru</span>
-                            </div>
-                            <div class="dash-stats">
-                                <div class="stat-card">
-                                    <div class="stat-label">Pendapatan Bulan Ini</div>
-                                    <div class="stat-value">Rp86,4<span class="up">jt</span></div>
-                                    <div class="stat-delta">▲ +12,4%</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-label">Faktur Dibayar</div>
-                                    <div class="stat-value">42<span class="up">/58</span></div>
-                                    <div class="stat-delta">▲ +8,1%</div>
-                                </div>
-                                <div class="stat-card">
-                                    <div class="stat-label">Piutang Berjalan</div>
-                                    <div class="stat-value">Rp12,8<span class="up">jt</span></div>
-                                    <div class="stat-delta">● 3 jatuh tempo</div>
-                                </div>
-                            </div>
-                            <div class="dash-body">
-                                <div class="dash-panel">
-                                    <div class="panel-title">
-                                        Arus Kas
-                                        <span class="mini-chip">30 hari</span>
-                                    </div>
-                                    <div class="chart-bars">
-                                        <span class="bar b1"></span>
-                                        <span class="bar b2"></span>
-                                        <span class="bar b3"></span>
-                                        <span class="bar b4 hi"></span>
-                                        <span class="bar b5"></span>
-                                        <span class="bar b6 hi"></span>
-                                        <span class="bar b7"></span>
-                                    </div>
-                                </div>
-                                <div class="dash-panel">
-                                    <div class="panel-title">
-                                        Faktur Terbaru
-                                        <span class="mini-chip">Hari ini</span>
-                                    </div>
-                                    <div class="invoice-list">
-                                        <div class="invoice-row">
-                                            <span class="inv-ic green"><svg class="icon"><use xlink:href="#ic-doc"/></svg></span>
-                                            <span class="inv-info">
-                                                <span class="inv-name">PT Karya Nusantara</span>
-                                                <span class="inv-sub">INV-2026-0042 · Dibayar</span>
-                                            </span>
-                                            <span class="inv-amount">Rp8,4jt</span>
-                                        </div>
-                                        <div class="invoice-row">
-                                            <span class="inv-ic blue"><svg class="icon"><use xlink:href="#ic-doc"/></svg></span>
-                                            <span class="inv-info">
-                                                <span class="inv-name">CV Sumber Makmur</span>
-                                                <span class="inv-sub">INV-2026-0041 · Jatuh tempo</span>
-                                            </span>
-                                            <span class="inv-amount">Rp3,2jt</span>
-                                        </div>
-                                        <div class="invoice-row">
-                                            <span class="inv-ic orange"><svg class="icon"><use xlink:href="#ic-doc"/></svg></span>
-                                            <span class="inv-info">
-                                                <span class="inv-name">Toko Berkah Jaya</span>
-                                                <span class="inv-sub">INV-2026-0040 · Draf</span>
-                                            </span>
-                                            <span class="inv-amount">Rp1,6jt</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="dash-shell">
+              <aside class="dash-side">
+                <div class="side-logo"></div>
+                <div class="side-ic active"><svg class="icon"><use href="#ic-activity"/></svg></div>
+                <div class="side-ic"><svg class="icon"><use href="#ic-invoice"/></svg></div>
+                <div class="side-ic"><svg class="icon"><use href="#ic-bank"/></svg></div>
+                <div class="side-ic"><svg class="icon"><use href="#ic-briefcase"/></svg></div>
+                <div class="side-ic bottom"><svg class="icon"><use href="#ic-dots"/></svg></div>
+              </aside>
+              <main class="dash-main">
+                <div class="w-greet"><span class="hi">Hi, Anjani</span><div class="w-bell"><svg class="icon"><use href="#ic-bell"/></svg></div></div>
+                <div class="dash-row-top">
+                  <div>
+                    <div class="w-balance-label">Total Saldo Kas</div>
+                    <div class="w-balance" id="mockBalance">Rp0</div>
+                    <div class="w-delta"><svg class="icon"><use href="#ic-trending"/></svg> 3.8% (Rp16.850.000) bulan ini</div>
+                  </div>
+                  <div class="w-actions">
+                    <div class="w-action"><div class="ic"><svg class="icon"><use href="#ic-invoice"/></svg></div>Faktur</div>
+                    <div class="w-action"><div class="ic"><svg class="icon"><use href="#ic-receive"/></svg></div>Terima</div>
+                    <div class="w-action"><div class="ic"><svg class="icon"><use href="#ic-bank"/></svg></div>Rekonsil</div>
+                    <div class="w-action"><div class="ic"><svg class="icon"><use href="#ic-dots"/></svg></div>Lainnya</div>
+                  </div>
                 </div>
-                <div class="laptop-base"></div>
+                <div class="dash-row-bottom">
+                  <div class="w-card">
+                    <div class="lbl">Ringkasan Pengeluaran</div>
+                    <div class="val">Rp3.650.750</div>
+                    <div class="sub">4.2% vs bulan lalu</div>
+                    <div class="w-spark">
+                      <i data-h="35"></i><i data-h="55"></i><i data-h="40"></i>
+                      <i data-h="70"></i><i data-h="50"></i><i data-h="85"></i><i data-h="65"></i>
+                    </div>
+                  </div>
+                  <div class="tx-panel">
+                    <div class="w-tx-title">Transaksi Terbaru</div>
+                    <div class="tx-viewport">
+                      <div class="tx-track" id="txTrack">
+                        <div class="w-tx"><div class="ic"><svg class="icon"><use href="#ic-invoice"/></svg></div><div class="info"><div class="n">Faktur #0568</div><div class="d">21 Jun, 09:40</div></div><div class="amt neg">-Rp5.750</div></div>
+                        <div class="w-tx"><div class="ic"><svg class="icon"><use href="#ic-building"/></svg></div><div class="info"><div class="n">Sewa Kantor</div><div class="d">20 Jun, 08:30</div></div><div class="amt neg">-Rp42.900</div></div>
+                        <div class="w-tx"><div class="ic"><svg class="icon"><use href="#ic-briefcase"/></svg></div><div class="info"><div class="n">Pembayaran Klien</div><div class="d">18 Jun, 10:20</div></div><div class="amt pos">+Rp2.800.000</div></div>
+                        <div class="w-tx"><div class="ic"><svg class="icon"><use href="#ic-invoice"/></svg></div><div class="info"><div class="n">Faktur #0568</div><div class="d">21 Jun, 09:40</div></div><div class="amt neg">-Rp5.750</div></div>
+                        <div class="w-tx"><div class="ic"><svg class="icon"><use href="#ic-building"/></svg></div><div class="info"><div class="n">Sewa Kantor</div><div class="d">20 Jun, 08:30</div></div><div class="amt neg">-Rp42.900</div></div>
+                        <div class="w-tx"><div class="ic"><svg class="icon"><use href="#ic-briefcase"/></svg></div><div class="info"><div class="n">Pembayaran Klien</div><div class="d">18 Jun, 10:20</div></div><div class="amt pos">+Rp2.800.000</div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </main>
             </div>
+          </div>
         </div>
-    </section>
+        <div class="laptop-base"></div>
+      </div>
+      </div>
+    </div>
+  </section>
 
-    {{-- ============================================================
-         LOGO STRIP
-         ============================================================ --}}
-    <section class="logo-strip">
-        <div class="container">
-            <div class="strip-label">Dipercaya oleh tim keuangan dari</div>
-            <div class="logos">
-                <span class="logo-chip"><span class="chip-mark"><svg class="icon"><use xlink:href="#ic-brand"/></svg></span>Nusantara</span>
-                <span class="logo-chip"><span class="chip-mark"><svg class="icon"><use xlink:href="#ic-zap"/></svg></span>Sinar Abadi</span>
-                <span class="logo-chip"><span class="chip-mark"><svg class="icon"><use xlink:href="#ic-chart"/></svg></span>Makmur Group</span>
-                <span class="logo-chip"><span class="chip-mark"><svg class="icon"><use xlink:href="#ic-wallet"/></svg></span>Kopi Senja</span>
-                <span class="logo-chip"><span class="chip-mark"><svg class="icon"><use xlink:href="#ic-users"/></svg></span>Laksana Jaya</span>
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         FITUR — icon grid
-         ============================================================ --}}
-    <section class="section" id="fitur">
-        <div class="container">
-            <div class="section-head">
-                <div class="section-kicker">Fitur</div>
-                <h2>Semua yang bisnis Anda butuhkan</h2>
-                <p>Satu platform untuk seluruh operasional keuangan — dirancang khusus untuk UMKM Indonesia.</p>
-            </div>
-
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feat-icon"><svg class="icon"><use xlink:href="#ic-doc"/></svg></div>
-                    <h3>Faktur &amp; Penawaran</h3>
-                    <p>Buat faktur dan penawaran profesional dalam hitungan detik, kirim otomatis, dan pantau status pembayarannya.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feat-icon"><svg class="icon"><use xlink:href="#ic-wallet"/></svg></div>
-                    <h3>Piutang &amp; Utang</h3>
-                    <p>Catat piutang dan utang dengan rapi, lengkap dengan aging report dan pengingat jatuh tempo otomatis.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feat-icon"><svg class="icon"><use xlink:href="#ic-chart"/></svg></div>
-                    <h3>Laporan Keuangan</h3>
-                    <p>Laba rugi, neraca, dan arus kas tersaji otomatis dari data transaksi — siap untuk kebutuhan pajak &amp; investor.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feat-icon"><svg class="icon"><use xlink:href="#ic-users"/></svg></div>
-                    <h3>Manajemen Klien</h3>
-                    <p>Simpan data klien, riwayat transaksi, dan kontak dalam satu tempat. Kolaborasi dengan tim jadi mudah.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feat-icon"><svg class="icon"><use xlink:href="#ic-coin"/></svg></div>
-                    <h3>Payroll &amp; Karyawan</h3>
-                    <p>Hitung gaji, bonus, dan potongan otomatis. Slip gaji terkirim langsung ke karyawan via email.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feat-icon"><svg class="icon"><use xlink:href="#ic-bolt"/></svg></div>
-                    <h3>Anggaran &amp; Forecasting</h3>
-                    <p>Susun anggaran tahunan dan proyeksikan arus kas ke depan, sehingga keputusan bisnis lebih percaya diri.</p>
-                </div>
-            </div>
-
-            <p class="features-more">
-                Ada lagi? <a href="#harga">Lihat semua fitur di setiap paket →</a>
-            </p>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         DASHBOARD PREVIEW
-         ============================================================ --}}
-    <section class="section" id="preview" style="padding-top: 0;">
-        <div class="container">
-            <div class="preview-wrap">
-                <div class="preview-visual">
-                    <div class="pv-head">
-                        <h4>Performa Keuangan — 6 Bulan</h4>
-                        <span class="pv-chip">LIVE PREVIEW</span>
-                    </div>
-                    <div class="pv-bars">
-                        <div class="pv-bar-col"><span class="pv-bar"></span><span>Mar</span></div>
-                        <div class="pv-bar-col"><span class="pv-bar"></span><span>Apr</span></div>
-                        <div class="pv-bar-col"><span class="pv-bar alt"></span><span>Mei</span></div>
-                        <div class="pv-bar-col"><span class="pv-bar"></span><span>Jun</span></div>
-                        <div class="pv-bar-col"><span class="pv-bar alt"></span><span>Jul</span></div>
-                        <div class="pv-bar-col"><span class="pv-bar"></span><span>Agu</span></div>
-                    </div>
-                    <div class="pv-mini-rows">
-                        <div class="pv-mini-row">
-                            <span class="mini-dot d-emerald"></span>
-                            <span class="pv-mini-label">Pendapatan</span>
-                            <span class="pv-mini-val">Rp148,2jt</span>
-                        </div>
-                        <div class="pv-mini-row">
-                            <span class="mini-dot d-blue"></span>
-                            <span class="pv-mini-label">Biaya Operasional</span>
-                            <span class="pv-mini-val">Rp61,8jt</span>
-                        </div>
-                        <div class="pv-mini-row">
-                            <span class="mini-dot d-orange"></span>
-                            <span class="pv-mini-label">Laba Bersih</span>
-                            <span class="pv-mini-val">Rp86,4jt</span>
-                        </div>
-                    </div>
-                    <div class="pv-float f1">
-                        <svg class="icon"><use xlink:href="#ic-chart"/></svg>
-                        <span>Laba naik <span class="f-num">+32%</span></span>
-                    </div>
-                    <div class="pv-float f2">
-                        <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                        <span>Laporan siap <span class="f-num">otomatis</span></span>
-                    </div>
-                </div>
-
-                <div class="preview-copy">
-                    <div class="section-kicker">Dashboard</div>
-                    <h2>Pantau kesehatan keuangan bisnis secara real-time</h2>
-                    <p>
-                        Semua angka penting — pendapatan, biaya, piutang, dan laba —
-                        tampil dalam satu dashboard yang mudah dipahami.
-                    </p>
-                    <ul class="preview-list">
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span><strong>Update otomatis</strong> setiap transaksi dicatat — tanpa input manual ganda.</span>
-                        </li>
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span><strong>Grafik interaktif</strong> arus kas, tren penjualan, dan komposisi pengeluaran.</span>
-                        </li>
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span><strong>Export Excel &amp; PDF</strong> sekali klik untuk rapat atau kebutuhan perbankan.</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         HERO PRICING — judul section harga + toggle bulanan/tahunan
-         ============================================================ --}}
-    <section class="hero-pricing" id="harga">
-        <div class="container">
-            <span class="hero-eyebrow">
-                <svg class="icon"><use xlink:href="#ic-badge"/></svg>
-                Paket Langganan
-            </span>
-            <h1 class="hero-title">
-                Pilih paket yang tepat untuk<br>
-                <span class="grad">bisnis Anda</span>
-            </h1>
-            <p class="hero-sub">
-                Mulai gratis, kembangkan bisnis Anda dengan Arvessa.
-                Upgrade kapan saja — tanpa biaya tersembunyi, tanpa kontrak.
-            </p>
-
-            <div class="billing-toggle" id="billingToggle" role="group" aria-label="Periode penagihan">
-                <button type="button" class="active" data-period="monthly">Bulanan</button>
-                <button type="button" data-period="yearly">Tahunan <span class="save-tag">Hemat 20%</span></button>
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         PRICING CARDS — Free / Platinum / Gold
-         ============================================================ --}}
-    <section class="section" style="padding-top: 24px;" id="paket">
-        <div class="container">
-            <div class="pricing-grid">
-
-                {{-- FREE --}}
-                <div class="pricing-card free-card">
-                    <span class="badge-top-right">
-                        <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                        Aktif
-                    </span>
-                    <div class="price-icon-wrap">
-                        <svg class="icon"><use xlink:href="#ic-shield"/></svg>
-                    </div>
-                    <h3 class="price-name">Free</h3>
-                    <p class="price-desc">Mulai dari sini, gratis selamanya.</p>
-                    <div class="price-amount">
-                        <span class="currency">Rp</span>
-                        <span data-price-monthly="0" data-price-yearly="0">0</span>
-                    </div>
-                    <div class="price-period">Gratis selamanya</div>
-                    <ul class="price-features">
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span>Maks. <strong>1 pengguna</strong></span>
-                        </li>
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span><strong>Faktur &amp; Penawaran</strong></span>
-                        </li>
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span><strong>Manajemen Klien</strong></span>
-                        </li>
-                    </ul>
-                    <button type="button" class="btn-custom btn-grey" disabled>
-                        <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                        Paket Aktif
-                    </button>
-                </div>
-
-                {{-- PLATINUM --}}
-                <div class="pricing-card platinum-card featured">
-                    <span class="badge-top-right badge-blue">
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        Paling Populer
-                    </span>
-                    <div class="price-icon-wrap">
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                    </div>
-                    <h3 class="price-name">Platinum</h3>
-                    <p class="price-desc">Paling dipilih bisnis berkembang.</p>
-                    <div class="price-amount">
-                        <span class="currency">Rp</span>
-                        <span data-price-monthly="149000" data-price-yearly="119200">149.000</span>
-                    </div>
-                    <div class="price-period">
-                        <span data-period-text="/bulan">/bulan</span>
-                        <span class="cancel-anytime">
-                            <svg class="icon"><use xlink:href="#ic-refresh"/></svg>
-                            Batalkan kapan saja
-                        </span>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span>Semua fitur <strong>Free</strong></span>
-                        </li>
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span><strong>Piutang &amp; Utang</strong> + Aging Report</span>
-                        </li>
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span><strong>Manajemen Keuangan</strong></span>
-                        </li>
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span>Maks. <strong>3 pengguna</strong></span>
-                        </li>
-                    </ul>
-                    <a href="{{ route('register') }}" class="btn-custom btn-blue">
-                        Upgrade Sekarang
-                        <svg class="icon"><use xlink:href="#ic-arrow-right"/></svg>
-                    </a>
-                </div>
-
-                {{-- GOLD --}}
-                <div class="pricing-card gold-card">
-                    <span class="badge-top-right badge-orange">
-                        <svg class="icon"><use xlink:href="#ic-bolt"/></svg>
-                        Gold
-                    </span>
-                    <div class="price-icon-wrap">
-                        <svg class="icon"><use xlink:href="#ic-badge"/></svg>
-                    </div>
-                    <h3 class="price-name">Gold</h3>
-                    <p class="price-desc">Semua fitur, tanpa batas.</p>
-                    <div class="price-amount">
-                        <span class="currency">Rp</span>
-                        <span data-price-monthly="349000" data-price-yearly="279200">349.000</span>
-                    </div>
-                    <div class="price-period">
-                        <span data-period-text="/bulan">/bulan</span>
-                        <span class="cancel-anytime">
-                            <svg class="icon"><use xlink:href="#ic-refresh"/></svg>
-                            Batalkan kapan saja
-                        </span>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span>Semua fitur <strong>Platinum</strong></span>
-                        </li>
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span><strong>Payroll</strong> dan Data Karyawan</span>
-                        </li>
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span><strong>Anggaran</strong> dan Forecasting</span>
-                        </li>
-                        <li>
-                            <svg class="icon"><use xlink:href="#ic-check"/></svg>
-                            <span><strong>Multi User</strong> &amp; Hak Akses</span>
-                        </li>
-                    </ul>
-                    <a href="{{ route('register') }}" class="btn-custom btn-orange">
-                        Upgrade Sekarang
-                        <svg class="icon"><use xlink:href="#ic-arrow-right"/></svg>
-                    </a>
-                </div>
-
-            </div>
-
-            <p class="pricing-note">
-                Harga sudah termasuk PPN. Butuh penawaran khusus?
-                <a href="mailto:halo@arvessa.id">Hubungi kami</a>.
-            </p>
-
-            <div class="compare-strip">
-                <span class="compare-item">
-                    <svg class="icon"><use xlink:href="#ic-lock"/></svg>
-                    Pembayaran aman &amp; terenkripsi
-                </span>
-                <span class="compare-item">
-                    <svg class="icon"><use xlink:href="#ic-refresh"/></svg>
-                    Batalkan kapan saja
-                </span>
-                <span class="compare-item">
-                    <svg class="icon"><use xlink:href="#ic-infinity"/></svg>
-                    Tanpa kontrak jangka panjang
-                </span>
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         TESTIMONI
-         ============================================================ --}}
-    <section class="section" id="testimoni">
-        <div class="container">
-            <div class="section-head">
-                <div class="section-kicker">Testimoni</div>
-                <h2>Apa kata mereka?</h2>
-                <p>Ribuan pemilik bisnis di Indonesia sudah merasakan manfaat Arvessa.</p>
-            </div>
-
-            <div class="testi-grid">
-                <div class="testi-card">
-                    <div class="testi-stars">
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                    </div>
-                    <p class="testi-text">
-                        "Dulu laporan keuangan toko saya berantakan. Sekarang semua
-                        otomatis — <strong>faktur, piutang, sampai laba rugi</strong>.
-                        Hemat waktu saya 10 jam per minggu!"
-                    </p>
-                    <div class="testi-person">
-                        <span class="ava ava-1">R</span>
-                        <span>
-                            <span class="testi-name">Rina Wijaya</span>
-                            <span class="testi-role">Pemilik Toko Berkah Jaya</span>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="testi-card">
-                    <div class="testi-stars">
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                    </div>
-                    <p class="testi-text">
-                        "Arvessa <strong>mengubah cara kami mengelola keuangan</strong>.
-                        Payroll yang tadinya makan 3 hari, sekarang selesai dalam
-                        satu jam. Sangat direkomendasikan!"
-                    </p>
-                    <div class="testi-person">
-                        <span class="ava ava-2">D</span>
-                        <span>
-                            <span class="testi-name">Dedi Kurniawan</span>
-                            <span class="testi-role">Direktur CV Sumber Makmur</span>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="testi-card">
-                    <div class="testi-stars">
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                        <svg class="icon"><use xlink:href="#ic-star"/></svg>
-                    </div>
-                    <p class="testi-text">
-                        "Awalnya ragu karena sudah nyaman dengan Excel. Setelah
-                        mencoba paket Free, <strong>langsung upgrade ke Platinum</strong>.
-                        Dashboard-nya jernih dan mudah dibaca."
-                    </p>
-                    <div class="testi-person">
-                        <span class="ava ava-3">S</span>
-                        <span>
-                            <span class="testi-name">Sari Amelia</span>
-                            <span class="testi-role">CFO PT Karya Nusantara</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         KEAMANAN
-         ============================================================ --}}
-    <section class="section" id="keamanan" style="padding-top: 0;">
-        <div class="container">
-            <div class="security-wrap">
-                <div class="security-copy">
-                    <div class="section-kicker">Keamanan</div>
-                    <h2>Data bisnis Anda aman bersama kami</h2>
-                    <p>
-                        Arvessa dibangun dengan standar keamanan industri.
-                        Data Anda terenkripsi, tersimpan di pusat data berstandar
-                        internasional, dan di-backup setiap hari.
-                    </p>
-                    <div class="security-grid">
-                        <div class="security-item">
-                            <div class="sec-icon"><svg class="icon"><use xlink:href="#ic-lock"/></svg></div>
-                            <h4>Enkripsi AES-256</h4>
-                            <p>Seluruh data terenkripsi saat disimpan maupun dikirim.</p>
-                        </div>
-                        <div class="security-item">
-                            <div class="sec-icon"><svg class="icon"><use xlink:href="#ic-shield"/></svg></div>
-                            <h4>Backup Otomatis</h4>
-                            <p>Data di-backup harian dengan pemulihan cepat.</p>
-                        </div>
-                        <div class="security-item">
-                            <div class="sec-icon"><svg class="icon"><use xlink:href="#ic-users"/></svg></div>
-                            <h4>Kontrol Akses</h4>
-                            <p>Atur hak akses tiap pengguna sesuai peran.</p>
-                        </div>
-                        <div class="security-item">
-                            <div class="sec-icon"><svg class="icon"><use xlink:href="#ic-refresh"/></svg></div>
-                            <h4>Pantauan 24/7</h4>
-                            <p>Pemantauan keamanan dan uptime sepanjang waktu.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="preview-visual">
-                    <div class="pv-head">
-                        <h4>Status Keamanan</h4>
-                        <span class="pv-chip">PROTECTED</span>
-                    </div>
-                    <div class="pv-mini-rows">
-                        <div class="pv-mini-row">
-                            <span class="mini-dot d-emerald"></span>
-                            <span class="pv-mini-label">Enkripsi data</span>
-                            <span class="pv-mini-val">AES-256</span>
-                        </div>
-                        <div class="pv-mini-row">
-                            <span class="mini-dot d-emerald"></span>
-                            <span class="pv-mini-label">Backup terakhir</span>
-                            <span class="pv-mini-val">Baru saja</span>
-                        </div>
-                        <div class="pv-mini-row">
-                            <span class="mini-dot d-emerald"></span>
-                            <span class="pv-mini-label">Uptime 90 hari</span>
-                            <span class="pv-mini-val">99,98%</span>
-                        </div>
-                        <div class="pv-mini-row">
-                            <span class="mini-dot d-emerald"></span>
-                            <span class="pv-mini-label">Pemindaian ancaman</span>
-                            <span class="pv-mini-val">Aktif</span>
-                        </div>
-                    </div>
-                    <div class="pv-float f1">
-                        <svg class="icon"><use xlink:href="#ic-lock"/></svg>
-                        <span>SSL <span class="f-num">TLS 1.3</span></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         FAQ
-         ============================================================ --}}
-    <section class="section faq-section" id="faq">
-        <div class="container">
-            <div class="section-head">
-                <div class="section-kicker">FAQ</div>
-                <h2>Pertanyaan yang sering diajukan</h2>
-                <p>Masih ragu? Temukan jawaban untuk pertanyaan umum seputar paket langganan Arvessa.</p>
-            </div>
-
-            <div class="faq-list">
-                <div class="faq-item">
-                    <button type="button" class="faq-question">
-                        Apakah paket Free benar-benar gratis selamanya?
-                        <span class="faq-icon"><svg class="icon"><use xlink:href="#ic-plus"/></svg></span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Ya. Paket Free Arvessa gratis selamanya dan tidak memerlukan kartu kredit.
-                            Anda bisa mulai mengelola faktur, penawaran, dan klien tanpa biaya.
-                            Upgrade hanya dilakukan saat Anda siap berkembang.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button type="button" class="faq-question">
-                        Bagaimana cara upgrade atau downgrade paket?
-                        <span class="faq-icon"><svg class="icon"><use xlink:href="#ic-plus"/></svg></span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Anda dapat mengubah paket kapan saja dari halaman Pengaturan → Langganan.
-                            Perubahan berlaku langsung dan selisih biaya dihitung secara proporsional.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button type="button" class="faq-question">
-                        Metode pembayaran apa saja yang didukung?
-                        <span class="faq-icon"><svg class="icon"><use xlink:href="#ic-plus"/></svg></span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Kami mendukung transfer bank (BCA, Mandiri, BRI, BNI), virtual account,
-                            kartu kredit/debit, serta e-wallet seperti GoPay, OVO, dan DANA.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button type="button" class="faq-question">
-                        Apakah data saya aman jika saya berhenti berlangganan?
-                        <span class="faq-icon"><svg class="icon"><use xlink:href="#ic-plus"/></svg></span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Ya. Data Anda tetap tersimpan dan dapat diakses kembali saat Anda
-                            berlangganan lagi. Arvessa mengenkripsi seluruh data dengan standar
-                            keamanan industri (AES-256) dan backup otomatis setiap hari.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="faq-item">
-                    <button type="button" class="faq-question">
-                        Apakah ada biaya tambahan atau kontrak jangka panjang?
-                        <span class="faq-icon"><svg class="icon"><use xlink:href="#ic-plus"/></svg></span>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">
-                            Tidak ada. Semua harga sudah termasuk PPN dan tanpa biaya tersembunyi.
-                            Anda bebas berhenti kapan saja tanpa penalti.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         CTA BANNER
-         ============================================================ --}}
-    <section class="section" style="padding-top: 0;">
-        <div class="container">
-            <div class="cta-banner">
-                <h2>Siap membawa bisnis Anda ke level berikutnya?</h2>
-                <p>
-                    Bergabung dengan ribuan bisnis di Indonesia yang sudah
-                    mempercayakan keuangan mereka pada Arvessa.
-                </p>
-                <a href="{{ route('register') }}" class="btn-custom btn-primary">
-                    Mulai Gratis Sekarang
-                    <svg class="icon"><use xlink:href="#ic-arrow-right"/></svg>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    {{-- ============================================================
-         FOOTER
-         ============================================================ --}}
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <a href="{{ url('/') }}" class="nav-logo">
-                        <span class="nav-logo-mark">
-                            <svg class="icon"><use xlink:href="#ic-brand"/></svg>
-                        </span>
-                        Arvessa
-                    </a>
-                    <p>Platform manajemen keuangan &amp; bisnis untuk UMKM Indonesia.
-                       Faktur, piutang, payroll, hingga forecasting dalam satu aplikasi.</p>
-                </div>
-                <div class="footer-col">
-                    <h4>Produk</h4>
-                    <a href="#fitur">Fitur</a>
-                    <a href="#harga">Harga</a>
-                    <a href="#preview">Dashboard</a>
-                    <a href="#keamanan">Keamanan</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Perusahaan</h4>
-                    <a href="#">Tentang Kami</a>
-                    <a href="#">Blog</a>
-                    <a href="#">Karier</a>
-                    <a href="#">Kontak</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Bantuan</h4>
-                    <a href="#faq">FAQ</a>
-                    <a href="#harga">Paket &amp; Harga</a>
-                    <a href="#keamanan">Keamanan Data</a>
-                    <a href="#">Kebijakan Privasi</a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <span>© {{ date('Y') }} Arvessa. Semua hak dilindungi.</span>
-                <div class="socials">
-                    <a href="#" aria-label="Instagram">
-                        <svg class="icon"><use xlink:href="#ic-globe"/></svg>
-                    </a>
-                    <a href="#" aria-label="Email">
-                        <svg class="icon"><use xlink:href="#ic-mail"/></svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    {{-- ============================================================
-         SETTINGS WIDGET — tema / aksen / bahasa
-         ============================================================ --}}
-    <button class="settings-fab" id="settingsFab" aria-label="Buka pengaturan">
-        <svg class="icon"><use xlink:href="#ic-cog"/></svg>
-    </button>
-
-    <div class="settings-panel" id="settingsPanel">
-        <h3>
-            <svg class="icon"><use xlink:href="#ic-cog"/></svg>
-            Pengaturan
-        </h3>
-
-        <div class="settings-group">
-            <div class="settings-label">Tema</div>
-            <div class="theme-options" id="themeOptions">
-                <button type="button" data-theme-value="dark" class="active">
-                    <svg class="icon" style="width:14px;height:14px"><use xlink:href="#ic-moon"/></svg>
-                    Gelap
-                </button>
-                <button type="button" data-theme-value="light">
-                    <svg class="icon" style="width:14px;height:14px"><use xlink:href="#ic-sun"/></svg>
-                    Terang
-                </button>
-            </div>
-        </div>
-
-        <div class="settings-group">
-            <div class="settings-label">Warna aksen</div>
-            <div class="accent-options" id="accentOptions">
-                <button type="button" data-accent-value="emerald" class="active">Emerald</button>
-                <button type="button" data-accent-value="teal">Teal</button>
-                <button type="button" data-accent-value="sky">Sky</button>
-                <button type="button" data-accent-value="violet">Violet</button>
-                <button type="button" data-accent-value="rose">Rose</button>
-            </div>
-        </div>
-
-        <div class="settings-group">
-            <div class="settings-label">Bahasa</div>
-            <div class="lang-options" id="langOptions">
-                <button type="button" data-lang-value="id" class="active">Indonesia</button>
-                <button type="button" data-lang-value="en">English</button>
-            </div>
-        </div>
+  <!-- FEATURES + DASHBOARD -->
+  <section class="features" id="fitur">
+    <div class="reveal">
+      <span class="tag" data-i18n-en="Everything you need. In one place.">Semua yang kamu butuhkan. Dalam satu tempat.</span>
+      <h2 data-i18n-en="Complete features for tidier finances">Fitur lengkap untuk keuangan yang lebih rapi</h2>
+      <div class="feat-item">
+        <div class="ic"><svg class="icon"><use href="#ic-activity"/></svg></div>
+        <div><h3 data-i18n-en="Real-time Insights">Wawasan Real-time</h3><p data-i18n-en="Monitor your cash flow and get automatic AI-driven insights for better financial decisions.">Pantau arus kas dan dapatkan insight otomatis berbasis AI untuk keputusan finansial yang lebih baik.</p></div>
+      </div>
+      <div class="feat-item">
+        <div class="ic"><svg class="icon"><use href="#ic-shield"/></svg></div>
+        <div><h3 data-i18n-en="Safe & Encrypted">Aman & Terenkripsi</h3><p data-i18n-en="Bank-grade security with layered encryption for every transaction and company data.">Keamanan setara bank dengan enkripsi berlapis untuk setiap transaksi dan data perusahaan.</p></div>
+      </div>
+      <div class="feat-item">
+        <div class="ic"><svg class="icon"><use href="#ic-refresh"/></svg></div>
+        <div><h3 data-i18n-en="Automated & Integrated">Otomatis & Terintegrasi</h3><p data-i18n-en="Automatic bank reconciliation, synced with the accounting system you already use.">Rekonsiliasi bank otomatis dan sinkron dengan sistem akuntansi yang sudah kamu pakai.</p></div>
+      </div>
+      <a href="#" class="btn btn-outline"><span data-i18n-en="Explore All Features">Jelajahi Semua Fitur</span> <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
     </div>
 
-    <script>
-        /* ============================================================
-           ARVESSA WELCOME — JavaScript
-           (IIFE agar tidak mencemari global scope)
-           ============================================================ */
-        (function () {
-            'use strict';
+    <div class="dash-grid reveal">
+      <div class="dash-card">
+        <div class="dash-head"><span data-i18n-en="Expense Summary">Ringkasan Pengeluaran</span><span><span data-i18n-en="This Month">Bulan Ini</span> <svg class="icon"><use href="#ic-chevron"/></svg></span></div>
+        <div class="donut-wrap">
+          <div class="donut">
+            <svg viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" style="stroke:var(--surface-strong)"></circle>
+              <circle cx="60" cy="60" r="52" style="stroke:var(--emerald)" stroke-dasharray="326.7" stroke-dashoffset="326.7" class="donut-anim"></circle>
+            </svg>
+            <div class="donut-center"><div class="amt">Rp365jt</div><div class="lbl" data-i18n-en="Total">Total</div></div>
+          </div>
+          <div class="legend">
+            <div class="legend-row"><span><i class="dot" style="background:var(--emerald)"></i><span data-i18n-en="Operations">Operasional</span></span><span class="amt">Rp146.030.000</span></div>
+            <div class="legend-row"><span><i class="dot" style="background:#4E8FF0"></i><span data-i18n-en="Payroll">Gaji</span></span><span class="amt">Rp91.268.750</span></div>
+            <div class="legend-row"><span><i class="dot" style="background:#F0C05A"></i><span data-i18n-en="Rent">Sewa</span></span><span class="amt">Rp54.761.250</span></div>
+            <div class="legend-row"><span><i class="dot" style="background:#9B7BE0"></i><span data-i18n-en="Marketing">Pemasaran</span></span><span class="amt">Rp36.508.000</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="dash-row2">
+        <div class="dash-card">
+          <div class="mini-title"><span data-i18n-en="Billing Target">Target Penagihan</span><svg class="icon"><use href="#ic-target"/></svg></div>
+          <div class="mini-value">Rp62,5jt</div>
+          <div class="mini-sub"><span data-i18n-en="of Rp150M target">dari target Rp150jt</span></div>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+          <div class="progress-labels"><span>42%</span><span><span data-i18n-en="Target">Target</span>: Rp150.000.000</span></div>
+        </div>
+        <div class="dash-card">
+          <div class="mini-title"><span data-i18n-en="Financial Report">Laporan Keuangan</span><svg class="icon"><use href="#ic-trending"/></svg></div>
+          <div class="mini-value">Rp1,85M</div>
+          <div class="mini-sub"><svg class="icon" style="width:11px;height:11px;vertical-align:-1px"><use href="#ic-trending"/></svg> 12.5%</div>
+          <div class="mini-chart">
+            <i style="height:30%"></i><i style="height:45%"></i><i style="height:38%"></i>
+            <i style="height:60%"></i><i style="height:55%"></i><i style="height:80%"></i><i style="height:95%"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            var root = document.documentElement;
+  <!-- TESTIMONIALS -->
+  <section class="testimonials reveal" id="manfaat">
+    <div class="testimonials-head">
+      <span class="tag" data-i18n-en="Trusted by Indonesian companies">Dipercaya perusahaan Indonesia</span>
+      <h2 data-i18n-en="What people who use Arvessa say">Kata mereka yang sudah pakai Arvessa</h2>
+    </div>
+    <div class="testi-scroll">
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">
+          <svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg>
+        </div>
+        <p class="testi-quote" data-i18n-en="Bank reconciliation that used to take 2 days is now done in minutes. Our finance team can now focus on more strategic work.">Rekonsiliasi bank yang dulu makan waktu 2 hari sekarang selesai dalam hitungan menit. Tim finance kami jadi bisa fokus ke hal yang lebih strategis.</p>
+        <div class="testi-person">
+          <div class="testi-avatar">RA</div>
+          <div><div class="testi-name">Rangga Adiwijaya</div><div class="testi-role" data-i18n-en="Head of Finance, PT Andalas Maju">Head of Finance, PT Andalas Maju</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">
+          <svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg>
+        </div>
+        <p class="testi-quote" data-i18n-en="The dashboard is super clear, so I can check cash flow anytime without asking the accounting team for reports every day.">Dashboard-nya jelas banget, jadi saya bisa cek arus kas kapan saja tanpa harus minta laporan ke tim akunting tiap hari.</p>
+        <div class="testi-person">
+          <div class="testi-avatar">SP</div>
+          <div><div class="testi-name">Sinta Purnama</div><div class="testi-role" data-i18n-en="Owner, Kopi Kenangan Senja">Owner, Kopi Kenangan Senja</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">
+          <svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg>
+        </div>
+        <p class="testi-quote" data-i18n-en="Migrating from spreadsheets to Arvessa took just one week. Support is also super responsive whenever we have questions.">Migrasi dari spreadsheet ke Arvessa cuma butuh satu minggu. Support-nya juga responsif banget setiap kali kami ada pertanyaan.</p>
+        <div class="testi-person">
+          <div class="testi-avatar">DH</div>
+          <div><div class="testi-name">Dimas Hartono</div><div class="testi-role" data-i18n-en="CFO, Nusantara Logistik">CFO, Nusantara Logistik</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">
+          <svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg>
+        </div>
+        <p class="testi-quote" data-i18n-en="The billing target feature makes our sales team more disciplined about chasing unpaid invoices. Cash flow is now much more controlled.">Fitur target penagihan bikin tim sales lebih disiplin ngejar invoice yang belum dibayar. Cashflow jadi jauh lebih terkontrol.</p>
+        <div class="testi-person">
+          <div class="testi-avatar">FN</div>
+          <div><div class="testi-name">Farah Nuraini</div><div class="testi-role" data-i18n-en="Finance Manager, Bumi Retail Group">Finance Manager, Bumi Retail Group</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">
+          <svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg>
+        </div>
+        <p class="testi-quote" data-i18n-en="As a small business, we needed something simple yet tidy. Arvessa is a perfect fit, and the price is reasonable for a startup like us.">Sebagai bisnis kecil, kami butuh yang simpel tapi tetap rapi. Arvessa pas banget, harganya juga masuk akal untuk startup seperti kami.</p>
+        <div class="testi-person">
+          <div class="testi-avatar">YW</div>
+          <div><div class="testi-name">Yoga Wicaksono</div><div class="testi-role" data-i18n-en="Founder, Ruang Kriya Studio">Founder, Ruang Kriya Studio</div></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">
+          <svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg><svg class="icon"><use href="#ic-star"/></svg>
+        </div>
+        <p class="testi-quote" data-i18n-en="Financial reports we used to compile manually every month-end are now available automatically in real time. Our investors love how tidy the data is.">Laporan keuangan yang biasanya kami susun manual tiap akhir bulan sekarang otomatis tersedia real-time. Investor kami juga senang lihat datanya rapi.</p>
+        <div class="testi-person">
+          <div class="testi-avatar">AK</div>
+          <div><div class="testi-name">Anisa Kartika</div><div class="testi-role" data-i18n-en="CEO, Lentera Teknologi">CEO, Lentera Teknologi</div></div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
 
-            /* ---------- Helper ---------- */
-            function applyAttr(attr, value, activeClass) {
-                root.setAttribute(attr, value);
-                var buttons = document.querySelectorAll('[' + attr + '-options] button');
-                for (var i = 0; i < buttons.length; i++) {
-                    buttons[i].classList.toggle(activeClass, buttons[i].getAttribute(attr + '-value') === value);
-                }
+  <!-- KEAMANAN -->
+  <section class="security reveal" id="keamanan">
+    <div class="security-head">
+      <span class="tag" data-i18n-en="Enterprise-grade security">Keamanan tingkat enterprise</span>
+      <h2 data-i18n-en="Your business data, protected in layers">Data bisnismu dilindungi berlapis</h2>
+    </div>
+    <div class="security-grid">
+      <div class="sec-card">
+        <div class="ic"><svg class="icon"><use href="#ic-lock"/></svg></div>
+        <h3 data-i18n-en="AES-256 Encryption">Enkripsi AES-256</h3>
+        <p data-i18n-en="Every piece of data is encrypted both at rest and in transit, matching banking-grade standards.">Setiap data dienkripsi baik saat disimpan maupun saat dikirim, setara standar perbankan.</p>
+      </div>
+      <div class="sec-card">
+        <div class="ic"><svg class="icon"><use href="#ic-shield"/></svg></div>
+        <h3 data-i18n-en="Two-Step Verification">Verifikasi Dua Langkah</h3>
+        <p data-i18n-en="2FA authentication for every business account login, preventing unauthorized access.">Autentikasi 2FA untuk setiap login akun bisnis, mencegah akses yang tidak sah.</p>
+      </div>
+      <div class="sec-card">
+        <div class="ic"><svg class="icon"><use href="#ic-refresh"/></svg></div>
+        <h3 data-i18n-en="Automatic Backups">Cadangan Otomatis</h3>
+        <p data-i18n-en="Automatic daily backups to multiple separate server locations, so your data is always safe.">Backup harian otomatis ke beberapa lokasi server terpisah, data selalu aman.</p>
+      </div>
+      <div class="sec-card">
+        <div class="ic"><svg class="icon"><use href="#ic-badge"/></svg></div>
+        <h3 data-i18n-en="Data Compliance">Kepatuhan Data</h3>
+        <p data-i18n-en="Follows the financial data protection compliance standards that apply in Indonesia.">Mengikuti standar kepatuhan perlindungan data keuangan yang berlaku di Indonesia.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HARGA (REDESIGNED) -->
+  <section class="pricing reveal" id="harga">
+    <div class="pricing-head">
+      <span class="tag" data-i18n-en="Transparent pricing">Harga transparan</span>
+      <h2 data-i18n-en="Choose the plan that fits your business">Pilih paket yang paling pas buat bisnismu</h2>
+    </div>
+    <div class="pricing-grid">
+      
+      <!-- FREE -->
+      <div class="price-card">
+        <div class="badge-top-right"><svg class="icon" style="width:12px;height:12px;"><use href="#ic-check"/></svg> AKTIF</div>
+        <div class="price-icon-wrap"><svg class="icon"><use href="#ic-shield"/></svg></div>
+        <div class="price-name">Free</div>
+        <div class="price-desc" data-i18n-en="Start here, free forever.">Mulai dari sini, gratis selamanya.</div>
+        <div class="price-amount">Rp 0</div>
+        <div class="price-period" data-i18n-en="Free forever">Gratis selamanya</div>
+        <ul class="price-features">
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="1 User">Maks. 1 pengguna</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Invoices & Quotes">Faktur & Penawaran</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Client Management">Manajemen Klien</span></li>
+        </ul>
+        <button class="btn-custom btn-grey" disabled><span data-i18n-en="Active Package">Paket Aktif</span></button>
+      </div>
+
+      <!-- PLATINUM -->
+      <div class="price-card popular">
+        <div class="badge-top-right" data-i18n-en="Most Popular">Paling Populer</div>
+        <div class="price-icon-wrap"><svg class="icon"><use href="#ic-star"/></svg></div>
+        <div class="price-name">Platinum</div>
+        <div class="price-desc" data-i18n-en="Most popular for growing businesses.">Paling dipilih bisnis berkembang.</div>
+        <div class="price-amount">Rp149.000<span>/bulan</span></div>
+        <div class="price-period" data-i18n-en="Cancel anytime">Batalkan kapan saja</div>
+        <ul class="price-features">
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Everything in Free">Semua fitur free</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Receivables & Aging Report">Piutang & Utang + Aging Report</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Financial Management">Manajemen Keuangan</span></li>
+        </ul>
+        <a href="{{ route('register') }}" class="btn-custom btn-blue"><span data-i18n-en="Upgrade Now">Upgrade Sekarang</span></a>
+      </div>
+
+      <!-- GOLD -->
+      <div class="price-card golden">
+        <div class="badge-top-right">Gold</div>
+        <div class="price-icon-wrap"><svg class="icon"><use href="#ic-badge"/></svg></div>
+        <div class="price-name">Gold</div>
+        <div class="price-desc" data-i18n-en="Everything unlimited for your business.">Semua fitur, tanpa batas.</div>
+        <div class="price-amount">Rp349.000<span>/bulan</span></div>
+        <div class="price-period" data-i18n-en="Cancel anytime">Batalkan kapan saja</div>
+        <ul class="price-features">
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Everything in Platinum">Semua fitur platinum</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Payroll & Employee Data">Payroll dan Data Karyawan</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Budgeting & Forecasting">Anggaran dan Forecasting</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Multi User & Access">Multi User & Hak Akses</span></li>
+        </ul>
+        <a href="{{ route('register') }}" class="btn-custom btn-orange"><span data-i18n-en="Upgrade Now">Upgrade Sekarang</span></a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq reveal" id="faq">
+    <div class="faq-head">
+      <span class="tag" data-i18n-en="Frequently asked questions">Pertanyaan umum</span>
+      <h2 data-i18n-en="Still have questions?">Masih ada yang ingin ditanyakan?</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q"><span data-i18n-en="Is my company's financial data safe?">Apakah data keuangan perusahaan saya aman?</span><span class="faq-q-icon"><svg class="icon"><use href="#ic-chevron"/></svg></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a" data-i18n-en="Yes. All data is encrypted to banking-grade standards, both at rest and in transit. We also run regular independent security audits to keep the system protected.">Ya. Semua data dienkripsi dengan standar setara perbankan, baik saat disimpan maupun saat dikirim. Kami juga rutin melakukan audit keamanan independen untuk memastikan sistem tetap terlindungi.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span data-i18n-en="How long does the initial setup take?">Berapa lama proses setup awal?</span><span class="faq-q-icon"><svg class="icon"><use href="#ic-chevron"/></svg></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a" data-i18n-en="On average, users can create their first invoice within 5 minutes. For migrating data from an old system, our team will help with the import process for free.">Rata-rata pengguna sudah bisa membuat faktur pertama mereka dalam 5 menit. Untuk migrasi data dari sistem lama, tim kami akan membantu proses impor secara gratis.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span data-i18n-en="Can it integrate with the bank I use?">Apakah bisa terintegrasi dengan bank yang saya pakai?</span><span class="faq-q-icon"><svg class="icon"><use href="#ic-chevron"/></svg></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a" data-i18n-en="Arvessa already integrates with most major banks in Indonesia for automatic reconciliation. Just connect your account and transactions will sync on their own.">Arvessa sudah terintegrasi dengan mayoritas bank besar di Indonesia untuk rekonsiliasi otomatis. Kamu tinggal hubungkan rekening dan transaksi akan tersinkron dengan sendirinya.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span data-i18n-en="What if my team isn't familiar with accounting software yet?">Bagaimana kalau tim saya belum familiar dengan software akuntansi?</span><span class="faq-q-icon"><svg class="icon"><use href="#ic-chevron"/></svg></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a" data-i18n-en="No worries, Arvessa is designed to be as simple as possible. We also provide free onboarding and a complete help center with step-by-step guides for every feature.">Tenang, tampilan Arvessa dirancang sesederhana mungkin. Kami juga menyediakan onboarding gratis dan pusat bantuan lengkap dengan panduan langkah demi langkah untuk setiap fitur.</p></div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q"><span data-i18n-en="Can I cancel my subscription anytime?">Apakah saya bisa berhenti berlangganan kapan saja?</span><span class="faq-q-icon"><svg class="icon"><use href="#ic-chevron"/></svg></span></button>
+        <div class="faq-a-wrap"><div class="faq-a-inner"><p class="faq-a" data-i18n-en="Yes. There's no long-term contract or hidden cancellation fees. You can upgrade, downgrade, or cancel anytime directly from your account settings.">Bisa. Tidak ada kontrak jangka panjang atau biaya pembatalan tersembunyi. Kamu bisa upgrade, downgrade, atau berhenti berlangganan kapan saja langsung dari pengaturan akun.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-banner reveal">
+    <div class="cta-banner-left">
+      <span class="logo-mark"><img src="logos.png" alt="Arvessa"></span>
+      <div>
+        <h2 data-i18n-en="Ready to take control of your business finances?">Siap kendalikan keuangan bisnismu?</h2>
+        <div class="cta-checks">
+          <span><svg class="icon"><use href="#ic-check"/></svg> <span data-i18n-en="Setup in 5 minutes">Setup dalam 5 menit</span></span>
+          <span><svg class="icon"><use href="#ic-check"/></svg> <span data-i18n-en="No hidden fees">Tanpa biaya tersembunyi</span></span>
+          <span><svg class="icon"><use href="#ic-check"/></svg> <span data-i18n-en="Cancel anytime">Batalkan kapan saja</span></span>
+        </div>
+      </div>
+    </div>
+    <a href="{{ route('register') }}" class="btn btn-primary"><span data-i18n-en="Start Free">Mulai Gratis</span> <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid reveal">
+      <div>
+        <div class="logo"><span class="logo-mark"><img src="logos.png" alt="Arvessa"></span><span class="wordmark">Arves<span class="dot">sa</span></span></div>
+        <p data-i18n-en="Business accounting platform for mid-size to large companies in Indonesia.">Platform akuntansi bisnis untuk perusahaan menengah hingga besar di Indonesia.</p>
+      </div>
+      <div class="footer-col"><h4 data-i18n-en="Product">Produk</h4><a href="#" data-i18n-en="Invoicing">Faktur</a><a href="#" data-i18n-en="Financial Reports">Laporan Keuangan</a><a href="#" data-i18n-en="Bank Reconciliation">Rekonsiliasi Bank</a></div>
+      <div class="footer-col"><h4 data-i18n-en="Company">Perusahaan</h4><a href="#" data-i18n-en="About Us">Tentang Kami</a><a href="#" data-i18n-en="Careers">Karier</a><a href="#">Blog</a></div>
+      <div class="footer-col"><h4 data-i18n-en="Support">Dukungan</h4><a href="#" data-i18n-en="Help Center">Pusat Bantuan</a><a href="#" data-i18n-en="Contact Sales">Kontak Sales</a><a href="#" data-i18n-en="System Status">Status Sistem</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span data-i18n-en="© 2026 Arvessa. All rights reserved.">© 2026 Arvessa. Semua hak dilindungi.</span>
+      <span data-i18n-en="Made for Indonesian businesses">Dibuat untuk bisnis Indonesia</span>
+    </div>
+  </footer>
+
+</div>
+
+<style>
+  .donut-anim{ animation: donut1 1.6s ease-out .2s forwards; }
+  @keyframes donut1{ to{ stroke-dashoffset: 130.7; } }
+</style>
+
+<script>
+  // Starfield generator
+  const field = document.getElementById('starfield');
+  for(let i=0;i<90;i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random()*2 + 0.5;
+    s.style.width = size+'px';
+    s.style.height = size+'px';
+    s.style.top = Math.random()*100+'%';
+    s.style.left = Math.random()*100+'%';
+    s.style.animationDelay = (Math.random()*3)+'s';
+    s.style.animationDuration = (2 + Math.random()*3)+'s';
+    field.appendChild(s);
+  }
+
+  // Count-up stats on scroll into view
+  const counters = document.querySelectorAll('.num[data-count]');
+  const animateCounter = (el) => {
+    const target = parseFloat(el.dataset.count);
+    const decimals = parseInt(el.dataset.decimal || '0');
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const duration = 1400;
+    const startTime = performance.now();
+    function tick(now){
+      const progress = Math.min((now-startTime)/duration, 1);
+      const eased = 1 - Math.pow(1-progress, 3);
+      const val = target * eased;
+      el.textContent = prefix + val.toFixed(decimals) + suffix;
+      if(progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  };
+  const counterObs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){ animateCounter(entry.target); counterObs.unobserve(entry.target); }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => counterObs.observe(c));
+
+  // progress bar fill trigger
+  document.querySelectorAll('.progress-fill').forEach(bar=>{
+    const barObs = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){ bar.classList.add('animate'); barObs.unobserve(bar); }
+      });
+    }, { threshold: 0.4 });
+    barObs.observe(bar);
+  });
+
+  // scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObs = new IntersectionObserver((entries)=>{
+    entries.forEach((entry, i)=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('in-view');
+        revealObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => revealObs.observe(el));
+
+  // stagger feat-item and dash cards on their own
+  document.querySelectorAll('.feat-item').forEach((el,i)=>{
+    el.style.transitionDelay = (i*0.08)+'s';
+  });
+
+  // FAQ accordion — one open at a time
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-q');
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(o => { if(o !== item) o.classList.remove('open'); });
+      item.classList.toggle('open', !isOpen);
+    });
+  });
+
+  const stage = document.querySelector('.visual-stage');
+  const win = document.querySelector('.laptop-wrap');
+  if(stage && win){
+    stage.addEventListener('mousemove', (e) => {
+      const rect = stage.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      win.style.transform = `rotateY(${-10 + x*10}deg) rotateX(${5 - y*10}deg) rotateZ(-1deg)`;
+    });
+    stage.addEventListener('mouseleave', () => { win.style.transform = ''; });
+  }
+
+  // Laptop mockup: enters hidden -> reveals -> settles into idle float,
+  // then kicks off number count-up, chart grow-in, and the auto-scrolling transaction ticker.
+  const mockup = document.getElementById('laptopMockup');
+  if(mockup){
+    const mockupObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          mockup.classList.add('mockup-in');
+
+          // once the reveal transition finishes, start the idle float + live content
+          mockup.addEventListener('transitionend', function onIn(e){
+            if(e.propertyName !== 'transform') return;
+            mockup.removeEventListener('transitionend', onIn);
+            mockup.classList.add('floating');
+
+            // balance count-up (Rp, Indonesian thousands separator)
+            const balEl = document.getElementById('mockBalance');
+            if(balEl){
+              const target = 458320500;
+              const duration = 1600;
+              const start = performance.now();
+              function tick(now){
+                const p = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - p, 3);
+                const val = Math.round(target * eased);
+                balEl.textContent = 'Rp' + val.toLocaleString('id-ID');
+                if(p < 1) requestAnimationFrame(tick);
+              }
+              requestAnimationFrame(tick);
             }
 
-            /* ---------- Settings widget ---------- */
-            var fab = document.getElementById('settingsFab');
-            var panel = document.getElementById('settingsPanel');
-            if (fab && panel) {
-                fab.addEventListener('click', function () {
-                    panel.classList.toggle('open');
-                    fab.classList.toggle('rotated');
-                });
-                document.addEventListener('click', function (e) {
-                    if (!panel.contains(e.target) && !fab.contains(e.target)) {
-                        panel.classList.remove('open');
-                        fab.classList.remove('rotated');
-                    }
-                });
-            }
+            // chart bars grow in, staggered
+            document.querySelectorAll('.w-spark i').forEach((bar, i) => {
+              setTimeout(() => { bar.style.height = bar.dataset.h + '%'; }, i * 70);
+            });
 
-            /* ---------- Tema ---------- */
-            var themeButtons = document.querySelectorAll('#themeOptions button');
-            for (var t = 0; t < themeButtons.length; t++) {
-                themeButtons[t].addEventListener('click', function () {
-                    applyAttr('data-theme', this.getAttribute('data-theme-value'), 'active');
-                });
-            }
+            // start the transaction ticker auto-scrolling
+            const track = document.getElementById('txTrack');
+            if(track) setTimeout(() => track.classList.add('playing'), 500);
+          });
 
-            /* ---------- Aksen ---------- */
-            var accentButtons = document.querySelectorAll('#accentOptions button');
-            for (var a = 0; a < accentButtons.length; a++) {
-                accentButtons[a].addEventListener('click', function () {
-                    applyAttr('data-accent', this.getAttribute('data-accent-value'), 'active');
-                });
-            }
-
-            /* ---------- Bahasa (placeholder: cukup aktifkan tombol) ---------- */
-            var langButtons = document.querySelectorAll('#langOptions button');
-            for (var l = 0; l < langButtons.length; l++) {
-                langButtons[l].addEventListener('click', function () {
-                    applyAttr('data-language', this.getAttribute('data-lang-value'), 'active');
-                });
-            }
-
-            /* ---------- Navbar scroll state ---------- */
-            var navbar = document.getElementById('navbar');
-            function onScroll() {
-                if (!navbar) return;
-                if (window.scrollY > 10) {
-                    navbar.classList.add('scrolled');
-                } else {
-                    navbar.classList.remove('scrolled');
-                }
-            }
-            window.addEventListener('scroll', onScroll, { passive: true });
-            onScroll();
-
-            /* ---------- Mobile menu ---------- */
-            var btnHamburger = document.getElementById('btnHamburger');
-            var mobileMenu = document.getElementById('mobileMenu');
-            if (btnHamburger && mobileMenu) {
-                btnHamburger.addEventListener('click', function () {
-                    var open = mobileMenu.classList.toggle('open');
-                    btnHamburger.innerHTML = open
-                        ? '<svg class="icon"><use xlink:href="#ic-close"/></svg>'
-                        : '<svg class="icon"><use xlink:href="#ic-menu"/></svg>';
-                });
-                mobileMenu.addEventListener('click', function (e) {
-                    if (e.target.tagName === 'A') {
-                        mobileMenu.classList.remove('open');
-                        btnHamburger.innerHTML = '<svg class="icon"><use xlink:href="#ic-menu"/></svg>';
-                    }
-                });
-            }
-
-            /* ---------- FAQ accordion ---------- */
-            var faqItems = document.querySelectorAll('.faq-item');
-            for (var f = 0; f < faqItems.length; f++) {
-                var question = faqItems[f].querySelector('.faq-question');
-                if (!question) continue;
-                question.addEventListener('click', (function (item) {
-                    return function () {
-                        var answer = item.querySelector('.faq-answer');
-                        var isOpen = item.classList.contains('open');
-                        /* Tutup semua item lain */
-                        for (var j = 0; j < faqItems.length; j++) {
-                            faqItems[j].classList.remove('open');
-                            var a = faqItems[j].querySelector('.faq-answer');
-                            if (a) a.style.maxHeight = null;
-                        }
-                        if (!isOpen) {
-                            item.classList.add('open');
-                            if (answer) answer.style.maxHeight = answer.scrollHeight + 'px';
-                        }
-                    };
-                })(faqItems[f]));
-            }
-
-            /* ---------- Billing toggle (bulanan / tahunan) ---------- */
-            var billingToggle = document.getElementById('billingToggle');
-            if (billingToggle) {
-                var periodButtons = billingToggle.querySelectorAll('button');
-                for (var b = 0; b < periodButtons.length; b++) {
-                    periodButtons[b].addEventListener('click', function () {
-                        for (var k = 0; k < periodButtons.length; k++) {
-                            periodButtons[k].classList.remove('active');
-                        }
-                        this.classList.add('active');
-                        var period = this.getAttribute('data-period');
-                        updatePrices(period);
-                    });
-                }
-            }
-
-            function formatRupiah(num) {
-                return num.toLocaleString('id-ID');
-            }
-
-            function updatePrices(period) {
-                var amounts = document.querySelectorAll('[data-price-monthly]');
-                for (var i = 0; i < amounts.length; i++) {
-                    var monthly = parseInt(amounts[i].getAttribute('data-price-monthly'), 10);
-                    var yearly = parseInt(amounts[i].getAttribute('data-price-yearly'), 10);
-                    var value = (period === 'yearly') ? yearly : monthly;
-                    amounts[i].textContent = formatRupiah(value);
-                }
-                var periodTexts = document.querySelectorAll('[data-period-text]');
-                for (var p = 0; p < periodTexts.length; p++) {
-                    periodTexts[p].textContent = (period === 'yearly') ? '/tahun' : '/bulan';
-                }
-            }
-
-            /* ---------- Reveal animation (ringan, IntersectionObserver) ---------- */
-            if ('IntersectionObserver' in window) {
-                var revealables = document.querySelectorAll(
-                    '.pricing-card, .faq-item, .cta-banner, .feature-card, .testi-card, ' +
-                    '.security-item, .hero-laptop, .preview-visual'
-                );
-                var observer = new IntersectionObserver(function (entries) {
-                    for (var i = 0; i < entries.length; i++) {
-                        if (entries[i].isIntersecting) {
-                            entries[i].target.classList.add('revealed');
-                            observer.unobserve(entries[i].target);
-                        }
-                    }
-                }, { threshold: 0.15 });
-                for (var r = 0; r < revealables.length; r++) {
-                    revealables[r].classList.add('reveal');
-                    observer.observe(revealables[r]);
-                }
-                /* Fallback: jamin konten selalu terlihat meski observer tidak
-                   menembak (mis. print, screenshot full-page, browser lama). */
-                setTimeout(function () {
-                    for (var r2 = 0; r2 < revealables.length; r2++) {
-                        revealables[r2].classList.add('revealed');
-                    }
-                }, 1200);
-            }
-        })();
-    </script>
-
-    <style>
-        /* Animasi reveal (ditambahkan setelah script agar hanya aktif bila JS jalan) */
-        .reveal {
-            opacity: 0;
-            transform: translateY(24px);
-            transition: opacity .6s ease, transform .6s ease;
+          mockupObs.unobserve(mockup);
         }
-        .reveal.revealed {
-            opacity: 1;
-            transform: translateY(0);
+      });
+    }, { threshold: 0.3 });
+    mockupObs.observe(mockup);
+  }
+
+  // ===== MOBILE NAV MENU =====
+  const navToggle = document.getElementById('navToggle');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuBackdrop = document.getElementById('menuBackdrop');
+  const menuClose = document.getElementById('menuClose');
+
+  function openMobileMenu(){
+    mobileMenu.classList.add('open');
+    menuBackdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobileMenu(){
+    mobileMenu.classList.remove('open');
+    menuBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  if(navToggle) navToggle.addEventListener('click', openMobileMenu);
+  if(menuClose) menuClose.addEventListener('click', closeMobileMenu);
+  if(menuBackdrop) menuBackdrop.addEventListener('click', closeMobileMenu);
+  if(mobileMenu){
+    mobileMenu.querySelectorAll('a.mlink').forEach(a => a.addEventListener('click', closeMobileMenu));
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape'){ closeMobileMenu(); }
+  });
+
+  // ===== SETTINGS WIDGET: theme, accent color, language =====
+  (function(){
+    const root = document.documentElement;
+    const fab = document.getElementById('settingsFab');
+    const panel = document.getElementById('settingsPanel');
+
+    function getSaved(key, fallback){
+      try{ return localStorage.getItem(key) || fallback; }catch(e){ return fallback; }
+    }
+    function save(key, val){
+      try{ localStorage.setItem(key, val); }catch(e){}
+    }
+
+    let theme = getSaved('aj-theme', 'dark');
+    let accent = getSaved('aj-accent', 'emerald');
+    let lang = getSaved('aj-lang', 'id');
+
+    function applyTheme(t){
+      theme = t;
+      root.setAttribute('data-theme', t);
+      save('aj-theme', t);
+      document.querySelectorAll('.theme-opt').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-theme-opt') === t);
+      });
+    }
+    function applyAccent(a){
+      accent = a;
+      root.setAttribute('data-accent', a);
+      save('aj-accent', a);
+      document.querySelectorAll('.accent-dot').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-accent-opt') === a);
+      });
+    }
+    function applyLang(l){
+      lang = l;
+      save('aj-lang', l);
+      root.setAttribute('lang', l === 'en' ? 'en' : 'id');
+      document.querySelectorAll('[data-i18n-en]').forEach(el => {
+        if(!el.dataset.i18nId) el.dataset.i18nId = el.textContent;
+        el.textContent = l === 'en' ? el.getAttribute('data-i18n-en') : el.dataset.i18nId;
+      });
+      document.querySelectorAll('.lang-opt').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-lang-opt') === l);
+      });
+    }
+
+    applyTheme(theme);
+    applyAccent(accent);
+    applyLang(lang);
+
+    if(fab && panel){
+      fab.addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.classList.toggle('open');
+      });
+      document.addEventListener('click', (e) => {
+        if(panel.classList.contains('open') && !panel.contains(e.target) && e.target !== fab){
+          panel.classList.remove('open');
         }
-        @media (prefers-reduced-motion: reduce) {
-            .reveal { opacity: 1; transform: none; transition: none; }
-        }
-    </style>
+      });
+    }
+    document.querySelectorAll('.theme-opt').forEach(el => {
+      el.addEventListener('click', () => applyTheme(el.getAttribute('data-theme-opt')));
+    });
+    document.querySelectorAll('.accent-dot').forEach(el => {
+      el.addEventListener('click', () => applyAccent(el.getAttribute('data-accent-opt')));
+    });
+    document.querySelectorAll('.lang-opt').forEach(el => {
+      el.addEventListener('click', () => applyLang(el.getAttribute('data-lang-opt')));
+    });
+  })();
+</script>
 </body>
 </html>
