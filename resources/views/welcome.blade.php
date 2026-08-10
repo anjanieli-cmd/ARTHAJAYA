@@ -33,6 +33,9 @@
     --emerald: #34E0A1;
     --emerald-dim: #1E8F6B;
     --blue: #4E8FF0;
+    --blue-dim: #2B6CCF;
+    --orange: #F0A25A;
+    --orange-dim: #C97A2E;
     --text: #EAF0F6;
     --text-mute: #8A96AE;
     --text-faint: #545E73;
@@ -366,24 +369,83 @@
   .sec-card h3{ font-size:15.5px; margin-bottom:8px; }
   .sec-card p{ font-size:13.5px; color:var(--text-mute); line-height:1.6; }
 
-  /* PRICING */
+  /* ========================================================== */
+  /* PRICING SECTION — REDESIGNED TO MATCH SCREENSHOT 2 */
+  /* ========================================================== */
   .pricing{ padding:60px 0; }
   .pricing-head{ text-align:center; max-width:560px; margin:0 auto 44px; }
   .pricing-head h2{ font-size:32px; margin-top:10px; }
+  
   .pricing-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:stretch; }
-  .price-card{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:30px 26px; display:flex; flex-direction:column; transition: border-color .25s ease, transform .25s ease; position:relative; }
-  .price-card:hover{ border-color: var(--border-hover); transform: translateY(-4px); }
-  .price-card.popular{ border-color: var(--emerald); background:linear-gradient(160deg, rgba(var(--emerald-rgb),0.09), var(--surface) 60%); }
-  .price-badge{ position:absolute; top:-13px; left:50%; transform:translateX(-50%); background:var(--emerald); color:#052117; font-size:11.5px; font-weight:700; padding:5px 14px; border-radius:100px; white-space:nowrap; }
-  .price-name{ font-family:'Space Grotesk'; font-weight:700; font-size:18px; margin-bottom:6px; }
-  .price-desc{ font-size:13px; color:var(--text-mute); margin-bottom:20px; min-height:36px; }
+  
+  .price-card{ 
+    background:var(--surface); 
+    border:1px solid var(--border); 
+    border-radius:20px; 
+    padding:30px 28px; 
+    display:flex; 
+    flex-direction:column; 
+    transition: border-color .25s ease, transform .25s ease; 
+    position:relative; 
+  }
+  .price-card:hover{ 
+    border-color: var(--border-hover); 
+    transform: translateY(-4px); 
+  }
+  
+  .price-card.popular{ 
+    border-color: var(--blue); 
+    background:linear-gradient(160deg, rgba(var(--blue),0.08), var(--surface) 60%); 
+  }
+  .price-card.golden{ 
+    border-color: var(--orange); 
+    background:linear-gradient(160deg, rgba(var(--orange),0.08), var(--surface) 60%); 
+  }
+  
+  /* Labels (AKTIF / Paling Populer) */
+  .price-card .badge-top-right{
+    position:absolute; top:16px; right:16px;
+    background:var(--border); color:var(--text-mute);
+    font-size:11px; font-weight:600; padding:4px 12px; border-radius:100px;
+    display:flex; align-items:center; gap:6px;
+    border:1px solid var(--border-hover);
+  }
+  .price-card.popular .badge-top-right{ background:#4E8FF0; color:#fff; border:none; }
+  .price-card.golden .badge-top-right{ background:var(--orange); color:#052117; border:none; }
+  
+  /* Icon Header */
+  .price-icon-wrap{
+    width:48px; height:48px; border-radius:14px;
+    background:var(--surface-strong); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-mute); margin-bottom:20px;
+  }
+  .price-icon-wrap .icon{ width:24px; height:24px; }
+  .price-card.popular .price-icon-wrap{ border-color:var(--blue); color:var(--blue); background:rgba(var(--blue),0.15); }
+  .price-card.golden .price-icon-wrap{ border-color:var(--orange); color:var(--orange); background:rgba(var(--orange),0.15); }
+
+  .price-name{ font-family:'Space Grotesk'; font-weight:700; font-size:20px; margin-bottom:6px; }
+  .price-desc{ font-size:13px; color:var(--text-mute); margin-bottom:20px; }
+  
   .price-amount{ font-family:'Space Grotesk'; font-size:34px; font-weight:700; margin-bottom:2px; }
-  .price-amount span{ font-size:14px; font-weight:500; color:var(--text-mute); }
+  .price-amount span{ font-size:16px; font-weight:500; color:var(--text-mute); }
   .price-period{ font-size:12.5px; color:var(--text-faint); margin-bottom:24px; }
-  .price-features{ display:flex; flex-direction:column; gap:12px; margin-bottom:26px; flex:1; }
+  
+  .price-features{ display:flex; flex-direction:column; gap:14px; margin-bottom:28px; flex:1; }
   .price-features li{ display:flex; align-items:flex-start; gap:10px; font-size:13.5px; color:var(--text-mute); list-style:none; }
   .price-features .icon{ width:16px; height:16px; color:var(--emerald); flex-shrink:0; margin-top:2px; }
-  .price-card .btn{ width:100%; justify-content:center; }
+  .price-card.popular .price-features .icon{ color:var(--blue); }
+  .price-card.golden .price-features .icon{ color:var(--orange); }
+
+  /* Custom Buttons */
+  .btn-custom{ width:100%; justify-content:center; padding:12px 22px; border-radius:12px; font-weight:600; transition: all .25s ease; border:none; cursor:pointer; }
+  .btn-custom.btn-grey{ background:var(--surface-strong); color:var(--text); border:1px solid var(--border); }
+  .btn-custom.btn-grey:hover{ background:var(--surface); transform:translateY(-2px); }
+  .btn-custom.btn-blue{ background:var(--blue); color:#fff; box-shadow:0 4px 20px rgba(78,143,240,0.4); }
+  .btn-custom.btn-blue:hover{ transform:translateY(-2px); box-shadow:0 8px 28px rgba(78,143,240,0.5); }
+  .btn-custom.btn-orange{ background:var(--orange); color:#052117; box-shadow:0 4px 20px rgba(240,162,90,0.4); }
+  .btn-custom.btn-orange:hover{ transform:translateY(-2px); box-shadow:0 8px 28px rgba(240,162,90,0.5); }
+  /* ========================================================== */
 
   .faq{ padding:60px 0; }
   .faq-head{ text-align:center; max-width:560px; margin:0 auto 40px; }
@@ -483,7 +545,8 @@
   @media (max-width: 980px){
     .hero, .features{ grid-template-columns:1fr; }
     .security-grid{ grid-template-columns:repeat(2,1fr); }
-    .pricing-grid{ grid-template-columns:1fr; max-width:380px; margin:0 auto; }
+    /* Pricing grid respon 1 kolom */
+    .pricing-grid{ grid-template-columns:1fr; max-width:400px; margin:0 auto; }
     .nav-links{ display:none; }
     .nav-toggle{ display:flex; }
     .visual-stage{ height:440px; }
@@ -942,54 +1005,63 @@
     </div>
   </section>
 
-  <!-- HARGA -->
+  <!-- HARGA (REDESIGNED) -->
   <section class="pricing reveal" id="harga">
     <div class="pricing-head">
       <span class="tag" data-i18n-en="Transparent pricing">Harga transparan</span>
       <h2 data-i18n-en="Choose the plan that fits your business">Pilih paket yang paling pas buat bisnismu</h2>
     </div>
     <div class="pricing-grid">
+      
+      <!-- FREE -->
       <div class="price-card">
-        <div class="price-name">Starter</div>
-        <div class="price-desc" data-i18n-en="For small businesses just starting to organize their financial records.">Untuk bisnis kecil yang baru mulai rapikan catatan keuangan.</div>
-        <div class="price-amount">Rp99rb<span data-i18n-en="/month">/bulan</span></div>
-        <div class="price-period" data-i18n-en="Billed annually">Ditagih tahunan</div>
+        <div class="badge-top-right"><svg class="icon" style="width:12px;height:12px;"><use href="#ic-check"/></svg> AKTIF</div>
+        <div class="price-icon-wrap"><svg class="icon"><use href="#ic-shield"/></svg></div>
+        <div class="price-name">Free</div>
+        <div class="price-desc" data-i18n-en="Start here, free forever.">Mulai dari sini, gratis selamanya.</div>
+        <div class="price-amount">Rp 0</div>
+        <div class="price-period" data-i18n-en="Free forever">Gratis selamanya</div>
         <ul class="price-features">
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Unlimited invoices">Faktur tanpa batas</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="1 user">1 pengguna</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Manual bank reconciliation">Rekonsiliasi bank manual</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Email support">Support via email</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="1 User">Maks. 1 pengguna</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Invoices & Quotes">Faktur & Penawaran</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Client Management">Manajemen Klien</span></li>
         </ul>
-        <a href="{{ route('register') }}" class="btn btn-outline"><span data-i18n-en="Start Free">Mulai Gratis</span></a>
+        <button class="btn-custom btn-grey" disabled><span data-i18n-en="Active Package">Paket Aktif</span></button>
       </div>
+
+      <!-- PLATINUM -->
       <div class="price-card popular">
-        <div class="price-badge" data-i18n-en="Most Popular">Paling Populer</div>
-        <div class="price-name">Pro</div>
-        <div class="price-desc" data-i18n-en="For growing businesses that need full automation.">Untuk bisnis yang bertumbuh dan butuh otomatisasi penuh.</div>
-        <div class="price-amount">Rp299rb<span data-i18n-en="/month">/bulan</span></div>
-        <div class="price-period" data-i18n-en="Billed annually">Ditagih tahunan</div>
+        <div class="badge-top-right" data-i18n-en="Most Popular">Paling Populer</div>
+        <div class="price-icon-wrap"><svg class="icon"><use href="#ic-star"/></svg></div>
+        <div class="price-name">Platinum</div>
+        <div class="price-desc" data-i18n-en="Most popular for growing businesses.">Paling dipilih bisnis berkembang.</div>
+        <div class="price-amount">Rp149.000<span>/bulan</span></div>
+        <div class="price-period" data-i18n-en="Cancel anytime">Batalkan kapan saja</div>
         <ul class="price-features">
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Everything in Starter">Semua fitur Starter</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="5 users">5 pengguna</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Automatic bank reconciliation">Rekonsiliasi bank otomatis</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Real-time financial reports">Laporan keuangan real-time</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Priority support">Support prioritas</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Everything in Free">Semua fitur free</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Receivables & Aging Report">Piutang & Utang + Aging Report</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Financial Management">Manajemen Keuangan</span></li>
         </ul>
-        <a href="{{ route('register') }}" class="btn btn-primary"><span data-i18n-en="Start Free">Mulai Gratis</span></a>
+        <a href="{{ route('register') }}" class="btn-custom btn-blue"><span data-i18n-en="Upgrade Now">Upgrade Sekarang</span></a>
       </div>
-      <div class="price-card">
-        <div class="price-name">Business</div>
-        <div class="price-desc" data-i18n-en="For companies with finance teams and complex needs.">Untuk perusahaan dengan tim finance dan kebutuhan kompleks.</div>
-        <div class="price-amount">Rp799rb<span data-i18n-en="/month">/bulan</span></div>
-        <div class="price-period" data-i18n-en="Billed annually">Ditagih tahunan</div>
+
+      <!-- GOLD -->
+      <div class="price-card golden">
+        <div class="badge-top-right">Gold</div>
+        <div class="price-icon-wrap"><svg class="icon"><use href="#ic-badge"/></svg></div>
+        <div class="price-name">Gold</div>
+        <div class="price-desc" data-i18n-en="Everything unlimited for your business.">Semua fitur, tanpa batas.</div>
+        <div class="price-amount">Rp349.000<span>/bulan</span></div>
+        <div class="price-period" data-i18n-en="Cancel anytime">Batalkan kapan saja</div>
         <ul class="price-features">
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Everything in Pro">Semua fitur Pro</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Unlimited users">Pengguna tanpa batas</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Multi-entity & multi-branch">Multi-entitas & multi-cabang</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Dedicated account manager">Manajer akun khusus</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Everything in Platinum">Semua fitur platinum</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Payroll & Employee Data">Payroll dan Data Karyawan</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Budgeting & Forecasting">Anggaran dan Forecasting</span></li>
+          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Multi User & Access">Multi User & Hak Akses</span></li>
         </ul>
-        <a href="{{ route('register') }}" class="btn btn-outline"><span data-i18n-en="Contact Sales">Hubungi Sales</span></a>
+        <a href="{{ route('register') }}" class="btn-custom btn-orange"><span data-i18n-en="Upgrade Now">Upgrade Sekarang</span></a>
       </div>
+
     </div>
   </section>
 
