@@ -45,6 +45,8 @@
     --modal-bg: linear-gradient(160deg, #0F1520, #0A0D14 60%);
     --star-op: 1;
     --emerald-rgb: 52,224,161;
+    --blue-rgb: 78,143,240;
+    --orange-rgb: 240,162,90;
     --glow1-a: 0.16;
     --glow2-a: 0.11;
   }
@@ -395,11 +397,11 @@
   
   .price-card.popular{ 
     border-color: var(--blue); 
-    background:linear-gradient(160deg, rgba(var(--blue),0.08), var(--surface) 60%); 
+    background:linear-gradient(160deg, rgba(var(--blue-rgb),0.08), var(--surface) 60%); 
   }
   .price-card.golden{ 
     border-color: var(--orange); 
-    background:linear-gradient(160deg, rgba(var(--orange),0.08), var(--surface) 60%); 
+    background:linear-gradient(160deg, rgba(var(--orange-rgb),0.08), var(--surface) 60%); 
   }
   
   /* Labels (AKTIF / Paling Populer) */
@@ -421,8 +423,8 @@
     color:var(--text-mute); margin-bottom:20px;
   }
   .price-icon-wrap .icon{ width:24px; height:24px; }
-  .price-card.popular .price-icon-wrap{ border-color:var(--blue); color:var(--blue); background:rgba(var(--blue),0.15); }
-  .price-card.golden .price-icon-wrap{ border-color:var(--orange); color:var(--orange); background:rgba(var(--orange),0.15); }
+  .price-card.popular .price-icon-wrap{ border-color:var(--blue); color:var(--blue); background:rgba(var(--blue-rgb),0.15); }
+  .price-card.golden .price-icon-wrap{ border-color:var(--orange); color:var(--orange); background:rgba(var(--orange-rgb),0.15); }
 
   .price-name{ font-family:'Space Grotesk'; font-weight:700; font-size:20px; margin-bottom:6px; }
   .price-desc{ font-size:13px; color:var(--text-mute); margin-bottom:20px; }
@@ -545,8 +547,9 @@
   @media (max-width: 980px){
     .hero, .features{ grid-template-columns:1fr; }
     .security-grid{ grid-template-columns:repeat(2,1fr); }
-    /* Pricing grid respon 1 kolom */
-    .pricing-grid{ grid-template-columns:1fr; max-width:400px; margin:0 auto; }
+    /* Pricing grid respon 2 kolom di tablet, kartu ke-3 melebar penuh */
+    .pricing-grid{ grid-template-columns:repeat(2,1fr); max-width:640px; margin:0 auto; }
+    .pricing-grid .price-card:last-child{ grid-column:1 / -1; }
     .nav-links{ display:none; }
     .nav-toggle{ display:flex; }
     .visual-stage{ height:440px; }
@@ -570,6 +573,8 @@
     .dash-row2{ grid-template-columns:1fr; }
     .security-grid{ grid-template-columns:1fr; }
     .security-head h2, .pricing-head h2{ font-size:26px; }
+    .pricing-grid{ grid-template-columns:1fr; max-width:400px; }
+    .pricing-grid .price-card:last-child{ grid-column:auto; }
     .testi-card{ flex:0 0 280px; }
     .cta-banner{ padding:32px 26px; border-radius:20px; }
     .cta-banner h2{ font-size:22px; }
