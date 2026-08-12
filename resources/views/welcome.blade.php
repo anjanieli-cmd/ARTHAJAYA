@@ -45,13 +45,10 @@
     --modal-bg: linear-gradient(160deg, #0F1520, #0A0D14 60%);
     --star-op: 1;
     --emerald-rgb: 52,224,161;
-    --blue-rgb: 78,143,240;
-    --orange-rgb: 240,162,90;
     --glow1-a: 0.16;
     --glow2-a: 0.11;
   }
 
-  /* LIGHT THEME */
   [data-theme="light"]{
     --bg: #F4F6FA;
     --surface: rgba(15,25,40,0.035);
@@ -70,7 +67,6 @@
     --glow2-a: 0.16;
   }
 
-  /* ACCENT COLOR VARIANTS */
   [data-accent="blue"]{ --emerald:#4E8FF0; --emerald-dim:#3465C4; --emerald-rgb:78,143,240; }
   [data-accent="purple"]{ --emerald:#9B7BE0; --emerald-dim:#6E4FBE; --emerald-rgb:155,123,224; }
   [data-accent="orange"]{ --emerald:#F0A25A; --emerald-dim:#C97A2E; --emerald-rgb:240,162,90; }
@@ -96,7 +92,6 @@
   svg{ display:block; }
   .icon{ width:1em; height:1em; }
 
-  /* STARFIELD */
   #starfield{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
   .star{ position:absolute; border-radius:50%; background:#fff; animation: twinkle 3s ease-in-out infinite; }
   @keyframes twinkle{ 0%,100%{opacity:.15;} 50%{opacity:.9;} }
@@ -106,11 +101,9 @@
 
   .wrap{ max-width:1220px; margin:0 auto; padding:0 32px; position:relative; z-index:2; }
 
-  /* reveal on scroll */
   .reveal{ opacity:0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
   .reveal.in-view{ opacity:1; transform: translateY(0); }
 
-  /* NAV */
   nav{ position:sticky; top:0; z-index:50; background:var(--nav-bg); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); transition: background .35s ease, border-color .35s ease; }
   .nav-inner{ display:flex; align-items:center; justify-content:space-between; padding:18px 32px; max-width:1220px; margin:0 auto; }
   .logo{ display:flex; align-items:center; gap:10px; font-family:'Space Grotesk'; font-weight:700; font-size:19px; }
@@ -122,23 +115,10 @@
     overflow:hidden; flex-shrink:0; padding:6px;
     transition:border-color .25s ease, transform .25s ease;
   }
-  .logo-mark img{
-    width:100%; 
-    height:100%; 
-    object-fit:contain; 
-    transform:scale(1);
-  }
+  .logo-mark img{ width:100%; height:100%; object-fit:contain; transform:scale(1); }
   .logo:hover .logo-mark, a:hover .logo-mark{ border-color:var(--emerald); }
   .logo .dot{ color:var(--emerald); }
-  .logo .wordmark{
-    font-family:'Inter', sans-serif;
-    font-weight:800;
-    letter-spacing:-0.01em;
-    white-space:nowrap;
-    word-spacing:0;
-    display:inline-flex;
-    align-items:baseline;
-  }
+  .logo .wordmark{ font-family:'Inter', sans-serif; font-weight:800; letter-spacing:-0.01em; white-space:nowrap; word-spacing:0; display:inline-flex; align-items:baseline; }
   .logo .wordmark .dot{ margin:0; padding:0; letter-spacing:inherit; }
   .nav-links{ display:flex; gap:34px; font-size:14.5px; color:var(--text-mute); }
   .nav-links a{ display:flex; align-items:center; gap:5px; position:relative; padding:4px 0; transition: color .2s ease; }
@@ -157,7 +137,6 @@
   .btn-outline{ background:var(--surface); border:1px solid var(--border); color:var(--text); }
   .btn-outline:hover{ background:var(--surface-strong); border-color: var(--border-hover); transform: translateY(-2px); }
 
-  /* HERO */
   .hero{ padding:56px 0 32px; display:grid; grid-template-columns:1.05fr 1fr; gap:30px; align-items:center; position:relative; }
   .eyebrow{ display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:100px; background:var(--surface); border:1px solid var(--border); font-size:13px; color:var(--emerald); font-weight:500; margin-bottom:24px; }
   .eyebrow::before{ content:''; width:6px; height:6px; border-radius:50%; background:var(--emerald); box-shadow:0 0 8px var(--emerald); }
@@ -172,7 +151,6 @@
   .stat-row .num.green{ color:var(--emerald); }
   .stat-row .lbl{ font-size:12.5px; color:var(--text-faint); margin-top:3px; }
 
-  /* HERO VISUAL */
   .visual-stage{ position:relative; height:620px; }
   .swirl{ position:absolute; top:50%; left:52%; width:480px; height:480px; margin:-240px 0 0 -240px; border-radius:50%; background: conic-gradient(from 0deg, transparent 0%, rgba(var(--emerald-rgb),0.35) 15%, transparent 32%, transparent 100%); filter: blur(8px); animation: swirlSpin 9s linear infinite; }
   @keyframes swirlSpin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
@@ -184,7 +162,6 @@
   .a4{ width:16px; height:16px; top:80%; right:10%; animation: floatSlow 6.5s ease-in-out infinite 1.5s; }
   @keyframes floatSlow{ 0%,100%{transform:translateY(0px);} 50%{transform:translateY(-18px);} }
 
-  /* DASHBOARD LAPTOP MOCKUP */
   .laptop-wrap{
     position:absolute; top:6px; right:-70px; width:600px; z-index:2;
     transform-style:preserve-3d; transition: filter .3s ease, opacity 1.1s cubic-bezier(.16,1,.3,1), transform 1.1s cubic-bezier(.16,1,.3,1);
@@ -196,12 +173,7 @@
   .laptop-wrap:hover{ animation-play-state: paused; filter: brightness(1.05); }
   @keyframes winFloat{ 0%,100%{ transform: rotateY(-10deg) rotateX(5deg) rotateZ(-1deg) translateY(0); } 50%{ transform: rotateY(-5deg) rotateX(3deg) rotateZ(-1deg) translateY(-16px); } }
 
-  .laptop-screen-frame{
-    background: linear-gradient(160deg,#1B2029,#101319);
-    border-radius: 16px 16px 5px 5px;
-    padding: 12px 12px 6px;
-    box-shadow: 0 50px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-  }
+  .laptop-screen-frame{ background: linear-gradient(160deg,#1B2029,#101319); border-radius: 16px 16px 5px 5px; padding: 12px 12px 6px; box-shadow: 0 50px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04); }
   .laptop-camera{ width:6px; height:6px; border-radius:50%; background:#3A4150; margin:0 auto 10px; box-shadow: 0 0 4px rgba(255,255,255,0.1) inset; }
   .window{ background:var(--bg); border-radius:8px; border:1px solid var(--border); overflow:hidden; transition: background .35s ease; }
 
@@ -268,31 +240,15 @@
   .w-tx .amt.neg{ color:var(--text-mute); }
   .w-tx .amt.pos{ color:var(--emerald); }
 
-  .laptop-base{
-    position: relative;
-    width: 108%;
-    margin-left: -4%;
-    height: 16px;
-    background: linear-gradient(180deg,#22272F,#12151B);
-    border-radius: 0 0 12px 12px;
-    box-shadow: 0 14px 28px rgba(0,0,0,0.5);
-  }
-  .laptop-base::before{
-    content:'';
-    position:absolute; top:0; left:50%; transform:translateX(-50%);
-    width:64px; height:6px;
-    background: linear-gradient(180deg,#0B0D11,#080a0d);
-    border-radius: 0 0 8px 8px;
-  }
+  .laptop-base{ position: relative; width: 108%; margin-left: -4%; height: 16px; background: linear-gradient(180deg,#22272F,#12151B); border-radius: 0 0 12px 12px; box-shadow: 0 14px 28px rgba(0,0,0,0.5); }
+  .laptop-base::before{ content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:64px; height:6px; background: linear-gradient(180deg,#0B0D11,#080a0d); border-radius: 0 0 8px 8px; }
 
-  /* LOGO STRIP */
   .logo-strip{ padding:56px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
   .logo-strip p{ text-align:center; font-size:12.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint); margin-bottom:30px; }
   .logo-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; }
   .logo-row span{ color:var(--text-faint); font-family:'Space Grotesk'; font-weight:600; font-size:16.5px; opacity:.5; transition: opacity .2s ease, color .2s ease; cursor:default; }
   .logo-row span:hover{ opacity:1; color:var(--text); }
 
-  /* FEATURES + DASHBOARD PREVIEW */
   .features{ padding:60px 0; display:grid; grid-template-columns:0.85fr 1.15fr; gap:60px; align-items:center; }
   .tag{ color:var(--emerald); font-size:13px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; margin-bottom:14px; display:block; }
   .features h2{ font-size:34px; margin-bottom:30px; line-height:1.15; }
@@ -335,7 +291,6 @@
   .mini-chart{ display:flex; align-items:flex-end; gap:4px; height:36px; margin-top:14px; }
   .mini-chart i{ flex:1; background:linear-gradient(180deg,var(--emerald),transparent); border-radius:2px; opacity:.8; }
 
-  /* TESTIMONIALS */
   .testimonials{ padding:60px 0; }
   .testimonials-head{ text-align:center; max-width:560px; margin:0 auto 44px; }
   .testimonials-head h2{ font-size:32px; margin-top:10px; }
@@ -358,8 +313,6 @@
   .testi-name{ font-size:13.5px; font-weight:600; }
   .testi-role{ font-size:12px; color:var(--text-faint); }
 
-  /* FAQ */
-  /* SECURITY */
   .security{ padding:60px 0; }
   .security-head{ text-align:center; max-width:560px; margin:0 auto 44px; }
   .security-head h2{ font-size:32px; margin-top:10px; }
@@ -372,39 +325,36 @@
   .sec-card p{ font-size:13.5px; color:var(--text-mute); line-height:1.6; }
 
   /* ========================================================== */
-  /* PRICING SECTION — REDESIGNED TO MATCH SCREENSHOT 2 */
+  /* PRICING SECTION — disamakan dengan halaman /pricing di app */
   /* ========================================================== */
   .pricing{ padding:60px 0; }
   .pricing-head{ text-align:center; max-width:560px; margin:0 auto 44px; }
   .pricing-head h2{ font-size:32px; margin-top:10px; }
-  
+
   .pricing-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:stretch; }
-  
-  .price-card{ 
-    background:var(--surface); 
-    border:1px solid var(--border); 
-    border-radius:20px; 
-    padding:30px 28px; 
-    display:flex; 
-    flex-direction:column; 
-    transition: border-color .25s ease, transform .25s ease; 
-    position:relative; 
+
+  .price-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:30px 28px;
+    display:flex;
+    flex-direction:column;
+    transition: border-color .25s ease, transform .25s ease;
+    position:relative;
+    overflow:hidden;
   }
-  .price-card:hover{ 
-    border-color: var(--border-hover); 
-    transform: translateY(-4px); 
+  .price-card:hover{ border-color: var(--border-hover); transform: translateY(-4px); }
+
+  .price-card::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:3px; background:transparent;
   }
-  
-  .price-card.popular{ 
-    border-color: var(--blue); 
-    background:linear-gradient(160deg, rgba(var(--blue-rgb),0.08), var(--surface) 60%); 
-  }
-  .price-card.golden{ 
-    border-color: var(--orange); 
-    background:linear-gradient(160deg, rgba(var(--orange-rgb),0.08), var(--surface) 60%); 
-  }
-  
-  /* Labels (AKTIF / Paling Populer) */
+  .price-card.popular::before{ background:var(--blue); box-shadow:0 0 16px rgba(78,143,240,0.65); }
+  .price-card.golden::before{ background:var(--orange); box-shadow:0 0 16px rgba(240,162,90,0.65); }
+
+  .price-card.popular{ border-color: var(--blue); background:linear-gradient(160deg, rgba(78,143,240,0.08), var(--surface) 60%); }
+  .price-card.golden{ border-color: var(--orange); background:linear-gradient(160deg, rgba(240,162,90,0.08), var(--surface) 60%); }
+
   .price-card .badge-top-right{
     position:absolute; top:16px; right:16px;
     background:var(--border); color:var(--text-mute);
@@ -414,8 +364,7 @@
   }
   .price-card.popular .badge-top-right{ background:#4E8FF0; color:#fff; border:none; }
   .price-card.golden .badge-top-right{ background:var(--orange); color:#052117; border:none; }
-  
-  /* Icon Header */
+
   .price-icon-wrap{
     width:48px; height:48px; border-radius:14px;
     background:var(--surface-strong); border:1px solid var(--border);
@@ -423,26 +372,31 @@
     color:var(--text-mute); margin-bottom:20px;
   }
   .price-icon-wrap .icon{ width:24px; height:24px; }
-  .price-card.popular .price-icon-wrap{ border-color:var(--blue); color:var(--blue); background:rgba(var(--blue-rgb),0.15); }
-  .price-card.golden .price-icon-wrap{ border-color:var(--orange); color:var(--orange); background:rgba(var(--orange-rgb),0.15); }
+  .price-card.popular .price-icon-wrap{ border-color:var(--blue); color:var(--blue); background:rgba(78,143,240,0.15); }
+  .price-card.golden .price-icon-wrap{ border-color:var(--orange); color:var(--orange); background:rgba(240,162,90,0.15); }
 
   .price-name{ font-family:'Space Grotesk'; font-weight:700; font-size:20px; margin-bottom:6px; }
   .price-desc{ font-size:13px; color:var(--text-mute); margin-bottom:20px; }
-  
+
   .price-amount{ font-family:'Space Grotesk'; font-size:34px; font-weight:700; margin-bottom:2px; }
   .price-amount span{ font-size:16px; font-weight:500; color:var(--text-mute); }
   .price-period{ font-size:12.5px; color:var(--text-faint); margin-bottom:24px; }
-  
+
   .price-features{ display:flex; flex-direction:column; gap:14px; margin-bottom:28px; flex:1; }
   .price-features li{ display:flex; align-items:flex-start; gap:10px; font-size:13.5px; color:var(--text-mute); list-style:none; }
   .price-features .icon{ width:16px; height:16px; color:var(--emerald); flex-shrink:0; margin-top:2px; }
   .price-card.popular .price-features .icon{ color:var(--blue); }
   .price-card.golden .price-features .icon{ color:var(--orange); }
 
-  /* Custom Buttons */
-  .btn-custom{ width:100%; justify-content:center; padding:12px 22px; border-radius:12px; font-weight:600; transition: all .25s ease; border:none; cursor:pointer; }
+  .btn-custom{
+    width:100%; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 22px; border-radius:12px; font-weight:600; transition: all .25s ease;
+    border:none; cursor:pointer; font-family:'Inter', sans-serif; font-size:14.5px;
+  }
+  .btn-custom .icon{ width:15px; height:15px; flex-shrink:0; }
   .btn-custom.btn-grey{ background:var(--surface-strong); color:var(--text); border:1px solid var(--border); }
   .btn-custom.btn-grey:hover{ background:var(--surface); transform:translateY(-2px); }
+  .btn-custom.btn-grey:disabled{ cursor:default; opacity:.85; }
   .btn-custom.btn-blue{ background:var(--blue); color:#fff; box-shadow:0 4px 20px rgba(78,143,240,0.4); }
   .btn-custom.btn-blue:hover{ transform:translateY(-2px); box-shadow:0 8px 28px rgba(78,143,240,0.5); }
   .btn-custom.btn-orange{ background:var(--orange); color:#052117; box-shadow:0 4px 20px rgba(240,162,90,0.4); }
@@ -474,7 +428,6 @@
   .cta-checks span{ font-size:12.5px; color:var(--text-mute); display:flex; align-items:center; gap:6px; }
   .cta-checks .icon{ width:13px; height:13px; color:var(--emerald); }
 
-  /* FOOTER */
   footer{ border-top:1px solid var(--border); padding:50px 0 36px; }
   .footer-grid{ display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; margin-bottom:40px; }
   .footer-grid p{ color:var(--text-mute); font-size:13.5px; max-width:260px; margin-top:14px; }
@@ -483,7 +436,6 @@
   .footer-col a:hover{ color:var(--emerald); transform: translateX(3px); }
   .footer-bottom{ display:flex; justify-content:space-between; padding-top:26px; border-top:1px solid var(--border); font-size:12.5px; color:var(--text-faint); flex-wrap:wrap; gap:10px; }
 
-  /* AUTH MODAL */
   .auth-backdrop{ display:none; position:fixed; inset:0; background:rgba(4,7,12,0.7); backdrop-filter:blur(4px); z-index:200; opacity:0; transition:opacity .3s ease; }
   .auth-backdrop.open{ display:block; opacity:1; }
   .auth-modal{ display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-48%) scale(.97); width:min(420px, 92vw); max-height:88vh; overflow-y:auto; background:var(--modal-bg); border:1px solid var(--border); border-radius:22px; padding:34px 30px 28px; z-index:201; box-shadow:0 40px 100px rgba(0,0,0,0.55); opacity:0; transition: opacity .25s ease, transform .25s ease, background .35s ease; }
@@ -529,7 +481,6 @@
     .auth-head h2{ font-size:19px; }
   }
 
-  /* MOBILE NAV */
   .nav-toggle{ display:none; width:38px; height:38px; border-radius:10px; background:var(--surface); border:1px solid var(--border); align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; }
   .nav-toggle .icon{ width:18px; height:18px; color:var(--text); }
   .mobile-menu{ display:none; position:fixed; top:0; right:0; height:100vh; width:min(320px, 82vw); background:var(--mobile-bg); border-left:1px solid var(--border); z-index:100; padding:22px; transform:translateX(100%); transition: transform .3s cubic-bezier(.4,0,.2,1), background .35s ease; flex-direction:column; gap:6px; overflow-y:auto; }
@@ -547,9 +498,7 @@
   @media (max-width: 980px){
     .hero, .features{ grid-template-columns:1fr; }
     .security-grid{ grid-template-columns:repeat(2,1fr); }
-    /* Pricing grid respon 2 kolom di tablet, kartu ke-3 melebar penuh */
-    .pricing-grid{ grid-template-columns:repeat(2,1fr); max-width:640px; margin:0 auto; }
-    .pricing-grid .price-card:last-child{ grid-column:1 / -1; }
+    .pricing-grid{ grid-template-columns:1fr; max-width:420px; margin:0 auto; }
     .nav-links{ display:none; }
     .nav-toggle{ display:flex; }
     .visual-stage{ height:440px; }
@@ -573,14 +522,14 @@
     .dash-row2{ grid-template-columns:1fr; }
     .security-grid{ grid-template-columns:1fr; }
     .security-head h2, .pricing-head h2{ font-size:26px; }
-    .pricing-grid{ grid-template-columns:1fr; max-width:400px; }
-    .pricing-grid .price-card:last-child{ grid-column:auto; }
     .testi-card{ flex:0 0 280px; }
     .cta-banner{ padding:32px 26px; border-radius:20px; }
     .cta-banner h2{ font-size:22px; }
     .cta-banner-left{ flex-wrap:wrap; }
     .footer-grid{ grid-template-columns:1fr; gap:26px; }
     .footer-bottom{ flex-direction:column; align-items:flex-start; }
+    .pricing-grid{ max-width:100%; }
+    .price-card{ padding:26px 22px; }
   }
 
   @media (max-width: 480px){
@@ -597,7 +546,10 @@
     .logo-strip{ padding:36px 0; }
     .logo-row{ justify-content:center; gap:22px 30px; }
     .testimonials-head h2, .faq-head h2{ font-size:24px; }
-    .price-card{ padding:24px 20px; }
+    .price-card{ padding:22px 18px; }
+    .price-amount{ font-size:28px; }
+    .price-icon-wrap{ width:42px; height:42px; }
+    .price-icon-wrap .icon{ width:20px; height:20px; }
     .testi-card{ flex:0 0 250px; padding:20px; }
     .faq-q{ font-size:13.5px; padding:16px 18px; }
     .faq-a{ padding:0 18px 18px; }
@@ -605,24 +557,10 @@
     .cta-banner-left .logo-mark{ width:44px; height:44px; font-size:19px; }
   }
 
-  /* ===== SETTINGS WIDGET (theme / accent / language) ===== */
-  .settings-fab{
-    position:fixed; right:22px; bottom:22px; z-index:150;
-    width:50px; height:50px; border-radius:50%;
-    background:var(--surface-strong); border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-    color:var(--text); box-shadow:0 10px 30px rgba(0,0,0,0.35);
-    backdrop-filter:blur(10px); transition: transform .25s ease, border-color .25s ease, background .35s ease;
-  }
+  .settings-fab{ position:fixed; right:22px; bottom:22px; z-index:150; width:50px; height:50px; border-radius:50%; background:var(--surface-strong); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text); box-shadow:0 10px 30px rgba(0,0,0,0.35); backdrop-filter:blur(10px); transition: transform .25s ease, border-color .25s ease, background .35s ease; }
   .settings-fab:hover{ transform: translateY(-3px) rotate(20deg); border-color:var(--border-hover); }
   .settings-fab .icon{ width:20px; height:20px; }
-  .settings-panel{
-    position:fixed; right:22px; bottom:82px; z-index:150;
-    width:250px; background:var(--modal-bg); border:1px solid var(--border);
-    border-radius:18px; padding:18px; box-shadow:0 30px 70px rgba(0,0,0,0.45);
-    opacity:0; visibility:hidden; transform: translateY(10px) scale(.97);
-    transition: opacity .22s ease, transform .22s ease, visibility .22s, background .35s ease;
-  }
+  .settings-panel{ position:fixed; right:22px; bottom:82px; z-index:150; width:250px; background:var(--modal-bg); border:1px solid var(--border); border-radius:18px; padding:18px; box-shadow:0 30px 70px rgba(0,0,0,0.45); opacity:0; visibility:hidden; transform: translateY(10px) scale(.97); transition: opacity .22s ease, transform .22s ease, visibility .22s, background .35s ease; }
   .settings-panel.open{ opacity:1; visibility:visible; transform: translateY(0) scale(1); }
   .settings-panel h4{ font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-faint); margin-bottom:10px; font-family:'Inter'; }
   .settings-block{ margin-bottom:18px; }
@@ -654,7 +592,6 @@
 <div class="bg-glow"></div>
 <div class="bg-glow-2"></div>
 
-<!-- SETTINGS WIDGET -->
 <div class="settings-fab" id="settingsFab" aria-label="Pengaturan tampilan"><svg class="icon"><use href="#ic-gear"/></svg></div>
 <div class="settings-panel" id="settingsPanel">
   <div class="settings-block">
@@ -683,7 +620,6 @@
   </div>
 </div>
 
-<!-- Reusable icon defs -->
 <svg width="0" height="0" style="position:absolute">
 <defs>
   <symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
@@ -703,6 +639,7 @@
   <symbol id="ic-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
   <symbol id="ic-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18"/><path d="M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1"/></symbol>
   <symbol id="ic-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M9 14.5 7 22l5-3 5 3-2-7.5"/></symbol>
+  <symbol id="ic-bolt" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
   <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
   <symbol id="ic-star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 16.5 14 18.5 21 12 17 5.5 21 7.5 14 2 9.5 9 9"/></symbol>
   <symbol id="ic-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></symbol>
@@ -756,7 +693,6 @@
 
 <div class="wrap">
 
-  <!-- HERO -->
   <section class="hero">
     <div>
       <div class="eyebrow" data-i18n-en="Modern Accounting, For Your Business">Akuntansi Modern, Untuk Bisnismu</div>
@@ -848,7 +784,6 @@
     </div>
   </section>
 
-  <!-- FEATURES + DASHBOARD -->
   <section class="features" id="fitur">
     <div class="reveal">
       <span class="tag" data-i18n-en="Everything you need. In one place.">Semua yang kamu butuhkan. Dalam satu tempat.</span>
@@ -908,7 +843,6 @@
     </div>
   </section>
 
-  <!-- TESTIMONIALS -->
   <section class="testimonials reveal" id="manfaat">
     <div class="testimonials-head">
       <span class="tag" data-i18n-en="Trusted by Indonesian companies">Dipercaya perusahaan Indonesia</span>
@@ -980,7 +914,6 @@
     </div>
   </section>
 
-  <!-- KEAMANAN -->
   <section class="security reveal" id="keamanan">
     <div class="security-head">
       <span class="tag" data-i18n-en="Enterprise-grade security">Keamanan tingkat enterprise</span>
@@ -1010,14 +943,14 @@
     </div>
   </section>
 
-  <!-- HARGA (REDESIGNED) -->
+  <!-- HARGA -->
   <section class="pricing reveal" id="harga">
     <div class="pricing-head">
       <span class="tag" data-i18n-en="Transparent pricing">Harga transparan</span>
       <h2 data-i18n-en="Choose the plan that fits your business">Pilih paket yang paling pas buat bisnismu</h2>
     </div>
     <div class="pricing-grid">
-      
+
       <!-- FREE -->
       <div class="price-card">
         <div class="badge-top-right"><svg class="icon" style="width:12px;height:12px;"><use href="#ic-check"/></svg> AKTIF</div>
@@ -1027,11 +960,11 @@
         <div class="price-amount">Rp 0</div>
         <div class="price-period" data-i18n-en="Free forever">Gratis selamanya</div>
         <ul class="price-features">
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="1 User">Maks. 1 pengguna</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Invoices & Quotes">Faktur & Penawaran</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Client Management">Manajemen Klien</span></li>
+          <li><svg class="icon"><use href="#ic-user"/></svg><span data-i18n-en="1 User">Maks. 1 pengguna</span></li>
+          <li><svg class="icon"><use href="#ic-invoice"/></svg><span data-i18n-en="Invoices & Quotes">Faktur & Penawaran</span></li>
+          <li><svg class="icon"><use href="#ic-briefcase"/></svg><span data-i18n-en="Client Management">Manajemen Klien</span></li>
         </ul>
-        <button class="btn-custom btn-grey" disabled><span data-i18n-en="Active Package">Paket Aktif</span></button>
+        <a href="{{ route('login') }}" class="btn-custom btn-grey"><svg class="icon"><use href="#ic-check"/></svg> <span data-i18n-en="Active Package">Paket Aktif</span></a>
       </div>
 
       <!-- PLATINUM -->
@@ -1044,33 +977,32 @@
         <div class="price-period" data-i18n-en="Cancel anytime">Batalkan kapan saja</div>
         <ul class="price-features">
           <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Everything in Free">Semua fitur free</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Receivables & Aging Report">Piutang & Utang + Aging Report</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Financial Management">Manajemen Keuangan</span></li>
+          <li><svg class="icon"><use href="#ic-receive"/></svg><span data-i18n-en="Receivables & Aging Report">Piutang & Utang + Aging Report</span></li>
+          <li><svg class="icon"><use href="#ic-briefcase"/></svg><span data-i18n-en="Financial Management">Manajemen Keuangan</span></li>
         </ul>
-        <a href="{{ route('register') }}" class="btn-custom btn-blue"><span data-i18n-en="Upgrade Now">Upgrade Sekarang</span></a>
+        <a href="{{ route('login') }}" class="btn-custom btn-blue"><svg class="icon"><use href="#ic-bolt"/></svg> <span data-i18n-en="Upgrade Now">Upgrade Sekarang</span></a>
       </div>
 
       <!-- GOLD -->
       <div class="price-card golden">
         <div class="badge-top-right">Gold</div>
-        <div class="price-icon-wrap"><svg class="icon"><use href="#ic-badge"/></svg></div>
+        <div class="price-icon-wrap"><svg class="icon"><use href="#ic-bolt"/></svg></div>
         <div class="price-name">Gold</div>
         <div class="price-desc" data-i18n-en="Everything unlimited for your business.">Semua fitur, tanpa batas.</div>
         <div class="price-amount">Rp349.000<span>/bulan</span></div>
         <div class="price-period" data-i18n-en="Cancel anytime">Batalkan kapan saja</div>
         <ul class="price-features">
           <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Everything in Platinum">Semua fitur platinum</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Payroll & Employee Data">Payroll dan Data Karyawan</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Budgeting & Forecasting">Anggaran dan Forecasting</span></li>
-          <li><svg class="icon"><use href="#ic-check"/></svg><span data-i18n-en="Multi User & Access">Multi User & Hak Akses</span></li>
+          <li><svg class="icon"><use href="#ic-user"/></svg><span data-i18n-en="Payroll & Employee Data">Payroll dan Data Karyawan</span></li>
+          <li><svg class="icon"><use href="#ic-target"/></svg><span data-i18n-en="Budgeting & Forecasting">Anggaran dan Forecasting</span></li>
+          <li><svg class="icon"><use href="#ic-shield"/></svg><span data-i18n-en="Multi User & Access">Multi User & Hak Akses</span></li>
         </ul>
-        <a href="{{ route('register') }}" class="btn-custom btn-orange"><span data-i18n-en="Upgrade Now">Upgrade Sekarang</span></a>
+        <a href="{{ route('login') }}" class="btn-custom btn-orange"><svg class="icon"><use href="#ic-bolt"/></svg> <span data-i18n-en="Upgrade Now">Upgrade Sekarang</span></a>
       </div>
 
     </div>
   </section>
 
-  <!-- FAQ -->
   <section class="faq reveal" id="faq">
     <div class="faq-head">
       <span class="tag" data-i18n-en="Frequently asked questions">Pertanyaan umum</span>
@@ -1100,7 +1032,6 @@
     </div>
   </section>
 
-  <!-- CTA -->
   <section class="cta-banner reveal">
     <div class="cta-banner-left">
       <span class="logo-mark"><img src="logos.png" alt="Arvessa"></span>
@@ -1116,7 +1047,6 @@
     <a href="{{ route('register') }}" class="btn btn-primary"><span data-i18n-en="Start Free">Mulai Gratis</span> <svg class="icon"><use href="#ic-arrow-right"/></svg></a>
   </section>
 
-  <!-- FOOTER -->
   <footer>
     <div class="footer-grid reveal">
       <div>
@@ -1141,7 +1071,6 @@
 </style>
 
 <script>
-  // Starfield generator
   const field = document.getElementById('starfield');
   for(let i=0;i<90;i++){
     const s = document.createElement('div');
@@ -1156,7 +1085,6 @@
     field.appendChild(s);
   }
 
-  // Count-up stats on scroll into view
   const counters = document.querySelectorAll('.num[data-count]');
   const animateCounter = (el) => {
     const target = parseFloat(el.dataset.count);
@@ -1181,7 +1109,6 @@
   }, { threshold: 0.5 });
   counters.forEach(c => counterObs.observe(c));
 
-  // progress bar fill trigger
   document.querySelectorAll('.progress-fill').forEach(bar=>{
     const barObs = new IntersectionObserver((entries)=>{
       entries.forEach(entry=>{
@@ -1191,7 +1118,6 @@
     barObs.observe(bar);
   });
 
-  // scroll reveal
   const revealEls = document.querySelectorAll('.reveal');
   const revealObs = new IntersectionObserver((entries)=>{
     entries.forEach((entry, i)=>{
@@ -1203,12 +1129,10 @@
   }, { threshold: 0.15 });
   revealEls.forEach(el => revealObs.observe(el));
 
-  // stagger feat-item and dash cards on their own
   document.querySelectorAll('.feat-item').forEach((el,i)=>{
     el.style.transitionDelay = (i*0.08)+'s';
   });
 
-  // FAQ accordion — one open at a time
   document.querySelectorAll('.faq-item').forEach(item => {
     const q = item.querySelector('.faq-q');
     q.addEventListener('click', () => {
@@ -1230,8 +1154,6 @@
     stage.addEventListener('mouseleave', () => { win.style.transform = ''; });
   }
 
-  // Laptop mockup: enters hidden -> reveals -> settles into idle float,
-  // then kicks off number count-up, chart grow-in, and the auto-scrolling transaction ticker.
   const mockup = document.getElementById('laptopMockup');
   if(mockup){
     const mockupObs = new IntersectionObserver((entries) => {
@@ -1239,13 +1161,11 @@
         if(entry.isIntersecting){
           mockup.classList.add('mockup-in');
 
-          // once the reveal transition finishes, start the idle float + live content
           mockup.addEventListener('transitionend', function onIn(e){
             if(e.propertyName !== 'transform') return;
             mockup.removeEventListener('transitionend', onIn);
             mockup.classList.add('floating');
 
-            // balance count-up (Rp, Indonesian thousands separator)
             const balEl = document.getElementById('mockBalance');
             if(balEl){
               const target = 458320500;
@@ -1261,12 +1181,10 @@
               requestAnimationFrame(tick);
             }
 
-            // chart bars grow in, staggered
             document.querySelectorAll('.w-spark i').forEach((bar, i) => {
               setTimeout(() => { bar.style.height = bar.dataset.h + '%'; }, i * 70);
             });
 
-            // start the transaction ticker auto-scrolling
             const track = document.getElementById('txTrack');
             if(track) setTimeout(() => track.classList.add('playing'), 500);
           });
@@ -1278,7 +1196,6 @@
     mockupObs.observe(mockup);
   }
 
-  // ===== MOBILE NAV MENU =====
   const navToggle = document.getElementById('navToggle');
   const mobileMenu = document.getElementById('mobileMenu');
   const menuBackdrop = document.getElementById('menuBackdrop');
@@ -1305,7 +1222,6 @@
     if(e.key === 'Escape'){ closeMobileMenu(); }
   });
 
-  // ===== SETTINGS WIDGET: theme, accent color, language =====
   (function(){
     const root = document.documentElement;
     const fab = document.getElementById('settingsFab');
