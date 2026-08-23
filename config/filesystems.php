@@ -54,8 +54,9 @@ return [
             'region' => env('SUPABASE_S3_REGION', 'us-east-1'),
             'bucket' => env('SUPABASE_S3_BUCKET', 'avatars'),
             'endpoint' => env('SUPABASE_S3_ENDPOINT'),
+            'url' => env('SUPABASE_URL') . '/storage/v1/object/public/' . env('SUPABASE_S3_BUCKET', 'avatars'),  // ← BARIS BARU
             'use_path_style_endpoint' => true,
-            'throw' => true,   // ← ubah dari false jadi true
+            'throw' => true,
         ],
 
         's3' => [

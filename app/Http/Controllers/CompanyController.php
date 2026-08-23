@@ -32,9 +32,9 @@ class CompanyController extends Controller
 
         if ($request->hasFile('logo')) {
             if ($company->logo) {
-                Storage::disk('public')->delete($company->logo);
-            }
-            $validated['logo'] = $request->file('logo')->store('company-logos', 'public');
+                Storage::disk('supabase')->delete($company->logo);
+        }
+            $validated['logo'] = $request->file('logo')->store('company-logos', 'supabase');
         } else {
             unset($validated['logo']);
         }
