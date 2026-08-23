@@ -29,9 +29,9 @@ class AdminProfileController extends Controller
 
         if ($request->hasFile('avatar')) {
             if ($admin->avatar) {
-                Storage::disk('public')->delete($admin->avatar);
+                Storage::disk('supabase')->delete($admin->avatar);
             }
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'supabase');
         }
 
         $admin->update($data);
