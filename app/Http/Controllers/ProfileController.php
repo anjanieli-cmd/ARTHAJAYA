@@ -41,9 +41,9 @@ class ProfileController extends Controller
         // Handle upload avatar baru
         if ($request->hasFile('avatar')) {
             if ($request->user()->avatar) {
-                Storage::disk('public')->delete($request->user()->avatar);
+                Storage::disk('supabase')->delete($request->user()->avatar);
             }
-            $request->user()->avatar = $request->file('avatar')->store('avatars', 'public');
+            $request->user()->avatar = $request->file('avatar')->store('avatars', 'supabase');
         }
 
         $request->user()->save();
@@ -63,7 +63,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         if ($user->avatar) {
-            Storage::disk('public')->delete($user->avatar);
+            Storage::disk('supabase')->delete($user->avatar);
         }
 
         Auth::logout();

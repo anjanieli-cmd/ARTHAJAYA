@@ -724,7 +724,7 @@
                 <div class="profile-avatar-wrap">
                     <div class="profile-avatar">
                         @if(isset($user->avatar) && $user->avatar)
-                            <img src="{{ asset('storage/'.$user->avatar) }}" alt="{{ $user->name }}">
+                            <img src="{{ \Storage::disk('supabase')->url($user->avatar) }}" alt="{{ $user->name }}">
                         @else
                             <span class="avatar-initial">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
                         @endif

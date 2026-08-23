@@ -499,7 +499,7 @@
           <div class="user-trigger" id="userTrigger">
             <div class="user-avatar">
               @if(Auth::user()->avatar ?? false)
-                <img src="{{ asset('storage/'.Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
+                <img src="{{ \Storage::disk('supabase')->url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
               @else
                 {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
               @endif
@@ -511,7 +511,7 @@
             <div class="dropdown-head">
               <div class="dropdown-head-avatar">
                 @if(Auth::user()->avatar ?? false)
-                  <img src="{{ asset('storage/'.Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
+                  <img src="{{ \Storage::disk('supabase')->url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
                 @else
                   {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                 @endif

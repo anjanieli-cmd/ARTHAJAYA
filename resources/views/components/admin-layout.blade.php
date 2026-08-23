@@ -231,7 +231,7 @@
   }
 
   .field-hint {
-    font-size:11.5px;
+    font-size:1 1.5px;
     color:var(--text-faint);
     margin-top:6px;
   }
@@ -435,13 +435,10 @@
             <div class="user-avatar" id="adminUserAvatar">
               @php
                 $user = Auth::user();
-                // LANGSUNG PAKAI $user->avatar (kolom users)
-                $avatarPath = $user && $user->avatar ? storage_path('app/public/' . $user->avatar) : null;
-                $avatarUrl = $user && $user->avatar ? asset('storage/' . $user->avatar) : null;
-                $hasAvatar = $avatarUrl && file_exists($avatarPath);
+                $hasAvatar = $user && $user->avatar;
               @endphp
               @if($hasAvatar)
-                <img src="{{ $avatarUrl }}" alt="{{ $user->name ?? 'Admin' }}" id="adminAvatarImg">
+                <img src="{{ \Storage::disk('supabase')->url($user->avatar) }}" alt="{{ $user->name ?? 'Admin' }}" id="adminAvatarImg">
               @else
                 <span class="fallback">{{ strtoupper(substr($user->name ?? 'A', 0, 1)) }}</span>
               @endif
