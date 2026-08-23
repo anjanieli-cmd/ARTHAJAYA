@@ -55,7 +55,7 @@ return [
             'bucket' => env('SUPABASE_S3_BUCKET', 'avatars'),
             'endpoint' => env('SUPABASE_S3_ENDPOINT'),
             'use_path_style_endpoint' => true,
-            'throw' => false,
+            'throw' => true,   // ← ubah dari false jadi true
         ],
 
         's3' => [
