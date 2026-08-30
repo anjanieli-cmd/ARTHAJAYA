@@ -73,7 +73,7 @@ class StaffExpenseApprovalController extends Controller
             'reviewed_at' => now(),
         ]);
 
-        Expense::create([
+                $expense = Expense::create([
             'company_id'             => $submission->company_id,
             'expense_submission_id'  => $submission->id,
             'created_by'             => $user->id,
@@ -84,6 +84,18 @@ class StaffExpenseApprovalController extends Controller
             'status'                 => 'pending',
             'notes'                  => $submission->note,
         ]);
+
+        // Catat ke jurnal: Debit Biaya, Credit Kas
+        \App\Services\JournalService::record(
+            companyId: $submission->company_id,
+            debitAccountCode: '5-101',   // Biaya Operasional
+            creditAccountCode: '1-101',  // Kas
+            amount: $submission->amount,
+            description: $submission->description,
+            referenceType: Expense::class,
+            referenceId: $expense->id,
+            date: $submission->expense_date,
+        );
 
         // Kirim notifikasi balik ke user yang mengajukan
         $submission->submitter->notify(new ExpenseReviewed($submission));

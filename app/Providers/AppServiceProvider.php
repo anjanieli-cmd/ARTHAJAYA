@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,6 +17,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Paksa semua URL yang di-generate Laravel (asset(), url(), route(), dll)
+        // pakai HTTPS di production, supaya nggak kena mixed content block
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
         // Share $company otomatis ke SEMUA view, termasuk navigation.blade.php
         View::composer('*', function ($view) {
             if (Auth::check() && !$view->offsetExists('company')) {

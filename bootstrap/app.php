@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Percaya semua proxy (dibutuhkan karena Vercel terminate HTTPS
+        // di depan lalu meneruskan request ke Laravel via HTTP internal)
+        $middleware->trustProxies(at: '*');
+
         // Daftarkan middleware alias
         $middleware->alias([
             'onboarding.complete' => EnsureOnboardingComplete::class,
