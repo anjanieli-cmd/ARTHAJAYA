@@ -29,11 +29,24 @@ class PaymentController extends Controller
         $selectedPlan = Plan::where('slug', $plan)->firstOrFail();
 
         // ===== Lengkapi atribut yang dibutuhkan view checkout.blade.php =====
-        $selectedPlan->accent   = $selectedPlan->slug === 'gold' ? 'gold' : 'emerald';
-        $selectedPlan->period   = '/bulan';
-        $selectedPlan->label    = 'Rp' . number_format($selectedPlan->price, 0, ',', '.') . $selectedPlan->period;
-        $selectedPlan->features = $selectedPlan->features_list;
-        $selectedPlan->billing_period = 'monthly';
+        $selectedPlan->accent = $selectedPlan->slug === 'gold' ? 'gold' : 'emerald';
+        $selectedPlan->period = '/bulan';
+        $selectedPlan->label  = 'Rp' . number_format($selectedPlan->price, 0, ',', '.') . $selectedPlan->period;
+
+        // FIX: features_list bisa null (accessor tidak ada / data kosong di DB).
+        // Fallback berlapis supaya @foreach($plan->features) di view tidak pernah menerima null.
+        $features = $selectedPlan->features_list
+            ?? $selectedPlan->features
+            ?? [];
+
+        // Jika hasilnya masih bukan array (misal string JSON mentah), amankan juga.
+        if (!is_array($features)) {
+            $decoded = json_decode($features, true);
+            $features = is_array($decoded) ? $decoded : [];
+        }
+
+        $selectedPlan->features = $features;
+        $selectedPlan->billing_period = $selectedPlan->billing_period ?? 'monthly';
 
         $company = auth()->user()->company ?? null;
 
