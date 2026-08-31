@@ -21,6 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'access' => EnsureUserHasAccessLevel::class,
             'feature' => CheckFeature::class,
         ]);
+
+        // Webhook Midtrans dikecualikan dari CSRF -- request-nya dari server
+        // Midtrans, bukan dari browser user, jadi nggak bisa bawa CSRF token
+        $middleware->validateCsrfTokens(except: [
+            'midtrans/notification',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

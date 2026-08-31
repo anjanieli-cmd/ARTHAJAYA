@@ -8,6 +8,11 @@
     <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
     <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
   </symbol>
+  <!-- ===== TAMBAHAN ICON CLOCK UNTUK RIWAYAT AKTIVITAS ===== -->
+  <symbol id="ic-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"></circle>
+    <polyline points="12 7 12 12 16 14"></polyline>
+  </symbol>
 </svg>
 
 <aside class="sidebar" id="sidebar">
@@ -327,6 +332,14 @@
 
   {{-- ===== LAINNYA ===== --}}
   <div class="sb-group-label">Lainnya</div>
+
+  {{-- ===== RIWAYAT AKTIVITAS — single link, gak ada lock, langsung keliatan semua staff ===== --}}
+  <a href="{{ sb_url('history.index') }}" class="sb-link {{ request()->routeIs('history.*') ? 'active' : '' }} {{ \Route::has('history.index') ? '' : 'soon' }}">
+    <span class="sb-link-main">
+      <svg class="icon"><use href="#ic-history"/></svg>
+      <span class="sb-link-text">Riwayat Aktivitas</span>
+    </span>
+  </a>
 
   {{-- ===== TIKET BANTUAN — single link, gak ada lock, khusus staff ===== --}}
   @php

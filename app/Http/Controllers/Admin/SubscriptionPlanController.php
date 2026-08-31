@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
-use App\Models\SubscriptionPlan;
+use App\Models\Plan;
+use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -12,9 +13,10 @@ class SubscriptionPlanController extends Controller
 {
     public function index()
     {
-        $plans = SubscriptionPlan::withCount('companies')
-            ->orderBy('price')
-            ->get();
+        $plans = Plan::orderBy('price')->get()->map(function ($plan) {
+            $plan->companies_count = Company::where('plan', $plan->slug)->count();
+            return $plan;
+        });
 
         return view('admin.subscriptions.index', compact('plans'));
     }
@@ -30,7 +32,7 @@ class SubscriptionPlanController extends Controller
         $data['slug'] = Str::slug($data['name']);
         $data['is_active'] = $request->boolean('is_active');
 
-        $plan = SubscriptionPlan::create($data);
+        $plan = Plan::create($data);
 
         ActivityLog::record(
             'create_subscription_plan',
@@ -42,12 +44,12 @@ class SubscriptionPlanController extends Controller
             ->with('success', "Paket {$plan->name} berhasil dibuat.");
     }
 
-    public function edit(SubscriptionPlan $subscriptionPlan)
+    public function edit(Plan $subscriptionPlan)
     {
         return view('admin.subscriptions.edit', ['plan' => $subscriptionPlan]);
     }
 
-    public function update(Request $request, SubscriptionPlan $subscriptionPlan)
+    public function update(Request $request, Plan $subscriptionPlan)
     {
         $data = $this->validateData($request);
         $data['slug'] = Str::slug($data['name']);
@@ -65,11 +67,7 @@ class SubscriptionPlanController extends Controller
             ->with('success', "Paket {$subscriptionPlan->name} berhasil diperbarui.");
     }
 
-    /**
-     * Toggle aktif/nonaktif paket.
-     * Nama method "toggle" - HARUS SAMA dengan yang dipanggil di routes/web.php.
-     */
-    public function toggle(SubscriptionPlan $subscriptionPlan)
+    public function toggle(Plan $subscriptionPlan)
     {
         $subscriptionPlan->update(['is_active' => !$subscriptionPlan->is_active]);
 
@@ -83,9 +81,9 @@ class SubscriptionPlanController extends Controller
             ->with('success', "Status paket {$subscriptionPlan->name} berhasil diubah.");
     }
 
-    public function destroy(SubscriptionPlan $subscriptionPlan)
+    public function destroy(Plan $subscriptionPlan)
     {
-        $count = $subscriptionPlan->companies()->count();
+        $count = Company::where('plan', $subscriptionPlan->slug)->count();
 
         if ($count > 0) {
             return back()->withErrors([

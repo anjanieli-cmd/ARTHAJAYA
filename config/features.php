@@ -1,13 +1,13 @@
 <?php
 
 return [
-    'dashboard'        => ['free', 'platinum', 'gold'],
-    'penjualan'        => ['free', 'platinum', 'gold'],
-    'piutang_utang'    => ['platinum', 'gold'],
-    'pembelian_biaya'  => ['free', 'platinum', 'gold'],
-    'perbankan'        => ['platinum', 'gold'],
-    'laporan'          => ['platinum', 'gold'],
-    'inventaris'       => ['platinum', 'gold'],
+    'dashboard'        => ['free', 'silver', 'gold'],
+    'penjualan'        => ['free', 'silver', 'gold'],
+    'piutang_utang'    => ['silver', 'gold'],
+    'pembelian_biaya'  => ['free', 'silver', 'gold'],
+    'perbankan'        => ['silver', 'gold'],
+    'laporan'          => ['silver', 'gold'],
+    'inventaris'       => ['silver', 'gold'],
     'payroll'          => ['gold'],
     'pajak'            => ['gold'],
     'anggaran'         => ['gold'],

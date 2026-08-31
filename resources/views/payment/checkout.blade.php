@@ -2,7 +2,7 @@
   <x-slot name="title">Pembayaran</x-slot>
 
   @php
-    $accent = $plan['accent']; // 'emerald' atau 'gold'
+    $accent = $plan->accent; // 'emerald' atau 'gold'
     $isGold = $accent === 'gold';
     $accentColor = $isGold ? '#f59e0b' : 'var(--emerald)';
     $accentRgb = $isGold ? '245, 158, 11' : 'var(--emerald-rgb)';
@@ -128,7 +128,6 @@
       backdrop-filter: blur(10px);
     }
 
-    /* ===== METODE PEMBAYARAN ===== */
     .checkout-card h2 {
       font-size: 17px;
       font-weight: 700;
@@ -235,209 +234,11 @@
       color: {{ $accentColor }};
     }
 
-    /* ===== PAYMENT DETAIL FORM ===== */
-    .payment-detail {
-      margin-top: 14px;
-      margin-bottom: 14px;
-      padding: 16px 18px;
-      border-radius: 14px;
-      background: var(--surface-strong);
-      border: 1px solid var(--border);
-      display: none;
-    }
-
-    .payment-detail.show {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .payment-detail label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-mute);
-      margin-bottom: 4px;
-      margin-top: 12px;
-    }
-
-    .payment-detail label:first-of-type {
-      margin-top: 0;
-    }
-
-    .payment-detail input,
-    .payment-detail select {
-      width: 100%;
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-size: 14px;
-      transition: border-color 0.2s ease;
-      margin-bottom: 4px;
-    }
-
-    .payment-detail input:focus,
-    .payment-detail select:focus {
-      outline: none;
-      border-color: {{ $accentColor }};
-      box-shadow: 0 0 0 3px rgba({{ $accentRgb }}, 0.1);
-    }
-
-    /* ===== FIX: DROPDOWN STYLING - NO DOUBLE ICON ===== */
-    .payment-detail select {
-      appearance: auto;
-      -webkit-appearance: auto;
-      background-color: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      cursor: pointer;
-      padding-right: 14px;
-    }
-
-    .payment-detail select option {
-      background-color: var(--surface);
-      color: var(--text);
-      padding: 8px 12px;
-    }
-
-    .payment-detail select option:hover,
-    .payment-detail select option:checked,
-    .payment-detail select option:focus {
-      background-color: rgba(var(--emerald-rgb), 0.15);
-      color: var(--emerald);
-    }
-
-    .payment-detail .input-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    @media (max-width: 480px) {
-      .payment-detail .input-group {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .payment-detail .bank-list {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-
-    .payment-detail .bank-list .bank-item {
-      padding: 8px 6px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      text-align: center;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-mute);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .payment-detail .bank-list .bank-item:hover {
-      border-color: var(--border-hover);
-      background: var(--surface-strong);
-    }
-
-    .payment-detail .bank-list .bank-item.selected {
-      border-color: {{ $accentColor }};
-      background: rgba({{ $accentRgb }}, 0.08);
-      color: {{ $accentColor }};
-    }
-
-    .payment-detail .bank-list .bank-item .bank-icon {
-      display: block;
-      font-size: 18px;
-      margin-bottom: 2px;
-    }
-
-    @media (max-width: 600px) {
-      .payment-detail .bank-list {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    /* ===== FIX: THEME-BASED STYLING (bukan prefers-color-scheme) ===== */
-    [data-theme="dark"] .payment-detail select {
-      background-color: #1a2332;
-      color: #f1f5f9;
-      border-color: rgba(255,255,255,0.08);
-    }
-
-    [data-theme="dark"] .payment-detail select option {
-      background-color: #1a2332;
-      color: #f1f5f9;
-    }
-
-    [data-theme="dark"] .payment-detail select option:hover,
-    [data-theme="dark"] .payment-detail select option:checked {
-      background-color: rgba(var(--emerald-rgb), 0.2);
-      color: var(--emerald-light);
-    }
-
-    [data-theme="dark"] .payment-detail input {
-      background-color: #1a2332;
-      color: #f1f5f9;
-      border-color: rgba(255,255,255,0.08);
-    }
-
-    [data-theme="dark"] .payment-detail input::placeholder {
-      color: #64748b;
-    }
-
-    [data-theme="dark"] .payment-detail input:focus {
-      border-color: {{ $accentColor }};
-      box-shadow: 0 0 0 3px rgba({{ $accentRgb }}, 0.15);
-    }
-
-    /* Light theme override untuk memastikan input terlihat normal */
-    [data-theme="light"] .payment-detail select {
-      background-color: #f1f5f9;
-      color: #1a2332;
-      border-color: rgba(0,0,0,0.1);
-    }
-
-    [data-theme="light"] .payment-detail select option {
-      background-color: #f1f5f9;
-      color: #1a2332;
-    }
-
-    [data-theme="light"] .payment-detail select option:hover,
-    [data-theme="light"] .payment-detail select option:checked {
-      background-color: rgba(var(--emerald-rgb), 0.15);
-      color: var(--emerald);
-    }
-
-    [data-theme="light"] .payment-detail input {
-      background-color: #f1f5f9;
-      color: #1a2332;
-      border-color: rgba(0,0,0,0.1);
-    }
-
-    [data-theme="light"] .payment-detail input::placeholder {
-      color: #8a96ae;
-    }
-
-    [data-theme="light"] .payment-detail input:focus {
-      border-color: {{ $accentColor }};
-      box-shadow: 0 0 0 3px rgba({{ $accentRgb }}, 0.15);
+    /* ===== NOTE: bank/wallet spesifik & detail kartu diisi di halaman Snap Midtrans ===== */
+    .pm-note {
+      font-size: 11.5px;
+      color: var(--text-faint);
+      margin: -4px 0 10px 56px;
     }
 
     /* ===== ERROR ===== */
@@ -816,10 +617,6 @@
       .pm-option .pm-desc {
         font-size: 11px;
       }
-
-      .payment-detail .bank-list {
-        grid-template-columns: repeat(2, 1fr);
-      }
     }
   </style>
 
@@ -842,12 +639,12 @@
         Selesaikan Pembayaran
       </h1>
       <p>
-        Kamu akan upgrade ke paket <strong>{{ $plan['name'] }}</strong>.
+        Kamu akan upgrade ke paket <strong>{{ $plan->name }}</strong>.
         <span class="plan-badge-header">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <polyline points="20 6 9 17 4 12"/>
           </svg>
-          {{ $plan['period'] === '/bulan' ? 'Langganan Bulanan' : 'Paket ' . $plan['name'] }}
+          {{ $plan->period === '/bulan' ? 'Langganan Bulanan' : 'Paket ' . $plan->name }}
         </span>
       </p>
     </div>
@@ -858,7 +655,7 @@
         <!-- ===== METODE PEMBAYARAN ===== -->
         <div class="checkout-card">
           <h2>Metode Pembayaran</h2>
-          <p class="sub">Pilih salah satu metode di bawah ini untuk menyelesaikan pembayaran.</p>
+          <p class="sub">Pilih salah satu metode di bawah ini. Detail kartu/rekening akan diisi di halaman pembayaran resmi Midtrans setelah ini.</p>
 
           @error('payment_method')
             <div class="checkout-error">
@@ -873,7 +670,7 @@
 
           <!-- Transfer Bank -->
           <label class="pm-option">
-            <input type="radio" name="payment_method" value="bank_transfer" data-target="bank-detail" {{ old('payment_method') === 'bank_transfer' ? 'checked' : '' }}>
+            <input type="radio" name="payment_method" value="bank_transfer" {{ old('payment_method') === 'bank_transfer' ? 'checked' : '' }}>
             <span class="pm-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="7" width="20" height="14" rx="2"/>
@@ -888,38 +685,9 @@
             <span class="pm-badge">Populer</span>
           </label>
 
-          <div class="payment-detail" id="bank-detail">
-            <label>Pilih Bank</label>
-            <div class="bank-list">
-              <div class="bank-item" data-bank="bca">
-                <span class="bank-icon">🏦</span>
-                BCA
-              </div>
-              <div class="bank-item" data-bank="mandiri">
-                <span class="bank-icon">🏦</span>
-                Mandiri
-              </div>
-              <div class="bank-item" data-bank="bni">
-                <span class="bank-icon">🏦</span>
-                BNI
-              </div>
-              <div class="bank-item" data-bank="bri">
-                <span class="bank-icon">🏦</span>
-                BRI
-              </div>
-            </div>
-            <input type="hidden" name="bank" id="selected-bank" value="bca">
-            
-            <label>Nomor Rekening</label>
-            <input type="text" name="account_number" placeholder="Masukkan nomor rekening Anda" value="{{ old('account_number') }}">
-            
-            <label>Nama Pemilik Rekening</label>
-            <input type="text" name="account_name" placeholder="Masukkan nama pemilik rekening" value="{{ old('account_name') }}">
-          </div>
-
           <!-- E-Wallet -->
           <label class="pm-option">
-            <input type="radio" name="payment_method" value="e_wallet" data-target="wallet-detail" {{ old('payment_method') === 'e_wallet' ? 'checked' : '' }}>
+            <input type="radio" name="payment_method" value="e_wallet" {{ old('payment_method') === 'e_wallet' ? 'checked' : '' }}>
             <span class="pm-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="4" width="18" height="16" rx="2"/>
@@ -929,26 +697,13 @@
             </span>
             <span class="pm-info">
               <span class="pm-name">E-Wallet</span>
-              <span class="pm-desc">GoPay, OVO, DANA, ShopeePay</span>
+              <span class="pm-desc">GoPay, ShopeePay</span>
             </span>
           </label>
 
-          <div class="payment-detail" id="wallet-detail">
-            <label>Pilih E-Wallet</label>
-            <select name="wallet_type">
-              <option value="gopay">GoPay</option>
-              <option value="ovo">OVO</option>
-              <option value="dana">DANA</option>
-              <option value="shopeepay">ShopeePay</option>
-            </select>
-            
-            <label>Nomor Akun</label>
-            <input type="text" name="wallet_number" placeholder="Masukkan nomor akun e-wallet Anda" value="{{ old('wallet_number') }}">
-          </div>
-
           <!-- Kartu Kredit -->
           <label class="pm-option">
-            <input type="radio" name="payment_method" value="credit_card" data-target="card-detail" {{ old('payment_method') === 'credit_card' ? 'checked' : '' }}>
+            <input type="radio" name="payment_method" value="credit_card" {{ old('payment_method') === 'credit_card' ? 'checked' : '' }}>
             <span class="pm-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="1" y="4" width="22" height="16" rx="2"/>
@@ -961,28 +716,9 @@
             </span>
           </label>
 
-          <div class="payment-detail" id="card-detail">
-            <label>Nomor Kartu</label>
-            <input type="text" name="card_number" placeholder="1234 5678 9012 3456" value="{{ old('card_number') }}">
-            
-            <div class="input-group">
-              <div>
-                <label>Tanggal Kadaluarsa</label>
-                <input type="text" name="card_expiry" placeholder="MM/YY" value="{{ old('card_expiry') }}">
-              </div>
-              <div>
-                <label>CVV</label>
-                <input type="text" name="card_cvv" placeholder="123" value="{{ old('card_cvv') }}">
-              </div>
-            </div>
-            
-            <label>Nama Pemilik Kartu</label>
-            <input type="text" name="card_name" placeholder="Nama sesuai kartu" value="{{ old('card_name') }}">
-          </div>
-
           <!-- QRIS -->
           <label class="pm-option">
-            <input type="radio" name="payment_method" value="qris" data-target="qris-detail" {{ old('payment_method') === 'qris' ? 'checked' : '' }}>
+            <input type="radio" name="payment_method" value="qris" {{ old('payment_method') === 'qris' ? 'checked' : '' }}>
             <span class="pm-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="2" y="2" width="8" height="8" rx="1"/>
@@ -1001,26 +737,6 @@
             </span>
           </label>
 
-          <div class="payment-detail" id="qris-detail">
-            <div style="text-align:center;padding:16px 0;">
-              <div style="width:150px;height:150px;margin:0 auto;background:var(--surface-strong);border-radius:16px;display:flex;align-items:center;justify-content:center;border:2px dashed var(--border);">
-                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-mute);">
-                  <rect x="2" y="2" width="8" height="8" rx="1"/>
-                  <rect x="14" y="2" width="8" height="8" rx="1"/>
-                  <rect x="2" y="14" width="8" height="8" rx="1"/>
-                  <rect x="14" y="14" width="8" height="8" rx="1"/>
-                  <line x1="6" y1="6" x2="6" y2="6.01"/>
-                  <line x1="18" y1="6" x2="18" y2="6.01"/>
-                  <line x1="6" y1="18" x2="6" y2="18.01"/>
-                  <line x1="18" y1="18" x2="18" y2="18.01"/>
-                </svg>
-              </div>
-              <p style="margin-top:12px;font-size:13px;color:var(--text-mute);">
-                Scan QR code dengan aplikasi mobile banking atau e-wallet Anda
-              </p>
-            </div>
-          </div>
-
           <!-- ===== NOTE ===== -->
           <div class="checkout-note">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1028,7 +744,7 @@
               <path d="M12 16v-4"/>
               <path d="M12 8h.01"/>
             </svg>
-            <span>Pembayaran diproses dengan aman. Kamu bisa membatalkan langganan kapan saja setelah pembayaran berhasil.</span>
+            <span>Setelah klik "Bayar Sekarang", kamu akan diarahkan ke halaman pembayaran resmi Midtrans untuk mengisi detail kartu/rekening dengan aman. Kami tidak pernah menyimpan data kartu kamu.</span>
           </div>
 
           <!-- ===== SECURITY ===== -->
@@ -1037,7 +753,7 @@
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               <polyline points="9 12 11 14 15 10"/>
             </svg>
-            <span>Transaksi aman dan terenkripsi</span>
+            <span>Transaksi aman dan terenkripsi oleh Midtrans</span>
           </div>
         </div>
 
@@ -1055,15 +771,15 @@
               </svg>
             </div>
             <div>
-              <div class="plan-name">Paket {{ $plan['name'] }}</div>
-              <span class="plan-badge">{{ $plan['period'] === '/bulan' ? 'Langganan Bulanan' : $plan['name'] }}</span>
+              <div class="plan-name">Paket {{ $plan->name }}</div>
+              <span class="plan-badge">{{ $plan->period === '/bulan' ? 'Langganan Bulanan' : $plan->name }}</span>
             </div>
           </div>
 
           <!-- Features -->
           <div class="summary-divider"></div>
           <ul class="summary-list">
-            @foreach($plan['features'] as $feature)
+            @foreach($plan->features as $feature)
               <li>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"/>
@@ -1077,11 +793,11 @@
           <div class="summary-divider"></div>
           <div class="summary-row">
             <span>Harga paket</span>
-            <span>{{ $plan['label'] }}</span>
+            <span>{{ $plan->label }}</span>
           </div>
           <div class="summary-row">
             <span>Periode</span>
-            <span>Bulanan</span>
+            <span>{{ $plan->billing_period === 'monthly' ? 'Bulanan' : 'Tahunan' }}</span>
           </div>
 
           <!-- Save Badge -->
@@ -1100,7 +816,7 @@
           <!-- Total -->
           <div class="summary-row total">
             <span>Total Bayar</span>
-            <span>{{ $plan['label'] }}</span>
+            <span>{{ $plan->label }}</span>
           </div>
 
           <!-- Pay Button -->
@@ -1157,126 +873,14 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // ===== RADIO BUTTON SHOW/HIDE DETAIL =====
-      const radioButtons = document.querySelectorAll('input[name="payment_method"]');
-      const detailPanels = {
-        'bank_transfer': document.getElementById('bank-detail'),
-        'e_wallet': document.getElementById('wallet-detail'),
-        'credit_card': document.getElementById('card-detail'),
-        'qris': document.getElementById('qris-detail')
-      };
-
-      function toggleDetails(selectedValue) {
-        // Hide all details
-        Object.values(detailPanels).forEach(panel => {
-          if (panel) panel.classList.remove('show');
-        });
-
-        // Show selected detail
-        if (selectedValue && detailPanels[selectedValue]) {
-          detailPanels[selectedValue].classList.add('show');
-        }
-      }
-
-      // Initial state
-      const checkedRadio = document.querySelector('input[name="payment_method"]:checked');
-      if (checkedRadio) {
-        toggleDetails(checkedRadio.value);
-      }
-
-      // On change
-      radioButtons.forEach(radio => {
-        radio.addEventListener('change', function() {
-          toggleDetails(this.value);
-        });
-      });
-
-      // ===== BANK SELECTION =====
-      const bankItems = document.querySelectorAll('.bank-item');
-      const selectedBankInput = document.getElementById('selected-bank');
-
-      bankItems.forEach(item => {
-        item.addEventListener('click', function() {
-          bankItems.forEach(b => b.classList.remove('selected'));
-          this.classList.add('selected');
-          selectedBankInput.value = this.dataset.bank;
-        });
-      });
-
-      // Select first bank by default
-      const firstBank = document.querySelector('.bank-item');
-      if (firstBank) {
-        firstBank.classList.add('selected');
-        selectedBankInput.value = firstBank.dataset.bank;
-      }
-
-      // ===== FORM VALIDATION =====
       const form = document.getElementById('paymentForm');
-      const payButton = document.getElementById('payButton');
 
       form.addEventListener('submit', function(e) {
         const selectedMethod = document.querySelector('input[name="payment_method"]:checked');
-        
+
         if (!selectedMethod) {
           e.preventDefault();
           alert('Silakan pilih metode pembayaran terlebih dahulu.');
-          return;
-        }
-
-        const method = selectedMethod.value;
-        let isValid = true;
-        let errorMessage = '';
-
-        // Validate based on method
-        if (method === 'bank_transfer') {
-          const accountNumber = document.querySelector('input[name="account_number"]');
-          const accountName = document.querySelector('input[name="account_name"]');
-          
-          if (!accountNumber.value.trim()) {
-            isValid = false;
-            errorMessage = 'Silakan masukkan nomor rekening Anda.';
-            accountNumber.focus();
-          } else if (!accountName.value.trim()) {
-            isValid = false;
-            errorMessage = 'Silakan masukkan nama pemilik rekening.';
-            accountName.focus();
-          }
-        } else if (method === 'e_wallet') {
-          const walletNumber = document.querySelector('input[name="wallet_number"]');
-          
-          if (!walletNumber.value.trim()) {
-            isValid = false;
-            errorMessage = 'Silakan masukkan nomor akun e-wallet Anda.';
-            walletNumber.focus();
-          }
-        } else if (method === 'credit_card') {
-          const cardNumber = document.querySelector('input[name="card_number"]');
-          const cardExpiry = document.querySelector('input[name="card_expiry"]');
-          const cardCvv = document.querySelector('input[name="card_cvv"]');
-          const cardName = document.querySelector('input[name="card_name"]');
-          
-          if (!cardNumber.value.trim()) {
-            isValid = false;
-            errorMessage = 'Silakan masukkan nomor kartu Anda.';
-            cardNumber.focus();
-          } else if (!cardExpiry.value.trim()) {
-            isValid = false;
-            errorMessage = 'Silakan masukkan tanggal kadaluarsa kartu.';
-            cardExpiry.focus();
-          } else if (!cardCvv.value.trim()) {
-            isValid = false;
-            errorMessage = 'Silakan masukkan CVV kartu Anda.';
-            cardCvv.focus();
-          } else if (!cardName.value.trim()) {
-            isValid = false;
-            errorMessage = 'Silakan masukkan nama pemilik kartu.';
-            cardName.focus();
-          }
-        }
-
-        if (!isValid) {
-          e.preventDefault();
-          alert(errorMessage);
         }
       });
     });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -50,12 +51,34 @@ class OnboardingController extends Controller
                 'fiscal_year'        => $data['fiscal_year'] ?? null,
             ]);
 
-            $company->accounts()->create([
+            // ===== RIWAYAT: perusahaan baru terdaftar =====
+            ActivityLog::record(
+                'register_company',
+                "Mendaftarkan perusahaan \"{$company->name}\".",
+                $company
+            );
+
+            $account = $company->accounts()->create([
                 'bank_name'       => $data['bank_name'] ?? null,
                 'account_name'    => $data['company_name'],
                 'account_number'  => '-',
                 'initial_balance' => $data['initial_balance'] ?? 0,
             ]);
+
+            // ===== RIWAYAT: saldo awal dicatat =====
+            // Ini titik yang kamu maksud, misal "daftarin uang 1000 juta"
+            $currencySymbol = match ($company->currency) {
+                'USD'   => '$',
+                'SGD'   => 'S$',
+                'MYR'   => 'RM',
+                default => 'Rp',
+            };
+            ActivityLog::record(
+                'set_initial_balance',
+                "Mencatat saldo awal {$currencySymbol}" . number_format($account->initial_balance, 0, ',', '.')
+                    . ($account->bank_name ? " di rekening {$account->bank_name}." : '.'),
+                $account
+            );
 
             $request->user()->update([
                 'company_id' => $company->id,
@@ -108,6 +131,9 @@ class OnboardingController extends Controller
                 }
             }
 
+            // Simpan nilai lama buat dibandingin, khusus saldo awal
+            $oldBalance = optional($company->accounts()->first())->initial_balance;
+
             $company->update([
                 'name'               => $data['company_name'],
                 'industry'           => $data['industry'] ?? null,
@@ -117,6 +143,13 @@ class OnboardingController extends Controller
                 'fiscal_start_month' => $data['fiscal_start_month'] ?? null,
                 'fiscal_year'        => $data['fiscal_year'] ?? null,
             ]);
+
+            // ===== RIWAYAT: profil perusahaan diubah =====
+            ActivityLog::record(
+                'update_company_profile',
+                "Memperbarui profil perusahaan \"{$company->name}\".",
+                $company
+            );
 
             $accountData = [
                 'bank_name'       => $data['bank_name'] ?? null,
@@ -129,7 +162,24 @@ class OnboardingController extends Controller
             if ($account) {
                 $account->update($accountData);
             } else {
-                $company->accounts()->create($accountData);
+                $account = $company->accounts()->create($accountData);
+            }
+
+            // ===== RIWAYAT: kalau saldo awal berubah, catat perubahannya =====
+            $newBalance = $account->initial_balance;
+            if ((float) $oldBalance !== (float) $newBalance) {
+                $currencySymbol = match ($company->currency) {
+                    'USD'   => '$',
+                    'SGD'   => 'S$',
+                    'MYR'   => 'RM',
+                    default => 'Rp',
+                };
+                ActivityLog::record(
+                    'update_initial_balance',
+                    "Mengubah saldo awal dari {$currencySymbol}" . number_format($oldBalance ?? 0, 0, ',', '.')
+                        . " menjadi {$currencySymbol}" . number_format($newBalance, 0, ',', '.') . '.',
+                    $account
+                );
             }
 
             return redirect()->route('onboarding.show')->with('updated', true);
@@ -149,7 +199,7 @@ class OnboardingController extends Controller
             $file = $request->file('logo');
             $maxFileSize = ini_get('upload_max_filesize');
             $maxPostSize = ini_get('post_max_size');
-            
+
             // Log warning kalau limit kecil
             if ((int) $maxFileSize < 10) {
                 Log::warning('upload_max_filesize di PHP kecil: ' . $maxFileSize);

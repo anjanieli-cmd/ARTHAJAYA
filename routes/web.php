@@ -1756,7 +1756,7 @@ Route::delete('/expense-categories/delete/{category}', function (\App\Models\Exp
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // ===== PRICING & PAYMENT =====
+        // ===== PRICING & PAYMENT =====
     Route::get('/pricing', [PricingController::class, 'index'])->name('pricing.index');
     Route::post('/pricing/select/{plan}', [PricingController::class, 'select'])->name('pricing.select');
 
@@ -1765,6 +1765,8 @@ Route::delete('/expense-categories/delete/{category}', function (\App\Models\Exp
 
 }); // ← INI MENUTUP GRUP BESAR Route::middleware(['auth', 'onboarding.complete', 'access:staff'])
 
+// ===== WEBHOOK MIDTRANS — di luar semua middleware auth =====
+Route::post('/midtrans/notification', [PaymentController::class, 'notification'])->name('midtrans.notification');
 // ================================================================
 // ADMIN ROUTES (hanya admin)
 // ================================================================
@@ -1802,6 +1804,8 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
 
     Route::resource('subscription-plans', SubscriptionPlanController::class)
         ->except(['show']);
+    
+    Route::patch('/subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggle'])->name('subscription-plans.toggle');
 
     Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
@@ -1875,3 +1879,7 @@ Route::prefix('staff')->name('staff.')->group(function () {
     Route::get('/tickets/{ticket}', [StaffTicketController::class, 'show'])->name('tickets.show');
     Route::post('/tickets/{ticket}/reply', [StaffTicketController::class, 'reply'])->name('tickets.reply');
 });
+
+Route::get('/riwayat', [App\Http\Controllers\ActivityHistoryController::class, 'index'])
+    ->middleware('auth')
+    ->name('history.index');
