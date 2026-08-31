@@ -41,6 +41,7 @@ use App\Http\Controllers\UserDashboardController; // <-- TAMBAHKAN INI
 use App\Http\Controllers\StaffExpenseApprovalController;
 use App\Http\Controllers\StaffTicketController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
+use App\Http\Controllers\ActivityHistoryController;
 
 
 // Homepage
@@ -1809,14 +1810,10 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
     // ── Subscription Plans ──────────────────────────────────────
     Route::resource('subscription-plans', SubscriptionPlanController::class)
         ->except(['show']);
-<<<<<<< HEAD
-    
-    Route::patch('/subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggle'])->name('subscription-plans.toggle');
-=======
+
     Route::patch('/subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggleActive'])
         ->name('subscription-plans.toggle');
     // ────────────────────────────────────────────────────────────
->>>>>>> 28114e099c57d6a10e8bf5afd8f1239664fe4f81
 
     Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
@@ -1862,11 +1859,11 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->prefix('staf
 // ================================================================
 Route::middleware(['auth', 'access:user'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-    
+
     // Profile Routes
     Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
     Route::put('/profile', [UserDashboardController::class, 'updateProfile'])->name('profile.update');
-    
+
     // Expenses
     Route::get('/expenses/create', [UserDashboardController::class, 'createExpense'])->name('expenses.create');
     Route::post('/expenses', [UserDashboardController::class, 'storeExpense'])->name('expenses.store');
@@ -1889,12 +1886,8 @@ Route::prefix('staff')->name('staff.')->group(function () {
     Route::post('/tickets', [StaffTicketController::class, 'store'])->name('tickets.store');
     Route::get('/tickets/{ticket}', [StaffTicketController::class, 'show'])->name('tickets.show');
     Route::post('/tickets/{ticket}/reply', [StaffTicketController::class, 'reply'])->name('tickets.reply');
-<<<<<<< HEAD
 });
 
-Route::get('/riwayat', [App\Http\Controllers\ActivityHistoryController::class, 'index'])
+Route::get('/riwayat', [ActivityHistoryController::class, 'index'])
     ->middleware('auth')
     ->name('history.index');
-=======
-});
->>>>>>> 28114e099c57d6a10e8bf5afd8f1239664fe4f81
