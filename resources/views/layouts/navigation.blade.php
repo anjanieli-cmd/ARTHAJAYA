@@ -174,7 +174,7 @@
   {{-- ===== LAPORAN — PLATINUM/GOLD ===== --}}
   @php
     $locked5 = !$hasFeature('laporan');
-    $g5 = request()->routeIs(['laba-rugi.*','neraca.*','cash-flow.*','ledger.*']);
+    $g5 = request()->routeIs(['laba-rugi.*','neraca.*','cash-flow.*','ledger.*','coa.*']);
   @endphp
   <div class="sb-accordion {{ $g5 ? 'open' : '' }}">
     <button type="button" class="sb-link sb-parent" data-acc-toggle>
@@ -196,11 +196,13 @@
           <a href="{{ route('pricing.index') }}" class="sb-sublink locked"><span>Neraca</span><svg class="icon-lock-sm"><use href="#ic-lock"/></svg></a>
           <a href="{{ route('pricing.index') }}" class="sb-sublink locked"><span>Arus Kas</span><svg class="icon-lock-sm"><use href="#ic-lock"/></svg></a>
           <a href="{{ route('pricing.index') }}" class="sb-sublink locked"><span>Buku Besar</span><svg class="icon-lock-sm"><use href="#ic-lock"/></svg></a>
+          <a href="{{ route('pricing.index') }}" class="sb-sublink locked"><span>Chart of Accounts</span><svg class="icon-lock-sm"><use href="#ic-lock"/></svg></a>
         @else
           <a href="{{ sb_url('laba-rugi.index') }}" class="sb-sublink {{ request()->routeIs('laba-rugi.*') ? 'active' : '' }} {{ \Route::has('laba-rugi.index') ? '' : 'soon' }}">Laba Rugi</a>
           <a href="{{ sb_url('neraca.index') }}" class="sb-sublink {{ request()->routeIs('neraca.*') ? 'active' : '' }} {{ \Route::has('neraca.index') ? '' : 'soon' }}">Neraca</a>
           <a href="{{ sb_url('cash-flow.index') }}" class="sb-sublink {{ request()->routeIs('cash-flow.*') ? 'active' : '' }} {{ \Route::has('cash-flow.index') ? '' : 'soon' }}">Arus Kas</a>
           <a href="{{ sb_url('ledger.index') }}" class="sb-sublink {{ request()->routeIs('ledger.*') ? 'active' : '' }} {{ \Route::has('ledger.index') ? '' : 'soon' }}">Buku Besar</a>
+          <a href="{{ sb_url('coa.index') }}" class="sb-sublink {{ request()->routeIs('coa.*') ? 'active' : '' }} {{ \Route::has('coa.index') ? '' : 'soon' }}">Chart of Accounts</a>
         @endif
       </div>
     </div>
