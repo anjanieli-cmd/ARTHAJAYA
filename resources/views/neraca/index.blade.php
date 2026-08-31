@@ -1029,12 +1029,6 @@
                     Posisi aset, kewajiban, dan modal <strong>{{ $company->name ?? 'perusahaanmu' }}</strong> pada tanggal tertentu.
                 </p>
             </div>
-            <div class="nr-actions">
-                <a href="{{ route('neraca.create') }}" class="nr-btn nr-btn-primary">
-                    <svg class="icon"><use href="#ic-plus"/></svg>
-                    Tambah Pos
-                </a>
-            </div>
         </div>
 
         {{-- ===== SEARCH ===== --}}
@@ -1093,17 +1087,6 @@
                             <div class="nr-row nr-row-data" data-name="{{ strtolower($item->name) }}" data-category="{{ strtolower($category) }}">
                                 <span class="nr-row-name">{{ $item->name }}</span>
                                 <span class="nr-row-amount">{{ $currencySymbol }}{{ formatRupiah($item->amount) }}</span>
-                                <div class="nr-row-actions">
-                                    <a href="{{ route('neraca.show', $item) }}" class="nr-row-action view" title="Lihat">
-                                        <svg class="icon"><use href="#ic-eye"/></svg>
-                                    </a>
-                                    <a href="{{ route('neraca.edit', $item) }}" class="nr-row-action edit" title="Edit">
-                                        <svg class="icon"><use href="#ic-edit"/></svg>
-                                    </a>
-                                    <button type="button" class="nr-row-action delete" title="Hapus" onclick="openDeleteModal('{{ $item->id }}', '{{ addslashes($item->name) }}')">
-                                        <svg class="icon"><use href="#ic-trash"/></svg>
-                                    </button>
-                                </div>
                             </div>
                         @endforeach
                         <div class="nr-subtotal">
@@ -1137,17 +1120,6 @@
                             <div class="nr-row nr-row-data" data-name="{{ strtolower($item->name) }}" data-category="{{ strtolower($category) }}">
                                 <span class="nr-row-name">{{ $item->name }}</span>
                                 <span class="nr-row-amount">{{ $currencySymbol }}{{ formatRupiah($item->amount) }}</span>
-                                <div class="nr-row-actions">
-                                    <a href="{{ route('neraca.show', $item) }}" class="nr-row-action view" title="Lihat">
-                                        <svg class="icon"><use href="#ic-eye"/></svg>
-                                    </a>
-                                    <a href="{{ route('neraca.edit', $item) }}" class="nr-row-action edit" title="Edit">
-                                        <svg class="icon"><use href="#ic-edit"/></svg>
-                                    </a>
-                                    <button type="button" class="nr-row-action delete" title="Hapus" onclick="openDeleteModal('{{ $item->id }}', '{{ addslashes($item->name) }}')">
-                                        <svg class="icon"><use href="#ic-trash"/></svg>
-                                    </button>
-                                </div>
                             </div>
                         @endforeach
                         <div class="nr-subtotal">
@@ -1170,17 +1142,6 @@
                             <div class="nr-row nr-row-data" data-name="{{ strtolower($item->name) }}" data-category="{{ strtolower($category) }}">
                                 <span class="nr-row-name">{{ $item->name }}</span>
                                 <span class="nr-row-amount">{{ $currencySymbol }}{{ formatRupiah($item->amount) }}</span>
-                                <div class="nr-row-actions">
-                                    <a href="{{ route('neraca.show', $item) }}" class="nr-row-action view" title="Lihat">
-                                        <svg class="icon"><use href="#ic-eye"/></svg>
-                                    </a>
-                                    <a href="{{ route('neraca.edit', $item) }}" class="nr-row-action edit" title="Edit">
-                                        <svg class="icon"><use href="#ic-edit"/></svg>
-                                    </a>
-                                    <button type="button" class="nr-row-action delete" title="Hapus" onclick="openDeleteModal('{{ $item->id }}', '{{ addslashes($item->name) }}')">
-                                        <svg class="icon"><use href="#ic-trash"/></svg>
-                                    </button>
-                                </div>
                             </div>
                         @endforeach
                         <div class="nr-subtotal">
@@ -1236,54 +1197,14 @@
             <div class="nr-empty-state animate-in" style="animation-delay: 0.12s;">
                 <svg class="empty-icon"><use href="#ic-inbox"/></svg>
                 <h3>Belum ada data neraca</h3>
-                <p>Tambahkan pos aset, kewajiban, atau modal untuk mulai menyusun neraca.</p>
-                <a href="{{ route('neraca.create') }}" class="nr-btn nr-btn-primary" style="display:inline-flex;">
-                    <svg class="icon"><use href="#ic-plus"/></svg>
-                    Tambah Pos Pertama
+                <p>Neraca dihitung otomatis dari transaksi di Buku Besar. Catat transaksi pertama untuk mulai menyusun neraca.</p>
+                <a href="{{ route('ledger.index') }}" class="nr-btn nr-btn-primary" style="display:inline-flex;">
+                    <svg class="icon"><use href="#ic-arrow-right"/></svg>
+                    Buka Buku Besar
                 </a>
             </div>
         @endif
 
-    </div>
-
-    {{-- ===== DELETE MODAL - SAMA SEPERTI HALAMAN FAKTUR & LABA RUGI ===== --}}
-    <div class="nr-modal-overlay" id="deleteModal">
-        <div class="nr-modal-box">
-            <div class="icon-danger">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="12"/>
-                    <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-            </div>
-
-            <h3>Hapus Pos Neraca?</h3>
-
-            <p>
-                Anda yakin ingin menghapus pos
-                <br>
-                <span class="item-name-modal" id="deleteItemName">—</span>
-            </p>
-
-            <div class="warning-text">
-                ⚠️ Data yang dihapus tidak dapat dikembalikan!
-            </div>
-
-            <div class="nr-modal-actions">
-                <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">Batal</button>
-                <form method="POST" id="deleteForm" action="">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        </svg>
-                        Ya, Hapus!
-                    </button>
-                </form>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -1308,33 +1229,6 @@
             container.appendChild(toast);
             setTimeout(() => { if (toast.parentElement) toast.remove(); }, 5000);
         }
-
-        // ===== DELETE MODAL - SAMA SEPERTI HALAMAN FAKTUR & LABA RUGI =====
-        function openDeleteModal(id, name) {
-            document.getElementById('deleteItemName').textContent = name;
-            document.getElementById('deleteForm').action = '{{ url("neraca") }}/' + id;
-            document.getElementById('deleteModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-            document.body.classList.add('aj-modal-open');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('active');
-            document.body.style.overflow = '';
-            document.body.classList.remove('aj-modal-open');
-        }
-
-        document.getElementById('deleteModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeDeleteModal();
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeDeleteModal();
-            }
-        });
 
         // ===== LIVE SEARCH =====
         document.addEventListener('DOMContentLoaded', function() {

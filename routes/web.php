@@ -11,6 +11,7 @@ use App\Http\Controllers\NeracaController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\CashFlowController;
 use App\Http\Controllers\LedgerController;
+use App\Http\Controllers\ChartOfAccountController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\CogsController;
 use App\Http\Controllers\EmployeeController;
@@ -866,6 +867,7 @@ Route::delete('/expense-categories/delete/{category}', function (\App\Models\Exp
         Route::resource('neraca', NeracaController::class);
         Route::resource('cash-flow', CashFlowController::class);
         Route::resource('ledger', LedgerController::class);
+        Route::resource('coa', ChartOfAccountController::class)->except(['show']);
     });
 
     // ===== INVENTARIS =====
