@@ -47,6 +47,18 @@ return [
             'report' => false,
         ],
 
+        'supabase' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_S3_KEY'),
+            'secret' => env('SUPABASE_S3_SECRET'),
+            'region' => env('SUPABASE_S3_REGION', 'us-east-1'),
+            'bucket' => env('SUPABASE_S3_BUCKET', 'avatars'),
+            'endpoint' => env('SUPABASE_S3_ENDPOINT'),
+            'url' => env('SUPABASE_URL') . '/storage/v1/object/public/' . env('SUPABASE_S3_BUCKET', 'avatars'),  // ← BARIS BARU
+            'use_path_style_endpoint' => true,
+            'throw' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

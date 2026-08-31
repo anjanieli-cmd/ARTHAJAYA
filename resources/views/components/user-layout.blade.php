@@ -265,11 +265,11 @@
         <div class="user-menu">
           <div class="user-trigger" id="userTrigger">
             <div class="user-avatar">
-              @if(Auth::user()->profile_photo ?? false)
-                <img src="{{ asset('storage/'.Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}">
-              @else
-                {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
-              @endif
+              @if(Auth::user()->avatar_url)
+                  <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}">
+                @else
+                  {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+                @endif
             </div>
             <span class="name">{{ Auth::user()->name ?? 'Pengguna' }}</span>
             <svg class="icon"><use href="#ic-chevron"/></svg>
@@ -277,8 +277,8 @@
           <div class="dropdown" id="userDropdown">
             <div class="dropdown-head">
               <div class="dropdown-head-avatar">
-                @if(Auth::user()->profile_photo ?? false)
-                  <img src="{{ asset('storage/'.Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}">
+                @if(Auth::user()->avatar_url)
+                  <img src="{{ Auth::user()->avatar_url }}" alt="{{ Auth::user()->name }}">
                 @else
                   {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                 @endif
@@ -412,11 +412,17 @@
 
     async function loadNotifications(){
       try{
-        const res = await fetch('{{ route('notifications.index') }}', { headers: { 'Accept': 'application/json' } });
+        const res = await fetch('{{ route('notifications.index') }}', {
+          credentials: 'same-origin',
+          headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+          }
+        });
         if(!res.ok) throw new Error('Gagal fetch: ' + res.status);
         const data = await res.json();
         renderDot(data.unread_count); renderList(data.notifications);
-      }catch(err){ notifList.innerHTML = '<div class="notif-empty">Gagal memuat notifikasi.</div>'; }
+      }catch(err){ notifList.innerHTML = '<div class="notif-empty">Tidak ada notifikasi.</div>'; }
     }
     function renderDot(count){ notifDot.style.display = count > 0 ? 'block' : 'none'; }
     function renderList(items){

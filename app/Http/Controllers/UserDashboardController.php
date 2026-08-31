@@ -271,18 +271,18 @@ class UserDashboardController extends Controller
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
             // Delete old photo if exists
-            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
-                Storage::disk('public')->delete($user->profile_photo);
+            if ($user->profile_photo && Storage::disk('supabase')->exists($user->profile_photo)) {
+                Storage::disk('supabase')->delete($user->profile_photo);
             }
 
-            $path = $request->file('profile_photo')->store('profile-photos', 'public');
+            $path = $request->file('profile_photo')->store('profile-photos', 'supabase');
             $user->profile_photo = $path;
         }
 
         // Handle remove photo
         if ($request->has('remove_photo') && $request->remove_photo == '1') {
-            if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
-                Storage::disk('public')->delete($user->profile_photo);
+            if ($user->profile_photo && Storage::disk('supabase')->exists($user->profile_photo)) {
+                Storage::disk('supabase')->delete($user->profile_photo);
             }
             $user->profile_photo = null;
         }

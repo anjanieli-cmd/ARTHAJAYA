@@ -1280,7 +1280,7 @@
     <div class="dash-company-card animate-in" style="animation-delay: 0.08s;">
       <div class="dash-company-logo">
         @if(!empty($company->logo))
-          <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }}">
+      <img src="{{ \Storage::disk('supabase')->url($company->logo) }}" alt="{{ $company->name }}">
         @else
           {{ strtoupper(substr($company->name ?? 'PT', 0, 2)) }}
         @endif

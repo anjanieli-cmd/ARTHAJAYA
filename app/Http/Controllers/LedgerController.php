@@ -2,56 +2,93 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LedgerEntry;
+use App\Models\ChartOfAccount;
+use App\Models\JournalEntry;
 use Illuminate\Http\Request;
 
 class LedgerController extends Controller
 {
     public function index(Request $request)
     {
+        $user = $request->user();
+        $companyId = $user->company_id;
+
         $accountCode = $request->get('account');
         $from = $request->get('from');
         $to = $request->get('to');
 
-        $accounts = LedgerEntry::select('account_code', 'account_name')
-            ->selectRaw('SUM(debit) as total_debit, SUM(credit) as total_credit')
-            ->groupBy('account_code', 'account_name')
-            ->orderBy('account_code')
-            ->get();
+        // Daftar akun + total debit/credit tiap akun, HANYA milik company yang login
+        $accounts = ChartOfAccount::where('company_id', $companyId)
+            ->orderBy('code')
+            ->get()
+            ->map(function ($acc) {
+                $acc->account_code = $acc->code;
+                $acc->account_name = $acc->name;
+                $acc->total_debit = JournalEntry::where('chart_of_account_id', $acc->id)->sum('debit');
+                $acc->total_credit = JournalEntry::where('chart_of_account_id', $acc->id)->sum('credit');
+                return $acc;
+            });
+
+        // Statistik keseluruhan (buat kartu ringkasan di atas)
+        $totalEntries = JournalEntry::where('company_id', $companyId)->count();
+        $totalDebit = JournalEntry::where('company_id', $companyId)->sum('debit');
+        $totalCredit = JournalEntry::where('company_id', $companyId)->sum('credit');
 
         $entries = collect();
-        $runningBalance = 0;
         $selectedAccount = null;
 
         if ($accountCode) {
             $selectedAccount = $accounts->firstWhere('account_code', $accountCode);
 
-            $entries = LedgerEntry::account($accountCode)
-                ->when($from, fn($q) => $q->whereDate('transaction_date', '>=', $from))
-                ->when($to, fn($q) => $q->whereDate('transaction_date', '<=', $to))
-                ->orderBy('transaction_date')
-                ->orderBy('id')
-                ->get()
-                ->map(function ($entry) use (&$runningBalance) {
-                    $runningBalance += (float) $entry->debit - (float) $entry->credit;
+            if ($selectedAccount) {
+                $runningBalance = 0;
+
+                $query = JournalEntry::where('chart_of_account_id', $selectedAccount->id)
+                    ->when($from, fn ($q) => $q->whereDate('transaction_date', '>=', $from))
+                    ->when($to, fn ($q) => $q->whereDate('transaction_date', '<=', $to))
+                    ->orderBy('transaction_date')
+                    ->orderBy('id');
+
+                $entries = $query->paginate(15)->withQueryString();
+
+                // Hitung saldo berjalan (running balance) sesuai arah normal akun
+                $normalBalance = $selectedAccount->normal_balance;
+                $entries->getCollection()->transform(function ($entry) use (&$runningBalance, $normalBalance) {
+                    $runningBalance += $normalBalance === 'debit'
+                        ? $entry->debit - $entry->credit
+                        : $entry->credit - $entry->debit;
                     $entry->running_balance = $runningBalance;
+                    $entry->account_code = $entry->account->code ?? null;
+                    $entry->account_name = $entry->account->name ?? null;
                     return $entry;
                 });
+            }
         }
 
-        return view('ledger.index', compact('accounts', 'entries', 'accountCode', 'selectedAccount', 'from', 'to'));
+        return view('ledger.index', compact(
+            'accounts', 'entries', 'accountCode', 'selectedAccount', 'from', 'to',
+            'totalEntries', 'totalDebit', 'totalCredit'
+        ));
     }
 
     public function create()
     {
-        return view('ledger.create');
+        $user = auth()->user();
+
+        // Kirim daftar akun perusahaan ini, buat dropdown pemilihan akun di form
+        $accounts = ChartOfAccount::where('company_id', $user->company_id)
+            ->orderBy('code')
+            ->get();
+
+        return view('ledger.create', compact('accounts'));
     }
 
     public function store(Request $request)
     {
+        $user = $request->user();
+
         $validated = $request->validate([
-            'account_code' => 'required|string|max:30',
-            'account_name' => 'required|string|max:150',
+            'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
             'transaction_date' => 'required|date',
             'description' => 'required|string|max:255',
             'debit' => 'nullable|numeric|min:0',
@@ -59,37 +96,63 @@ class LedgerController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $validated['debit'] = $validated['debit'] ?? 0;
-        $validated['credit'] = $validated['credit'] ?? 0;
+        $account = ChartOfAccount::findOrFail($validated['chart_of_account_id']);
+        abort_unless($account->company_id === $user->company_id, 403);
 
-        LedgerEntry::create($validated);
+        $entry = JournalEntry::create([
+            'company_id' => $user->company_id,
+            'chart_of_account_id' => $account->id,
+            'transaction_date' => $validated['transaction_date'],
+            'description' => $validated['description'],
+            'debit' => $validated['debit'] ?? 0,
+            'credit' => $validated['credit'] ?? 0,
+            'notes' => $validated['notes'] ?? null,
+        ]);
 
         return redirect()
-            ->route('ledger.index', ['account' => $validated['account_code']])
+            ->route('ledger.index', ['account' => $account->code])
             ->with('success', 'Transaksi buku besar berhasil ditambahkan.');
     }
 
-    public function show(LedgerEntry $ledger)
+    public function show(Request $request, JournalEntry $ledger)
     {
+        abort_unless($ledger->company_id === $request->user()->company_id, 403);
+
+        $ledger->account_code = $ledger->account->code ?? null;
+        $ledger->account_name = $ledger->account->name ?? null;
+
         return view('ledger.show', ['item' => $ledger]);
     }
 
-    public function edit(LedgerEntry $ledger)
+    public function edit(Request $request, JournalEntry $ledger)
     {
-        return view('ledger.edit', ['item' => $ledger]);
+        abort_unless($ledger->company_id === $request->user()->company_id, 403);
+
+        $ledger->account_name = $ledger->account->name ?? null;
+        $ledger->account_code = $ledger->account->code ?? null;
+
+        $accounts = ChartOfAccount::where('company_id', $request->user()->company_id)
+            ->orderBy('code')
+            ->get();
+
+        return view('ledger.edit', ['item' => $ledger, 'accounts' => $accounts]);
     }
 
-    public function update(Request $request, LedgerEntry $ledger)
+    public function update(Request $request, JournalEntry $ledger)
     {
+        abort_unless($ledger->company_id === $request->user()->company_id, 403);
+
         $validated = $request->validate([
-            'account_code' => 'required|string|max:30',
-            'account_name' => 'required|string|max:150',
+            'chart_of_account_id' => 'required|exists:chart_of_accounts,id',
             'transaction_date' => 'required|date',
             'description' => 'required|string|max:255',
             'debit' => 'nullable|numeric|min:0',
             'credit' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
+
+        $account = ChartOfAccount::findOrFail($validated['chart_of_account_id']);
+        abort_unless($account->company_id === $request->user()->company_id, 403);
 
         $validated['debit'] = $validated['debit'] ?? 0;
         $validated['credit'] = $validated['credit'] ?? 0;
@@ -97,13 +160,15 @@ class LedgerController extends Controller
         $ledger->update($validated);
 
         return redirect()
-            ->route('ledger.index', ['account' => $validated['account_code']])
+            ->route('ledger.index', ['account' => $account->code])
             ->with('success', 'Transaksi buku besar berhasil diperbarui.');
     }
 
-    public function destroy(LedgerEntry $ledger)
+    public function destroy(Request $request, JournalEntry $ledger)
     {
-        $accountCode = $ledger->account_code;
+        abort_unless($ledger->company_id === $request->user()->company_id, 403);
+
+        $accountCode = $ledger->account->code ?? null;
         $ledger->delete();
 
         return redirect()

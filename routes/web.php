@@ -11,6 +11,7 @@ use App\Http\Controllers\NeracaController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\CashFlowController;
 use App\Http\Controllers\LedgerController;
+use App\Http\Controllers\ChartOfAccountController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\CogsController;
 use App\Http\Controllers\EmployeeController;
@@ -866,6 +867,7 @@ Route::delete('/expense-categories/delete/{category}', function (\App\Models\Exp
         Route::resource('neraca', NeracaController::class);
         Route::resource('cash-flow', CashFlowController::class);
         Route::resource('ledger', LedgerController::class);
+        Route::resource('coa', ChartOfAccountController::class)->except(['show']);
     });
 
     // ===== INVENTARIS =====
@@ -1801,11 +1803,20 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
     });
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity.index');
+    Route::delete('/activity-logs/{log}', [ActivityLogController::class, 'destroy'])->name('logs.destroy');
+    Route::delete('/activity-logs', [ActivityLogController::class, 'destroyAll'])->name('logs.destroy-all');
 
+    // ── Subscription Plans ──────────────────────────────────────
     Route::resource('subscription-plans', SubscriptionPlanController::class)
         ->except(['show']);
+<<<<<<< HEAD
     
     Route::patch('/subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggle'])->name('subscription-plans.toggle');
+=======
+    Route::patch('/subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggleActive'])
+        ->name('subscription-plans.toggle');
+    // ────────────────────────────────────────────────────────────
+>>>>>>> 28114e099c57d6a10e8bf5afd8f1239664fe4f81
 
     Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
@@ -1878,8 +1889,12 @@ Route::prefix('staff')->name('staff.')->group(function () {
     Route::post('/tickets', [StaffTicketController::class, 'store'])->name('tickets.store');
     Route::get('/tickets/{ticket}', [StaffTicketController::class, 'show'])->name('tickets.show');
     Route::post('/tickets/{ticket}/reply', [StaffTicketController::class, 'reply'])->name('tickets.reply');
+<<<<<<< HEAD
 });
 
 Route::get('/riwayat', [App\Http\Controllers\ActivityHistoryController::class, 'index'])
     ->middleware('auth')
     ->name('history.index');
+=======
+});
+>>>>>>> 28114e099c57d6a10e8bf5afd8f1239664fe4f81

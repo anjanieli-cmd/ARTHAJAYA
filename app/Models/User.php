@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\AccessLevel;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -10,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['name', 'email', 'password', 'phone', 'role', 'company_id'])]
 #[Hidden(['password', 'remember_token'])]
@@ -30,14 +30,22 @@ class User extends Authenticatable
     }
 
     protected $fillable = [
-        'name', 'email', 'password', 'company_id',
-        'phone', 'position', 'avatar', 'role', 'access_level',
-        'two_factor_enabled', 'password_changed_at',
-        'profile_photo', // Tambahkan ini
+        'name',
+        'email',
+        'password',
+        'company_id',
+        'phone',
+        'position',
+        'avatar',
+        'role',
+        'access_level',
+        'two_factor_enabled',
+        'password_changed_at',
+        'profile_photo',
     ];
 
     /**
-     * Cek apakah user adalah admin (hak akses sistem)
+     * Cek apakah user adalah admin
      */
     public function isAdmin(): bool
     {
@@ -46,7 +54,6 @@ class User extends Authenticatable
 
     /**
      * Cek access level tertentu, bisa lebih dari satu
-     * Contoh: $user->hasAccessLevel(AccessLevel::Admin, AccessLevel::Staff)
      */
     public function hasAccessLevel(AccessLevel ...$levels): bool
     {
@@ -55,7 +62,6 @@ class User extends Authenticatable
 
     /**
      * Relasi ke Company
-     * Seorang User memiliki satu Company
      */
     public function company()
     {
@@ -63,8 +69,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relasi ke data kerja karyawan (posisi, departemen, gaji).
-     * Diisi/diedit oleh Staff, bukan si karyawan sendiri.
+     * Relasi ke data kerja karyawan
      */
     public function employeeProfile()
     {
@@ -72,15 +77,16 @@ class User extends Authenticatable
     }
 
     /**
-     * Cek apakah user adalah staff atau admin (bisa mengelola data)
+     * Cek apakah user adalah staff atau admin
      */
     public function isStaff(): bool
     {
-        return $this->access_level === AccessLevel::Staff || $this->access_level === AccessLevel::Admin;
+        return $this->access_level === AccessLevel::Staff
+            || $this->access_level === AccessLevel::Admin;
     }
 
     /**
-     * Cek apakah user adalah user biasa (bukan staff/admin)
+     * Cek apakah user adalah user biasa
      */
     public function isRegularUser(): bool
     {
@@ -101,29 +107,80 @@ class User extends Authenticatable
     public function getInitialsAttribute(): string
     {
         $name = $this->name ?? 'U';
-        $parts = explode(' ', $name);
+
+        $parts = explode(' ', trim($name));
+
         if (count($parts) >= 2) {
-            return strtoupper(substr($parts[0], 0, 1) . substr($parts[1], 0, 1));
+            return strtoupper(
+                substr($parts[0], 0, 1) .
+                substr($parts[1], 0, 1)
+            );
         }
+
         return strtoupper(substr($name, 0, 1));
     }
 
     /**
-     * Cek apakah user memiliki foto profil
+     * Cek apakah user memiliki foto profil.
+     *
+     * Menggunakan avatar terlebih dahulu.
+     * Jika avatar kosong, cek profile_photo.
      */
     public function hasProfilePhoto(): bool
     {
-        return !empty($this->profile_photo);
+        return !empty($this->avatar) || !empty($this->profile_photo);
     }
 
     /**
-     * Ambil URL foto profil
+     * URL foto profil.
+     *
+     * Prioritas:
+     * 1. avatar
+     * 2. profile_photo
+     *
+     * Jika menggunakan disk public:
+     *    /storage/...
+     *
+     * Jika menggunakan Supabase/S3:
+     *    Storage::url(...)
      */
     public function getProfilePhotoUrlAttribute(): string
     {
-        if ($this->profile_photo) {
-            return asset('storage/' . $this->profile_photo);
+        $photo = $this->avatar ?: $this->profile_photo;
+
+        if (!$photo) {
+            return '';
         }
-        return '';
+
+        $disk = config('filesystems.default');
+
+        if ($disk === 'public') {
+            return asset('storage/' . $photo);
+        }
+
+        return Storage::disk($disk)->url($photo);
+    }
+
+    /**
+     * URL avatar.
+     *
+     * Bisa digunakan di Blade dengan:
+     * $user->avatar_url
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        $photo = $this->avatar ?: $this->profile_photo;
+
+        if (!$photo) {
+            return null;
+        }
+
+        $disk = config('filesystems.default');
+
+        if ($disk === 'public') {
+            return asset('storage/' . $photo);
+        }
+
+        return Storage::disk($disk)->url($photo);
     }
 }

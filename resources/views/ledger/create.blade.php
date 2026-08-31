@@ -554,40 +554,22 @@
                             @enderror
                         </div>
 
-                        {{-- Kode Akun --}}
+                        {{-- Pilih Akun --}}
                         <div class="ledger-form-group">
-                            <label for="account_code">
-                                Kode Akun
+                            <label for="chart_of_account_id">
+                                Akun
                                 <span class="required">*</span>
                             </label>
-                            <input type="text" name="account_code" id="account_code" list="accountCodeList"
-                                   placeholder="Contoh: 1-1000" value="{{ old('account_code') }}" required
-                                   autocomplete="off">
-                            <datalist id="accountCodeList">
-                                @foreach($accounts ?? [] as $acc)
-                                    <option value="{{ $acc->account_code }}">{{ $acc->account_name }}</option>
+                            <select name="chart_of_account_id" id="chart_of_account_id" required>
+                                <option value="">-- Pilih Akun --</option>
+                                @foreach($accounts as $acc)
+                                    <option value="{{ $acc->id }}" {{ old('chart_of_account_id') == $acc->id ? 'selected' : '' }}>
+                                        {{ $acc->code }} — {{ $acc->name }}
+                                    </option>
                                 @endforeach
-                            </datalist>
-                            <span class="field-hint">Pilih kode akun yang sudah ada atau ketik baru</span>
-                            @error('account_code')
-                                <span class="field-error">
-                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                                    </svg>
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
-
-                        {{-- Nama Akun --}}
-                        <div class="ledger-form-group">
-                            <label for="account_name">
-                                Nama Akun
-                                <span class="required">*</span>
-                            </label>
-                            <input type="text" name="account_name" id="account_name"
-                                   placeholder="Contoh: Kas" value="{{ old('account_name') }}" required>
-                            @error('account_name')
+                            </select>
+                            <span class="field-hint">Pilih akun dari daftar Chart of Accounts perusahaan</span>
+                            @error('chart_of_account_id')
                                 <span class="field-error">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -718,30 +700,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // ===== AUTO-FILL ACCOUNT NAME FROM DATALIST =====
-            const codeInput = document.getElementById('account_code');
-            const nameInput = document.getElementById('account_name');
-            const datalist = document.getElementById('accountCodeList');
-
-            if (codeInput && nameInput && datalist) {
-                codeInput.addEventListener('input', function() {
-                    const options = Array.from(datalist.options);
-                    const match = options.find(opt => opt.value === codeInput.value);
-                    if (match) {
-                        nameInput.value = match.textContent;
-                    }
-                });
-
-                // Also handle when user selects from datalist dropdown
-                codeInput.addEventListener('change', function() {
-                    const options = Array.from(datalist.options);
-                    const match = options.find(opt => opt.value === codeInput.value);
-                    if (match) {
-                        nameInput.value = match.textContent;
-                    }
-                });
-            }
-
             // ===== DEBIT/CREDIT AUTO-FILL =====
             const debitInput = document.querySelector('input[name="debit"]');
             const creditInput = document.querySelector('input[name="credit"]');
