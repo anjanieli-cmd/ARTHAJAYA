@@ -2,23 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SubscriptionPlan;
+use App\Models\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PricingController extends Controller
 {
+    protected array $planStyles = [
+        'free'    => ['color' => '#6366f1', 'icon' => 'i-zap'],
+        'silver'  => ['color' => '#94a3b8', 'icon' => 'i-star'],
+        'gold'    => ['color' => '#f59e0b', 'icon' => 'i-diamond'],
+    ];
+
     public function index()
     {
         $user    = Auth::user();
         $company = $user->company;
 
-        // Ambil semua plan aktif dari database, urut dari harga terendah
-        $plans = SubscriptionPlan::where('is_active', true)
-            ->orderBy('price')
-            ->get();
+        $plans = Plan::orderBy('price')->get()->map(function ($plan) {
+            $style = $this->planStyles[$plan->slug] ?? ['color' => '#6366f1', 'icon' => 'i-zap'];
+            $plan->color = $style['color'];
+            $plan->icon  = $style['icon'];
+            return $plan;
+        });
 
-        // Plan yang sedang aktif di company ini
         $currentPlan = $company->plan ?? 'free';
 
         return view('pricing.index', compact('user', 'company', 'plans', 'currentPlan'));
@@ -26,7 +33,7 @@ class PricingController extends Controller
 
     public function select(Request $request, string $plan)
     {
-        $exists = SubscriptionPlan::where('slug', $plan)->where('is_active', true)->exists();
+        $exists = Plan::where('slug', $plan)->exists();
 
         if (!$exists && $plan !== 'free') {
             abort(404, 'Paket tidak ditemukan.');

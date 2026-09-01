@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Account;
+use App\Models\ActivityLog;
 use App\Models\ChartOfAccount;
 use App\Models\Company;
 use App\Models\JournalEntry;
@@ -54,6 +55,13 @@ class OnboardingController extends Controller
             // COA minimal (Kas, Bank, Modal Pemilik) otomatis ke-seed
             // lewat Company::booted() waktu baris di atas jalan.
 
+            // ===== RIWAYAT: perusahaan baru terdaftar =====
+            ActivityLog::record(
+                'register_company',
+                "Mendaftarkan perusahaan \"{$company->name}\".",
+                $company
+            );
+
             $account = $company->accounts()->create([
                 'bank_name'           => $data['bank_name'] ?? null,
                 'account_name'        => $data['company_name'],
@@ -63,6 +71,20 @@ class OnboardingController extends Controller
             ]);
 
             $this->syncOpeningBalanceJournal($company, $account, (float) ($data['initial_balance'] ?? 0));
+
+            // ===== RIWAYAT: saldo awal dicatat =====
+            $currencySymbol = match ($company->currency) {
+                'USD'   => '$',
+                'SGD'   => 'S$',
+                'MYR'   => 'RM',
+                default => 'Rp',
+            };
+            ActivityLog::record(
+                'set_initial_balance',
+                "Mencatat saldo awal {$currencySymbol}" . number_format($account->initial_balance, 0, ',', '.')
+                    . ($account->bank_name ? " di rekening {$account->bank_name}." : '.'),
+                $account
+            );
 
             $request->user()->update([
                 'company_id' => $company->id,
@@ -115,6 +137,9 @@ class OnboardingController extends Controller
                 }
             }
 
+            // Simpan nilai lama buat dibandingin, khusus saldo awal
+            $oldBalance = optional($company->accounts()->first())->initial_balance;
+
             $company->update([
                 'name'               => $data['company_name'],
                 'industry'           => $data['industry'] ?? null,
@@ -129,6 +154,13 @@ class OnboardingController extends Controller
             // auto-seed COA ini ada -- pastikan Kas/Bank/Modal ada.
             $company->seedDefaultChartOfAccounts();
 
+            // ===== RIWAYAT: profil perusahaan diubah =====
+            ActivityLog::record(
+                'update_company_profile',
+                "Memperbarui profil perusahaan \"{$company->name}\".",
+                $company
+            );
+
             $accountData = [
                 'bank_name'           => $data['bank_name'] ?? null,
                 'account_name'        => $data['company_name'],
@@ -142,6 +174,23 @@ class OnboardingController extends Controller
                 $account->update($accountData);
             } else {
                 $account = $company->accounts()->create($accountData);
+            }
+
+            // ===== RIWAYAT: kalau saldo awal berubah, catat perubahannya =====
+            $newBalance = $account->initial_balance;
+            if ((float) $oldBalance !== (float) $newBalance) {
+                $currencySymbol = match ($company->currency) {
+                    'USD'   => '$',
+                    'SGD'   => 'S$',
+                    'MYR'   => 'RM',
+                    default => 'Rp',
+                };
+                ActivityLog::record(
+                    'update_initial_balance',
+                    "Mengubah saldo awal dari {$currencySymbol}" . number_format($oldBalance ?? 0, 0, ',', '.')
+                        . " menjadi {$currencySymbol}" . number_format($newBalance, 0, ',', '.') . '.',
+                    $account
+                );
             }
 
             $this->syncOpeningBalanceJournal($company, $account, (float) ($data['initial_balance'] ?? 0));

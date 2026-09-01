@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
 class Invoice extends Model
 {
     use HasFactory;
+    use LogsActivity; // <-- otomatis catet riwayat pas create/update/delete
 
     protected function casts(): array
     {
@@ -70,5 +72,22 @@ class Invoice extends Model
             ->count();
 
         return sprintf('INV-%d-%04d', $year, $lastNumber + 1);
+    }
+
+    /**
+     * Teks riwayat yang lebih manusiawi buat trait LogsActivity.
+     * Kalau method ini dihapus, trait tetap jalan pakai teks generik fallback.
+     */
+    public function activityDescription(string $event): string
+    {
+        $amount = 'Rp' . number_format((float) $this->total, 0, ',', '.');
+
+        return match ($event) {
+            'created' => "Membuat faktur {$this->invoice_number} senilai {$amount}",
+            'updated' => "Memperbarui faktur {$this->invoice_number}"
+                . ($this->wasChanged('status') ? " — status jadi \"{$this->status}\"" : " (senilai {$amount})"),
+            'deleted' => "Menghapus faktur {$this->invoice_number}",
+            default   => "Mengubah faktur {$this->invoice_number}",
+        };
     }
 }

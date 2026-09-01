@@ -41,6 +41,7 @@ use App\Http\Controllers\UserDashboardController; // <-- TAMBAHKAN INI
 use App\Http\Controllers\StaffExpenseApprovalController;
 use App\Http\Controllers\StaffTicketController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
+use App\Http\Controllers\ActivityHistoryController;
 
 
 // Homepage
@@ -1758,7 +1759,7 @@ Route::delete('/expense-categories/delete/{category}', function (\App\Models\Exp
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // ===== PRICING & PAYMENT =====
+        // ===== PRICING & PAYMENT =====
     Route::get('/pricing', [PricingController::class, 'index'])->name('pricing.index');
     Route::post('/pricing/select/{plan}', [PricingController::class, 'select'])->name('pricing.select');
 
@@ -1767,6 +1768,8 @@ Route::delete('/expense-categories/delete/{category}', function (\App\Models\Exp
 
 }); // ← INI MENUTUP GRUP BESAR Route::middleware(['auth', 'onboarding.complete', 'access:staff'])
 
+// ===== WEBHOOK MIDTRANS — di luar semua middleware auth =====
+Route::post('/midtrans/notification', [PaymentController::class, 'notification'])->name('midtrans.notification');
 // ================================================================
 // ADMIN ROUTES (hanya admin)
 // ================================================================
@@ -1807,6 +1810,7 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
     // ── Subscription Plans ──────────────────────────────────────
     Route::resource('subscription-plans', SubscriptionPlanController::class)
         ->except(['show']);
+
     Route::patch('/subscription-plans/{subscriptionPlan}/toggle', [SubscriptionPlanController::class, 'toggleActive'])
         ->name('subscription-plans.toggle');
     // ────────────────────────────────────────────────────────────
@@ -1855,11 +1859,11 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->prefix('staf
 // ================================================================
 Route::middleware(['auth', 'access:user'])->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-    
+
     // Profile Routes
     Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
     Route::put('/profile', [UserDashboardController::class, 'updateProfile'])->name('profile.update');
-    
+
     // Expenses
     Route::get('/expenses/create', [UserDashboardController::class, 'createExpense'])->name('expenses.create');
     Route::post('/expenses', [UserDashboardController::class, 'storeExpense'])->name('expenses.store');
@@ -1883,3 +1887,7 @@ Route::prefix('staff')->name('staff.')->group(function () {
     Route::get('/tickets/{ticket}', [StaffTicketController::class, 'show'])->name('tickets.show');
     Route::post('/tickets/{ticket}/reply', [StaffTicketController::class, 'reply'])->name('tickets.reply');
 });
+
+Route::get('/riwayat', [ActivityHistoryController::class, 'index'])
+    ->middleware('auth')
+    ->name('history.index');

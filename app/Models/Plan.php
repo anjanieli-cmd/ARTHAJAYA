@@ -6,14 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Plan extends Model
 {
-    protected $fillable = ['name', 'slug', 'price', 'features'];
+    protected $table = 'plans';
 
-    protected $casts = [
-        'features' => 'array',
+    protected $fillable = [
+        'name',
+        'slug',
+        'price',
+        'description',
+        'billing_period',
+        'max_users',
+        'is_active',
+        'color',
+        'icon',
+        'features',
     ];
 
-    public function companies()
+    protected function casts(): array
     {
-        return $this->hasMany(Company::class);
+        return [
+            'is_active' => 'boolean',
+        ];
     }
 }

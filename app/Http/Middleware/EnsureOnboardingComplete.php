@@ -12,8 +12,15 @@ class EnsureOnboardingComplete
     {
         $user = Auth::user();
 
-        // Kalau user belum punya company_id, redirect ke onboarding
-        if ($user && !$user->company_id && !$request->routeIs('onboarding.*')) {
+        // Route yang dikecualikan dari redirect ke onboarding
+        $excludedRoutes = [
+            'onboarding.*',
+            'payment.checkout',
+            'payment.process',
+            'midtrans.notification', // webhook, request-nya dari server Midtrans bukan user login
+        ];
+
+        if ($user && !$user->company_id && !$request->routeIs($excludedRoutes)) {
             return redirect()->route('onboarding.show');
         }
 
