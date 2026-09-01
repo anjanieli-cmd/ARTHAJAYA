@@ -9,11 +9,8 @@
         "php": "^8.3",
         "laravel/framework": "^13.8",
         "laravel/tinker": "^3.0",
-<<<<<<< HEAD
+        "league/flysystem-aws-s3-v3": "3.0",
         "midtrans/midtrans-php": "^2.6"
-=======
-        "league/flysystem-aws-s3-v3": "3.0"
->>>>>>> 28114e099c57d6a10e8bf5afd8f1239664fe4f81
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -38,19 +35,19 @@
         }
     },
     "scripts": {
-    "vercel-build": [
-        "composer install --no-interaction --prefer-dist --optimize-autoloader",
-        "npm install",
-        "npm run build"
-    ],
-    "setup": [
-        "composer install",
-        "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
-        "@php artisan key:generate",
-        "@php artisan migrate --force",
-        "npm install --ignore-scripts",
-        "npm run build"
-    ],
+        "vercel-build": [
+            "composer install --no-interaction --prefer-dist --optimize-autoloader",
+            "npm install",
+            "npm run build"
+        ],
+        "setup": [
+            "composer install",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate",
+            "@php artisan migrate --force",
+            "npm install --ignore-scripts",
+            "npm run build"
+        ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=0\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
