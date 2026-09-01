@@ -8,22 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('chart_of_accounts', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('company_id')->constrained()->cascadeOnDelete(); // tiap company punya daftar akun sendiri
-            $table->string('code', 20);              // contoh: '1-101'
-            $table->string('name');                  // contoh: 'Kas'
-            $table->enum('type', ['asset', 'liability', 'equity', 'revenue', 'expense']); // Aset/Kewajiban/Modal/Pendapatan/Biaya
-            $table->enum('normal_balance', ['debit', 'credit']); // saldo normal akun ini
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-
-            $table->unique(['company_id', 'code']); // kode akun unik per company
+        Schema::table('accounts', function (Blueprint $table) {
+            $table->foreignId('chart_of_account_id')
+                ->nullable()
+                ->after('company_id')
+                ->constrained('chart_of_accounts')
+                ->nullOnDelete();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('chart_of_accounts');
+        Schema::table('accounts', function (Blueprint $table) {
+            $table->dropForeign(['chart_of_account_id']);
+            $table->dropColumn('chart_of_account_id');
+        });
     }
 };
