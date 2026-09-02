@@ -12,14 +12,34 @@ use Illuminate\Support\Facades\Log;
 class PayableController extends Controller
 {
     /**
-     * Pemetaan kategori tagihan -> kode akun COA (beban) yang jadi
-     * pasangan debit saat tagihan diakui (accrual). Kalau kategori
-     * tidak dikenali, fallback ke Biaya Operasional (5-101).
+     * Daftar vendor sementara (hardcoded) -- sama seperti closure lama.
+     * Ganti ke tabel `vendors` beneran kalau nanti sudah ada modelnya.
+     */
+    private array $vendors = [
+        1 => 'Toko Bangunan Sentosa',
+        2 => 'CV Kertas Nusantara',
+        3 => 'Distributor Kain Batik',
+        4 => 'Jasa Ekspedisi Cepat',
+        5 => 'PLN - Listrik Kantor',
+    ];
+
+    /**
+     * Pemetaan kategori tagihan -> kode akun COA yang jadi pasangan
+     * debit saat tagihan diakui (accrual). "Bahan Baku" masuk ke akun
+     * Persediaan (aset), sisanya masuk akun Beban Operasional. Kalau
+     * kategori kosong/tidak dikenali, fallback ke Biaya Operasional.
+     *
+     * CATATAN: kode 1-104 (Persediaan) & 2-101 (Utang Usaha) harus ada
+     * di tabel chart_of_accounts milik company ini. Kalau belum, jalankan
+     * seeder tambahan (lihat MissingArAndApAccountsSeeder).
      */
     private array $categoryToExpenseCode = [
-        'gaji'       => '5-102',
-        'sewa'       => '5-103',
-        'operasional' => '5-101',
+        'bahan_baku'   => '1-104', // Persediaan
+        'utilitas'     => '5-101', // Biaya Operasional
+        'transportasi' => '5-101',
+        'produksi'     => '5-101',
+        'marketing'    => '5-101',
+        'operasional'  => '5-101',
     ];
 
     public function index(Request $request)
@@ -60,8 +80,12 @@ class PayableController extends Controller
     {
         $user = Auth::user();
         $company = $user->company;
+        $vendors = $this->vendors;
 
-        return view('payables.create', compact('user', 'company'));
+        $lastNumber = Payable::where('company_id', $company->id)->count() + 1;
+        $billNumber = 'B-' . now()->format('Y') . '-' . str_pad($lastNumber, 4, '0', STR_PAD_LEFT);
+
+        return view('payables.create', compact('user', 'company', 'vendors', 'billNumber'));
     }
 
     public function store(Request $request)
@@ -70,13 +94,14 @@ class PayableController extends Controller
         abort_if(! $company, 403, 'Lengkapi setup perusahaan terlebih dahulu.');
 
         $data = $request->validate([
-            'vendor'     => 'required|string|max:255',
-            'bill_number' => 'required|string|max:100',
+            'vendor_id'  => 'required|integer',
+            'number'     => 'required|string|max:100',
             'date'       => 'required|date',
             'due_date'   => 'required|date',
             'category'   => 'nullable|string|max:100',
             'notes'      => 'nullable|string',
             'items'      => 'nullable|array',
+            'items.*.description' => 'nullable|string',
             'items.*.quantity' => 'nullable|numeric',
             'items.*.price'    => 'nullable|numeric',
             'status'     => 'nullable|string|in:draft,sent,paid',
@@ -95,8 +120,8 @@ class PayableController extends Controller
 
         $payable = Payable::create([
             'company_id'  => $company->id,
-            'vendor'      => $data['vendor'],
-            'bill_number' => $data['bill_number'],
+            'vendor'      => $this->vendors[$data['vendor_id']] ?? 'Vendor Tidak Dikenal',
+            'bill_number' => $data['number'],
             'date'        => $data['date'],
             'due'         => $data['due_date'],
             'category'    => $data['category'] ?? null,
@@ -213,8 +238,8 @@ class PayableController extends Controller
     }
 
     /**
-     * Akui tagihan sebagai beban + kewajiban (accrual):
-     * debit akun Beban (sesuai kategori), kredit Utang Usaha (2-101).
+     * Akui tagihan sebagai beban/aset + kewajiban (accrual):
+     * debit akun sesuai kategori, kredit Utang Usaha (2-101).
      * Dipanggil ulang tiap update supaya nominal/kategori yang berubah
      * ikut ter-update di Buku Besar, bukan nambah baris baru.
      */
@@ -226,7 +251,7 @@ class PayableController extends Controller
         $payableAccountId = ChartOfAccount::where('company_id', $company->id)->where('code', '2-101')->value('id');
 
         if (! $expenseAccountId || ! $payableAccountId) {
-            Log::warning("Akun Beban ({$expenseCode}) atau Utang Usaha (2-101) tidak ditemukan untuk company #{$company->id}.");
+            Log::warning("Akun ({$expenseCode}) atau Utang Usaha (2-101) tidak ditemukan untuk company #{$company->id}.");
             return;
         }
 
@@ -254,16 +279,21 @@ class PayableController extends Controller
     }
 
     /**
-     * Catat pelunasan: debit Utang Usaha (2-101), kredit Kas (1-101).
+     * Catat pelunasan: debit Utang Usaha (2-101), kredit Kas (1-102).
+     *
+     * PERBAIKAN: sebelumnya kode akun kas di sini adalah '1-101', tapi di
+     * COA aktif kode 1-101 itu "Aset Tetap", bukan Kas — Kas yang asli ada
+     * di kode 1-102. Akibatnya setiap pelunasan tagihan salah kredit ke
+     * akun Aset Tetap alih-alih Kas. Sudah diperbaiki ke '1-102'.
      * Asumsi dibayar tunai/kas -- sesuaikan ke akun Bank kalau perlu.
      */
     private function syncPaymentJournal($company, Payable $payable): void
     {
         $payableAccountId = ChartOfAccount::where('company_id', $company->id)->where('code', '2-101')->value('id');
-        $cashAccountId = ChartOfAccount::where('company_id', $company->id)->where('code', '1-101')->value('id');
+        $cashAccountId = ChartOfAccount::where('company_id', $company->id)->where('code', '1-102')->value('id');
 
         if (! $payableAccountId || ! $cashAccountId) {
-            Log::warning("Akun Utang Usaha (2-101) atau Kas (1-101) tidak ditemukan untuk company #{$company->id}.");
+            Log::warning("Akun Utang Usaha (2-101) atau Kas (1-102) tidak ditemukan untuk company #{$company->id}.");
             return;
         }
 

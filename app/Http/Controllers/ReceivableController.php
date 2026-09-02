@@ -53,6 +53,36 @@ class ReceivableController extends Controller
     }
 
     /**
+     * Piutang bukan entity terpisah -- dia "menumpang" di atas Invoice.
+     * Jadi create/store/edit/update semuanya diarahkan ke halaman Invoice
+     * yang sesungguhnya, satu sumber kebenaran, konsisten dengan show()
+     * di bawah yang juga redirect ke invoices.show.
+     *
+     * SEBELUM INI: route receivables.create/store/edit/update di web.php
+     * memanggil method yang tidak ada di controller ini sama sekali --
+     * kalau ada yang mengaksesnya akan 500 error (method not found).
+     */
+    public function create()
+    {
+        return redirect()->route('invoices.create');
+    }
+
+    public function store(Request $request)
+    {
+        return redirect()->route('invoices.create');
+    }
+
+    public function edit($id)
+    {
+        return redirect()->route('invoices.edit', $id);
+    }
+
+    public function update(Request $request, $id)
+    {
+        return redirect()->route('invoices.edit', $id);
+    }
+
+    /**
      * Detail piutang -> arahkan ke halaman detail faktur aslinya
      * (satu sumber kebenaran, tidak ada halaman show terpisah untuk AR).
      */
