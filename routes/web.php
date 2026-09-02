@@ -937,117 +937,13 @@ Route::delete('/expense-categories/delete/{category}', function (\App\Models\Exp
         Route::get('/taxes/ppn/pay/{index}', [\App\Http\Controllers\TaxPpnController::class, 'pay'])->name('taxes.ppn.pay');
 
         // ===== TAX CALENDAR =====
-        Route::get('/tax-calendar', function () {
-            $user = Auth::user();
-            $company = $user->company;
-
-            $defaultEvents = [
-                ['date' => '2026-07-15', 'title' => 'PPh Pasal 21', 'type' => 'pph', 'status' => 'upcoming', 'desc' => 'Laporan PPh 21 masa Juni 2026'],
-                ['date' => '2026-07-20', 'title' => 'PPN Masa', 'type' => 'ppn', 'status' => 'upcoming', 'desc' => 'Laporan PPN masa Juni 2026'],
-                ['date' => '2026-07-25', 'title' => 'PPh Pasal 23', 'type' => 'pph', 'status' => 'upcoming', 'desc' => 'Laporan PPh 23 masa Juni 2026'],
-            ];
-
-            $calendarEvents = session()->has('calendar_events') ? session('calendar_events') : $defaultEvents;
-
-            if (request()->filled('q')) {
-                $q = strtolower(request('q'));
-                $calendarEvents = array_filter($calendarEvents, function ($e) use ($q) {
-                    return str_contains(strtolower($e['title']), $q)
-                        || str_contains(strtolower($e['type']), $q);
-                });
-                $calendarEvents = array_values($calendarEvents);
-            }
-
-            if (request()->ajax()) {
-                return view('tax-calendar.index', compact('user', 'company', 'calendarEvents'))->render();
-            }
-
-            return view('tax-calendar.index', compact('user', 'company', 'calendarEvents'));
-        })->name('tax-calendar.index');
-
-        Route::get('/tax-calendar/create', function () {
-            $user = Auth::user();
-            $company = $user->company;
-            return view('tax-calendar.create', compact('user', 'company'));
-        })->name('tax-calendar.create');
-
-        Route::post('/tax-calendar', function () {
-            $title = request('title');
-            $date = request('date');
-            $type = request('type');
-            $desc = request('desc');
-            $status = request('status');
-
-            $calendarEvents = session('calendar_events', []);
-            $newEvent = [
-                'title' => $title,
-                'date' => $date,
-                'type' => $type,
-                'status' => $status,
-                'desc' => $desc,
-            ];
-
-            array_unshift($calendarEvents, $newEvent);
-            session(['calendar_events' => $calendarEvents]);
-
-            return redirect()->route('tax-calendar.index')->with('success', 'Event berhasil ditambahkan!');
-        })->name('tax-calendar.store');
-
-        Route::get('/tax-calendar/show/{index}', function ($index) {
-            $user = Auth::user();
-            $company = $user->company;
-            $calendarEvents = session('calendar_events', []);
-
-            if (!isset($calendarEvents[$index])) {
-                abort(404, 'Event tidak ditemukan');
-            }
-
-            $event = $calendarEvents[$index];
-            return view('tax-calendar.show', compact('user', 'company', 'event', 'index'));
-        })->name('tax-calendar.show');
-
-        Route::get('/tax-calendar/edit/{index}', function ($index) {
-            $user = Auth::user();
-            $company = $user->company;
-            $calendarEvents = session('calendar_events', []);
-
-            if (!isset($calendarEvents[$index])) {
-                abort(404, 'Event tidak ditemukan');
-            }
-
-            $event = $calendarEvents[$index];
-            return view('tax-calendar.edit', compact('user', 'company', 'event', 'index'));
-        })->name('tax-calendar.edit');
-
-        Route::put('/tax-calendar/update/{index}', function ($index) {
-            $calendarEvents = session('calendar_events', []);
-
-            if (!isset($calendarEvents[$index])) {
-                abort(404, 'Event tidak ditemukan');
-            }
-
-            $calendarEvents[$index]['title']  = request('title', $calendarEvents[$index]['title']);
-            $calendarEvents[$index]['date']   = request('date', $calendarEvents[$index]['date']);
-            $calendarEvents[$index]['type']   = request('type', $calendarEvents[$index]['type']);
-            $calendarEvents[$index]['status'] = request('status', $calendarEvents[$index]['status']);
-            $calendarEvents[$index]['desc']   = request('desc', $calendarEvents[$index]['desc']);
-
-            session(['calendar_events' => $calendarEvents]);
-
-            return redirect()->route('tax-calendar.index')->with('success', 'Event berhasil diupdate!');
-        })->name('tax-calendar.update');
-
-        Route::delete('/tax-calendar/delete/{index}', function ($index) {
-            $calendarEvents = session('calendar_events', []);
-
-            if (isset($calendarEvents[$index])) {
-                unset($calendarEvents[$index]);
-            }
-
-            session(['calendar_events' => array_values($calendarEvents)]);
-
-            return redirect()->route('tax-calendar.index')->with('success', 'Event berhasil dihapus!');
-        })->name('tax-calendar.destroy');
+        Route::get('/tax-calendar', [\App\Http\Controllers\TaxCalendarController::class, 'index'])->name('tax-calendar.index');
+        Route::get('/tax-calendar/create', [\App\Http\Controllers\TaxCalendarController::class, 'create'])->name('tax-calendar.create');
+        Route::post('/tax-calendar', [\App\Http\Controllers\TaxCalendarController::class, 'store'])->name('tax-calendar.store');
+        Route::get('/tax-calendar/show/{index}', [\App\Http\Controllers\TaxCalendarController::class, 'show'])->name('tax-calendar.show');
+        Route::get('/tax-calendar/edit/{index}', [\App\Http\Controllers\TaxCalendarController::class, 'edit'])->name('tax-calendar.edit');
+        Route::put('/tax-calendar/update/{index}', [\App\Http\Controllers\TaxCalendarController::class, 'update'])->name('tax-calendar.update');
+        Route::delete('/tax-calendar/delete/{index}', [\App\Http\Controllers\TaxCalendarController::class, 'destroy'])->name('tax-calendar.destroy');
     });
 
     // ===== BUDGETING =====
