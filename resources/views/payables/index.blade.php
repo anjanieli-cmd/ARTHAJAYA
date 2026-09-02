@@ -1288,14 +1288,14 @@
 
                         <!-- Actions -->
                         <div class="ap-actions" id="{{ $itemId }}">
-                            <a href="/payables/{{ $index }}" class="btn-action show" title="Lihat Detail">
+                            <a href="/payables/{{ $p['id'] }}" class="btn-action show" title="Lihat Detail">
                                 <svg class="icon"><use href="#ic-eye"/></svg>
                             </a>
-                            <a href="/payables/{{ $index }}/edit" class="btn-action edit" title="Edit Tagihan">
+                            <a href="/payables/{{ $p['id'] }}/edit" class="btn-action edit" title="Edit Tagihan">
                                 <svg class="icon"><use href="#ic-edit"/></svg>
                             </a>
                             <button type="button" class="btn-action danger" title="Hapus Tagihan"
-                                    onclick="openDeleteModal('{{ $index }}', '{{ addslashes($p['bill']) }}')">
+                                    onclick="openDeleteModal('{{ $p['id'] }}', '{{ addslashes($p['bill']) }}')">
                                 <svg class="icon"><use href="#ic-trash"/></svg>
                             </button>
                         </div>
