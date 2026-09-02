@@ -17,6 +17,7 @@ use App\Http\Controllers\CogsController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReceivableController;
+use App\Http\Controllers\PayableController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamMemberController;
@@ -127,145 +128,13 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         Route::delete('/receivables/{receivable}', [ReceivableController::class, 'destroy'])->name('receivables.destroy');
 
         // ===== PAYABLES =====
-        Route::get('/payables', function () {
-            $user = Auth::user();
-            $company = $user->company;
-
-            $defaultPayables = [
-                ['vendor' => 'Toko Bangunan Sentosa',  'bill' => '#B-0112', 'date' => '2026-06-05', 'due' => '2026-07-20', 'status' => 'lancar', 'amount' => 12500000],
-                ['vendor' => 'CV Kertas Nusantara',    'bill' => '#B-0119', 'date' => '2026-06-12', 'due' => '2026-07-12', 'status' => 'lancar', 'amount' => 3200000],
-                ['vendor' => 'PLN — Listrik Kantor',   'bill' => '#B-0125', 'date' => '2026-06-01', 'due' => '2026-06-15', 'status' => 'jatuh_tempo', 'amount' => 4100000],
-                ['vendor' => 'Distributor Kain Batik', 'bill' => '#B-0103', 'date' => '2026-05-20', 'due' => '2026-06-05', 'status' => 'jatuh_tempo', 'amount' => 21400000],
-                ['vendor' => 'Jasa Ekspedisi Cepat',   'bill' => '#B-0098', 'date' => '2026-05-10', 'due' => '2026-05-24', 'status' => 'lunas', 'amount' => 1850000],
-            ];
-
-            $payables = session()->has('payables') ? session('payables') : $defaultPayables;
-
-            if (request()->filled('q')) {
-                $q = strtolower(request('q'));
-                $payables = array_filter($payables, function ($p) use ($q) {
-                    return str_contains(strtolower($p['vendor']), $q)
-                        || str_contains(strtolower($p['bill']), $q);
-                });
-                $payables = array_values($payables);
-            }
-
-            if (request()->ajax()) {
-                return view('payables.index', compact('user', 'company', 'payables'))->render();
-            }
-
-            return view('payables.index', compact('user', 'company', 'payables'));
-        })->name('payables.index');
-
-        Route::get('/payables/create', function () {
-            $user = Auth::user();
-            $company = $user->company;
-            return view('payables.create', compact('user', 'company'));
-        })->name('payables.create');
-
-        Route::post('/payables', function () {
-            $vendor_id = request('vendor_id');
-            $number = request('number');
-            $date = request('date');
-            $due_date = request('due_date');
-            $category = request('category');
-            $notes = request('notes');
-            $items = request('items');
-            $status = request('status');
-
-            $vendors = [
-                1 => 'Toko Bangunan Sentosa',
-                2 => 'CV Kertas Nusantara',
-                3 => 'Distributor Kain Batik',
-                4 => 'Jasa Ekspedisi Cepat',
-                5 => 'PLN — Listrik Kantor',
-            ];
-
-            $subtotal = 0;
-            if ($items) {
-                foreach ($items as $item) {
-                    $subtotal += $item['quantity'] * $item['price'];
-                }
-            }
-
-            $statusMapping = [
-                'draft' => 'lancar',
-                'sent' => 'lancar',
-                'paid' => 'lunas',
-            ];
-
-            $payables = session('payables', []);
-            $newBill = [
-                'vendor' => $vendors[$vendor_id] ?? 'Vendor Unknown',
-                'bill' => $number,
-                'date' => $date,
-                'due' => $due_date,
-                'status' => $statusMapping[$status] ?? 'lancar',
-                'amount' => $subtotal,
-            ];
-
-            array_unshift($payables, $newBill);
-            session(['payables' => $payables]);
-
-            return redirect()->route('payables.index')->with('success', 'Tagihan berhasil dibuat!');
-        })->name('payables.store');
-
-        Route::get('/payables/{index}', function ($index) {
-            $user = Auth::user();
-            $company = $user->company;
-            $payables = session('payables', []);
-
-            if (!isset($payables[$index])) {
-                abort(404, 'Tagihan tidak ditemukan');
-            }
-
-            $payable = $payables[$index];
-            return view('payables.show', compact('user', 'company', 'payable', 'index'));
-        })->name('payables.show');
-
-        Route::get('/payables/{index}/edit', function ($index) {
-            $user = Auth::user();
-            $company = $user->company;
-            $payables = session('payables', []);
-
-            if (!isset($payables[$index])) {
-                abort(404, 'Tagihan tidak ditemukan');
-            }
-
-            $payable = $payables[$index];
-            return view('payables.edit', compact('user', 'company', 'payable', 'index'));
-        })->name('payables.edit');
-
-        Route::put('/payables/{index}', function ($index) {
-            $payables = session('payables', []);
-
-            if (!isset($payables[$index])) {
-                abort(404, 'Tagihan tidak ditemukan');
-            }
-
-            $payables[$index]['vendor'] = request('vendor', $payables[$index]['vendor']);
-            $payables[$index]['bill']   = request('bill', $payables[$index]['bill']);
-            $payables[$index]['date']   = request('date', $payables[$index]['date']);
-            $payables[$index]['due']    = request('due', $payables[$index]['due']);
-            $payables[$index]['status'] = request('status', $payables[$index]['status']);
-            $payables[$index]['amount'] = request('amount', $payables[$index]['amount']);
-
-            session(['payables' => $payables]);
-
-            return redirect()->route('payables.index')->with('success', 'Tagihan berhasil diupdate!');
-        })->name('payables.update');
-
-        Route::delete('/payables/{index}', function ($index) {
-            $payables = session('payables', []);
-
-            if (isset($payables[$index])) {
-                unset($payables[$index]);
-            }
-
-            session(['payables' => array_values($payables)]);
-
-            return redirect()->route('payables.index')->with('success', 'Tagihan berhasil dihapus!');
-        })->name('payables.destroy');
+        Route::get('/payables', [PayableController::class, 'index'])->name('payables.index');
+        Route::get('/payables/create', [PayableController::class, 'create'])->name('payables.create');
+        Route::post('/payables', [PayableController::class, 'store'])->name('payables.store');
+        Route::get('/payables/{payable}', [PayableController::class, 'show'])->name('payables.show');
+        Route::get('/payables/{payable}/edit', [PayableController::class, 'edit'])->name('payables.edit');
+        Route::put('/payables/{payable}', [PayableController::class, 'update'])->name('payables.update');
+        Route::delete('/payables/{payable}', [PayableController::class, 'destroy'])->name('payables.destroy');
 
         // ===== AGING =====
         Route::get('/aging', function () {
