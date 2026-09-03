@@ -2,14 +2,10 @@
 
 namespace App\Models;
 
-use App\Traits\LogsActivity;
-
 use Illuminate\Database\Eloquent\Model;
 
 class TaxCalendarEvent extends Model
 {
-    use LogsActivity;
-
     protected $fillable = ['company_id', 'title', 'date', 'type', 'desc'];
 
     protected $casts = [

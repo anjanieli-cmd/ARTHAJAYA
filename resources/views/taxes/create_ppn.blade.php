@@ -4,6 +4,12 @@
   @php
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
     $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
+
+    $months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    $currentMonthIndex = (int) date('n') - 1; // default: bulan berjalan
   @endphp
 
   <style>
@@ -14,26 +20,31 @@
       --theme-glow: rgba(var(--emerald-rgb), 0.25);
       --theme-soft: rgba(var(--emerald-rgb), 0.12);
       --theme-gradient: linear-gradient(135deg, var(--emerald), var(--emerald-dim));
-      
+
       --text-primary: var(--text);
       --text-secondary: var(--text-mute);
       --text-tertiary: var(--text-faint);
-      
+
       --bg-card: var(--surface);
       --bg-card-hover: var(--surface-strong);
       --bg-card-active: rgba(255, 255, 255, 0.04);
       --border-color: var(--border);
       --border-hover: var(--border-hover);
-      
+
       --danger: #E85A5A;
       --danger-soft: rgba(232, 90, 90, 0.12);
-      
+      --success: #34B583;
+      --success-soft: rgba(52, 181, 131, 0.14);
+      --warning: #F0A83C;
+      --warning-soft: rgba(240, 168, 60, 0.14);
+
       --radius-sm: 10px;
       --radius-md: 16px;
       --radius-lg: 24px;
-      
+
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
+      padding: 0 24px;
     }
 
     .tax-create-wrap * { box-sizing: border-box; }
@@ -42,6 +53,11 @@
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
     }
 
     .tax-create-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
@@ -184,10 +200,25 @@
     .tc-card:hover { border-color: var(--border-hover); }
 
     .tc-card .title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-size: 15px;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 20px;
+    }
+
+    .tc-card .title .icon {
+      width: 20px;
+      height: 20px;
+      color: var(--theme-primary);
+    }
+
+    .tc-card .title .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-color), transparent);
     }
 
     .tc-form-group {
@@ -323,28 +354,27 @@
       @csrf
 
       <div class="tc-card animate-in" style="animation-delay: 0.10s;">
-        <div class="title">Informasi PPN</div>
+        <div class="title">
+          <svg class="icon"><use href="#ic-tax"/></svg>
+          Informasi PPN
+          <span class="line"></span>
+        </div>
 
         <div class="tc-info-box">
-          <svg class="icon"><use href="#ic-building"/></svg>
+          <svg class="icon"><use href="#ic-info"/></svg>
           <span class="message">Catat PPN Keluaran dan PPN Masukan untuk setiap periode</span>
         </div>
 
         <div class="tc-form-group">
           <label>Periode <span class="required">*</span></label>
           <select name="period" required>
-            <option value="Januari 2026">Januari 2026</option>
-            <option value="Februari 2026">Februari 2026</option>
-            <option value="Maret 2026">Maret 2026</option>
-            <option value="April 2026">April 2026</option>
-            <option value="Mei 2026">Mei 2026</option>
-            <option value="Juni 2026">Juni 2026</option>
-            <option value="Juli 2026" selected>Juli 2026</option>
-            <option value="Agustus 2026">Agustus 2026</option>
-            <option value="September 2026">September 2026</option>
-            <option value="Oktober 2026">Oktober 2026</option>
-            <option value="November 2026">November 2026</option>
-            <option value="Desember 2026">Desember 2026</option>
+            @foreach($months as $i => $month)
+              @php
+                $year = date('Y');
+                $value = $month . ' ' . $year;
+              @endphp
+              <option value="{{ $value }}" {{ $i == $currentMonthIndex ? 'selected' : '' }}>{{ $value }}</option>
+            @endforeach
           </select>
         </div>
 
@@ -388,6 +418,14 @@
     </form>
 
   </div>
+
+  <!-- SVG Icons -->
+  <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="ic-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="ic-tax" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7v4c0 5.52 3.12 10.56 10 11 6.88-.44 10-5.48 10-11V7L12 2z"/><polyline points="12 11 12 17 16 17"/><line x1="8" y1="17" x2="16" y2="17"/></symbol>
+  </svg>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {

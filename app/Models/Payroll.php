@@ -2,13 +2,24 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 
 class Payroll extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
-        'company_id', 'employee_id', 'position', 'period',
-        'basic_salary', 'allowance', 'deduction', 'total', 'status', 'notes',
+        'company_id',
+        'employee_id',
+        'position',
+        'period',
+        'basic_salary',
+        'allowance',
+        'deduction',
+        'total',
+        'status',
+        'notes',
     ];
 
     protected $casts = [

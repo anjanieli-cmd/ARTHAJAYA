@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LabaRugiItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LabaRugiController extends Controller
 {
@@ -17,16 +18,36 @@ class LabaRugiController extends Controller
             ->orderBy('name')
             ->get();
 
-        $pendapatan = $items->where('type', 'pendapatan')->groupBy('category');
-        $beban = $items->where('type', 'beban')->groupBy('category');
+        $pendapatan = $items
+            ->where('type', 'pendapatan')
+            ->groupBy('category');
 
-        $totalPendapatan = (float) $items->where('type', 'pendapatan')->sum('amount');
-        $totalBeban = (float) $items->where('type', 'beban')->sum('amount');
+        $beban = $items
+            ->where('type', 'beban')
+            ->groupBy('category');
+
+        $totalPendapatan = (float) $items
+            ->where('type', 'pendapatan')
+            ->sum('amount');
+
+        $totalBeban = (float) $items
+            ->where('type', 'beban')
+            ->sum('amount');
+
         $labaBersih = $totalPendapatan - $totalBeban;
 
-        return view('laba-rugi.index', compact(
-            'pendapatan', 'beban', 'totalPendapatan', 'totalBeban', 'labaBersih', 'month', 'year'
-        ));
+        return view(
+            'laba-rugi.index',
+            compact(
+                'pendapatan',
+                'beban',
+                'totalPendapatan',
+                'totalBeban',
+                'labaBersih',
+                'month',
+                'year'
+            )
+        );
     }
 
     public function create()
@@ -46,25 +67,54 @@ class LabaRugiController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        LabaRugiItem::create($validated);
+        $item = LabaRugiItem::create($validated);
+
+        // Catat aktivitas tambah
+        $this->logActivity(
+            'created',
+            'Menambahkan pos laba rugi: ' .
+                $item->name .
+                ' (' .
+                $item->category .
+                ')',
+            $item
+        );
 
         return redirect()
-            ->route('laba-rugi.index', ['month' => $validated['period_month'], 'year' => $validated['period_year']])
-            ->with('success', 'Pos laba rugi berhasil ditambahkan.');
+            ->route('laba-rugi.index', [
+                'month' => $validated['period_month'],
+                'year' => $validated['period_year'],
+            ])
+            ->with(
+                'success',
+                'Pos laba rugi berhasil ditambahkan.'
+            );
     }
 
     public function show(LabaRugiItem $laba_rugi)
     {
-        return view('laba-rugi.show', ['item' => $laba_rugi]);
+        return view(
+            'laba-rugi.show',
+            [
+                'item' => $laba_rugi,
+            ]
+        );
     }
 
     public function edit(LabaRugiItem $laba_rugi)
     {
-        return view('laba-rugi.edit', ['item' => $laba_rugi]);
+        return view(
+            'laba-rugi.edit',
+            [
+                'item' => $laba_rugi,
+            ]
+        );
     }
 
-    public function update(Request $request, LabaRugiItem $laba_rugi)
-    {
+    public function update(
+        Request $request,
+        LabaRugiItem $laba_rugi
+    ) {
         $validated = $request->validate([
             'type' => 'required|in:pendapatan,beban',
             'category' => 'required|string|max:100',
@@ -75,21 +125,82 @@ class LabaRugiController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        // Simpan nama lama untuk deskripsi riwayat
+        $oldName = $laba_rugi->name;
+
         $laba_rugi->update($validated);
 
+        // Catat aktivitas edit
+        $this->logActivity(
+            'updated',
+            'Mengupdate pos laba rugi: ' .
+                $oldName .
+                ' menjadi ' .
+                $laba_rugi->name,
+            $laba_rugi
+        );
+
         return redirect()
-            ->route('laba-rugi.index', ['month' => $validated['period_month'], 'year' => $validated['period_year']])
-            ->with('success', 'Pos laba rugi berhasil diperbarui.');
+            ->route('laba-rugi.index', [
+                'month' => $validated['period_month'],
+                'year' => $validated['period_year'],
+            ])
+            ->with(
+                'success',
+                'Pos laba rugi berhasil diperbarui.'
+            );
     }
 
     public function destroy(LabaRugiItem $laba_rugi)
     {
         $month = $laba_rugi->period_month;
         $year = $laba_rugi->period_year;
+
+        // Simpan data sebelum dihapus
+        $itemName = $laba_rugi->name;
+        $category = $laba_rugi->category;
+
+        // Catat aktivitas hapus SEBELUM delete
+        $this->logActivity(
+            'deleted',
+            'Menghapus pos laba rugi: ' .
+                $itemName .
+                ' (' .
+                $category .
+                ')',
+            $laba_rugi
+        );
+
         $laba_rugi->delete();
 
         return redirect()
-            ->route('laba-rugi.index', ['month' => $month, 'year' => $year])
-            ->with('success', 'Pos laba rugi berhasil dihapus.');
+            ->route('laba-rugi.index', [
+                'month' => $month,
+                'year' => $year,
+            ])
+            ->with(
+                'success',
+                'Pos laba rugi berhasil dihapus.'
+            );
+    }
+
+    /**
+     * Mencatat aktivitas ke tabel activity_logs.
+     */
+    protected function logActivity(
+        string $action,
+        string $description,
+        $subject = null
+    ): void {
+        \App\Models\ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => $action,
+            'description' => $description,
+            'subject_type' => $subject
+                ? get_class($subject)
+                : null,
+            'subject_id' => $subject->id ?? null,
+            'ip_address' => request()->ip(),
+        ]);
     }
 }

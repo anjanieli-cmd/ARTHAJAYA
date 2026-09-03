@@ -16,9 +16,10 @@ class InventoryController extends Controller
         $items = InventoryItem::where('company_id', $companyId)
             ->when($request->filled('q'), function ($query) use ($request) {
                 $search = $request->q;
+
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('sku', 'like', "%{$search}%");
+                        ->orWhere('sku', 'like', "%{$search}%");
                 });
             })
             ->when($request->filled('category'), function ($query) use ($request) {
@@ -31,9 +32,13 @@ class InventoryController extends Controller
         $allItems = InventoryItem::where('company_id', $companyId)->get();
 
         $stats = [
-            'total_sku'   => $allItems->count(),
-            'total_value' => $allItems->sum(fn ($i) => $i->stock_quantity * $i->cost_price),
-            'low_stock'   => $allItems->filter(fn ($i) => $i->is_low_stock)->count(),
+            'total_sku' => $allItems->count(),
+            'total_value' => $allItems->sum(
+                fn ($i) => $i->stock_quantity * $i->cost_price
+            ),
+            'low_stock' => $allItems->filter(
+                fn ($i) => $i->is_low_stock
+            )->count(),
         ];
 
         $categories = InventoryItem::where('company_id', $companyId)
@@ -42,68 +47,164 @@ class InventoryController extends Controller
             ->orderBy('category')
             ->pluck('category');
 
-        return view('inventory.index', compact('items', 'stats', 'company', 'categories'));
+        return view(
+            'inventory.index',
+            compact(
+                'items',
+                'stats',
+                'company',
+                'categories'
+            )
+        );
     }
 
     public function show(InventoryItem $item)
     {
         $company = Auth::user()->company;
 
-        return view('inventory.show', compact('item', 'company'));
+        return view(
+            'inventory.show',
+            compact('item', 'company')
+        );
     }
 
     public function create()
     {
         $company = Auth::user()->company;
 
-        return view('inventory.create', compact('company'));
+        return view(
+            'inventory.create',
+            compact('company')
+        );
     }
 
     public function store(Request $request)
     {
         $data = $this->validateData($request);
+
         $data['company_id'] = Auth::user()->company->id;
 
-        InventoryItem::create($data);
+        $item = InventoryItem::create($data);
 
-        return redirect()->route('inventory.index')->with('success', 'Barang berhasil ditambahkan.');
+        // CATAT RIWAYAT AKTIVITAS
+        $this->logActivity(
+            'created',
+            'Menambahkan barang inventaris: ' .
+                $item->name .
+                ' (SKU: ' .
+                $item->sku .
+                ')',
+            $item
+        );
+
+        return redirect()
+            ->route('inventory.index')
+            ->with(
+                'success',
+                'Barang berhasil ditambahkan.'
+            );
     }
 
     public function edit(InventoryItem $item)
     {
         $company = Auth::user()->company;
 
-        return view('inventory.edit', compact('item', 'company'));
+        return view(
+            'inventory.edit',
+            compact('item', 'company')
+        );
     }
 
-    public function update(Request $request, InventoryItem $item)
-    {
+    public function update(
+        Request $request,
+        InventoryItem $item
+    ) {
         $data = $this->validateData($request);
+
+        // Simpan data lama untuk deskripsi aktivitas
+        $oldName = $item->name;
+        $oldSku = $item->sku;
 
         $item->update($data);
 
-        return redirect()->route('inventory.index')->with('success', 'Barang berhasil diperbarui.');
+        // CATAT RIWAYAT AKTIVITAS
+        $this->logActivity(
+            'updated',
+            'Mengupdate barang inventaris: ' .
+                $oldName .
+                ' (SKU: ' .
+                $oldSku .
+                ')',
+            $item
+        );
+
+        return redirect()
+            ->route('inventory.index')
+            ->with(
+                'success',
+                'Barang berhasil diperbarui.'
+            );
     }
 
     public function destroy(InventoryItem $item)
     {
+        // Simpan data sebelum dihapus
+        $itemName = $item->name;
+        $itemSku = $item->sku;
+
+        // CATAT RIWAYAT SEBELUM DELETE
+        $this->logActivity(
+            'deleted',
+            'Menghapus barang inventaris: ' .
+                $itemName .
+                ' (SKU: ' .
+                $itemSku .
+                ')',
+            $item
+        );
+
         $item->delete();
 
-        return redirect()->route('inventory.index')->with('success', 'Barang berhasil dihapus.');
+        return redirect()
+            ->route('inventory.index')
+            ->with(
+                'success',
+                'Barang berhasil dihapus.'
+            );
     }
 
     protected function validateData(Request $request): array
     {
         return $request->validate([
-            'sku'            => ['required', 'string', 'max:50'],
-            'name'           => ['required', 'string', 'max:255'],
-            'category'       => ['nullable', 'string', 'max:100'],
-            'unit'           => ['required', 'string', 'max:20'],
+            'sku' => ['required', 'string', 'max:50'],
+            'name' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:100'],
+            'unit' => ['required', 'string', 'max:20'],
             'stock_quantity' => ['required', 'integer', 'min:0'],
-            'reorder_level'  => ['required', 'integer', 'min:0'],
-            'cost_price'     => ['required', 'numeric', 'min:0'],
-            'selling_price'  => ['required', 'numeric', 'min:0'],
-            'description'    => ['nullable', 'string'],
+            'reorder_level' => ['required', 'integer', 'min:0'],
+            'cost_price' => ['required', 'numeric', 'min:0'],
+            'selling_price' => ['required', 'numeric', 'min:0'],
+            'description' => ['nullable', 'string'],
+        ]);
+    }
+
+    /**
+     * Mencatat aktivitas ke tabel activity_logs.
+     */
+    protected function logActivity(
+        string $action,
+        string $description,
+        $subject = null
+    ): void {
+        \App\Models\ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => $action,
+            'description' => $description,
+            'subject_type' => $subject
+                ? get_class($subject)
+                : null,
+            'subject_id' => $subject->id ?? null,
+            'ip_address' => request()->ip(),
         ]);
     }
 }

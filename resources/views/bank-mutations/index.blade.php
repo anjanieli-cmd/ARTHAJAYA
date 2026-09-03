@@ -963,10 +963,10 @@
                             </div>
 
                             <div class="tx-actions">
-                                <a href="{{ route('bank-mutations.show', ['index' => $itemId]) }}" class="btn-action show" title="Lihat Detail">
+                                <a href="{{ route('bank-mutations.show', ['bank_mutation' => $itemId]) }}" class="btn-action show" title="Lihat Detail">
                                     <svg class="icon"><use href="#ic-eye"/></svg>
                                 </a>
-                                <a href="{{ route('bank-mutations.edit', ['index' => $itemId]) }}" class="btn-action edit" title="Edit">
+                                <a href="{{ route('bank-mutations.edit', ['bank_mutation' => $itemId]) }}" class="btn-action edit" title="Edit">
                                     <svg class="icon"><use href="#ic-edit"/></svg>
                                 </a>
                                 <button type="button" class="btn-action danger" title="Hapus"
@@ -1043,7 +1043,7 @@
                 <button type="button" class="btn btn-outline" onclick="closeDeleteModal()">
                     Batal
                 </button>
-                <form id="deleteForm" action="{{ route('bank-mutations.destroy', ['index' => 0]) }}" method="POST" style="display:inline;">
+                <form id="deleteForm" action="{{ route('bank-mutations.destroy', ['bank_mutation' => 0]) }}" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">
@@ -1086,7 +1086,7 @@
 
         function openDeleteModal(index, description) {
             document.getElementById('deleteMutationDesc').textContent = description;
-            var url = '{{ route("bank-mutations.destroy", ["index" => 0]) }}';
+            var url = '{{ route("bank-mutations.destroy", ["bank_mutation" => 0]) }}';
             url = url.replace(/\/0$/, '/' + index);
             document.getElementById('deleteForm').action = url;
             document.getElementById('deleteModal').classList.add('active');

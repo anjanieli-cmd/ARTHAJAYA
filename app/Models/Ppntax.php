@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class PpnTax extends Model
 {
+    use LogsActivity;
+
     protected $table = 'ppn_taxes';
 
     protected $fillable = [

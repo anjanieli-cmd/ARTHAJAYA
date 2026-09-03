@@ -6,134 +6,360 @@ use App\Models\PpnTax;
 use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PpnTaxController extends Controller
 {
     use LogsActivity;
 
+    /**
+     * =========================================================
+     * INDEX
+     * =========================================================
+     */
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
         $company = $user->company;
 
-        $query = PpnTax::where('company_id', $company->id)->latest();
+        $query = PpnTax::where('company_id', $company->id)
+            ->latest('id');
 
         if ($request->filled('q')) {
-            $q = strtolower($request->q);
+            $q = strtolower(trim($request->q));
+
             $query->where(function ($sub) use ($q) {
-                $sub->where('period', 'like', "%{$q}%")
-                    ->orWhere('status', 'like', "%{$q}%");
+                $sub->whereRaw(
+                    'LOWER(period) LIKE ?',
+                    ["%{$q}%"]
+                )->orWhereRaw(
+                    'LOWER(status) LIKE ?',
+                    ["%{$q}%"]
+                );
             });
         }
 
         $ppnData = $query->get();
 
         if ($request->ajax()) {
-            return view('taxes.ppn', compact('user', 'company', 'ppnData'))->render();
+            return view(
+                'taxes.ppn',
+                compact('user', 'company', 'ppnData')
+            )->render();
         }
 
-        return view('taxes.ppn', compact('user', 'company', 'ppnData'));
+        return view(
+            'taxes.ppn',
+            compact('user', 'company', 'ppnData')
+        );
     }
 
-    public function create()
+    /**
+     * =========================================================
+     * CREATE
+     * =========================================================
+     */
+    public function create(Request $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
         $company = $user->company;
-        return view('taxes.create_ppn', compact('user', 'company'));
+
+        return view(
+            'taxes.create_ppn',
+            compact('user', 'company')
+        );
     }
 
+    /**
+     * =========================================================
+     * STORE
+     * =========================================================
+     */
     public function store(Request $request)
     {
-        $company = Auth::user()->company;
+        $user = $request->user();
+        $company = $user->company;
 
-        $data = $request->validate([
-            'period' => 'required|string',
-            'output' => 'required|numeric',
-            'input'  => 'required|numeric',
-            'due'    => 'nullable|date',
-            'status' => 'nullable|string',
-            'notes'  => 'nullable|string',
+        $validated = $request->validate([
+            'period' => [
+                'required',
+                'string',
+                'max:100',
+            ],
+
+            'output' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'input' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'due' => [
+                'nullable',
+                'date',
+            ],
+
+            'status' => [
+                'nullable',
+                'in:pending,paid',
+            ],
+
+            'notes' => [
+                'nullable',
+                'string',
+            ],
         ]);
 
-        $ppn = PpnTax::create([
-            'company_id' => $company->id,
-            'period'     => $data['period'],
-            'output'     => (int) $data['output'],
-            'input'      => (int) $data['input'],
-            'ppn'        => (int) $data['output'] - (int) $data['input'],
-            'status'     => $data['status'] ?? 'pending',
-            'due_date'   => $data['due'] ?? null,
-            'notes'      => $data['notes'] ?? null,
-        ]);
+        $output = (float) $validated['output'];
+        $input = (float) $validated['input'];
 
-        $this->logActivity('created', "Menambahkan PPN periode {$ppn->period}", $ppn);
+        /*
+         * PPN terutang:
+         * PPN Keluaran - PPN Masukan
+         *
+         * Kalau hasilnya negatif, dibuat 0.
+         */
+        $ppn = max(0, $output - $input);
 
-        return redirect()->route('taxes.ppn')->with('success', 'PPN berhasil ditambahkan!');
+        try {
+            DB::beginTransaction();
+
+            $ppnTax = PpnTax::create([
+                'company_id' => $company->id,
+                'period' => $validated['period'],
+                'output' => $output,
+                'input' => $input,
+                'ppn' => $ppn,
+                'status' => $validated['status'] ?? 'pending',
+                'due_date' => $validated['due'] ?? null,
+                'notes' => $validated['notes'] ?? null,
+            ]);
+
+            $this->logActivity(
+                'created',
+                "Menambahkan PPN periode {$ppnTax->period}",
+                $ppnTax
+            );
+
+            DB::commit();
+
+            return redirect()
+                ->route('taxes.ppn')
+                ->with(
+                    'success',
+                    'PPN berhasil ditambahkan!'
+                );
+
+        } catch (\Throwable $e) {
+
+            DB::rollBack();
+
+            Log::error(
+                'Gagal menyimpan PPN.',
+                [
+                    'company_id' => $company->id,
+                    'error' => $e->getMessage(),
+                ]
+            );
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'PPN gagal disimpan. Silakan periksa kembali data yang dimasukkan.'
+                );
+        }
     }
 
+    /**
+     * =========================================================
+     * SHOW
+     * =========================================================
+     */
     public function show(PpnTax $ppn)
     {
         $this->authorizeCompany($ppn);
+
         $user = Auth::user();
         $company = $user->company;
-        return view('taxes.show_ppn', compact('user', 'company', 'ppn'));
+
+        return view(
+            'taxes.show_ppn',
+            compact('user', 'company', 'ppn')
+        );
     }
 
+    /**
+     * =========================================================
+     * EDIT
+     * =========================================================
+     */
     public function edit(PpnTax $ppn)
     {
         $this->authorizeCompany($ppn);
+
         $user = Auth::user();
         $company = $user->company;
-        return view('taxes.edit_ppn', compact('user', 'company', 'ppn'));
+
+        return view(
+            'taxes.edit_ppn',
+            compact('user', 'company', 'ppn')
+        );
     }
 
-    public function update(Request $request, PpnTax $ppn)
-    {
+    /**
+     * =========================================================
+     * UPDATE
+     * =========================================================
+     */
+    public function update(
+        Request $request,
+        PpnTax $ppn
+    ) {
         $this->authorizeCompany($ppn);
 
-        $output = (int) $request->input('output', $ppn->output);
-        $input = (int) $request->input('input', $ppn->input);
+        $validated = $request->validate([
+            'period' => [
+                'required',
+                'string',
+                'max:100',
+            ],
 
-        $ppn->update([
-            'period'   => $request->input('period', $ppn->period),
-            'output'   => $output,
-            'input'    => $input,
-            'ppn'      => $output - $input,
-            'status'   => $request->input('status', $ppn->status),
-            'due_date' => $request->input('due', $ppn->due_date),
-            'notes'    => $request->input('notes', $ppn->notes),
+            'output' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'input' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'due' => [
+                'nullable',
+                'date',
+            ],
+
+            'status' => [
+                'nullable',
+                'in:pending,paid',
+            ],
+
+            'notes' => [
+                'nullable',
+                'string',
+            ],
         ]);
 
-        $this->logActivity('updated', "Mengupdate PPN periode {$ppn->period}", $ppn);
+        $output = (float) $validated['output'];
+        $input = (float) $validated['input'];
 
-        return redirect()->route('taxes.ppn')->with('success', 'PPN berhasil diupdate!');
+        $ppn = max(0, $output - $input);
+
+        $ppn->update([
+            'period' => $validated['period'],
+            'output' => $output,
+            'input' => $input,
+            'ppn' => $ppn,
+            'status' => $validated['status'] ?? $ppn->status,
+            'due_date' => $validated['due'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        $this->logActivity(
+            'updated',
+            "Mengupdate PPN periode {$ppn->period}",
+            $ppn
+        );
+
+        return redirect()
+            ->route('taxes.ppn')
+            ->with(
+                'success',
+                'PPN berhasil diupdate!'
+            );
     }
 
+    /**
+     * =========================================================
+     * DESTROY
+     * =========================================================
+     */
     public function destroy(PpnTax $ppn)
     {
         $this->authorizeCompany($ppn);
 
         $period = $ppn->period;
+
         $ppn->delete();
 
-        $this->logActivity('deleted', "Menghapus data PPN periode {$period}");
+        $this->logActivity(
+            'deleted',
+            "Menghapus data PPN periode {$period}"
+        );
 
-        return redirect()->route('taxes.ppn')->with('success', 'Data PPN berhasil dihapus!');
+        return redirect()
+            ->route('taxes.ppn')
+            ->with(
+                'success',
+                'Data PPN berhasil dihapus!'
+            );
     }
 
+    /**
+     * =========================================================
+     * PAY
+     * =========================================================
+     */
     public function pay(PpnTax $ppn)
     {
         $this->authorizeCompany($ppn);
 
-        $ppn->update(['status' => 'paid']);
+        if ($ppn->status === 'paid') {
+            return redirect()
+                ->route('taxes.ppn')
+                ->with(
+                    'error',
+                    'PPN ini sudah dibayar sebelumnya!'
+                );
+        }
 
-        $this->logActivity('updated', "Membayar PPN periode {$ppn->period}", $ppn);
+        $ppn->update([
+            'status' => 'paid',
+        ]);
 
-        return redirect()->route('taxes.ppn')->with('success', 'PPN berhasil dibayar!');
+        $this->logActivity(
+            'updated',
+            "Membayar PPN periode {$ppn->period}",
+            $ppn
+        );
+
+        return redirect()
+            ->route('taxes.ppn')
+            ->with(
+                'success',
+                'PPN berhasil dibayar!'
+            );
     }
 
+    /**
+     * =========================================================
+     * AUTHORIZE COMPANY
+     * =========================================================
+     */
     private function authorizeCompany(PpnTax $ppn): void
     {
-        abort_unless($ppn->company_id === Auth::user()->company->id, 404);
+        abort_unless(
+            $ppn->company_id === Auth::user()->company->id,
+            404
+        );
     }
 }

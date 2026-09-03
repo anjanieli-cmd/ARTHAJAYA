@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class ExpenseCategory extends Model
 {
+    use LogsActivity;
     use HasFactory;
 
     protected $fillable = [
@@ -15,6 +18,13 @@ class ExpenseCategory extends Model
         'name',
         'description',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnlyDirty()
+            ->logFillable();
+    }
 
     public function company(): BelongsTo
     {

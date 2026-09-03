@@ -1541,7 +1541,7 @@
         // ===== DELETE MODAL =====
         function openDeleteModal(id, invoiceNumber) {
             document.getElementById('deleteInvoiceNumber').textContent = invoiceNumber;
-            var url = '{{ route("invoices.destroy", ":id") }}';
+            var url = '{{ route("receivables.destroy", ":id") }}';
             url = url.replace(':id', id);
             document.getElementById('deleteForm').action = url;
             document.getElementById('deleteModal').classList.add('active');

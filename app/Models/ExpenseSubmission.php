@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
+
 use Illuminate\Database\Eloquent\Model;
 
 class ExpenseSubmission extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'company_id', 'submitted_by', 'description', 'amount',
         'category', 'expense_date', 'status', 'note',

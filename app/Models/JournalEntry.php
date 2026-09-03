@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
+
 use Illuminate\Database\Eloquent\Model;
 
 class JournalEntry extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'company_id', 'chart_of_account_id', 'transaction_date',
         'debit', 'credit', 'description', 'reference_type', 'reference_id',

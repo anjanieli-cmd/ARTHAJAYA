@@ -12,14 +12,17 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->string('vendor');
-            $table->string('bill_number')->nullable();
+            $table->string('bill_number');
             $table->date('date');
-            $table->date('due_date');
+            $table->date('due');
             $table->string('category')->nullable();
-            $table->text('notes')->nullable();
             $table->enum('status', ['lancar', 'jatuh_tempo', 'lunas'])->default('lancar');
-            $table->bigInteger('amount')->default(0);
+            $table->decimal('amount', 15, 2);
+            $table->json('items')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
+
+            $table->index(['company_id', 'status', 'due']);
         });
     }
 

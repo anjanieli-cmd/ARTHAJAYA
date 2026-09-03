@@ -7,8 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Budget extends Model
 {
     protected $fillable = [
-        'company_id', 'category', 'period', 'target', 'actual',
-        'progress', 'status', 'notes',
+        'company_id',
+        'category',
+        'period',
+        'target',
+        'actual',
+        'progress',
+        'status',
+        'notes',
     ];
 
     protected $casts = [

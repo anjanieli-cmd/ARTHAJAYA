@@ -17,6 +17,7 @@ use App\Http\Controllers\CogsController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReceivableController;
+use App\Http\Controllers\PayableController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamMemberController;
@@ -44,14 +45,11 @@ use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\ActivityHistoryController;
 
 // ===== MODUL YANG SUDAH DIKONVERSI KE DATABASE (bukan lagi session) =====
-use App\Http\Controllers\PayableController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ReconciliationController;
 use App\Http\Controllers\BankMutationController;
-use App\Http\Controllers\PphTaxController;
-use App\Http\Controllers\PpnTaxController;
-use App\Http\Controllers\TaxCalendarController;
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\ExpenseCategoryController;
 
 
 // Homepage
@@ -440,30 +438,36 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         Route::delete('/employees/delete/{index}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
     });
 
-    // ===== PAJAK - PPH & PPN & TAX CALENDAR (sudah database, bukan session lagi) =====
+    // ===== PAJAK - PPH, PPN & TAX CALENDAR (sudah database, bukan session lagi) =====
     Route::middleware(['feature:pajak'])->group(function () {
         // --- PPh ---
-        Route::get('/taxes/pph', [PphTaxController::class, 'index'])->name('taxes.pph');
-        Route::get('/taxes/pph/create', [PphTaxController::class, 'create'])->name('taxes.pph.create');
-        Route::post('/taxes/pph', [PphTaxController::class, 'store'])->name('taxes.pph.store');
-        Route::get('/taxes/pph/{pphTax}', [PphTaxController::class, 'show'])->name('taxes.pph.show');
-        Route::get('/taxes/pph/{pphTax}/edit', [PphTaxController::class, 'edit'])->name('taxes.pph.edit');
-        Route::put('/taxes/pph/{pphTax}', [PphTaxController::class, 'update'])->name('taxes.pph.update');
-        Route::delete('/taxes/pph/{pphTax}', [PphTaxController::class, 'destroy'])->name('taxes.pph.destroy');
-        Route::post('/taxes/pph/{pphTax}/pay', [PphTaxController::class, 'pay'])->name('taxes.pph.pay');
+        Route::get('/taxes/pph', [\App\Http\Controllers\TaxPphController::class, 'index'])->name('taxes.pph');
+        Route::get('/taxes/pph/create', [\App\Http\Controllers\TaxPphController::class, 'create'])->name('taxes.pph.create');
+        Route::post('/taxes/pph', [\App\Http\Controllers\TaxPphController::class, 'store'])->name('taxes.pph.store');
+        Route::get('/taxes/pph/show/{index}', [\App\Http\Controllers\TaxPphController::class, 'show'])->name('taxes.pph.show');
+        Route::get('/taxes/pph/edit/{index}', [\App\Http\Controllers\TaxPphController::class, 'edit'])->name('taxes.pph.edit');
+        Route::put('/taxes/pph/update/{index}', [\App\Http\Controllers\TaxPphController::class, 'update'])->name('taxes.pph.update');
+        Route::delete('/taxes/pph/delete/{index}', [\App\Http\Controllers\TaxPphController::class, 'destroy'])->name('taxes.pph.destroy');
+        Route::get('/taxes/pph/pay/{index}', [\App\Http\Controllers\TaxPphController::class, 'pay'])->name('taxes.pph.pay');
 
         // --- PPN ---
-        Route::get('/taxes/ppn', [PpnTaxController::class, 'index'])->name('taxes.ppn');
-        Route::get('/taxes/ppn/create', [PpnTaxController::class, 'create'])->name('taxes.ppn.create');
-        Route::post('/taxes/ppn', [PpnTaxController::class, 'store'])->name('taxes.ppn.store');
-        Route::get('/taxes/ppn/{ppnTax}', [PpnTaxController::class, 'show'])->name('taxes.ppn.show');
-        Route::get('/taxes/ppn/{ppnTax}/edit', [PpnTaxController::class, 'edit'])->name('taxes.ppn.edit');
-        Route::put('/taxes/ppn/{ppnTax}', [PpnTaxController::class, 'update'])->name('taxes.ppn.update');
-        Route::delete('/taxes/ppn/{ppnTax}', [PpnTaxController::class, 'destroy'])->name('taxes.ppn.destroy');
-        Route::post('/taxes/ppn/{ppnTax}/pay', [PpnTaxController::class, 'pay'])->name('taxes.ppn.pay');
+        Route::get('/taxes/ppn', [\App\Http\Controllers\TaxPpnController::class, 'index'])->name('taxes.ppn');
+        Route::get('/taxes/ppn/create', [\App\Http\Controllers\TaxPpnController::class, 'create'])->name('taxes.ppn.create');
+        Route::post('/taxes/ppn', [\App\Http\Controllers\TaxPpnController::class, 'store'])->name('taxes.ppn.store');
+        Route::get('/taxes/ppn/show/{index}', [\App\Http\Controllers\TaxPpnController::class, 'show'])->name('taxes.ppn.show');
+        Route::get('/taxes/ppn/edit/{index}', [\App\Http\Controllers\TaxPpnController::class, 'edit'])->name('taxes.ppn.edit');
+        Route::put('/taxes/ppn/update/{index}', [\App\Http\Controllers\TaxPpnController::class, 'update'])->name('taxes.ppn.update');
+        Route::delete('/taxes/ppn/delete/{index}', [\App\Http\Controllers\TaxPpnController::class, 'destroy'])->name('taxes.ppn.destroy');
+        Route::get('/taxes/ppn/pay/{index}', [\App\Http\Controllers\TaxPpnController::class, 'pay'])->name('taxes.ppn.pay');
 
         // --- Tax Calendar ---
-        Route::resource('tax-calendar', TaxCalendarController::class);
+        Route::get('/tax-calendar', [\App\Http\Controllers\TaxCalendarController::class, 'index'])->name('tax-calendar.index');
+        Route::get('/tax-calendar/create', [\App\Http\Controllers\TaxCalendarController::class, 'create'])->name('tax-calendar.create');
+        Route::post('/tax-calendar', [\App\Http\Controllers\TaxCalendarController::class, 'store'])->name('tax-calendar.store');
+        Route::get('/tax-calendar/show/{index}', [\App\Http\Controllers\TaxCalendarController::class, 'show'])->name('tax-calendar.show');
+        Route::get('/tax-calendar/edit/{index}', [\App\Http\Controllers\TaxCalendarController::class, 'edit'])->name('tax-calendar.edit');
+        Route::put('/tax-calendar/update/{index}', [\App\Http\Controllers\TaxCalendarController::class, 'update'])->name('tax-calendar.update');
+        Route::delete('/tax-calendar/delete/{index}', [\App\Http\Controllers\TaxCalendarController::class, 'destroy'])->name('tax-calendar.destroy');
     });
 
     // ===== BUDGETING (sudah database, bukan session lagi) =====
@@ -634,3 +638,8 @@ Route::prefix('staff')->name('staff.')->group(function () {
 Route::get('/riwayat', [ActivityHistoryController::class, 'index'])
     ->middleware('auth')
     ->name('history.index');
+
+Route::resource(
+    'expense-categories',
+    ExpenseCategoryController::class
+);
