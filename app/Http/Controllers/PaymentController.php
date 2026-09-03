@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Plan;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Snap;
@@ -33,13 +35,10 @@ class PaymentController extends Controller
         $selectedPlan->period = '/bulan';
         $selectedPlan->label  = 'Rp' . number_format($selectedPlan->price, 0, ',', '.') . $selectedPlan->period;
 
-        // FIX: features_list bisa null (accessor tidak ada / data kosong di DB).
-        // Fallback berlapis supaya @foreach($plan->features) di view tidak pernah menerima null.
         $features = $selectedPlan->features_list
             ?? $selectedPlan->features
             ?? [];
 
-        // Jika hasilnya masih bukan array (misal string JSON mentah), amankan juga.
         if (!is_array($features)) {
             $decoded = json_decode($features, true);
             $features = is_array($decoded) ? $decoded : [];
@@ -102,16 +101,32 @@ class PaymentController extends Controller
             'enabled_payments' => $enabledPayments,
         ];
 
-        $snapToken = Snap::getSnapToken($params);
+        try {
+            // Minta token dulu ke Midtrans. Kalau gagal, exception di-catch
+            // di bawah dan transaksi TIDAK akan tersimpan (tidak ada data nyangkut).
+            $snapToken = Snap::getSnapToken($params);
+        } catch (\Exception $e) {
+            Log::error('Midtrans getSnapToken gagal: ' . $e->getMessage(), [
+                'order_id' => $orderId,
+                'company_id' => $company->id,
+            ]);
 
-        Transaction::create([
-            'company_id'   => $company->id,
-            'plan_id'      => $selectedPlan->id,
-            'order_id'     => $orderId,
-            'amount'       => $selectedPlan->price,
-            'status'       => 'pending',
-            'payment_type' => $request->payment_method,
-        ]);
+            return back()->withErrors([
+                'payment' => 'Gagal menghubungi layanan pembayaran. Silakan coba lagi dalam beberapa saat.',
+            ]);
+        }
+
+        // Simpan transaksi HANYA setelah token berhasil didapat.
+        DB::transaction(function () use ($company, $selectedPlan, $orderId, $request) {
+            Transaction::create([
+                'company_id'   => $company->id,
+                'plan_id'      => $selectedPlan->id,
+                'order_id'     => $orderId,
+                'amount'       => $selectedPlan->price,
+                'status'       => 'pending',
+                'payment_type' => $request->payment_method,
+            ]);
+        });
 
         return view('payment.snap', [
             'snapToken' => $snapToken,
@@ -121,11 +136,17 @@ class PaymentController extends Controller
 
     public function notification(Request $request)
     {
-        $notif = new Notification();
+        try {
+            $notif = new Notification();
+        } catch (\Exception $e) {
+            Log::error('Midtrans notification tidak valid: ' . $e->getMessage());
+            return response()->json(['status' => 'invalid notification'], 400);
+        }
 
         $transaction = Transaction::where('order_id', $notif->order_id)->first();
 
         if (!$transaction) {
+            Log::warning('Midtrans notification: order_id tidak ditemukan', ['order_id' => $notif->order_id]);
             return response()->json(['status' => 'order not found'], 404);
         }
 
@@ -142,10 +163,25 @@ class PaymentController extends Controller
         ]);
 
         if ($status === 'success') {
-            $transaction->company->update([
-                'plan'             => $transaction->plan->slug,
-                'plan_upgraded_at' => now(),
-            ]);
+            // Guard: hanya update kolom yang memang ada di tabel companies,
+            // supaya tidak crash kalau kolomnya belum ditambahkan lewat migration.
+            $companyColumns = \Illuminate\Support\Facades\Schema::getColumnListing('companies');
+
+            $updateData = [];
+            if (in_array('plan', $companyColumns)) {
+                $updateData['plan'] = $transaction->plan->slug;
+            }
+            if (in_array('plan_upgraded_at', $companyColumns)) {
+                $updateData['plan_upgraded_at'] = now();
+            }
+
+            if (!empty($updateData)) {
+                $transaction->company->update($updateData);
+            } else {
+                Log::warning('Kolom plan/plan_upgraded_at belum ada di tabel companies.', [
+                    'company_id' => $transaction->company_id,
+                ]);
+            }
         }
 
         return response()->json(['status' => 'ok']);
