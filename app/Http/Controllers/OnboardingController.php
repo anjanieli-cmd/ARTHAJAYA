@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Account;
 use App\Models\ActivityLog;
+use App\Models\ChartOfAccount;
 use App\Models\Company;
+use App\Models\JournalEntry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -32,7 +35,6 @@ class OnboardingController extends Controller
 
             $logoPath = null;
             if ($request->hasFile('logo')) {
-                // Tambahkan validasi tambahan untuk memastikan file benar-benar terupload
                 $file = $request->file('logo');
                 if ($file->isValid()) {
                     $logoPath = $file->store('company-logos', 'public');
@@ -50,6 +52,8 @@ class OnboardingController extends Controller
                 'fiscal_start_month' => $data['fiscal_start_month'] ?? null,
                 'fiscal_year'        => $data['fiscal_year'] ?? null,
             ]);
+            // COA minimal (Kas, Bank, Modal Pemilik) otomatis ke-seed
+            // lewat Company::booted() waktu baris di atas jalan.
 
             // ===== RIWAYAT: perusahaan baru terdaftar =====
             ActivityLog::record(
@@ -59,14 +63,16 @@ class OnboardingController extends Controller
             );
 
             $account = $company->accounts()->create([
-                'bank_name'       => $data['bank_name'] ?? null,
-                'account_name'    => $data['company_name'],
-                'account_number'  => '-',
-                'initial_balance' => $data['initial_balance'] ?? 0,
+                'bank_name'           => $data['bank_name'] ?? null,
+                'account_name'        => $data['company_name'],
+                'account_number'      => '-',
+                'initial_balance'     => $data['initial_balance'] ?? 0,
+                'chart_of_account_id' => $this->resolveOpeningAccountId($company, $data['bank_name'] ?? null),
             ]);
 
+            $this->syncOpeningBalanceJournal($company, $account, (float) ($data['initial_balance'] ?? 0));
+
             // ===== RIWAYAT: saldo awal dicatat =====
-            // Ini titik yang kamu maksud, misal "daftarin uang 1000 juta"
             $currencySymbol = match ($company->currency) {
                 'USD'   => '$',
                 'SGD'   => 'S$',
@@ -144,6 +150,10 @@ class OnboardingController extends Controller
                 'fiscal_year'        => $data['fiscal_year'] ?? null,
             ]);
 
+            // Jaga-jaga buat company lama yang dibuat sebelum fitur
+            // auto-seed COA ini ada -- pastikan Kas/Bank/Modal ada.
+            $company->seedDefaultChartOfAccounts();
+
             // ===== RIWAYAT: profil perusahaan diubah =====
             ActivityLog::record(
                 'update_company_profile',
@@ -152,10 +162,11 @@ class OnboardingController extends Controller
             );
 
             $accountData = [
-                'bank_name'       => $data['bank_name'] ?? null,
-                'account_name'    => $data['company_name'],
-                'account_number'  => '-',
-                'initial_balance' => $data['initial_balance'] ?? 0,
+                'bank_name'           => $data['bank_name'] ?? null,
+                'account_name'        => $data['company_name'],
+                'account_number'      => '-',
+                'initial_balance'     => $data['initial_balance'] ?? 0,
+                'chart_of_account_id' => $this->resolveOpeningAccountId($company, $data['bank_name'] ?? null),
             ];
 
             $account = $company->accounts()->first();
@@ -182,6 +193,8 @@ class OnboardingController extends Controller
                 );
             }
 
+            $this->syncOpeningBalanceJournal($company, $account, (float) ($data['initial_balance'] ?? 0));
+
             return redirect()->route('onboarding.show')->with('updated', true);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -190,6 +203,79 @@ class OnboardingController extends Controller
             Log::error('Onboarding update error: ' . $e->getMessage());
             return back()->withErrors(['general' => 'Terjadi kesalahan sistem: ' . $e->getMessage()])->withInput();
         }
+    }
+
+    /**
+     * Tentuin akun COA yang jadi pasangan saldo awal.
+     * "Kas Tunai (tanpa bank)" atau kosong -> akun Kas (1-101).
+     * Nama bank lain (BCA, BRI, dst) -> akun Bank (1-102).
+     */
+    private function resolveOpeningAccountId(Company $company, ?string $bankName): ?int
+    {
+        $isCash = empty($bankName) || $bankName === 'Kas Tunai (tanpa bank)';
+        $code = $isCash ? '1-101' : '1-102';
+
+        return ChartOfAccount::where('company_id', $company->id)
+            ->where('code', $code)
+            ->value('id');
+    }
+
+    /**
+     * Sinkronkan saldo awal ke Buku Besar sebagai 2 baris journal entry
+     * berpasangan (debit ke Kas/Bank, kredit ke Modal Pemilik).
+     * Dipanggil ulang tiap kali saldo awal diedit lewat halaman profil,
+     * supaya nggak nyatet dobel -- entry lama di-update, bukan ditambah.
+     */
+    private function syncOpeningBalanceJournal(Company $company, Account $account, float $amount): void
+    {
+        $existing = JournalEntry::where('reference_type', 'account_opening_balance')
+            ->where('reference_id', $account->id)
+            ->get();
+
+        // Saldo 0 atau akun COA belum ketemu -> hapus entry lama kalau ada.
+        if ($amount <= 0 || ! $account->chart_of_account_id) {
+            JournalEntry::destroy($existing->pluck('id'));
+            return;
+        }
+
+        $equityAccountId = ChartOfAccount::where('company_id', $company->id)
+            ->where('code', '3-101')
+            ->value('id');
+
+        if (! $equityAccountId) {
+            Log::warning("Akun Modal Pemilik (3-101) tidak ditemukan untuk company #{$company->id}, saldo awal tidak dicatat ke Buku Besar.");
+            return;
+        }
+
+        $description = 'Saldo awal - ' . ($account->bank_name ?: 'Kas');
+
+        $debitEntry = $existing->first(fn ($e) => (float) $e->debit > 0);
+        $creditEntry = $existing->first(fn ($e) => (float) $e->credit > 0);
+
+        $payloadDebit = [
+            'company_id'          => $company->id,
+            'chart_of_account_id' => $account->chart_of_account_id,
+            'transaction_date'    => now()->format('Y-m-d'),
+            'description'         => $description,
+            'debit'               => $amount,
+            'credit'              => 0,
+            'reference_type'      => 'account_opening_balance',
+            'reference_id'        => $account->id,
+        ];
+
+        $payloadCredit = [
+            'company_id'          => $company->id,
+            'chart_of_account_id' => $equityAccountId,
+            'transaction_date'    => now()->format('Y-m-d'),
+            'description'         => $description,
+            'debit'               => 0,
+            'credit'              => $amount,
+            'reference_type'      => 'account_opening_balance',
+            'reference_id'        => $account->id,
+        ];
+
+        $debitEntry ? $debitEntry->update($payloadDebit) : JournalEntry::create($payloadDebit);
+        $creditEntry ? $creditEntry->update($payloadCredit) : JournalEntry::create($payloadCredit);
     }
 
     private function validateData(Request $request): array

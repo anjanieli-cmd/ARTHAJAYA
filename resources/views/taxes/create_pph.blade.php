@@ -1,5 +1,5 @@
 <x-app-layout>
-  <x-slot name="title">Tambah PPN</x-slot>
+  <x-slot name="title">Tambah PPh</x-slot>
 
   @php
     $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
@@ -14,44 +14,44 @@
 
   <style>
     /* ============================================
-       PPN CREATE - Premium Design
+       PPh CREATE - Premium Design
        ============================================ */
-    
-    .ppn-create-wrap {
+
+    .pph-create-wrap {
       --theme-primary: var(--emerald);
       --theme-light: var(--emerald);
       --theme-dark: var(--emerald-dim);
       --theme-glow: rgba(var(--emerald-rgb), 0.25);
       --theme-soft: rgba(var(--emerald-rgb), 0.12);
       --theme-gradient: linear-gradient(135deg, var(--emerald), var(--emerald-dim));
-      
+
       --text-primary: var(--text);
       --text-secondary: var(--text-mute);
       --text-tertiary: var(--text-faint);
-      
+
       --bg-card: var(--surface);
       --bg-card-hover: var(--surface-strong);
       --bg-card-active: rgba(255, 255, 255, 0.04);
       --border-color: var(--border);
       --border-hover: var(--border-hover);
-      
+
       --danger: #E85A5A;
       --danger-soft: rgba(232, 90, 90, 0.12);
       --success: #34B583;
       --success-soft: rgba(52, 181, 131, 0.14);
       --warning: #F0A83C;
       --warning-soft: rgba(240, 168, 60, 0.14);
-      
+
       --radius-sm: 10px;
       --radius-md: 16px;
       --radius-lg: 24px;
-      
+
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: var(--text-primary);
     }
 
-    .ppn-create-wrap * { box-sizing: border-box; }
-    .ppn-create-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .pph-create-wrap * { box-sizing: border-box; }
+    .pph-create-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
 
     @keyframes fadeSlideUp {
       from { opacity: 0; transform: translateY(16px); }
@@ -63,11 +63,11 @@
       50% { opacity: 0.6; }
     }
 
-    .ppn-create-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
-    .ppn-create-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .pph-create-wrap .animate-in { animation: fadeSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .pph-create-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     /* HEADER */
-    .pn-header {
+    .ph-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
@@ -77,9 +77,9 @@
       padding: 0 4px;
     }
 
-    .pn-header-left { flex: 1; min-width: 200px; }
+    .ph-header-left { flex: 1; min-width: 200px; }
 
-    .pn-badge {
+    .ph-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -95,7 +95,7 @@
       margin-bottom: 12px;
     }
 
-    .pn-badge .dot {
+    .ph-badge .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
@@ -103,7 +103,7 @@
       animation: pulseGlow 2s ease-in-out infinite;
     }
 
-    .pn-header h1 {
+    .ph-header h1 {
       font-size: 28px;
       font-weight: 700;
       margin: 0 0 6px;
@@ -114,25 +114,25 @@
       letter-spacing: -0.02em;
     }
 
-    .pn-header .subtitle {
+    .ph-header .subtitle {
       font-size: 14px;
       color: var(--text-secondary);
       margin: 0;
     }
 
-    .pn-header .subtitle strong {
+    .ph-header .subtitle strong {
       color: var(--text-primary);
       font-weight: 600;
     }
 
-    .pn-actions {
+    .ph-actions {
       display: flex;
       gap: 10px;
       flex-shrink: 0;
       flex-wrap: wrap;
     }
 
-    .pn-btn {
+    .ph-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -150,35 +150,35 @@
       overflow: hidden;
     }
 
-    .pn-btn .icon { width: 16px; height: 16px; }
-    .pn-btn:hover { transform: translateY(-2px); }
-    .pn-btn:active { transform: translateY(0) scale(0.97); }
+    .ph-btn .icon { width: 16px; height: 16px; }
+    .ph-btn:hover { transform: translateY(-2px); }
+    .ph-btn:active { transform: translateY(0) scale(0.97); }
 
-    .pn-btn-primary {
+    .ph-btn-primary {
       background: var(--theme-gradient);
       color: #fff;
       box-shadow: 0 4px 16px var(--theme-glow);
     }
 
-    .pn-btn-primary:hover {
+    .ph-btn-primary:hover {
       box-shadow: 0 8px 28px var(--theme-glow);
       transform: translateY(-2px);
       color: #fff;
     }
 
-    .pn-btn-ghost {
+    .ph-btn-ghost {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
     }
 
-    .pn-btn-ghost:hover {
+    .ph-btn-ghost:hover {
       background: var(--bg-card-hover);
       border-color: var(--border-hover);
       color: var(--text-primary);
     }
 
-    .pn-btn .ripple {
+    .ph-btn .ripple {
       position: absolute;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
@@ -192,12 +192,12 @@
     }
 
     /* FORM LAYOUT */
-    .pn-form {
+    .ph-form {
       max-width: 800px;
       margin: 0 auto;
     }
 
-    .pn-card {
+    .ph-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
@@ -205,13 +205,13 @@
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .pn-card:hover {
+    .ph-card:hover {
       border-color: var(--border-hover);
       transform: translateY(-2px);
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
     }
 
-    .pn-card .title {
+    .ph-card .title {
       font-size: 15px;
       font-weight: 600;
       color: var(--text-primary);
@@ -221,26 +221,26 @@
       gap: 10px;
     }
 
-    .pn-card .title .icon {
+    .ph-card .title .icon {
       width: 18px;
       height: 18px;
       color: var(--theme-primary);
     }
 
-    .pn-card .title .line {
+    .ph-card .title .line {
       flex: 1;
       height: 1px;
       background: linear-gradient(90deg, var(--border-color), transparent);
     }
 
     /* FORM GROUP */
-    .pn-form-group {
+    .ph-form-group {
       margin-bottom: 18px;
     }
 
-    .pn-form-group:last-child { margin-bottom: 0; }
+    .ph-form-group:last-child { margin-bottom: 0; }
 
-    .pn-form-group label {
+    .ph-form-group label {
       display: block;
       font-size: 11px;
       font-weight: 600;
@@ -250,14 +250,23 @@
       margin-bottom: 6px;
     }
 
-    .pn-form-group .required {
+    .ph-form-group .required {
       color: var(--danger);
       margin-left: 2px;
     }
 
-    .pn-form-group input,
-    .pn-form-group select,
-    .pn-form-group textarea {
+    .ph-form-group .hint {
+      display: block;
+      font-size: 11.5px;
+      color: var(--text-tertiary);
+      margin-top: 6px;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+
+    .ph-form-group input,
+    .ph-form-group select,
+    .ph-form-group textarea {
       width: 100%;
       padding: 10px 14px;
       background: var(--bg-card-active);
@@ -270,56 +279,52 @@
       outline: none;
     }
 
-    .pn-form-group input:focus,
-    .pn-form-group select:focus,
-    .pn-form-group textarea:focus {
+    .ph-form-group input:focus,
+    .ph-form-group select:focus,
+    .ph-form-group textarea:focus {
       border-color: var(--theme-primary);
       background: var(--bg-card-hover);
       box-shadow: 0 0 0 4px var(--theme-glow);
     }
 
-    .pn-form-group input::placeholder,
-    .pn-form-group textarea::placeholder {
+    .ph-form-group input::placeholder,
+    .ph-form-group textarea::placeholder {
       color: var(--text-tertiary);
     }
 
-    .pn-form-group textarea {
+    .ph-form-group textarea {
       resize: vertical;
       min-height: 80px;
     }
 
-    .pn-form-group select {
+    .ph-form-group select {
       cursor: pointer;
       appearance: auto;
       -webkit-appearance: auto;
       color-scheme: dark;
     }
 
-    .pn-form-group select option {
+    .ph-form-group select option {
       background-color: #12181f;
       color: #f2f4f7;
       padding: 10px 14px;
       font-size: 13px;
     }
 
-    .pn-form-group select option:checked,
-    .pn-form-group select option:hover {
+    .ph-form-group select option:checked,
+    .ph-form-group select option:hover {
       background-color: #17352c;
       color: #34d399;
     }
 
-    .pn-form-group select option:disabled {
-      color: #6b7280;
-    }
-
-    .pn-form-row {
+    .ph-form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
     }
 
     /* INFO BOX */
-    .pn-info-box {
+    .ph-info-box {
       background: var(--theme-soft);
       border: 1px solid var(--theme-glow);
       border-radius: var(--radius-sm);
@@ -330,7 +335,7 @@
       gap: 10px;
     }
 
-    .pn-info-box .icon {
+    .ph-info-box .icon {
       width: 20px;
       height: 20px;
       flex-shrink: 0;
@@ -338,24 +343,40 @@
       color: var(--theme-primary);
     }
 
-    .pn-info-box .message {
+    .ph-info-box .message {
       font-size: 13px;
       color: var(--text-secondary);
       line-height: 1.5;
     }
 
-    .pn-info-box .message strong {
+    .ph-info-box .message strong {
       color: var(--text-primary);
     }
 
+    /* TAXABLE PREVIEW */
+    .ph-preview {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card-active);
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      font-size: 13px;
+    }
+
+    .ph-preview .label { color: var(--text-secondary); }
+    .ph-preview .value { font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: var(--theme-primary); }
+
     /* FORM ACTIONS */
-    .pn-form-actions {
+    .ph-form-actions {
       display: flex;
       gap: 10px;
       margin-top: 24px;
     }
 
-    .pn-form-actions .pn-btn {
+    .ph-form-actions .ph-btn {
       flex: 1;
       justify-content: center;
       padding: 12px 20px;
@@ -363,64 +384,41 @@
 
     /* RESPONSIVE */
     @media (max-width: 768px) {
-      .pn-form-row { 
-        grid-template-columns: 1fr; 
-      }
-      .pn-card { 
-        padding: 20px; 
-      }
+      .ph-form-row { grid-template-columns: 1fr; }
+      .ph-card { padding: 20px; }
     }
 
     @media (max-width: 640px) {
-      .pn-header { 
-        flex-direction: column; 
-      }
-      .pn-actions { 
-        width: 100%; 
-      }
-      .pn-actions .pn-btn { 
-        flex: 1; 
-        justify-content: center; 
-      }
-      .pn-form-actions { 
-        flex-direction: column; 
-      }
-      .pn-form-actions .pn-btn { 
-        flex: none; 
-      }
+      .ph-header { flex-direction: column; }
+      .ph-actions { width: 100%; }
+      .ph-actions .ph-btn { flex: 1; justify-content: center; }
+      .ph-form-actions { flex-direction: column; }
+      .ph-form-actions .ph-btn { flex: none; }
     }
 
     @media (max-width: 380px) {
-      .pn-header h1 { 
-        font-size: 22px; 
-      }
-      .pn-btn { 
-        font-size: 12px; 
-        padding: 8px 14px; 
-      }
-      .pn-btn .icon { 
-        width: 14px; 
-        height: 14px; 
-      }
+      .ph-header h1 { font-size: 22px; }
+      .ph-btn { font-size: 12px; padding: 8px 14px; }
+      .ph-btn .icon { width: 14px; height: 14px; }
     }
   </style>
 
-  <div class="ppn-create-wrap">
+  <div class="pph-create-wrap">
 
     <!-- ===== HEADER ===== -->
-    <div class="pn-header animate-in" style="animation-delay: 0.05s;">
-      <div class="pn-header-left">
-        <div class="pn-badge">
+    <div class="ph-header animate-in" style="animation-delay: 0.05s;">
+      <div class="ph-header-left">
+        <div class="ph-badge">
           <span class="dot"></span>
           Pajak
         </div>
-        <h1>Tambah PPN</h1>
+        <h1>Tambah PPh</h1>
         <p class="subtitle">
-          Catat Pajak Pertambahan Nilai (PPN) — <strong>periode {{ $currentMonth }}</strong>
+          Catat Pajak Penghasilan (PPh) — <strong>periode {{ $currentMonth }}</strong>
         </p>
       </div>
-      <div class="pn-actions">
-        <a href="{{ route('taxes.ppn') }}" class="pn-btn pn-btn-ghost">
+      <div class="ph-actions">
+        <a href="{{ route('taxes.pph') }}" class="ph-btn ph-btn-ghost">
           <svg class="icon" style="transform:rotate(180deg);"><use href="#ic-arrow-right"/></svg>
           Kembali
         </a>
@@ -428,27 +426,27 @@
     </div>
 
     <!-- ===== FORM ===== -->
-    <form action="{{ route('taxes.ppn.store') }}" method="POST" class="pn-form">
+    <form action="{{ route('taxes.pph.store') }}" method="POST" class="ph-form">
       @csrf
 
-      <div class="pn-card animate-in" style="animation-delay: 0.10s;">
+      <div class="ph-card animate-in" style="animation-delay: 0.10s;">
         <div class="title">
           <svg class="icon"><use href="#ic-tax"/></svg>
-          Informasi PPN
+          Informasi PPh
           <span class="line"></span>
         </div>
 
         <!-- Info Box -->
-        <div class="pn-info-box">
+        <div class="ph-info-box">
           <svg class="icon"><use href="#ic-info"/></svg>
           <div class="message">
-            <strong>Perhatian:</strong> Catat PPN Keluaran dan PPN Masukan untuk setiap periode. 
-            Selisih antara keduanya akan menentukan PPN yang harus dibayar.
+            <strong>Perhatian:</strong> Penghasilan Kena Pajak dihitung otomatis dari
+            Penghasilan Bruto dikurangi Pengurang/Potongan. Isi nominal Pajak Terutang sesuai tarif yang berlaku.
           </div>
         </div>
 
         <!-- Period -->
-        <div class="pn-form-group">
+        <div class="ph-form-group">
           <label>Periode <span class="required">*</span></label>
           <select name="period" required>
             @foreach($months as $month)
@@ -464,25 +462,38 @@
           </select>
         </div>
 
-        <!-- Output & Input -->
-        <div class="pn-form-row">
-          <div class="pn-form-group">
-            <label>PPN Keluaran <span class="required">*</span></label>
-            <input type="number" name="output" placeholder="0" min="0" step="1000" required>
+        <!-- Gross & Deduction -->
+        <div class="ph-form-row">
+          <div class="ph-form-group">
+            <label>Penghasilan Bruto <span class="required">*</span></label>
+            <input type="number" name="gross" id="ph-gross" placeholder="0" min="0" step="1000" required>
           </div>
-          <div class="pn-form-group">
-            <label>PPN Masukan <span class="required">*</span></label>
-            <input type="number" name="input" placeholder="0" min="0" step="1000" required>
+          <div class="ph-form-group">
+            <label>Pengurang / Potongan</label>
+            <input type="number" name="deduction" id="ph-deduction" placeholder="0" min="0" step="1000">
+            <span class="hint">Biaya jabatan, iuran pensiun, PTKP, dll.</span>
           </div>
         </div>
 
+        <!-- Taxable preview -->
+        <div class="ph-preview">
+          <span class="label">Penghasilan Kena Pajak</span>
+          <span class="value mono" id="ph-taxable-preview">{{ $currencySymbol }}0</span>
+        </div>
+
+        <!-- Tax -->
+        <div class="ph-form-group">
+          <label>Pajak Terutang (PPh) <span class="required">*</span></label>
+          <input type="number" name="tax" placeholder="0" min="0" step="1000" required>
+        </div>
+
         <!-- Due Date & Status -->
-        <div class="pn-form-row">
-          <div class="pn-form-group">
+        <div class="ph-form-row">
+          <div class="ph-form-group">
             <label>Jatuh Tempo <span class="required">*</span></label>
             <input type="date" name="due" value="{{ date('Y-m-d', strtotime('+30 days')) }}" required>
           </div>
-          <div class="pn-form-group">
+          <div class="ph-form-group">
             <label>Status <span class="required">*</span></label>
             <select name="status" required>
               <option value="pending">Pending</option>
@@ -492,16 +503,16 @@
         </div>
 
         <!-- Notes -->
-        <div class="pn-form-group">
+        <div class="ph-form-group">
           <label>Catatan</label>
-          <textarea name="notes" placeholder="Catatan PPN..."></textarea>
+          <textarea name="notes" placeholder="Catatan PPh..."></textarea>
         </div>
 
         <!-- Actions -->
-        <div class="pn-form-actions">
-          <button type="submit" class="pn-btn pn-btn-primary">
+        <div class="ph-form-actions">
+          <button type="submit" class="ph-btn ph-btn-primary">
             <svg class="icon"><use href="#ic-check"/></svg>
-            Simpan PPN
+            Simpan PPh
           </button>
         </div>
       </div>
@@ -521,7 +532,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Ripple effect
-      const buttons = document.querySelectorAll('.pn-btn');
+      const buttons = document.querySelectorAll('.ph-btn');
       buttons.forEach(btn => {
         btn.addEventListener('click', function(e) {
           const rect = this.getBoundingClientRect();
@@ -535,6 +546,22 @@
           setTimeout(() => { ripple.remove(); }, 600);
         });
       });
+
+      // Live "Penghasilan Kena Pajak" preview = Bruto - Pengurang
+      const grossInput = document.getElementById('ph-gross');
+      const deductionInput = document.getElementById('ph-deduction');
+      const preview = document.getElementById('ph-taxable-preview');
+      const currencySymbol = @json($currencySymbol);
+
+      function updatePreview() {
+        const gross = parseFloat(grossInput.value) || 0;
+        const deduction = parseFloat(deductionInput.value) || 0;
+        const taxable = Math.max(gross - deduction, 0);
+        preview.textContent = currencySymbol + taxable.toLocaleString('id-ID');
+      }
+
+      grossInput.addEventListener('input', updatePreview);
+      deductionInput.addEventListener('input', updatePreview);
     });
   </script>
 

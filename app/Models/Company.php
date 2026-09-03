@@ -32,6 +32,40 @@ class Company extends Model
     }
 
     /**
+     * Setiap kali company baru dibuat, otomatis bikinin COA minimal
+     * (Kas, Bank, Modal Pemilik) supaya saldo awal langsung bisa
+     * dicatat ke Buku Besar. Akun lain (Piutang, Utang, Beban, dst)
+     * diisi manual oleh user lewat menu Chart of Accounts.
+     */
+    protected static function booted(): void
+    {
+        static::created(function (Company $company) {
+            $company->seedDefaultChartOfAccounts();
+        });
+    }
+
+    public function seedDefaultChartOfAccounts(): void
+    {
+        $defaults = [
+            ['code' => '1-101', 'name' => 'Kas', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '1-102', 'name' => 'Bank', 'type' => 'asset', 'normal_balance' => 'debit'],
+            ['code' => '3-101', 'name' => 'Modal Pemilik', 'type' => 'equity', 'normal_balance' => 'credit'],
+        ];
+
+        foreach ($defaults as $account) {
+            ChartOfAccount::firstOrCreate(
+                ['company_id' => $this->id, 'code' => $account['code']],
+                [
+                    'name' => $account['name'],
+                    'type' => $account['type'],
+                    'normal_balance' => $account['normal_balance'],
+                    'is_active' => true,
+                ]
+            );
+        }
+    }
+
+    /**
      * Relasi ke User (karyawan/pegawai perusahaan)
      */
     public function users()
@@ -69,6 +103,14 @@ class Company extends Model
     public function accounts()
     {
         return $this->hasMany(Account::class);
+    }
+
+    /**
+     * Relasi ke ChartOfAccount (daftar akun / COA)
+     */
+    public function chartOfAccounts()
+    {
+        return $this->hasMany(ChartOfAccount::class);
     }
 
     /**
