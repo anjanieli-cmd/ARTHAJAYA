@@ -12,6 +12,7 @@ class Quote extends Model
     protected $fillable = [
         'company_id',
         'client_id',
+        'invoice_id',
         'quote_number',
         'issue_date',
         'valid_until',
@@ -32,12 +33,10 @@ class Quote extends Model
 
     protected static function booted(): void
     {
-        // Total selalu dihitung ulang otomatis dari subtotal + pajak setiap kali disimpan.
         static::saving(function (Quote $quote) {
             $quote->total = (float) $quote->subtotal + (float) $quote->tax_amount;
         });
 
-        // Nomor penawaran dibuat otomatis kalau belum diisi, format: QUO-202607-0001
         static::creating(function (Quote $quote) {
             if (empty($quote->quote_number)) {
                 $quote->quote_number = static::generateQuoteNumber($quote->company_id);
@@ -72,5 +71,18 @@ class Quote extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    /**
+     * Faktur hasil konversi penawaran ini (null kalau belum dikonversi).
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
+
+    public function getIsConvertedAttribute(): bool
+    {
+        return !is_null($this->invoice_id);
     }
 }

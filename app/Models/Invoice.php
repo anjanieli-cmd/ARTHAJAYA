@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Model;
     'tax_amount',
     'total',
     'notes',
+    'items',
+    'created_by',
 ])]
 class Invoice extends Model
 {

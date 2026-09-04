@@ -2,31 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChartOfAccount;
 use App\Models\Invoice;
 use App\Models\Client;
-use App\Models\JournalEntry;
+use App\Services\InvoiceJournalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
-    /**
-     * Batas maksimal nominal total faktur.
-     * Kolom `subtotal`, `tax_amount`, `total` di tabel invoices bertipe
-     * decimal(15,2) => kapasitas maksimal 9.999.999.999.999,99 (13 digit + 2 desimal).
-     */
     private const MAX_TOTAL = 9999999999999.99;
 
-    /**
-     * Kode akun COA yang dipakai buat posting jurnal Piutang Usaha (AR).
-     * 1-103 (Piutang Usaha) & 2-102 dst datang dari MissingArApAccountsSeeder.
-     * 4-101 (Pendapatan Penjualan) & 1-102 (Kas) sudah ada di COA aktif.
-     */
-    private const PIUTANG_CODE = '1-103';
-    private const PENDAPATAN_CODE = '4-101';
-    private const KAS_CODE = '1-102';
+    public function __construct(private InvoiceJournalService $journal)
+    {
+    }
 
     public function index(Request $request)
     {
@@ -164,13 +152,11 @@ class InvoiceController extends Controller
             'created_by'     => $user->id,
         ]);
 
-        // Kalau faktur langsung dibuat berstatus "sent" atau "paid",
-        // piutang harus langsung tercatat di Buku Besar.
         if (in_array($invoice->status, ['sent', 'paid'])) {
-            $this->syncReceivableRecognitionJournal($company, $invoice);
+            $this->journal->syncReceivableRecognitionJournal($company, $invoice);
         }
         if ($invoice->status === 'paid') {
-            $this->syncReceivablePaymentJournal($company, $invoice);
+            $this->journal->syncReceivablePaymentJournal($company, $invoice);
         }
 
         return redirect()
@@ -218,11 +204,9 @@ class InvoiceController extends Controller
             abort(403);
         }
 
-        // Simpan status LAMA sebelum di-update, buat tau transisinya.
         $wasRecognized = in_array($invoice->status, ['sent', 'paid']);
         $wasPaid = $invoice->status === 'paid';
 
-        // Izinkan update untuk semua status
         $validated = $request->validate([
             'client_id'   => 'required|exists:clients,id',
             'issue_date'  => 'required|date',
@@ -256,23 +240,19 @@ class InvoiceController extends Controller
             'items'      => json_encode($itemsData),
         ]);
 
-        // Sinkronkan jurnal Piutang sesuai status BARU.
         $isRecognized = in_array($invoice->status, ['sent', 'paid']);
         $isPaid = $invoice->status === 'paid';
 
         if ($isRecognized) {
-            // Sync ulang (nominal/tanggal bisa saja ikut berubah).
-            $this->syncReceivableRecognitionJournal($company, $invoice);
+            $this->journal->syncReceivableRecognitionJournal($company, $invoice);
         } elseif ($wasRecognized && !$isRecognized) {
-            // Status ditarik balik ke draft/cancelled -> piutang batal.
-            $this->deleteReceivableRecognitionJournal($invoice);
+            $this->journal->deleteReceivableRecognitionJournal($invoice);
         }
 
         if ($isPaid) {
-            $this->syncReceivablePaymentJournal($company, $invoice);
+            $this->journal->syncReceivablePaymentJournal($company, $invoice);
         } elseif ($wasPaid && !$isPaid) {
-            // Status ditarik balik dari "paid" -> hapus jurnal pelunasan lama.
-            $this->deleteReceivablePaymentJournal($invoice);
+            $this->journal->deleteReceivablePaymentJournal($invoice);
         }
 
         return redirect()
@@ -295,10 +275,8 @@ class InvoiceController extends Controller
                 ->with('error', 'Faktur dengan status "' . $invoice->status . '" tidak dapat dihapus.');
         }
 
-        // Jaga-jaga: bersihkan jurnal kalau ternyata masih ada sisa
-        // (mis. faktur "paid" yang di-update jadi "cancelled" lalu dihapus).
-        $this->deleteReceivableRecognitionJournal($invoice);
-        $this->deleteReceivablePaymentJournal($invoice);
+        $this->journal->deleteReceivableRecognitionJournal($invoice);
+        $this->journal->deleteReceivablePaymentJournal($invoice);
 
         $invoiceNumber = $invoice->invoice_number;
         $invoice->delete();
@@ -332,8 +310,7 @@ class InvoiceController extends Controller
                 $invoice->status = 'sent';
                 $invoice->save();
 
-                // Faktur resmi terkirim -> piutang diakui di Buku Besar.
-                $this->syncReceivableRecognitionJournal($company, $invoice);
+                $this->journal->syncReceivableRecognitionJournal($company, $invoice);
 
                 return response()->json([
                     'success' => true,
@@ -354,7 +331,7 @@ class InvoiceController extends Controller
         }
     }
 
-    private function generateInvoiceNumber(int $companyId): string
+    public function generateInvoiceNumber(int $companyId): string
     {
         $lastInvoice = Invoice::where('company_id', $companyId)
             ->orderBy('id', 'desc')
@@ -393,91 +370,5 @@ class InvoiceController extends Controller
         }
 
         return \App\Models\Item::where('company_id', $companyId)->get();
-    }
-
-    /**
-     * Akui piutang begitu faktur "sent": debit Piutang Usaha (1-103),
-     * kredit Pendapatan Penjualan (4-101). Idempotent -- dipanggil ulang
-     * tiap sync, update baris lama daripada bikin duplikat.
-     */
-    private function syncReceivableRecognitionJournal($company, Invoice $invoice): void
-    {
-        $piutangId = ChartOfAccount::where('company_id', $company->id)->where('code', self::PIUTANG_CODE)->value('id');
-        $pendapatanId = ChartOfAccount::where('company_id', $company->id)->where('code', self::PENDAPATAN_CODE)->value('id');
-
-        if (!$piutangId || !$pendapatanId) {
-            Log::warning("Akun Piutang Usaha (" . self::PIUTANG_CODE . ") atau Pendapatan Penjualan (" . self::PENDAPATAN_CODE . ") tidak ditemukan untuk company #{$company->id}. Sudah jalankan MissingArApAccountsSeeder?");
-            return;
-        }
-
-        $existing = JournalEntry::where('reference_type', 'receivable_recognition')->where('reference_id', $invoice->id)->get();
-        $debitEntry = $existing->first(fn ($e) => (float) $e->debit > 0);
-        $creditEntry = $existing->first(fn ($e) => (float) $e->credit > 0);
-
-        $description = 'Piutang faktur ' . $invoice->invoice_number;
-        $date = optional($invoice->issue_date)->format('Y-m-d') ?? now()->format('Y-m-d');
-
-        $payloadDebit = [
-            'company_id' => $company->id, 'chart_of_account_id' => $piutangId,
-            'transaction_date' => $date, 'description' => $description,
-            'debit' => $invoice->total, 'credit' => 0,
-            'reference_type' => 'receivable_recognition', 'reference_id' => $invoice->id,
-        ];
-        $payloadCredit = [
-            'company_id' => $company->id, 'chart_of_account_id' => $pendapatanId,
-            'transaction_date' => $date, 'description' => $description,
-            'debit' => 0, 'credit' => $invoice->total,
-            'reference_type' => 'receivable_recognition', 'reference_id' => $invoice->id,
-        ];
-
-        $debitEntry ? $debitEntry->update($payloadDebit) : JournalEntry::create($payloadDebit);
-        $creditEntry ? $creditEntry->update($payloadCredit) : JournalEntry::create($payloadCredit);
-    }
-
-    /**
-     * Catat pelunasan piutang saat faktur "paid": debit Kas (1-102),
-     * kredit Piutang Usaha (1-103).
-     */
-    private function syncReceivablePaymentJournal($company, Invoice $invoice): void
-    {
-        $kasId = ChartOfAccount::where('company_id', $company->id)->where('code', self::KAS_CODE)->value('id');
-        $piutangId = ChartOfAccount::where('company_id', $company->id)->where('code', self::PIUTANG_CODE)->value('id');
-
-        if (!$kasId || !$piutangId) {
-            Log::warning("Akun Kas (" . self::KAS_CODE . ") atau Piutang Usaha (" . self::PIUTANG_CODE . ") tidak ditemukan untuk company #{$company->id}.");
-            return;
-        }
-
-        $existing = JournalEntry::where('reference_type', 'receivable_payment')->where('reference_id', $invoice->id)->get();
-        $debitEntry = $existing->first(fn ($e) => (float) $e->debit > 0);
-        $creditEntry = $existing->first(fn ($e) => (float) $e->credit > 0);
-
-        $description = 'Pelunasan faktur ' . $invoice->invoice_number;
-
-        $payloadDebit = [
-            'company_id' => $company->id, 'chart_of_account_id' => $kasId,
-            'transaction_date' => now()->format('Y-m-d'), 'description' => $description,
-            'debit' => $invoice->total, 'credit' => 0,
-            'reference_type' => 'receivable_payment', 'reference_id' => $invoice->id,
-        ];
-        $payloadCredit = [
-            'company_id' => $company->id, 'chart_of_account_id' => $piutangId,
-            'transaction_date' => now()->format('Y-m-d'), 'description' => $description,
-            'debit' => 0, 'credit' => $invoice->total,
-            'reference_type' => 'receivable_payment', 'reference_id' => $invoice->id,
-        ];
-
-        $debitEntry ? $debitEntry->update($payloadDebit) : JournalEntry::create($payloadDebit);
-        $creditEntry ? $creditEntry->update($payloadCredit) : JournalEntry::create($payloadCredit);
-    }
-
-    private function deleteReceivableRecognitionJournal(Invoice $invoice): void
-    {
-        JournalEntry::where('reference_type', 'receivable_recognition')->where('reference_id', $invoice->id)->delete();
-    }
-
-    private function deleteReceivablePaymentJournal(Invoice $invoice): void
-    {
-        JournalEntry::where('reference_type', 'receivable_payment')->where('reference_id', $invoice->id)->delete();
     }
 }

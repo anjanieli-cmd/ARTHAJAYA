@@ -1389,6 +1389,19 @@
                                         <a href="{{ route('quotes.edit', $quote) }}" class="btn-action edit" title="Edit Penawaran">
                                             <svg class="icon"><use href="#ic-edit"/></svg>
                                         </a>
+                                        @if($quote->invoice_id)
+                                            <a href="{{ route('invoices.show', $quote->invoice_id) }}" class="btn-action show" title="Lihat Faktur">
+                                                <svg class="icon"><use href="#ic-file"/></svg>
+                                            </a>
+                                        @else
+                                            <form action="{{ route('quotes.convert-to-invoice', $quote) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button type="submit" class="btn-action edit" title="Konversi ke Faktur"
+                                                        onclick="return confirm('Konversi penawaran {{ addslashes($quote->quote_number) }} jadi Faktur?')">
+                                                    <svg class="icon"><use href="#ic-send"/></svg>
+                                                </button>
+                                            </form>
+                                        @endif
                                         <button type="button" class="btn-action danger" title="Hapus" 
                                                 onclick="openDeleteModal('{{ $quote->id }}', '{{ addslashes($quote->quote_number) }}')">
                                             <svg class="icon"><use href="#ic-trash"/></svg>
