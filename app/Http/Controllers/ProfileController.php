@@ -27,52 +27,226 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
+        $user = $request->user();
+
+        /*
+         * Ambil data yang sudah divalidasi.
+         */
         $validated = $request->validated();
 
-        // Avatar tidak boleh langsung di-fill ke model (butuh proses upload dulu)
-        unset($validated['avatar']);
+        /*
+         * Jangan masukkan file avatar dan remove_photo
+         * ke dalam fill() karena diproses manual.
+         */
+        unset(
+            $validated['avatar'],
+            $validated['remove_photo']
+        );
 
-        $request->user()->fill($validated);
+        /*
+         * ==========================================
+         * UPDATE DATA PROFIL
+         * ==========================================
+         */
+        $user->fill($validated);
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        /*
+         * Jika email berubah,
+         * reset verifikasi email.
+         */
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        // Handle upload avatar baru
-        if ($request->hasFile('avatar')) {
-            if ($request->user()->avatar) {
-                Storage::disk('supabase')->delete($request->user()->avatar);
+        /*
+         * ==========================================
+         * FOTO PROFIL
+         * ==========================================
+         */
+
+        /*
+         * Simpan avatar lama terlebih dahulu.
+         *
+         * Contoh:
+         * avatars/abc123.jpg
+         */
+        $oldAvatar = $user->avatar;
+
+        /*
+         * ==========================================
+         * HAPUS FOTO PROFIL
+         * ==========================================
+         *
+         * Hapus hanya jika:
+         *
+         * 1. remove_photo dicentang
+         * 2. tidak ada foto baru
+         * 3. user memiliki avatar
+         */
+        if (
+            $request->boolean('remove_photo') &&
+            !$request->hasFile('avatar') &&
+            !empty($oldAvatar)
+        ) {
+
+            /*
+             * Hapus file lama dari:
+             *
+             * storage/app/public/avatars
+             */
+            if (Storage::disk('public')->exists($oldAvatar)) {
+                Storage::disk('public')->delete($oldAvatar);
             }
-            $request->user()->avatar = $request->file('avatar')->store('avatars', 'supabase');
+
+            /*
+             * Kosongkan avatar di database.
+             */
+            $user->avatar = null;
         }
 
-        $request->user()->save();
+        /*
+         * ==========================================
+         * UPLOAD FOTO BARU
+         * ==========================================
+         */
+        if ($request->hasFile('avatar')) {
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+            $avatar = $request->file('avatar');
+
+            /*
+             * Pastikan file benar-benar valid.
+             */
+            if ($avatar->isValid()) {
+
+                /*
+                 * Hapus avatar lama jika ada.
+                 */
+                if (!empty($oldAvatar)) {
+
+                    if (
+                        Storage::disk('public')->exists(
+                            $oldAvatar
+                        )
+                    ) {
+                        Storage::disk('public')->delete(
+                            $oldAvatar
+                        );
+                    }
+                }
+
+                /*
+                 * Simpan foto baru ke:
+                 *
+                 * storage/app/public/avatars
+                 *
+                 * Hasilnya misalnya:
+                 *
+                 * avatars/AbCdEf123.jpg
+                 */
+                $newAvatar = $avatar->store(
+                    'avatars',
+                    'public'
+                );
+
+                /*
+                 * Simpan path avatar ke database.
+                 */
+                $user->avatar = $newAvatar;
+            }
+        }
+
+        /*
+         * ==========================================
+         * SIMPAN USER
+         * ==========================================
+         */
+        $user->save();
+
+        /*
+         * ==========================================
+         * KEMBALI KE HALAMAN PROFILE
+         * ==========================================
+         */
+        return Redirect::route('profile.edit')
+            ->with(
+                'status',
+                'profile-updated'
+            );
     }
 
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
+    public function destroy(
+        Request $request
+    ): RedirectResponse {
 
+        /*
+         * ==========================================
+         * VALIDASI PASSWORD
+         * ==========================================
+         */
+        $request->validateWithBag(
+            'userDeletion',
+            [
+                'password' => [
+                    'required',
+                    'current_password',
+                ],
+            ]
+        );
+
+        /*
+         * Ambil user yang sedang login.
+         */
         $user = $request->user();
 
-        if ($user->avatar) {
-            Storage::disk('supabase')->delete($user->avatar);
+        /*
+         * ==========================================
+         * HAPUS FOTO PROFIL
+         * ==========================================
+         */
+        if (!empty($user->avatar)) {
+
+            if (
+                Storage::disk('public')->exists(
+                    $user->avatar
+                )
+            ) {
+                Storage::disk('public')->delete(
+                    $user->avatar
+                );
+            }
         }
 
+        /*
+         * ==========================================
+         * LOGOUT
+         * ==========================================
+         */
         Auth::logout();
 
+        /*
+         * ==========================================
+         * HAPUS AKUN
+         * ==========================================
+         */
         $user->delete();
 
+        /*
+         * ==========================================
+         * RESET SESSION
+         * ==========================================
+         */
         $request->session()->invalidate();
+
         $request->session()->regenerateToken();
 
+        /*
+         * ==========================================
+         * KEMBALI KE HALAMAN UTAMA
+         * ==========================================
+         */
         return Redirect::to('/');
     }
 }
