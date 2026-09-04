@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
+
 use Illuminate\Database\Eloquent\Model;
 
 class TaxPpn extends Model
 {
+    use LogsActivity;
+
     protected $table = 'tax_ppn';
 
     protected $fillable = [

@@ -14,100 +14,289 @@ class ClientController extends Controller
         $company = Auth::user()->company;
         $companyId = $company->id;
 
-        $clients = Client::where('company_id', $companyId)
-            ->when($request->filled('q'), function ($query) use ($request) {
-                $search = $request->q;
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('company_name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
-                });
-            })
-            ->withCount(['invoices', 'quotes'])
+        $clients = Client::where(
+            'company_id',
+            $companyId
+        )
+            ->when(
+                $request->filled('q'),
+                function ($query) use ($request) {
+                    $search = $request->q;
+
+                    $query->where(function ($q) use ($search) {
+                        $q->where(
+                            'name',
+                            'like',
+                            "%{$search}%"
+                        )
+                        ->orWhere(
+                            'company_name',
+                            'like',
+                            "%{$search}%"
+                        )
+                        ->orWhere(
+                            'email',
+                            'like',
+                            "%{$search}%"
+                        );
+                    });
+                }
+            )
+            ->withCount([
+                'invoices',
+                'quotes'
+            ])
             ->orderBy('name')
             ->paginate(15)
             ->withQueryString();
 
-        // dihitung dari total company, bukan hasil filter/pagination di atas
+        // Dihitung dari total company,
+        // bukan hasil filter/pagination.
         $stats = [
-            'total_count'         => Client::where('company_id', $companyId)->count(),
-            'with_invoices_count' => Client::where('company_id', $companyId)
-                                        ->has('invoices')
-                                        ->count(),
-            'outstanding_amount'  => Invoice::where('company_id', $companyId)
-                                        ->whereNotIn('status', ['paid', 'cancelled'])
-                                        ->sum('total'),
-            'new_this_month'      => Client::where('company_id', $companyId)
-                                        ->whereYear('created_at', now()->year)
-                                        ->whereMonth('created_at', now()->month)
-                                        ->count(),
+            'total_count' =>
+                Client::where(
+                    'company_id',
+                    $companyId
+                )->count(),
+
+            'with_invoices_count' =>
+                Client::where(
+                    'company_id',
+                    $companyId
+                )
+                    ->has('invoices')
+                    ->count(),
+
+            'outstanding_amount' =>
+                Invoice::where(
+                    'company_id',
+                    $companyId
+                )
+                    ->whereNotIn(
+                        'status',
+                        ['paid', 'cancelled']
+                    )
+                    ->sum('total'),
+
+            'new_this_month' =>
+                Client::where(
+                    'company_id',
+                    $companyId
+                )
+                    ->whereYear(
+                        'created_at',
+                        now()->year
+                    )
+                    ->whereMonth(
+                        'created_at',
+                        now()->month
+                    )
+                    ->count(),
         ];
 
-        return view('clients.index', compact('clients', 'stats', 'company'));
+        return view(
+            'clients.index',
+            compact(
+                'clients',
+                'stats',
+                'company'
+            )
+        );
     }
 
     public function create()
     {
         $company = Auth::user()->company;
 
-        return view('clients.create', compact('company'));
+        return view(
+            'clients.create',
+            compact('company')
+        );
     }
 
     public function store(Request $request)
     {
         $data = $this->validateData($request);
-        $data['company_id'] = Auth::user()->company->id;
 
-        Client::create($data);
+        $data['company_id'] =
+            Auth::user()->company->id;
 
-        return redirect()->route('clients.index')->with('success', 'Klien berhasil ditambahkan.');
+        $client = Client::create($data);
+
+        // Catat aktivitas membuat client
+        $this->logActivity(
+            'created',
+            'Menambahkan klien: ' .
+                $client->name,
+            $client
+        );
+
+        return redirect()
+            ->route('clients.index')
+            ->with(
+                'success',
+                'Klien berhasil ditambahkan.'
+            );
     }
 
     public function show(Client $client)
     {
         $company = Auth::user()->company;
 
-        $client->loadCount(['invoices', 'quotes']);
-        $client->load([
-            'invoices' => fn ($q) => $q->latest('issue_date')->limit(5),
-            'quotes'   => fn ($q) => $q->latest('issue_date')->limit(5),
+        $client->loadCount([
+            'invoices',
+            'quotes'
         ]);
 
-        return view('clients.show', compact('client', 'company'));
+        $client->load([
+            'invoices' => fn ($q) =>
+                $q->latest('issue_date')->limit(5),
+
+            'quotes' => fn ($q) =>
+                $q->latest('issue_date')->limit(5),
+        ]);
+
+        return view(
+            'clients.show',
+            compact(
+                'client',
+                'company'
+            )
+        );
     }
 
     public function edit(Client $client)
     {
         $company = Auth::user()->company;
 
-        return view('clients.edit', compact('client', 'company'));
+        return view(
+            'clients.edit',
+            compact(
+                'client',
+                'company'
+            )
+        );
     }
 
-    public function update(Request $request, Client $client)
-    {
+    public function update(
+        Request $request,
+        Client $client
+    ) {
         $data = $this->validateData($request);
 
         $client->update($data);
 
-        return redirect()->route('clients.index')->with('success', 'Klien berhasil diperbarui.');
+        // Catat aktivitas memperbarui client
+        $this->logActivity(
+            'updated',
+            'Memperbarui klien: ' .
+                $client->name,
+            $client
+        );
+
+        return redirect()
+            ->route('clients.index')
+            ->with(
+                'success',
+                'Klien berhasil diperbarui.'
+            );
     }
 
     public function destroy(Client $client)
     {
+        $clientName = $client->name;
+
+        /*
+         * Catat sebelum delete agar subject_id
+         * masih mengarah ke data Client.
+         */
+        $this->logActivity(
+            'deleted',
+            'Menghapus klien: ' .
+                $clientName,
+            $client
+        );
+
         $client->delete();
 
-        return redirect()->route('clients.index')->with('success', 'Klien berhasil dihapus.');
+        return redirect()
+            ->route('clients.index')
+            ->with(
+                'success',
+                'Klien berhasil dihapus.'
+            );
     }
 
-    protected function validateData(Request $request): array
-    {
+    protected function validateData(
+        Request $request
+    ): array {
         return $request->validate([
-            'name'         => ['required', 'string', 'max:255'],
-            'company_name' => ['nullable', 'string', 'max:255'],
-            'email'        => ['nullable', 'email', 'max:255'],
-            'phone'        => ['nullable', 'string', 'max:50'],
-            'address'      => ['nullable', 'string'],
-            'notes'        => ['nullable', 'string'],
+            'name' => [
+                'required',
+                'string',
+                'max:255'
+            ],
+
+            'company_name' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'email' => [
+                'nullable',
+                'email',
+                'max:255'
+            ],
+
+            'phone' => [
+                'nullable',
+                'string',
+                'max:50'
+            ],
+
+            'address' => [
+                'nullable',
+                'string'
+            ],
+
+            'notes' => [
+                'nullable',
+                'string'
+            ],
+        ]);
+    }
+
+    /**
+     * Mencatat aktivitas ke tabel activity_logs.
+     *
+     * Mengikuti pola LedgerController.
+     */
+    protected function logActivity(
+        string $action,
+        string $description,
+        $subject = null
+    ): void {
+        \App\Models\ActivityLog::create([
+            'user_id' =>
+                Auth::id(),
+
+            'action' =>
+                $action,
+
+            'description' =>
+                $description,
+
+            'subject_type' =>
+                $subject
+                    ? get_class($subject)
+                    : null,
+
+            'subject_id' =>
+                $subject->id ?? null,
+
+            'ip_address' =>
+                request()->ip(),
         ]);
     }
 }

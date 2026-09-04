@@ -4,38 +4,38 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ActivityHistoryController extends Controller
 {
-    /**
-     * Tampilkan riwayat aktivitas milik user yang sedang login.
-     */
     public function index(Request $request)
     {
-        $query = ActivityLog::where('user_id', auth()->id())
+        $user = Auth::user();
+        $company = $user->company;
+
+        // Ambil semua log milik user-user di company yang sama.
+        $userIds = $company
+            ? $company->users()->pluck('id')
+            : collect([$user->id]);
+
+        $query = ActivityLog::with('user')
+            ->whereIn('user_id', $userIds)
             ->latest();
 
-        // Filter opsional by jenis aksi, misal ?action=set_initial_balance
+        if ($request->filled('q')) {
+            $q = strtolower($request->q);
+            $query->where(function ($sub) use ($q) {
+                $sub->whereRaw('LOWER(description) LIKE ?', ["%{$q}%"])
+                    ->orWhereRaw('LOWER(action) LIKE ?', ["%{$q}%"]);
+            });
+        }
+
         if ($request->filled('action')) {
             $query->where('action', $request->action);
         }
 
-        // Filter opsional by rentang tanggal
-        if ($request->filled('from')) {
-            $query->whereDate('created_at', '>=', $request->from);
-        }
-        if ($request->filled('to')) {
-            $query->whereDate('created_at', '<=', $request->to);
-        }
-
         $activities = $query->paginate(20)->withQueryString();
 
-        // Daftar action unik milik user ini, buat dropdown filter
-        $actionTypes = ActivityLog::where('user_id', auth()->id())
-            ->select('action')
-            ->distinct()
-            ->pluck('action');
-
-        return view('history.index', compact('activities', 'actionTypes'));
+        return view('history.index', compact('user', 'company', 'activities'));
     }
 }

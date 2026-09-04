@@ -33,10 +33,12 @@ class Quote extends Model
 
     protected static function booted(): void
     {
+        // Total selalu dihitung ulang otomatis dari subtotal + pajak setiap kali disimpan.
         static::saving(function (Quote $quote) {
             $quote->total = (float) $quote->subtotal + (float) $quote->tax_amount;
         });
 
+        // Nomor penawaran dibuat otomatis kalau belum diisi. Format: QUO-202607-0001
         static::creating(function (Quote $quote) {
             if (empty($quote->quote_number)) {
                 $quote->quote_number = static::generateQuoteNumber($quote->company_id);

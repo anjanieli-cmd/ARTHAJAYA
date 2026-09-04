@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\LogsActivity;
+
 use Illuminate\Database\Eloquent\Model;
 
 class Account extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'company_id',
         'chart_of_account_id',

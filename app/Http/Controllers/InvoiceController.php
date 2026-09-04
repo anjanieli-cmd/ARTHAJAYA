@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Invoice;
 use App\Models\Client;
 use App\Services\InvoiceJournalService;
@@ -10,6 +11,10 @@ use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
 {
+    /**
+     * Batas maksimal nominal total faktur.
+     * Kolom `subtotal`, `tax_amount`, `total` di tabel invoices bertipe decimal(15,2).
+     */
     private const MAX_TOTAL = 9999999999999.99;
 
     public function __construct(private InvoiceJournalService $journal)
@@ -152,12 +157,15 @@ class InvoiceController extends Controller
             'created_by'     => $user->id,
         ]);
 
+        // Kalau faktur langsung dibuat berstatus "sent"/"paid", piutang langsung dicatat di Buku Besar.
         if (in_array($invoice->status, ['sent', 'paid'])) {
             $this->journal->syncReceivableRecognitionJournal($company, $invoice);
         }
         if ($invoice->status === 'paid') {
             $this->journal->syncReceivablePaymentJournal($company, $invoice);
         }
+
+        $this->logActivity('created', 'Menambahkan faktur: ' . $invoice->invoice_number, $invoice);
 
         return redirect()
             ->route('invoices.index')
@@ -204,6 +212,7 @@ class InvoiceController extends Controller
             abort(403);
         }
 
+        // Simpan status LAMA sebelum di-update, buat tau transisinya.
         $wasRecognized = in_array($invoice->status, ['sent', 'paid']);
         $wasPaid = $invoice->status === 'paid';
 
@@ -240,6 +249,7 @@ class InvoiceController extends Controller
             'items'      => json_encode($itemsData),
         ]);
 
+        // Sinkronkan jurnal Piutang sesuai status BARU.
         $isRecognized = in_array($invoice->status, ['sent', 'paid']);
         $isPaid = $invoice->status === 'paid';
 
@@ -254,6 +264,8 @@ class InvoiceController extends Controller
         } elseif ($wasPaid && !$isPaid) {
             $this->journal->deleteReceivablePaymentJournal($invoice);
         }
+
+        $this->logActivity('updated', 'Mengupdate faktur: ' . $invoice->invoice_number, $invoice);
 
         return redirect()
             ->route('invoices.index')
@@ -275,10 +287,15 @@ class InvoiceController extends Controller
                 ->with('error', 'Faktur dengan status "' . $invoice->status . '" tidak dapat dihapus.');
         }
 
+        // Jaga-jaga: bersihkan jurnal kalau ternyata masih ada sisa.
         $this->journal->deleteReceivableRecognitionJournal($invoice);
         $this->journal->deleteReceivablePaymentJournal($invoice);
 
         $invoiceNumber = $invoice->invoice_number;
+
+        // Catat riwayat SEBELUM data dihapus, biar subject_id masih valid.
+        $this->logActivity('deleted', 'Menghapus faktur: ' . $invoiceNumber, $invoice);
+
         $invoice->delete();
 
         return redirect()
@@ -310,7 +327,10 @@ class InvoiceController extends Controller
                 $invoice->status = 'sent';
                 $invoice->save();
 
+                // Faktur resmi terkirim -> piutang diakui di Buku Besar.
                 $this->journal->syncReceivableRecognitionJournal($company, $invoice);
+
+                $this->logActivity('updated', 'Mengirim faktur: ' . $invoice->invoice_number, $invoice);
 
                 return response()->json([
                     'success' => true,
@@ -331,6 +351,10 @@ class InvoiceController extends Controller
         }
     }
 
+    /**
+     * Public karena dipanggil juga dari QuoteController@convertToInvoice
+     * biar format nomor faktur konsisten.
+     */
     public function generateInvoiceNumber(int $companyId): string
     {
         $lastInvoice = Invoice::where('company_id', $companyId)
@@ -370,5 +394,20 @@ class InvoiceController extends Controller
         }
 
         return \App\Models\Item::where('company_id', $companyId)->get();
+    }
+
+    /**
+     * Mencatat aktivitas ke tabel activity_logs.
+     */
+    protected function logActivity(string $action, string $description, $subject = null): void
+    {
+        ActivityLog::create([
+            'user_id'      => Auth::id(),
+            'action'       => $action,
+            'description'  => $description,
+            'subject_type' => $subject ? get_class($subject) : null,
+            'subject_id'   => $subject->id ?? null,
+            'ip_address'   => request()->ip(),
+        ]);
     }
 }

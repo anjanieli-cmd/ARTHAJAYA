@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Quote;
@@ -85,7 +86,9 @@ class QuoteController extends Controller
         $data = $this->validateData($request);
         $data['company_id'] = Auth::user()->company->id;
 
-        Quote::create($data);
+        $quote = Quote::create($data);
+
+        $this->logActivity('created', 'Membuat penawaran: ' . ($quote->quote_number ?? '#' . $quote->id), $quote);
 
         return redirect()->route('quotes.index')->with('success', 'Penawaran berhasil dibuat.');
     }
@@ -112,11 +115,18 @@ class QuoteController extends Controller
 
         $quote->update($data);
 
+        $this->logActivity('updated', 'Memperbarui penawaran: ' . ($quote->quote_number ?? '#' . $quote->id), $quote);
+
         return redirect()->route('quotes.index')->with('success', 'Penawaran berhasil diperbarui.');
     }
 
     public function destroy(Quote $quote)
     {
+        $quoteNumber = $quote->quote_number ?? '#' . $quote->id;
+
+        // Catat sebelum delete agar subject_id masih mengarah ke data Quote.
+        $this->logActivity('deleted', 'Menghapus penawaran: ' . $quoteNumber, $quote);
+
         $quote->delete();
 
         return redirect()->route('quotes.index')->with('success', 'Penawaran berhasil dihapus.');
@@ -125,10 +135,18 @@ class QuoteController extends Controller
     public function bulkDestroy(Request $request)
     {
         $ids = $request->input('ids', []);
+        $companyId = Auth::user()->company->id;
 
-        Quote::where('company_id', Auth::user()->company->id)
+        // Ambil data dulu supaya setiap penawaran yang dihapus bisa dicatat.
+        $quotes = Quote::where('company_id', $companyId)
             ->whereIn('id', $ids)
-            ->delete();
+            ->get();
+
+        foreach ($quotes as $quote) {
+            $quoteNumber = $quote->quote_number ?? '#' . $quote->id;
+            $this->logActivity('deleted', 'Menghapus penawaran: ' . $quoteNumber, $quote);
+            $quote->delete();
+        }
 
         return redirect()->route('quotes.index')->with('success', 'Penawaran terpilih berhasil dihapus.');
     }
@@ -182,6 +200,12 @@ class QuoteController extends Controller
             'invoice_id' => $invoice->id,
         ]);
 
+        $this->logActivity(
+            'updated',
+            'Mengonversi penawaran ' . $quote->quote_number . ' menjadi Faktur ' . $invoice->invoice_number,
+            $quote
+        );
+
         return redirect()
             ->route('invoices.show', $invoice)
             ->with('success', 'Penawaran ' . $quote->quote_number . ' berhasil dikonversi jadi Faktur ' . $invoice->invoice_number . '.');
@@ -197,6 +221,22 @@ class QuoteController extends Controller
             'subtotal'    => ['required', 'numeric', 'min:0'],
             'tax_amount'  => ['nullable', 'numeric', 'min:0'],
             'notes'       => ['nullable', 'string'],
+        ]);
+    }
+
+    /**
+     * Mencatat aktivitas ke tabel activity_logs.
+     * Mengikuti pola LedgerController.
+     */
+    protected function logActivity(string $action, string $description, $subject = null): void
+    {
+        ActivityLog::create([
+            'user_id'      => Auth::id(),
+            'action'       => $action,
+            'description'  => $description,
+            'subject_type' => $subject ? get_class($subject) : null,
+            'subject_id'   => $subject->id ?? null,
+            'ip_address'   => request()->ip(),
         ]);
     }
 }
