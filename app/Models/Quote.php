@@ -2,15 +2,11 @@
 
 namespace App\Models;
 
-use App\Traits\LogsActivity;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Quote extends Model
 {
-    use LogsActivity;
-
     use HasFactory;
 
     protected $fillable = [
@@ -36,45 +32,79 @@ class Quote extends Model
 
     protected static function booted(): void
     {
-        // Total selalu dihitung ulang otomatis dari subtotal + pajak setiap kali disimpan.
+        // Total selalu dihitung ulang otomatis
+        // dari subtotal + pajak setiap kali disimpan.
         static::saving(function (Quote $quote) {
-            $quote->total = (float) $quote->subtotal + (float) $quote->tax_amount;
+            $quote->total =
+                (float) $quote->subtotal +
+                (float) $quote->tax_amount;
         });
 
-        // Nomor penawaran dibuat otomatis kalau belum diisi, format: QUO-202607-0001
+        // Nomor penawaran dibuat otomatis kalau belum diisi.
+        // Format: QUO-202607-0001
         static::creating(function (Quote $quote) {
             if (empty($quote->quote_number)) {
-                $quote->quote_number = static::generateQuoteNumber($quote->company_id);
+                $quote->quote_number =
+                    static::generateQuoteNumber(
+                        $quote->company_id
+                    );
             }
         });
     }
 
-    public static function generateQuoteNumber(int $companyId): string
-    {
-        $prefix = 'QUO-' . now()->format('Ym') . '-';
+    public static function generateQuoteNumber(
+        int $companyId
+    ): string {
+        $prefix =
+            'QUO-' .
+            now()->format('Ym') .
+            '-';
 
-        $last = static::where('company_id', $companyId)
-            ->where('quote_number', 'like', $prefix . '%')
+        $last = static::where(
+            'company_id',
+            $companyId
+        )
+            ->where(
+                'quote_number',
+                'like',
+                $prefix . '%'
+            )
             ->orderByDesc('id')
             ->first();
 
         $nextNumber = 1;
 
         if ($last) {
-            $lastNumber = (int) substr($last->quote_number, strlen($prefix));
-            $nextNumber = $lastNumber + 1;
+            $lastNumber =
+                (int) substr(
+                    $last->quote_number,
+                    strlen($prefix)
+                );
+
+            $nextNumber =
+                $lastNumber + 1;
         }
 
-        return $prefix . str_pad((string) $nextNumber, 4, '0', STR_PAD_LEFT);
+        return $prefix .
+            str_pad(
+                (string) $nextNumber,
+                4,
+                '0',
+                STR_PAD_LEFT
+            );
     }
 
     public function company()
     {
-        return $this->belongsTo(Company::class);
+        return $this->belongsTo(
+            Company::class
+        );
     }
 
     public function client()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(
+            Client::class
+        );
     }
 }
