@@ -122,7 +122,6 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         Route::put('/quotes/{quote}', 'update')->name('quotes.update');
         Route::delete('/quotes/{quote}', 'destroy')->name('quotes.destroy');
         Route::delete('/quotes/bulk-destroy', 'bulkDestroy')->name('quotes.bulk-destroy');
-        Route::post('/quotes/{quote}/convert-to-invoice', 'convertToInvoice')->name('quotes.convert-to-invoice');
     });
 
     // ===== PIUTANG & UTANG (AR / AP) =====
