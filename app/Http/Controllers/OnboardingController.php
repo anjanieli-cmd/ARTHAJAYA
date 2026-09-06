@@ -227,56 +227,79 @@ class OnboardingController extends Controller
      * supaya nggak nyatet dobel -- entry lama di-update, bukan ditambah.
      */
     private function syncOpeningBalanceJournal(Company $company, Account $account, float $amount): void
-    {
-        $existing = JournalEntry::where('reference_type', 'account_opening_balance')
-            ->where('reference_id', $account->id)
-            ->get();
-
-        // Saldo 0 atau akun COA belum ketemu -> hapus entry lama kalau ada.
-        if ($amount <= 0 || ! $account->chart_of_account_id) {
-            JournalEntry::destroy($existing->pluck('id'));
-            return;
-        }
-
-        $equityAccountId = ChartOfAccount::where('company_id', $company->id)
-            ->where('code', '3-101')
-            ->value('id');
-
-        if (! $equityAccountId) {
-            Log::warning("Akun Modal Pemilik (3-101) tidak ditemukan untuk company #{$company->id}, saldo awal tidak dicatat ke Buku Besar.");
-            return;
-        }
-
-        $description = 'Saldo awal - ' . ($account->bank_name ?: 'Kas');
-
-        $debitEntry = $existing->first(fn ($e) => (float) $e->debit > 0);
-        $creditEntry = $existing->first(fn ($e) => (float) $e->credit > 0);
-
-        $payloadDebit = [
+{
+    $existing = JournalEntry::where('reference_type', 'account_opening_balance')
+        ->where('reference_id', $account->id)
+        ->get();
+ 
+    // Saldo 0 atau akun COA belum ketemu -> hapus entry lama kalau ada.
+    if ($amount <= 0 || ! $account->chart_of_account_id) {
+        JournalEntry::destroy($existing->pluck('id'));
+        return;
+    }
+ 
+    $equityAccountId = ChartOfAccount::where('company_id', $company->id)
+        ->where('code', '3-101')
+        ->value('id');
+ 
+    if (! $equityAccountId) {
+        Log::warning("Akun Modal Pemilik (3-101) tidak ditemukan untuk company #{$company->id}, saldo awal tidak dicatat ke Buku Besar.");
+        return;
+    }
+ 
+    $description = 'Saldo awal - ' . ($account->bank_name ?: 'Kas');
+ 
+    // Tanggal transaksi HANYA dipakai saat bikin entry baru pertama
+    // kali. Anchor-nya ke waktu rekening ini pertama kali dibuat,
+    // BUKAN now() -- supaya jujur mencerminkan kapan saldo awal
+    // beneran pertama kali dimasukkan.
+    $anchorDate = optional($account->created_at)->format('Y-m-d') ?? now()->format('Y-m-d');
+ 
+    $debitEntry = $existing->first(fn ($e) => (float) $e->debit > 0);
+    $creditEntry = $existing->first(fn ($e) => (float) $e->credit > 0);
+ 
+    if ($debitEntry) {
+        // Entry sudah ada -> update NOMINAL & akunnya saja,
+        // transaction_date sengaja TIDAK disentuh.
+        $debitEntry->update([
+            'chart_of_account_id' => $account->chart_of_account_id,
+            'debit'               => $amount,
+            'credit'              => 0,
+            'description'         => $description,
+        ]);
+    } else {
+        JournalEntry::create([
             'company_id'          => $company->id,
             'chart_of_account_id' => $account->chart_of_account_id,
-            'transaction_date'    => now()->format('Y-m-d'),
+            'transaction_date'    => $anchorDate,
             'description'         => $description,
             'debit'               => $amount,
             'credit'              => 0,
             'reference_type'      => 'account_opening_balance',
             'reference_id'        => $account->id,
-        ];
-
-        $payloadCredit = [
+        ]);
+    }
+ 
+    if ($creditEntry) {
+        $creditEntry->update([
+            'chart_of_account_id' => $equityAccountId,
+            'debit'               => 0,
+            'credit'              => $amount,
+            'description'         => $description,
+        ]);
+    } else {
+        JournalEntry::create([
             'company_id'          => $company->id,
             'chart_of_account_id' => $equityAccountId,
-            'transaction_date'    => now()->format('Y-m-d'),
+            'transaction_date'    => $anchorDate,
             'description'         => $description,
             'debit'               => 0,
             'credit'              => $amount,
             'reference_type'      => 'account_opening_balance',
             'reference_id'        => $account->id,
-        ];
-
-        $debitEntry ? $debitEntry->update($payloadDebit) : JournalEntry::create($payloadDebit);
-        $creditEntry ? $creditEntry->update($payloadCredit) : JournalEntry::create($payloadCredit);
+        ]);
     }
+}
 
     private function validateData(Request $request): array
     {
