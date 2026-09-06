@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
@@ -19,6 +20,9 @@ class ExpenseCategory extends Model
         'description',
     ];
 
+    /**
+     * Activity Log
+     */
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -26,24 +30,44 @@ class ExpenseCategory extends Model
             ->logFillable();
     }
 
+    /**
+     * Relasi ke Company
+     */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
-    // Hitung total pengeluaran untuk kategori ini
+    /**
+     * Relasi ke Expense
+     *
+     * Satu kategori dapat memiliki banyak pengeluaran.
+     */
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(
+            Expense::class,
+            'expense_category_id'
+        );
+    }
+
+    /**
+     * Total seluruh pengeluaran dalam kategori ini
+     */
     public function getTotalExpensesAttribute()
     {
-        return ExpenseSubmission::where('company_id', $this->company_id)
-            ->where('category', $this->name)
+        return $this->expenses()
+            ->where('company_id', $this->company_id)
             ->sum('amount');
     }
 
-    // Hitung jumlah transaksi untuk kategori ini
+    /**
+     * Jumlah pengeluaran dalam kategori ini
+     */
     public function getCountExpensesAttribute()
     {
-        return ExpenseSubmission::where('company_id', $this->company_id)
-            ->where('category', $this->name)
+        return $this->expenses()
+            ->where('company_id', $this->company_id)
             ->count();
     }
 }

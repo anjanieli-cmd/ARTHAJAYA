@@ -7,11 +7,15 @@ use App\Models\ExpenseCategory;
 use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ExpenseController extends Controller
 {
     use LogsActivity;
 
+    /**
+     * Menampilkan daftar pengeluaran.
+     */
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -21,6 +25,7 @@ class ExpenseController extends Controller
             ->where('company_id', $company->id)
             ->latest();
 
+        // Search berdasarkan deskripsi atau nama kategori
         if ($request->filled('q')) {
             $q = strtolower($request->q);
 
@@ -28,8 +33,9 @@ class ExpenseController extends Controller
                 $sub->whereRaw(
                     'LOWER(description) LIKE ?',
                     ["%{$q}%"]
-                )->orWhereHas('category', function ($c) use ($q) {
-                    $c->whereRaw(
+                )
+                ->orWhereHas('category', function ($categoryQuery) use ($q) {
+                    $categoryQuery->whereRaw(
                         'LOWER(name) LIKE ?',
                         ["%{$q}%"]
                     );
@@ -52,11 +58,16 @@ class ExpenseController extends Controller
         );
     }
 
+    /**
+     * Form tambah pengeluaran.
+     */
     public function create()
     {
         $user = Auth::user();
         $company = $user->company;
 
+        // Ambil kategori dari tabel expense_categories
+        // khusus untuk company yang sedang login.
         $categories = ExpenseCategory::where(
             'company_id',
             $company->id
@@ -66,32 +77,85 @@ class ExpenseController extends Controller
 
         return view(
             'expenses.create',
-            compact('user', 'company', 'categories')
+            compact(
+                'user',
+                'company',
+                'categories'
+            )
         );
     }
 
+    /**
+     * Simpan pengeluaran baru.
+     */
     public function store(Request $request)
     {
         $company = Auth::user()->company;
 
         $data = $request->validate([
-            'description' => 'required|string|max:255',
-            'expense_category_id' => 'nullable|exists:expense_categories,id',
-            'date' => 'required|date',
-            'amount' => 'required|numeric',
-            'status' => 'nullable|string',
-            'notes' => 'nullable|string',
+            'description' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'expense_category_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('expense_categories', 'id')
+                    ->where(function ($query) use ($company) {
+                        $query->where(
+                            'company_id',
+                            $company->id
+                        );
+                    }),
+            ],
+
+            'date' => [
+                'required',
+                'date',
+            ],
+
+            'amount' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'status' => [
+                'nullable',
+                'in:lunas,pending',
+            ],
+
+            'notes' => [
+                'nullable',
+                'string',
+            ],
         ]);
 
         $expense = Expense::create([
             'company_id' => $company->id,
-            'expense_category_id' => $data['expense_category_id'] ?? null,
-            'description' => $data['description'],
-            'date' => $data['date'],
-            'amount' => (int) $data['amount'],
-            'status' => $data['status'] ?? 'pending',
-            'notes' => $data['notes'] ?? null,
-            'created_by' => Auth::id(),
+
+            'expense_category_id' =>
+                $data['expense_category_id'] ?? null,
+
+            'description' =>
+                $data['description'],
+
+            'date' =>
+                $data['date'],
+
+            'amount' =>
+                (int) $data['amount'],
+
+            'status' =>
+                $data['status'] ?? 'pending',
+
+            'notes' =>
+                $data['notes'] ?? null,
+
+            'created_by' =>
+                Auth::id(),
         ]);
 
         $this->logActivity(
@@ -108,6 +172,9 @@ class ExpenseController extends Controller
             );
     }
 
+    /**
+     * Detail pengeluaran.
+     */
     public function show(Expense $expense)
     {
         $this->authorizeCompany($expense);
@@ -115,12 +182,21 @@ class ExpenseController extends Controller
         $user = Auth::user();
         $company = $user->company;
 
+        $expense->load('category');
+
         return view(
             'expenses.show',
-            compact('user', 'company', 'expense')
+            compact(
+                'user',
+                'company',
+                'expense'
+            )
         );
     }
 
+    /**
+     * Form edit pengeluaran.
+     */
     public function edit(Expense $expense)
     {
         $this->authorizeCompany($expense);
@@ -128,6 +204,7 @@ class ExpenseController extends Controller
         $user = Auth::user();
         $company = $user->company;
 
+        // Ambil kategori dari database
         $categories = ExpenseCategory::where(
             'company_id',
             $company->id
@@ -137,24 +214,86 @@ class ExpenseController extends Controller
 
         return view(
             'expenses.edit',
-            compact('user', 'company', 'expense', 'categories')
+            compact(
+                'user',
+                'company',
+                'expense',
+                'categories'
+            )
         );
     }
 
-    public function update(Request $request, Expense $expense)
-    {
+    /**
+     * Update pengeluaran.
+     */
+    public function update(
+        Request $request,
+        Expense $expense
+    ) {
         $this->authorizeCompany($expense);
 
-        $expense->update(
-            $request->only([
-                'description',
-                'expense_category_id',
+        $company = Auth::user()->company;
+
+        $data = $request->validate([
+            'description' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'expense_category_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('expense_categories', 'id')
+                    ->where(function ($query) use ($company) {
+                        $query->where(
+                            'company_id',
+                            $company->id
+                        );
+                    }),
+            ],
+
+            'date' => [
+                'required',
                 'date',
-                'status',
-                'amount',
-                'notes',
-            ])
-        );
+            ],
+
+            'status' => [
+                'nullable',
+                'in:lunas,pending',
+            ],
+
+            'amount' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
+
+            'notes' => [
+                'nullable',
+                'string',
+            ],
+        ]);
+
+        $expense->update([
+            'description' =>
+                $data['description'],
+
+            'expense_category_id' =>
+                $data['expense_category_id'] ?? null,
+
+            'date' =>
+                $data['date'],
+
+            'status' =>
+                $data['status'] ?? 'pending',
+
+            'amount' =>
+                (int) $data['amount'],
+
+            'notes' =>
+                $data['notes'] ?? null,
+        ]);
 
         $this->logActivity(
             'updated',
@@ -170,6 +309,9 @@ class ExpenseController extends Controller
             );
     }
 
+    /**
+     * Hapus pengeluaran.
+     */
     public function destroy(Expense $expense)
     {
         $this->authorizeCompany($expense);
@@ -191,10 +333,15 @@ class ExpenseController extends Controller
             );
     }
 
-    private function authorizeCompany(Expense $expense): void
-    {
+    /**
+     * Pastikan expense milik company yang sedang login.
+     */
+    private function authorizeCompany(
+        Expense $expense
+    ): void {
         abort_unless(
-            $expense->company_id === Auth::user()->company->id,
+            $expense->company_id ===
+                Auth::user()->company->id,
             404
         );
     }

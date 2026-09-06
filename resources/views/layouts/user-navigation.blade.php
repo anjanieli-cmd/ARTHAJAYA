@@ -1,14 +1,26 @@
 <aside class="sidebar" id="sidebar">
   <div class="sb-logo">
     <div class="logo-mark">
-      <img src="{{ asset('logos.png') }}" alt="Logo">
-    </div>
-    <span class="sb-wordmark">Arve<span class="grad">ssa</span></span>
+      @php
+        $company = Auth::user()?->company;
+      @endphp
+
+```
+  @if($company?->logo)
+    <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name ?? 'Logo' }}">
+  @else
+    <img src="{{ asset('logos.png') }}" alt="Logo">
+  @endif
+</div>
+<span class="sb-wordmark">Arve<span class="grad">ssa</span></span>
+```
+
   </div>
 
   <div class="sb-group-label">Menu</div>
 
   <!-- Dashboard -->
+
   <a href="{{ route('user.dashboard') }}" class="sb-link {{ request()->routeIs('user.dashboard') ? 'active' : '' }}">
     <span class="sb-link-main">
       <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -19,6 +31,7 @@
   </a>
 
   <!-- Ajukan Pengeluaran -> CREATE -->
+
   <a href="{{ route('user.expenses.create') }}" class="sb-link {{ request()->routeIs('user.expenses.create') ? 'active' : '' }}">
     <span class="sb-link-main">
       <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -30,6 +43,7 @@
   </a>
 
   <!-- Riwayat Pengeluaran -> INDEX -->
+
   <a href="{{ route('user.expenses.index') }}" class="sb-link {{ request()->routeIs('user.expenses.index') ? 'active' : '' }}">
     <span class="sb-link-main">
       <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -40,12 +54,17 @@
       </svg>
       <span class="sb-link-text">Riwayat Pengeluaran</span>
     </span>
-    @if(($pendingCount ?? 0) > 0)
-      <span class="badge">{{ $pendingCount }}</span>
-    @endif
+
+```
+@if(($pendingCount ?? 0) > 0)
+  <span class="badge">{{ $pendingCount }}</span>
+@endif
+```
+
   </a>
 
   <!-- Ringkasan Kas -> SUMMARY -->
+
   <a href="{{ route('user.expenses.summary') }}" class="sb-link {{ request()->routeIs('user.expenses.summary') ? 'active' : '' }}">
     <span class="sb-link-main">
       <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -61,6 +80,7 @@
   <div class="sb-group-label">Akun</div>
 
   <!-- Profil Saya -->
+
   <a href="{{ route('user.profile') }}" class="sb-link {{ request()->routeIs('user.profile') ? 'active' : '' }}">
     <span class="sb-link-main">
       <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -75,27 +95,33 @@
     <div class="sb-plan">
       <div class="lbl">Masuk sebagai</div>
       <div class="name">{{ Auth::user()->name ?? 'Pengguna' }}</div>
-      <div style="font-size:11px;color:var(--text-faint);margin-top:2px;display:flex;align-items:center;gap:4px;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-        User
-      </div>
-    </div>
-    <form method="POST" action="{{ route('logout') }}">
-      @csrf
-      <button type="submit" class="sb-link" style="width:100%;border:none;background:none;cursor:pointer;color:var(--danger);">
-        <span class="sb-link-main">
-          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
-          </svg>
-          <span class="sb-link-text">Keluar</span>
-        </span>
-      </button>
-    </form>
+
+```
+  <div style="font-size:11px;color:var(--text-faint);margin-top:2px;display:flex;align-items:center;gap:4px;">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    User
+  </div>
+</div>
+
+<form method="POST" action="{{ route('logout') }}">
+  @csrf
+
+  <button type="submit" class="sb-link" style="width:100%;border:none;background:none;cursor:pointer;color:var(--danger);">
+    <span class="sb-link-main">
+      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span class="sb-link-text">Keluar</span>
+    </span>
+  </button>
+</form>
+```
+
   </div>
 </aside>
 
@@ -104,7 +130,7 @@
   .sidebar {
     --theme-primary: var(--emerald);
     --theme-soft: rgba(var(--emerald-rgb), 0.12);
-    
+
     background: var(--nav-bg);
     backdrop-filter: blur(16px);
     border-right: 1px solid var(--border);
@@ -120,9 +146,18 @@
     flex-shrink: 0;
   }
 
-  .sidebar::-webkit-scrollbar { width: 4px; }
-  .sidebar::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 100px; }
-  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background: var(--border-hover);
+    border-radius: 100px;
+  }
+
+  .sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
   /* LOGO */
   .sb-logo {
@@ -291,6 +326,7 @@
       transform: translateX(-100%);
       transition: transform .3s cubic-bezier(.4,0,.2,1);
     }
+
     .sidebar.open {
       transform: translateX(0);
     }
@@ -300,16 +336,20 @@
     .sidebar {
       padding: 16px 12px;
     }
+
     .sb-logo {
       padding-bottom: 18px;
     }
+
     .sb-wordmark {
       font-size: 15px;
     }
+
     .sb-link {
       padding: 9px 10px;
       font-size: 13px;
     }
+
     .sb-link .icon {
       width: 15px;
       height: 15px;
@@ -349,15 +389,15 @@
     toggleBtn.innerHTML = '☰';
     toggleBtn.setAttribute('aria-label', 'Toggle sidebar');
     document.body.prepend(toggleBtn);
-    
+
     const sidebar = document.getElementById('sidebar');
-    
+
     toggleBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       sidebar.classList.toggle('open');
       toggleBtn.innerHTML = sidebar.classList.contains('open') ? '✕' : '☰';
     });
-    
+
     // Close sidebar when clicking outside (on mobile)
     document.addEventListener('click', function(e) {
       if (window.innerWidth <= 980) {
