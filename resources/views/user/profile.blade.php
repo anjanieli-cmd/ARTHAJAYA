@@ -566,8 +566,8 @@
                 <!-- ===== PHOTO SECTION ===== -->
                 <div class="profile-photo-section">
                     <div class="profile-avatar-wrapper">
-                        @if($user->profile_photo)
-                            <img src="{{ asset('storage/' . $user->profile_photo) }}" alt="Profile Photo" class="avatar">
+                        @if($user->avatar)
+                            <img src="{{ asset('storage/' . $user->avatar) }}" alt="Profile Photo" class="avatar">
                         @else
                             <div class="avatar-placeholder" style="background: linear-gradient(135deg, var(--emerald), var(--emerald-dim));">
                                 {{ strtoupper(substr($user->name ?? 'U', 0, 1)) }}
@@ -583,7 +583,7 @@
                                 Upload Foto
                                 <input type="file" name="profile_photo" class="profile-photo-input" accept="image/*" id="photoInput">
                             </label>
-                            @if($user->profile_photo)
+                            @if($user->avatar)
                                 <label class="profile-photo-btn" style="color:var(--danger);border-color:rgba(232,90,90,0.2);cursor:pointer;">
                                     <svg class="icon"><use href="#ic-trash"/></svg>
                                     Hapus
