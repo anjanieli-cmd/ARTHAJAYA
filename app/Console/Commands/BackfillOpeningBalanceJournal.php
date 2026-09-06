@@ -114,7 +114,7 @@ class BackfillOpeningBalanceJournal extends Command
             $currencySymbol = $company->currency_symbol;
 
             $log = new ActivityLog([
-                'user_id'      => null, // proses sistem, bukan aksi user aktif
+                'user_id' => optional($company->users()->oldest()->first())->id,
                 'action'       => 'set_initial_balance',
                 'description'  => "Mencatat saldo awal {$currencySymbol}"
                     . number_format($account->initial_balance, 0, ',', '.')
