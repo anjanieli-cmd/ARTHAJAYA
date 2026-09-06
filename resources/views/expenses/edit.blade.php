@@ -2,23 +2,23 @@
     <x-slot name="title">Edit Pengeluaran</x-slot>
 
     @php
-        $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
-        $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
-
-        // 🔥 AMBIL KATEGORI DARI SESSION (sama seperti di halaman expense-categories)
-        $defaultExpenseCategories = [
-            ['name' => 'Bahan Baku', 'desc' => 'Kain, pewarna, malam, dan perlengkapan batik', 'count' => 2, 'total' => 3475000],
-            ['name' => 'Transportasi', 'desc' => 'Pengiriman bahan & produk jadi', 'count' => 1, 'total' => 350000],
-            ['name' => 'Utilitas', 'desc' => 'Listrik, air, dan internet workshop', 'count' => 1, 'total' => 820000],
-            ['name' => 'Produksi', 'desc' => 'Upah pengrajin & biaya proses produksi', 'count' => 1, 'total' => 4200000],
-            ['name' => 'Marketing', 'desc' => 'Promosi, konten, dan iklan online', 'count' => 1, 'total' => 600000],
+        $currencySymbols = [
+            'IDR' => 'Rp',
+            'USD' => '$',
+            'SGD' => 'S$',
+            'MYR' => 'RM',
         ];
 
-        if (!session()->has('expense_categories')) {
-            session(['expense_categories' => $defaultExpenseCategories]);
-        }
+        $currencySymbol = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-        $categories = session('expense_categories', []);
+        /*
+        |--------------------------------------------------------------------------
+        | Nilai tanggal untuk input type="date"
+        |--------------------------------------------------------------------------
+        */
+        $expenseDate = $expense->date
+            ? $expense->date->format('Y-m-d')
+            : '';
     @endphp
 
     <style>
@@ -29,54 +29,91 @@
             --theme-glow: rgba(var(--emerald-rgb), 0.25);
             --theme-soft: rgba(var(--emerald-rgb), 0.12);
             --theme-gradient: linear-gradient(135deg, var(--emerald), var(--emerald-dim));
-            
+
             --text-primary: var(--text);
             --text-secondary: var(--text-mute);
             --text-tertiary: var(--text-faint);
-            
+
             --bg-card: var(--surface);
             --bg-card-hover: var(--surface-strong);
             --bg-card-active: rgba(255, 255, 255, 0.04);
             --border-color: var(--border);
             --border-hover: var(--border-hover);
-            
+
             --danger: #E85A5A;
             --danger-soft: rgba(232, 90, 90, 0.12);
             --success: #34B583;
             --success-soft: rgba(52, 181, 131, 0.14);
             --warning: #F0A83C;
             --warning-soft: rgba(240, 168, 60, 0.14);
-            
+
             --radius-sm: 10px;
             --radius-md: 16px;
             --radius-lg: 24px;
-            
+
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
             --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-            
+
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
         }
 
-        .edit-wrap * { box-sizing: border-box; }
-        .edit-wrap .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+        .edit-wrap * {
+            box-sizing: border-box;
+        }
+
+        .edit-wrap .mono {
+            font-family: 'IBM Plex Mono', monospace;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
+        }
 
         @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes pulseGlow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
         @keyframes rippleAnim {
-            to { transform: scale(4); opacity: 0; }
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
         }
 
-        .edit-wrap .animate-in { animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
-        .edit-wrap .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .edit-wrap .animate-in {
+            animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .edit-wrap .icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            display: inline-block;
+            vertical-align: middle;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
 
         /* HEADER */
         .ed-header {
@@ -89,7 +126,10 @@
             padding: 0 4px;
         }
 
-        .ed-header-left { flex: 1; min-width: 200px; }
+        .ed-header-left {
+            flex: 1;
+            min-width: 200px;
+        }
 
         .ed-badge {
             display: inline-flex;
@@ -158,9 +198,18 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .ed-btn .icon { width: 16px; height: 16px; }
-        .ed-btn:hover { transform: translateY(-2px); }
-        .ed-btn:active { transform: translateY(0) scale(0.97); }
+        .ed-btn .icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .ed-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .ed-btn:active {
+            transform: translateY(0) scale(0.97);
+        }
 
         .ed-btn-primary {
             background: var(--theme-gradient);
@@ -207,7 +256,11 @@
             font-size: 13px;
         }
 
-        .ed-alert .icon { width: 20px; height: 20px; flex-shrink: 0; }
+        .ed-alert .icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
 
         .ed-alert.success {
             background: var(--success-soft);
@@ -288,7 +341,9 @@
             margin-bottom: 22px;
         }
 
-        .ed-group:last-child { margin-bottom: 0; }
+        .ed-group:last-child {
+            margin-bottom: 0;
+        }
 
         .ed-group label {
             display: flex;
@@ -361,7 +416,7 @@
             cursor: pointer;
         }
 
-        /* 🔥 FIX KONTRAST DROPDOWN - PAKAI HEX LANGSUNG */
+        /* KONTRAS DROPDOWN */
         .ed-group select option {
             background-color: #1a1f2e;
             color: #e8edf5;
@@ -414,231 +469,681 @@
             flex: 2;
         }
 
+        .category-empty {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .category-empty a {
+            color: var(--theme-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .category-empty a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 768px) {
-            .ed-row { grid-template-columns: 1fr; gap: 0; }
-            .ed-card { padding: 24px 20px; }
-            .ed-header { flex-direction: column; align-items: flex-start; }
-            .ed-actions { width: 100%; }
-            .ed-actions .ed-btn { flex: 1; justify-content: center; }
-            .ed-header h1 { font-size: 24px; }
+            .ed-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .ed-card {
+                padding: 24px 20px;
+            }
+
+            .ed-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .ed-actions {
+                width: 100%;
+            }
+
+            .ed-actions .ed-btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .ed-header h1 {
+                font-size: 24px;
+            }
         }
 
         @media (max-width: 640px) {
-            .ed-card { padding: 20px 16px; border-radius: var(--radius-sm); }
-            .ed-actions-form { flex-direction: column; }
-            .ed-actions-form .ed-btn { flex: 1; }
-            .ed-card-header .icon-box { width: 40px; height: 40px; }
-            .ed-card-header .icon-box .icon { width: 18px; height: 18px; }
-            .ed-card-header .title { font-size: 15px; }
+            .ed-card {
+                padding: 20px 16px;
+                border-radius: var(--radius-sm);
+            }
+
+            .ed-actions-form {
+                flex-direction: column;
+            }
+
+            .ed-actions-form .ed-btn {
+                flex: 1;
+            }
+
+            .ed-card-header .icon-box {
+                width: 40px;
+                height: 40px;
+            }
+
+            .ed-card-header .icon-box .icon {
+                width: 18px;
+                height: 18px;
+            }
+
+            .ed-card-header .title {
+                font-size: 15px;
+            }
         }
     </style>
 
     <div class="edit-wrap">
 
+        {{-- HEADER --}}
         <div class="ed-header animate-in" style="animation-delay: 0.05s;">
+
             <div class="ed-header-left">
+
                 <div class="ed-badge">
                     <span class="dot"></span>
                     Pembelian &amp; Biaya
                 </div>
+
                 <h1>Edit Pengeluaran</h1>
-                <p class="subtitle">Edit data pengeluaran yang sudah dicatat</p>
+
+                <p class="subtitle">
+                    Edit data pengeluaran yang sudah dicatat
+                </p>
+
             </div>
+
             <div class="ed-actions">
-                <a href="{{ route('expenses.index') }}" class="ed-btn ed-btn-ghost">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                {{-- Kembali --}}
+                <a
+                    href="{{ route('expenses.index') }}"
+                    class="ed-btn ed-btn-ghost"
+                >
+                    <svg
+                        class="icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
                         <line x1="19" y1="12" x2="5" y2="12"/>
                         <polyline points="12 19 5 12 12 5"/>
                     </svg>
+
                     Kembali
                 </a>
-                <a href="/expenses/show/{{ $index }}" class="ed-btn ed-btn-ghost">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                {{-- Detail --}}
+                <a
+                    href="{{ route('expenses.show', $expense) }}"
+                    class="ed-btn ed-btn-ghost"
+                >
+                    <svg
+                        class="icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/>
                         <circle cx="12" cy="12" r="3"/>
                     </svg>
+
                     Detail
                 </a>
+
             </div>
+
         </div>
 
+        {{-- SUCCESS --}}
+        @if(session('success'))
+
+            <div
+                class="ed-alert success animate-in"
+                style="animation-delay: 0.08s;"
+            >
+                <svg
+                    class="icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="16 12 10 18 7 15"/>
+                </svg>
+
+                <span>
+                    {{ session('success') }}
+                </span>
+            </div>
+
+        @endif
+
+        {{-- ERROR --}}
         @if(session('error'))
-            <div class="ed-alert error animate-in" style="animation-delay: 0.08s;">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+            <div
+                class="ed-alert error animate-in"
+                style="animation-delay: 0.08s;"
+            >
+                <svg
+                    class="icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="12" y1="8" x2="12" y2="12"/>
                     <line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
-                <span>{{ session('error') }}</span>
+
+                <span>
+                    {{ session('error') }}
+                </span>
             </div>
+
         @endif
 
-        <form action="/expenses/update/{{ $index }}" method="POST" class="ed-form">
+        {{-- VALIDATION ERROR --}}
+        @if($errors->any())
+
+            <div
+                class="ed-alert error animate-in"
+                style="animation-delay: 0.09s;"
+            >
+                <svg
+                    class="icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+
+                <span>
+                    Ada data yang belum benar. Silakan periksa kembali form.
+                </span>
+            </div>
+
+        @endif
+
+        {{-- FORM --}}
+        <form
+            action="{{ route('expenses.update', $expense) }}"
+            method="POST"
+            class="ed-form"
+        >
+
             @csrf
             @method('PUT')
 
-            <div class="ed-card animate-in" style="animation-delay: 0.10s;">
-                
+            <div
+                class="ed-card animate-in"
+                style="animation-delay: 0.10s;"
+            >
+
+                {{-- CARD HEADER --}}
                 <div class="ed-card-header">
+
                     <div class="icon-box">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <rect
+                                x="2"
+                                y="7"
+                                width="20"
+                                height="14"
+                                rx="2"
+                                ry="2"
+                            />
+
                             <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
                         </svg>
+
                     </div>
+
                     <div class="title-group">
-                        <div class="title">Informasi Pengeluaran</div>
-                        <div class="sub">Edit data pengeluaran yang sudah dicatat</div>
+
+                        <div class="title">
+                            Informasi Pengeluaran
+                        </div>
+
+                        <div class="sub">
+                            Edit data pengeluaran yang sudah dicatat
+                        </div>
+
                     </div>
+
                 </div>
 
+                {{-- DESKRIPSI --}}
                 <div class="ed-group">
+
                     <label>
                         <span>Deskripsi</span>
                         <span class="required">*</span>
                     </label>
-                    <input type="text" name="description" value="{{ $expense['description'] ?? $expense['desc'] }}" required>
+
+                    <input
+                        type="text"
+                        name="description"
+                        value="{{ old('description', $expense->description) }}"
+                        placeholder="Contoh: Beli kain mori 50 meter"
+                        required
+                    >
+
                     @error('description')
+
                         <span class="error-text">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                            <svg
+                                class="icon"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
                                 <circle cx="12" cy="12" r="10"/>
                                 <line x1="12" y1="8" x2="12" y2="12"/>
                                 <line x1="12" y1="16" x2="12.01" y2="16"/>
                             </svg>
+
                             {{ $message }}
+
                         </span>
+
                     @enderror
+
                 </div>
 
+                {{-- KATEGORI + TANGGAL --}}
                 <div class="ed-row">
+
+                    {{-- KATEGORI --}}
                     <div class="ed-group">
+
                         <label>
                             <span>Kategori</span>
                             <span class="required">*</span>
                         </label>
-                        <select name="category_id" required>
-                            <option value="">Pilih Kategori</option>
-                            @foreach($categories as $index => $category)
-                                <option value="{{ $index }}" {{ ($expense['category_id'] ?? $expense['kategori_index'] ?? '') == $index ? 'selected' : '' }}>
-                                    {{ $category['name'] }}
+
+                        <select
+                            name="expense_category_id"
+                            id="expense_category_id"
+                            required
+                        >
+
+                            <option value="">
+                                Pilih Kategori
+                            </option>
+
+                            @forelse($categories as $category)
+
+                                <option
+                                    value="{{ $category->id }}"
+                                    {{ old('expense_category_id', $expense->expense_category_id) == $category->id ? 'selected' : '' }}
+                                >
+                                    {{ $category->name }}
                                 </option>
-                            @endforeach
+
+                            @empty
+
+                                <option
+                                    value=""
+                                    disabled
+                                >
+                                    Belum ada kategori biaya
+                                </option>
+
+                            @endforelse
+
                         </select>
-                        @error('category_id')
+
+                        @if($categories->isEmpty())
+
+                            <div class="category-empty">
+
+                                Belum ada kategori biaya.
+
+                                <a href="{{ route('expense-categories.create') }}">
+                                    Buat kategori terlebih dahulu
+                                </a>
+
+                            </div>
+
+                        @endif
+
+                        @error('expense_category_id')
+
                             <span class="error-text">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                                <svg
+                                    class="icon"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
                                     <circle cx="12" cy="12" r="10"/>
                                     <line x1="12" y1="8" x2="12" y2="12"/>
                                     <line x1="12" y1="16" x2="12.01" y2="16"/>
                                 </svg>
+
                                 {{ $message }}
+
                             </span>
+
                         @enderror
+
                     </div>
+
+                    {{-- TANGGAL --}}
                     <div class="ed-group">
+
                         <label>
                             <span>Tanggal</span>
                             <span class="required">*</span>
                         </label>
-                        <input type="date" name="date" value="{{ $expense['date'] }}" required>
+
+                        <input
+                            type="date"
+                            name="date"
+                            value="{{ old('date', $expenseDate) }}"
+                            required
+                        >
+
                         @error('date')
+
                             <span class="error-text">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                                <svg
+                                    class="icon"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
                                     <circle cx="12" cy="12" r="10"/>
                                     <line x1="12" y1="8" x2="12" y2="12"/>
                                     <line x1="12" y1="16" x2="12.01" y2="16"/>
                                 </svg>
+
                                 {{ $message }}
+
                             </span>
+
                         @enderror
+
                     </div>
+
                 </div>
 
+                {{-- JUMLAH --}}
                 <div class="ed-group">
+
                     <label>
                         <span>Jumlah</span>
                         <span class="required">*</span>
                     </label>
-                    <input type="number" name="amount" value="{{ $expense['amount'] }}" min="0" step="1000" required>
+
+                    <input
+                        type="number"
+                        name="amount"
+                        value="{{ old('amount', $expense->amount) }}"
+                        min="0"
+                        step="1000"
+                        required
+                    >
+
                     <span class="helper">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
                             <circle cx="12" cy="12" r="10"/>
                             <line x1="12" y1="16" x2="12" y2="12"/>
                             <line x1="12" y1="8" x2="12.01" y2="8"/>
                         </svg>
+
                         Dalam mata uang {{ $currencySymbol }}
+
                     </span>
+
                     @error('amount')
+
                         <span class="error-text">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                            <svg
+                                class="icon"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
                                 <circle cx="12" cy="12" r="10"/>
                                 <line x1="12" y1="8" x2="12" y2="12"/>
                                 <line x1="12" y1="16" x2="12.01" y2="16"/>
                             </svg>
+
                             {{ $message }}
+
                         </span>
+
                     @enderror
+
                 </div>
 
+                {{-- STATUS --}}
                 <div class="ed-group">
+
                     <label>
                         <span>Status</span>
                         <span class="required">*</span>
                     </label>
-                    <select name="status" required>
-                        <option value="lunas" {{ ($expense['status'] ?? '') == 'lunas' ? 'selected' : '' }}>Lunas</option>
-                        <option value="pending" {{ ($expense['status'] ?? '') == 'pending' ? 'selected' : '' }}>Pending</option>
+
+                    <select
+                        name="status"
+                        required
+                    >
+
+                        <option
+                            value="lunas"
+                            {{ old('status', $expense->status) === 'lunas' ? 'selected' : '' }}
+                        >
+                            Lunas
+                        </option>
+
+                        <option
+                            value="pending"
+                            {{ old('status', $expense->status) === 'pending' ? 'selected' : '' }}
+                        >
+                            Pending
+                        </option>
+
                     </select>
+
                     <span class="helper">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
                             <circle cx="12" cy="12" r="10"/>
                             <line x1="12" y1="16" x2="12" y2="12"/>
                             <line x1="12" y1="8" x2="12.01" y2="8"/>
                         </svg>
-                        Pilih "Lunas" jika sudah dibayar, "Pending" jika belum
+
+                        Pilih "Lunas" jika sudah dibayar,
+                        "Pending" jika belum
+
                     </span>
+
                     @error('status')
+
                         <span class="error-text">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                            <svg
+                                class="icon"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
                                 <circle cx="12" cy="12" r="10"/>
                                 <line x1="12" y1="8" x2="12" y2="12"/>
                                 <line x1="12" y1="16" x2="12.01" y2="16"/>
                             </svg>
+
                             {{ $message }}
+
                         </span>
+
                     @enderror
+
                 </div>
 
+                {{-- CATATAN --}}
                 <div class="ed-group">
-                    <label>Catatan</label>
-                    <textarea name="notes" placeholder="Catatan tambahan...">{{ $expense['notes'] ?? '' }}</textarea>
+
+                    <label>
+                        <span>Catatan</span>
+                    </label>
+
+                    <textarea
+                        name="notes"
+                        placeholder="Catatan tambahan..."
+                    >{{ old('notes', $expense->notes) }}</textarea>
+
                     @error('notes')
+
                         <span class="error-text">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                            <svg
+                                class="icon"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
                                 <circle cx="12" cy="12" r="10"/>
                                 <line x1="12" y1="8" x2="12" y2="12"/>
                                 <line x1="12" y1="16" x2="12.01" y2="16"/>
                             </svg>
+
                             {{ $message }}
+
                         </span>
+
                     @enderror
+
                 </div>
 
+                {{-- ACTION BUTTON --}}
                 <div class="ed-actions-form">
-                    <a href="{{ route('expenses.index') }}" class="ed-btn ed-btn-ghost">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                    <a
+                        href="{{ route('expenses.index') }}"
+                        class="ed-btn ed-btn-ghost"
+                    >
+
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
                             <line x1="18" y1="6" x2="6" y2="18"/>
                             <line x1="6" y1="6" x2="18" y2="18"/>
                         </svg>
+
                         Batal
+
                     </a>
-                    <button type="submit" class="ed-btn ed-btn-primary">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+                    <button
+                        type="submit"
+                        class="ed-btn ed-btn-primary"
+                    >
+
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
                             <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/>
                             <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/>
                         </svg>
+
                         Update Pengeluaran
+
                     </button>
+
                 </div>
 
             </div>
@@ -648,26 +1153,62 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
+
             const buttons = document.querySelectorAll('.ed-btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('click', function(e) {
+
+            buttons.forEach(function (btn) {
+
+                btn.addEventListener('click', function (e) {
+
                     const rect = this.getBoundingClientRect();
+
                     const ripple = document.createElement('span');
+
                     ripple.className = 'ripple';
-                    const size = Math.max(rect.width, rect.height);
-                    ripple.style.width = ripple.style.height = size + 'px';
-                    ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
-                    ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+
+                    const size = Math.max(
+                        rect.width,
+                        rect.height
+                    );
+
+                    ripple.style.width = size + 'px';
+                    ripple.style.height = size + 'px';
+
+                    ripple.style.left =
+                        (e.clientX - rect.left - size / 2) + 'px';
+
+                    ripple.style.top =
+                        (e.clientY - rect.top - size / 2) + 'px';
+
                     this.appendChild(ripple);
-                    setTimeout(() => { ripple.remove(); }, 600);
+
+                    setTimeout(function () {
+                        ripple.remove();
+                    }, 600);
+
                 });
+
             });
 
-            const firstInput = document.querySelector('.ed-group input:not([type="hidden"])');
+            /*
+            |--------------------------------------------------------------------------
+            | Fokus otomatis ke deskripsi
+            |--------------------------------------------------------------------------
+            */
+            const firstInput =
+                document.querySelector(
+                    '.ed-group input:not([type="hidden"])'
+                );
+
             if (firstInput) {
-                setTimeout(() => firstInput.focus(), 400);
+
+                setTimeout(function () {
+                    firstInput.focus();
+                }, 400);
+
             }
+
         });
     </script>
 

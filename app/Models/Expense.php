@@ -26,18 +26,6 @@ class Expense extends Model
         'amount' => 'integer',
     ];
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnlyDirty()
-            ->logFillable();
-    }
-
-    public function company()
-    {
-        return $this->belongsTo(Company::class);
-    }
-
     public function category()
     {
         return $this->belongsTo(
@@ -46,8 +34,25 @@ class Expense extends Model
         );
     }
 
+    public function company()
+    {
+        return $this->belongsTo(
+            Company::class
+        );
+    }
+
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(
+            User::class,
+            'created_by'
+        );
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty();
     }
 }
