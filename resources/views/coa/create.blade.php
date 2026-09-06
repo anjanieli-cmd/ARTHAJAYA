@@ -3,10 +3,10 @@
 
     <style>
         .coa-create-wrap {
-            --theme-primary: var(--warning);
-            --theme-glow: rgba(240, 168, 60, 0.25);
-            --theme-soft: rgba(240, 168, 60, 0.12);
-            --theme-gradient: linear-gradient(135deg, #F0A83C, #d6902a);
+            --theme-primary: var(--emerald);
+            --theme-glow: rgba(var(--emerald-rgb), 0.25);
+            --theme-soft: rgba(var(--emerald-rgb), 0.12);
+            --theme-gradient: linear-gradient(135deg, var(--emerald), var(--emerald-dim));
 
             --text-primary: var(--text);
             --text-secondary: var(--text-mute);

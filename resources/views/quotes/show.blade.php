@@ -492,6 +492,21 @@
                     <svg class="icon"><use href="#ic-edit"/></svg>
                     Edit
                 </a>
+                @if($quote->invoice_id)
+                    <a href="{{ route('invoices.show', $quote->invoice_id) }}" class="btn btn-outline btn-sm">
+                        <svg class="icon"><use href="#ic-file-text"/></svg>
+                        Lihat Faktur {{ optional($quote->invoice)->invoice_number }}
+                    </a>
+                @else
+                    <form action="{{ route('quotes.convert-to-invoice', $quote) }}" method="POST" style="display:inline;">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-sm"
+                            onclick="return confirm('Konversi penawaran {{ $quote->quote_number }} jadi Faktur? Piutang akan langsung tercatat di Buku Besar.')">
+                            <svg class="icon"><use href="#ic-send"/></svg>
+                            Konversi ke Faktur
+                        </button>
+                    </form>
+                @endif
             </div>
         </div>
 
