@@ -5,14 +5,6 @@
         $currencySymbols = ['IDR' => 'Rp', 'USD' => '$', 'SGD' => 'S$', 'MYR' => 'RM'];
         $currencySymbol  = $currencySymbols[$company->currency ?? 'IDR'] ?? 'Rp';
 
-        // 🔧 SEEDING SESSION — biar show/delete bisa nemu datanya
-        if (!session()->has('aging_ar')) {
-            session(['aging_ar' => $arRows]);
-        }
-        if (!session()->has('aging_ap')) {
-            session(['aging_ap' => $apRows]);
-        }
-
         $sumBucket = fn($rows, $key) => collect($rows)->sum($key);
         $totalAr = $sumBucket($arRows,'current') + $sumBucket($arRows,'d30') + $sumBucket($arRows,'d60') + $sumBucket($arRows,'d90');
         $totalAp = $sumBucket($apRows,'current') + $sumBucket($apRows,'d30') + $sumBucket($apRows,'d60') + $sumBucket($apRows,'d90');
@@ -1314,11 +1306,11 @@
                         </div>
 
                         <div class="aging-item-actions">
-                            <a href="/aging/show/{{ $index }}?type=ar" class="btn-action show" title="Lihat Detail">
+                            <a href="/aging/show/{{ $row['id'] }}?type=ar" class="btn-action show" title="Lihat Detail">
                                 <svg class="icon"><use href="#ic-eye"/></svg>
                             </a>
                             <button type="button" class="btn-action danger" title="Hapus"
-                                    onclick="openDeleteModal('ar', '{{ $index }}', '{{ addslashes($row['invoice']) }}')">
+                                    onclick="openDeleteModal('ar', '{{ $row['id'] }}', '{{ addslashes($row['invoice']) }}')">
                                 <svg class="icon"><use href="#ic-trash"/></svg>
                             </button>
                         </div>
@@ -1410,11 +1402,11 @@
                         </div>
 
                         <div class="aging-item-actions">
-                            <a href="/aging/show/{{ $index }}?type=ap" class="btn-action show" title="Lihat Detail">
+                            <a href="/aging/show/{{ $row['id'] }}?type=ap" class="btn-action show" title="Lihat Detail">
                                 <svg class="icon"><use href="#ic-eye"/></svg>
                             </a>
                             <button type="button" class="btn-action danger" title="Hapus"
-                                    onclick="openDeleteModal('ap', '{{ $index }}', '{{ addslashes($row['invoice']) }}')">
+                                    onclick="openDeleteModal('ap', '{{ $row['id'] }}', '{{ addslashes($row['invoice']) }}')">
                                 <svg class="icon"><use href="#ic-trash"/></svg>
                             </button>
                         </div>
