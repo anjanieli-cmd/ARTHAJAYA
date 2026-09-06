@@ -18,6 +18,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReceivableController;
 use App\Http\Controllers\PayableController;
+use App\Http\Controllers\AgingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamMemberController;
@@ -138,117 +139,13 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
         // ===== PAYABLES (sudah database, bukan session lagi) =====
         Route::resource('payables', PayableController::class);
 
-        // ===== AGING ===== (belum dikonversi — sengaja masih dihitung dari data mentah/session,
-        // karena ini data turunan dari Invoice + Payable, bukan tabel sendiri)
-        Route::get('/aging', function () {
-            $user = Auth::user();
-            $company = $user->company;
-
-            $defaultArRows = [
-                ['name' => 'PT Andalas Maju Bersama', 'invoice' => '#0568', 'current' => 5750000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Nusantara Logistik',      'invoice' => '#0571', 'current' => 18400000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Bumi Retail Group',       'invoice' => '#0552', 'current' => 0, 'd30' => 9200000, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Kopi Kenangan Senja',     'invoice' => '#0560', 'current' => 0, 'd30' => 2800000, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Toko Elektronik Jaya',    'invoice' => '#0498', 'current' => 0, 'd30' => 0, 'd60' => 6100000, 'd90' => 0],
-                ['name' => 'CV Bangun Perkasa',       'invoice' => '#0421', 'current' => 0, 'd30' => 0, 'd60' => 0, 'd90' => 3400000],
-            ];
-
-            $defaultApRows = [
-                ['name' => 'Toko Bangunan Sentosa',   'invoice' => '#B-0112', 'current' => 12500000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'CV Kertas Nusantara',     'invoice' => '#B-0119', 'current' => 3200000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'PLN — Listrik Kantor',    'invoice' => '#B-0125', 'current' => 0, 'd30' => 4100000, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Distributor Kain Batik',  'invoice' => '#B-0103', 'current' => 0, 'd30' => 21400000, 'd60' => 0, 'd90' => 0],
-            ];
-
-            $arRows = session()->has('aging_ar') ? session('aging_ar') : $defaultArRows;
-            $apRows = session()->has('aging_ap') ? session('aging_ap') : $defaultApRows;
-
-            if (request()->filled('q')) {
-                $q = strtolower(request('q'));
-
-                $arRows = array_filter($arRows, function ($row) use ($q) {
-                    return str_contains(strtolower($row['name']), $q)
-                        || str_contains(strtolower($row['invoice']), $q);
-                });
-                $arRows = array_values($arRows);
-
-                $apRows = array_filter($apRows, function ($row) use ($q) {
-                    return str_contains(strtolower($row['name']), $q)
-                        || str_contains(strtolower($row['invoice']), $q);
-                });
-                $apRows = array_values($apRows);
-            }
-
-            if (request()->ajax()) {
-                return view('aging.index', compact('user', 'company', 'arRows', 'apRows'))->render();
-            }
-
-            return view('aging.index', compact('user', 'company', 'arRows', 'apRows'));
-        })->name('aging.index');
-
-        Route::get('/aging/show/{index}', function ($index) {
-            $user = Auth::user();
-            $company = $user->company;
-
-            $arRows = [
-                ['name' => 'PT Andalas Maju Bersama', 'invoice' => '#0568', 'current' => 5750000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Nusantara Logistik',      'invoice' => '#0571', 'current' => 18400000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Bumi Retail Group',       'invoice' => '#0552', 'current' => 0, 'd30' => 9200000, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Kopi Kenangan Senja',     'invoice' => '#0560', 'current' => 0, 'd30' => 2800000, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Toko Elektronik Jaya',    'invoice' => '#0498', 'current' => 0, 'd30' => 0, 'd60' => 6100000, 'd90' => 0],
-                ['name' => 'CV Bangun Perkasa',       'invoice' => '#0421', 'current' => 0, 'd30' => 0, 'd60' => 0, 'd90' => 3400000],
-            ];
-
-            $apRows = [
-                ['name' => 'Toko Bangunan Sentosa',   'invoice' => '#B-0112', 'current' => 12500000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'CV Kertas Nusantara',     'invoice' => '#B-0119', 'current' => 3200000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'PLN — Listrik Kantor',    'invoice' => '#B-0125', 'current' => 0, 'd30' => 4100000, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Distributor Kain Batik',  'invoice' => '#B-0103', 'current' => 0, 'd30' => 21400000, 'd60' => 0, 'd90' => 0],
-            ];
-
-            $type = request('type', 'ar');
-            $data = $type === 'ar' ? $arRows : $apRows;
-
-            if (!isset($data[$index])) {
-                abort(404, 'Data tidak ditemukan');
-            }
-
-            $row = $data[$index];
-
-            return view('aging.show', compact('user', 'company', 'row', 'index', 'type'));
-        })->name('aging.show');
-
-        Route::delete('/aging/delete/{index}', function ($index) {
-            return redirect()->route('aging.index')->with('success', 'Data berhasil dihapus!');
-        })->name('aging.destroy');
-
-        Route::get('/aging/export-pdf', function () {
-            $arRows = [
-                ['name' => 'PT Andalas Maju Bersama', 'invoice' => '#0568', 'current' => 5750000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Nusantara Logistik',      'invoice' => '#0571', 'current' => 18400000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Bumi Retail Group',       'invoice' => '#0552', 'current' => 0, 'd30' => 9200000, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Kopi Kenangan Senja',     'invoice' => '#0560', 'current' => 0, 'd30' => 2800000, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Toko Elektronik Jaya',    'invoice' => '#0498', 'current' => 0, 'd30' => 0, 'd60' => 6100000, 'd90' => 0],
-                ['name' => 'CV Bangun Perkasa',       'invoice' => '#0421', 'current' => 0, 'd30' => 0, 'd60' => 0, 'd90' => 3400000],
-            ];
-
-            $apRows = [
-                ['name' => 'Toko Bangunan Sentosa',   'invoice' => '#B-0112', 'current' => 12500000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'CV Kertas Nusantara',     'invoice' => '#B-0119', 'current' => 3200000, 'd30' => 0, 'd60' => 0, 'd90' => 0],
-                ['name' => 'PLN — Listrik Kantor',    'invoice' => '#B-0125', 'current' => 0, 'd30' => 4100000, 'd60' => 0, 'd90' => 0],
-                ['name' => 'Distributor Kain Batik',  'invoice' => '#B-0103', 'current' => 0, 'd30' => 21400000, 'd60' => 0, 'd90' => 0],
-            ];
-
-            $type = request('type', 'ar');
-            $data = $type === 'ar' ? $arRows : $apRows;
-            $title = $type === 'ar' ? 'Piutang (AR)' : 'Utang (AP)';
-
-            return view('aging.export', compact('data', 'title', 'type'));
-        })->name('aging.export-pdf');
-
-        Route::get('/aging/export-excel', function () {
-            return redirect()->route('aging.index')->with('success', 'File Excel berhasil diekspor!');
-        })->name('aging.export-excel');
+        // ===== AGING ===== (sudah dikonversi ke database — dihitung langsung
+        // dari tabel `invoices` untuk AR dan `payables` untuk AP via AgingController)
+        Route::get('/aging', [AgingController::class, 'index'])->name('aging.index');
+        Route::get('/aging/show/{id}', [AgingController::class, 'show'])->name('aging.show');
+        Route::delete('/aging/delete/{id}', [AgingController::class, 'destroy'])->name('aging.destroy');
+        Route::get('/aging/export-pdf', [AgingController::class, 'exportPdf'])->name('aging.export-pdf');
+        Route::get('/aging/export-excel', [AgingController::class, 'exportExcel'])->name('aging.export-excel');
     });
 
     // ===== PEMBELIAN & BIAYA (sudah database, bukan session lagi) =====
