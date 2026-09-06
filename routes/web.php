@@ -19,6 +19,7 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ReceivableController;
 use App\Http\Controllers\PayableController;
 use App\Http\Controllers\AgingController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamMemberController;
@@ -82,13 +83,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(function () {
 
     // ===== DASHBOARD =====
-    Route::get('/dashboard', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        $account = $company ? $company->accounts()->first() : null;
-
-        return view('staff.dashboard', compact('user', 'company', 'account'));
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // ===== NOTIFIKASI =====
     Route::controller(NotificationController::class)->group(function () {
@@ -487,14 +482,7 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
 // STAFF ROUTES (hanya staff) - DENGAN ONBOARDING.COMPLETE
 // ================================================================
 Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->prefix('staff')->name('staff.')->group(function () {
-    Route::get('/dashboard', function () {
-        $user = Auth::user();
-        $company = $user->company;
-        $account = $company ? $company->accounts()->first() : null;
-        $teamMembers = $company ? $company->users()->where('id', '!=', $user->id)->get() : collect();
-
-        return view('staff.dashboard', compact('user', 'company', 'account'));
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // ===== INVITATIONS =====
     Route::get('/invitations', [InvitationController::class, 'index'])->name('invitations.index');

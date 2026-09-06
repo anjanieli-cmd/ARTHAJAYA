@@ -19,106 +19,10 @@
         return number_format($amount, 0, ',', '.');
     }
 
-    // Ambil data dari session
-    $ledgerEntries = session('ledger_entries', []);
-    
-    // Ambil transaksi terbaru dari ledger (5 terakhir)
-    $recentTransactions = array_slice($ledgerEntries, 0, 5);
-    
-    // Hitung total pemasukan & pengeluaran bulan ini
-    $currentMonth = date('Y-m');
-    $totalIncome = 0;
-    $totalExpense = 0;
-    $totalPending = 0;
-    $totalOverdue = 0;
-    
-    // Hitung cash flow per bulan (6 bulan terakhir)
-    $monthlyData = [];
-    for ($i = 5; $i >= 0; $i--) {
-        $month = date('Y-m', strtotime("-$i months"));
-        $monthlyData[$month] = ['income' => 0, 'expense' => 0];
-    }
-    
-    foreach ($ledgerEntries as $entry) {
-        $entryDate = substr($entry['date'] ?? '', 0, 7);
-        $amount = $entry['amount'] ?? 0;
-        
-        if ($entryDate == $currentMonth) {
-            if ($amount > 0) {
-                $totalIncome += $amount;
-            } else {
-                $totalExpense += abs($amount);
-            }
-        }
-        
-        // Kumpulkan data per bulan untuk cash flow
-        if (isset($monthlyData[$entryDate])) {
-            if ($amount > 0) {
-                $monthlyData[$entryDate]['income'] += $amount;
-            } else {
-                $monthlyData[$entryDate]['expense'] += abs($amount);
-            }
-        }
-        
-        if (($entry['status'] ?? '') == 'pending') {
-            $totalPending += abs($entry['amount'] ?? 0);
-        }
-        if (($entry['status'] ?? '') == 'overdue') {
-            $totalOverdue += abs($entry['amount'] ?? 0);
-        }
-    }
-    
-    // Total saldo kas dari account
-    $totalBalance = $account->initial_balance ?? 0;
-    foreach ($ledgerEntries as $entry) {
-        $totalBalance += $entry['amount'] ?? 0;
-    }
-
-    // Data untuk donut chart (dari expenses)
-    $expenseCategories = session('expense_categories', []);
-    $donutData = [];
-    $colors = ['var(--theme-primary)', '#4E8FF0', '#F0C05A', '#9B7BE0', '#E85A9C', '#F0A25A'];
-    $colorIndex = 0;
-    foreach ($expenseCategories as $cat) {
-        if (($cat['total'] ?? 0) > 0) {
-            $donutData[] = [
-                'name' => $cat['name'] ?? 'Lainnya',
-                'total' => $cat['total'] ?? 0,
-                'color' => $colors[$colorIndex % count($colors)]
-            ];
-            $colorIndex++;
-        }
-    }
-    // Jika tidak ada data, pakai dummy
-    if (empty($donutData)) {
-        $donutData = [
-            ['name' => 'Operasional', 'total' => 14603000, 'color' => 'var(--theme-primary)'],
-            ['name' => 'Gaji', 'total' => 9126875, 'color' => '#4E8FF0'],
-            ['name' => 'Sewa', 'total' => 5476125, 'color' => '#F0C05A'],
-            ['name' => 'Pemasaran', 'total' => 3650800, 'color' => '#9B7BE0'],
-        ];
-    }
-    
-    // Total donut
-    $donutTotal = array_sum(array_column($donutData, 'total'));
-    
-    // Data untuk aging (faktur jatuh tempo)
-    $invoices = session('invoices', []);
-    $upcomingInvoices = array_slice(array_filter($invoices, function($inv) {
-        return ($inv['status'] ?? '') != 'paid';
-    }), 0, 3);
-    
-    // Jika tidak ada invoice, pakai dummy
-    if (empty($upcomingInvoices)) {
-        $upcomingInvoices = [
-            ['number' => '#0571', 'client' => 'Nusantara Logistik', 'due_date' => '2026-06-25', 'amount' => 18400000],
-            ['number' => '#0574', 'client' => 'Ruang Kriya Studio', 'due_date' => '2026-06-28', 'amount' => 6200000],
-            ['number' => '#0552', 'client' => 'Bumi Retail Group', 'due_date' => '2026-06-20', 'amount' => 9200000, 'is_overdue' => true],
-        ];
-    }
-    
-    // Hitung rasio kas
-    $cashRatio = $totalBalance > 0 ? ($totalIncome / max(1, $totalBalance)) * 100 : 0;
+    // Semua data (saldo kas, arus kas, ringkasan pengeluaran, faktur jatuh
+    // tempo, tim perusahaan) sudah dihitung dari database asli di
+    // DashboardController@index dan dikirim langsung ke view ini --
+    // tidak ada lagi session() atau data dummy di sini.
   @endphp
 
   <style>
@@ -1313,7 +1217,7 @@
         <div class="stat-top">
           <div class="stat-icon"><svg class="icon"><use href="#ic-bank"/></svg></div>
           <span class="stat-change up"><svg class="icon"><use href="#ic-trending"/></svg> 
-            {{ count($ledgerEntries) > 0 ? round((array_sum(array_column($ledgerEntries, 'amount')) / max(1, $totalBalance)) * 100, 1) : 0 }}%
+            {{ $totalBalance > 0 ? round((($totalIncome - $totalExpense) / max(1, $totalBalance)) * 100, 1) : 0 }}%
           </span>
         </div>
         <div class="stat-label">Total Saldo Kas</div>
@@ -1343,7 +1247,7 @@
         <div class="stat-top">
           <div class="stat-icon"><svg class="icon"><use href="#ic-doc"/></svg></div>
           <span class="stat-change down" style="background:var(--danger-soft);color:var(--danger);">
-            {{ $totalPending + $totalOverdue > 0 ? count(array_filter($ledgerEntries, function($e) { return in_array($e['status'] ?? '', ['pending', 'overdue']); })) : 0 }} belum dibayar
+            {{ $countOutstanding }} belum dibayar
           </span>
         </div>
         <div class="stat-label">Faktur Belum Dibayar</div>
@@ -1584,21 +1488,9 @@
             <h3>Target Penagihan</h3>
             <svg class="icon" style="width:20px;height:20px;color:var(--theme-primary);"><use href="#ic-target"/></svg>
           </div>
-          @php
-            $targetAmount = 150000000;
-            $actualAmount = 62500000;
-            $progress = round(($actualAmount / $targetAmount) * 100);
-          @endphp
-          <div class="balance-amount mono" style="font-size:24px;">{{ $currencySymbol }}{{ formatCurrencyShort($actualAmount) }}</div>
-          <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">dari target {{ $currencySymbol }}{{ formatCurrencyShort($targetAmount) }}</div>
-          <div class="dash-progress">
-            <div class="progress-bar">
-              <div class="progress-fill" id="targetFill" style="width:{{ min($progress, 100) }}%;"></div>
-            </div>
-            <div class="progress-labels">
-              <span>{{ $progress }}%</span>
-              <span>Sisa {{ 30 - date('d') }} hari</span>
-            </div>
+          <div class="dash-empty">
+            Fitur target penagihan belum tersedia.<br>
+            Kartu ini akan aktif setelah fitur pengaturan target dibuat.
           </div>
         </div>
 
