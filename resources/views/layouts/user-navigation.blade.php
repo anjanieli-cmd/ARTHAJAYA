@@ -4,17 +4,13 @@
       @php
         $company = Auth::user()?->company;
       @endphp
-
-```
-  @if($company?->logo)
-    <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name ?? 'Logo' }}">
-  @else
-    <img src="{{ asset('logos.png') }}" alt="Logo">
-  @endif
-</div>
-<span class="sb-wordmark">Arve<span class="grad">ssa</span></span>
-```
-
+      @if($company?->logo)
+        <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name ?? 'Logo' }}">
+      @else
+        <img src="{{ asset('logos.png') }}" alt="Logo">
+      @endif
+    </div>
+    <span class="sb-wordmark">Arve<span class="grad">ssa</span></span>
   </div>
 
   <div class="sb-group-label">Menu</div>
@@ -54,13 +50,9 @@
       </svg>
       <span class="sb-link-text">Riwayat Pengeluaran</span>
     </span>
-
-```
-@if(($pendingCount ?? 0) > 0)
-  <span class="badge">{{ $pendingCount }}</span>
-@endif
-```
-
+    @if(($pendingCount ?? 0) > 0)
+      <span class="badge">{{ $pendingCount }}</span>
+    @endif
   </a>
 
   <!-- Ringkasan Kas -> SUMMARY -->
@@ -95,33 +87,28 @@
     <div class="sb-plan">
       <div class="lbl">Masuk sebagai</div>
       <div class="name">{{ Auth::user()->name ?? 'Pengguna' }}</div>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:2px;display:flex;align-items:center;gap:4px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        User
+      </div>
+    </div>
 
-```
-  <div style="font-size:11px;color:var(--text-faint);margin-top:2px;display:flex;align-items:center;gap:4px;">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
-    User
-  </div>
-</div>
-
-<form method="POST" action="{{ route('logout') }}">
-  @csrf
-
-  <button type="submit" class="sb-link" style="width:100%;border:none;background:none;cursor:pointer;color:var(--danger);">
-    <span class="sb-link-main">
-      <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      <span class="sb-link-text">Keluar</span>
-    </span>
-  </button>
-</form>
-```
-
+    <form method="POST" action="{{ route('logout') }}">
+      @csrf
+      <button type="submit" class="sb-link" style="width:100%;border:none;background:none;cursor:pointer;color:var(--danger);">
+        <span class="sb-link-main">
+          <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span class="sb-link-text">Keluar</span>
+        </span>
+      </button>
+    </form>
   </div>
 </aside>
 
