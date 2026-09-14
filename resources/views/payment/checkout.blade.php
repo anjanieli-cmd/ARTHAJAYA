@@ -958,44 +958,6 @@
 
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-
-            const form = document.getElementById('paymentForm');
-            const button = document.getElementById('payButton');
-            const buttonText = document.getElementById('payButtonText');
-
-            if (!form) {
-                return;
-            }
-
-            form.addEventListener('submit', function (e) {
-
-                const selectedMethod =
-                    document.querySelector(
-                        'input[name="payment_method"]:checked'
-                    );
-
-                if (!selectedMethod) {
-
-                    e.preventDefault();
-
-                    alert(
-                        'Silakan pilih metode pembayaran terlebih dahulu.'
-                    );
-
-                    return;
-                }
-
-                // Cegah double click
-                button.disabled = true;
-
-                buttonText.textContent =
-                    'Memproses pembayaran...';
-
-            });
-
-        });
-    </script>
+    <script src="{{ asset('js/checkout-form.js') }}"></script>
 
 </x-app-layout>
