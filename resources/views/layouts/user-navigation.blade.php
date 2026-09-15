@@ -1,14 +1,11 @@
 <aside class="sidebar" id="sidebar">
   <div class="sb-logo">
     <div class="logo-mark">
-      @php
-        $company = Auth::user()?->company;
-      @endphp
-      @if($company?->logo)
-        <img src="{{ asset('storage/' . $company->logo) }}" alt="{{ $company->name ?? 'Logo' }}">
-      @else
-        <img src="{{ asset('logos.png') }}" alt="Logo">
-      @endif
+  @php
+    $company = Auth::user()?->company;
+  @endphp
+  <img src="{{ asset('logos.png') }}" alt="{{ $company->name ?? 'Arvessa' }}">
+</div>
     </div>
     <span class="sb-wordmark">Arve<span class="grad">ssa</span></span>
   </div>
