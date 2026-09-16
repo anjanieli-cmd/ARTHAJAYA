@@ -158,7 +158,7 @@
             margin: 0;
         }
 
-        /* ===== ALERT SUCCESS ===== */
+        /* ===== ALERT SUCCESS / ERROR ===== */
         .alert-success {
             background: rgba(var(--emerald-rgb), 0.1);
             border: 1px solid rgba(var(--emerald-rgb), 0.3);
@@ -177,6 +177,25 @@
             height: 18px;
             flex-shrink: 0;
             animation: checkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .alert-error {
+            background: var(--danger-soft);
+            border: 1px solid rgba(232, 90, 90, 0.3);
+            color: var(--danger);
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-error .icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
         }
 
         /* ===== SETTINGS SECTION ===== */
@@ -283,6 +302,10 @@
             resize: vertical;
         }
 
+        select.field-inline {
+            cursor: pointer;
+        }
+
         /* ===== TOGGLE SWITCH ===== */
         .switch {
             position: relative;
@@ -332,6 +355,20 @@
 
         .switch input:focus + .switch-track {
             box-shadow: 0 0 0 3px var(--danger-soft);
+        }
+
+        /* ===== TEST SMTP ROW ===== */
+        .smtp-test-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 22px 28px;
+            flex-wrap: wrap;
+        }
+
+        .smtp-test-row input[type="email"] {
+            flex: 1;
+            min-width: 220px;
         }
 
         /* ===== SAVE BAR ===== */
@@ -495,6 +532,11 @@
             .settings-btn {
                 justify-content: center;
             }
+
+            .smtp-test-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
 
         @media (max-width: 480px) {
@@ -567,11 +609,17 @@
             </div>
         </div>
 
-        <!-- ===== ALERT SUCCESS ===== -->
+        <!-- ===== ALERT SUCCESS / ERROR ===== -->
         @if(session('success'))
             <div class="alert-success animate-in" style="animation-delay: 0.06s;">
                 <svg class="icon"><use href="#ic-check-circle"/></svg>
                 {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert-error animate-in" style="animation-delay: 0.06s;">
+                <svg class="icon"><use href="#ic-alert-triangle"/></svg>
+                {{ session('error') }}
             </div>
         @endif
 
@@ -603,6 +651,90 @@
                         </div>
                         <div class="sr-control">
                             <input type="email" name="support_email" class="field-inline" placeholder="support@arvessa.com" value="{{ old('support_email', $settings['support_email'] ?? '') }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== SECTION SMTP / EMAIL ===== -->
+            <div class="settings-section animate-in" style="animation-delay: 0.13s;">
+                <div class="settings-section-label">
+                    <svg class="icon"><use href="#ic-mail"/></svg>
+                    SMTP / Email Sistem
+                </div>
+                <div class="settings-list">
+                    <div class="setting-row">
+                        <div class="sr-body">
+                            <div class="sr-title">SMTP Host</div>
+                            <div class="sr-desc">Alamat server SMTP, contoh: smtp.gmail.com atau smtp.mailtrap.io.</div>
+                        </div>
+                        <div class="sr-control">
+                            <input type="text" name="smtp_host" class="field-inline" placeholder="smtp.gmail.com" value="{{ old('smtp_host', $settings['smtp_host'] ?? '') }}">
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="sr-body">
+                            <div class="sr-title">SMTP Port</div>
+                            <div class="sr-desc">Umumnya 587 untuk TLS, atau 465 untuk SSL.</div>
+                        </div>
+                        <div class="sr-control">
+                            <input type="number" name="smtp_port" class="field-inline" placeholder="587" value="{{ old('smtp_port', $settings['smtp_port'] ?? '587') }}">
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="sr-body">
+                            <div class="sr-title">SMTP Username</div>
+                            <div class="sr-desc">Biasanya berupa alamat email pengirim.</div>
+                        </div>
+                        <div class="sr-control">
+                            <input type="text" name="smtp_username" class="field-inline" placeholder="noreply@arvessa.com" value="{{ old('smtp_username', $settings['smtp_username'] ?? '') }}">
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="sr-body">
+                            <div class="sr-title">SMTP Password</div>
+                            <div class="sr-desc">
+                                @if($settings['smtp_password_set'] ?? false)
+                                    Password sudah tersimpan. Isi ulang di sini hanya jika ingin menggantinya.
+                                @else
+                                    Belum ada password tersimpan.
+                                @endif
+                            </div>
+                        </div>
+                        <div class="sr-control">
+                            <input type="password" name="smtp_password" class="field-inline" placeholder="{{ ($settings['smtp_password_set'] ?? false) ? '••••••••' : 'Masukkan password' }}" autocomplete="new-password">
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="sr-body">
+                            <div class="sr-title">Enkripsi</div>
+                            <div class="sr-desc">Jenis enkripsi koneksi ke server SMTP.</div>
+                        </div>
+                        <div class="sr-control">
+                            <select name="smtp_encryption" class="field-inline">
+                                @php $currentEncryption = old('smtp_encryption', $settings['smtp_encryption'] ?? 'tls'); @endphp
+                                <option value="tls" {{ $currentEncryption === 'tls' ? 'selected' : '' }}>TLS</option>
+                                <option value="ssl" {{ $currentEncryption === 'ssl' ? 'selected' : '' }}>SSL</option>
+                                <option value="none" {{ $currentEncryption === 'none' ? 'selected' : '' }}>Tanpa enkripsi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="sr-body">
+                            <div class="sr-title">Nama Pengirim</div>
+                            <div class="sr-desc">Nama yang muncul sebagai pengirim di kotak masuk penerima.</div>
+                        </div>
+                        <div class="sr-control">
+                            <input type="text" name="smtp_from_name" class="field-inline" placeholder="Arvessa" value="{{ old('smtp_from_name', $settings['smtp_from_name'] ?? '') }}">
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="sr-body">
+                            <div class="sr-title">Alamat Pengirim</div>
+                            <div class="sr-desc">Alamat email yang tampil sebagai pengirim.</div>
+                        </div>
+                        <div class="sr-control">
+                            <input type="email" name="smtp_from_address" class="field-inline" placeholder="noreply@arvessa.com" value="{{ old('smtp_from_address', $settings['smtp_from_address'] ?? '') }}">
                         </div>
                     </div>
                 </div>
@@ -656,6 +788,24 @@
                 </div>
             </div>
         </form>
+
+        <!-- ===== TEST SMTP (form terpisah dari form utama) ===== -->
+        <div class="settings-section animate-in" style="animation-delay: 0.2s;">
+            <div class="settings-section-label">
+                <svg class="icon"><use href="#ic-mail"/></svg>
+                Uji Coba SMTP
+            </div>
+            <div class="settings-list">
+                <form method="POST" action="{{ route('admin.settings.test-smtp') }}" class="smtp-test-row">
+                    @csrf
+                    <input type="email" name="test_email" class="field-inline" placeholder="Kirim email test ke..." required>
+                    <button type="submit" class="settings-btn settings-btn-primary">
+                        <svg class="icon"><use href="#ic-mail"/></svg>
+                        Kirim Email Test
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>

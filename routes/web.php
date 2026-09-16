@@ -459,6 +459,7 @@ Route::middleware(['auth', 'access:admin'])->prefix('admin')->name('admin.')->gr
 
     Route::get('/settings', [SystemSettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SystemSettingController::class, 'update'])->name('settings.update');
+    Route::post('/settings/test-smtp', [SystemSettingController::class, 'testSmtp'])->name('settings.test-smtp');
 
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
