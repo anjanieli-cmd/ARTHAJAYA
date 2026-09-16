@@ -45,4 +45,38 @@ class Plan extends Model
             default   => now()->addMonth(),
         };
     }
+
+    /**
+     * Label periode buat ditampilin di UI (checkout, pricing, dll).
+     * Satu sumber kebenaran, biar gak ada lagi ternary manual
+     * "billing_period === 'monthly' ? ... : ..." yang cuma nutup
+     * 2 dari 5 kemungkinan value billing_period.
+     */
+    public function getPeriodLabelAttribute(): string
+    {
+        return match ($this->billing_period) {
+            'minutes' => '/menit',
+            'hours'   => '/jam',
+            'days'    => '/hari',
+            'monthly' => '/bulan',
+            'yearly'  => '/tahun',
+            default   => '',
+        };
+    }
+
+    /**
+     * Versi "nama panjang" buat teks kayak "Langganan Bulanan".
+     * Dipakai di badge/header checkout.
+     */
+    public function getPeriodNameAttribute(): string
+    {
+        return match ($this->billing_period) {
+            'minutes' => 'Langganan per Menit',
+            'hours'   => 'Langganan per Jam',
+            'days'    => 'Langganan Harian',
+            'monthly' => 'Langganan Bulanan',
+            'yearly'  => 'Langganan Tahunan',
+            default   => $this->name,
+        };
+    }
 }

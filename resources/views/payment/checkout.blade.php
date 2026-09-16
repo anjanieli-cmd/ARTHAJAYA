@@ -525,9 +525,7 @@
                         <polyline points="20 6 9 17 4 12"/>
                     </svg>
 
-                    {{ $plan->period === '/bulan'
-                        ? 'Langganan Bulanan'
-                        : 'Paket ' . $plan->name }}
+                    {{ $plan->period_name }}
                 </span>
             </p>
         </div>
@@ -781,9 +779,7 @@
                             </div>
 
                             <span class="plan-badge">
-                                {{ $plan->period === '/bulan'
-                                    ? 'Langganan Bulanan'
-                                    : $plan->name }}
+                                {{ $plan->period_name }}
                             </span>
                         </div>
 
@@ -826,9 +822,7 @@
                         <span>Periode</span>
 
                         <span>
-                            {{ $plan->billing_period === 'monthly'
-                                ? 'Bulanan'
-                                : 'Tahunan' }}
+                            {{ $plan->period_name }}
                         </span>
                     </div>
 

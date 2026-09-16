@@ -263,7 +263,7 @@
                     @else
                         <div class="plan-price">
                             <span class="rp">Rp</span>{{ number_format($plan->price, 0, ',', '.') }}
-                            <span class="period">/{{ $plan->billing_period === 'monthly' ? 'bulan' : 'tahun' }}</span>
+                            <span class="period">{{ $plan->period_label }}</span>
                         </div>
                         <div class="plan-price-note">
                             @if($plan->billing_period === 'yearly')
