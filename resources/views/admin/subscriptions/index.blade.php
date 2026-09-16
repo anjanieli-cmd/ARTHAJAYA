@@ -231,6 +231,13 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xml
             }
             $planColor = $plan->color ?: '#6366f1';
             $planIcon = $plan->icon ?: 'i-zap';
+            $periodLabels = [
+                'minutes' => 'Menit',
+                'hours'   => 'Jam',
+                'days'    => 'Hari',
+                'monthly' => 'Bulanan',
+                'yearly'  => 'Tahunan',
+            ];
         @endphp
         <div class="plan-card {{ $plan->is_active ? '' : 'inactive' }} au" style="--pc:{{ $planColor }}; animation-delay:{{ .1 + $i * .07 }}s;">
 
@@ -258,7 +265,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xml
                 </div>
                 <div class="pc-stat">
                     <div class="k">Periode</div>
-                    <div class="v">{{ $plan->billing_period === 'monthly' ? 'Bulanan' : 'Tahunan' }}</div>
+                    <div class="v">{{ $plan->duration_value }} {{ $periodLabels[$plan->billing_period] ?? $plan->billing_period }}</div>
                 </div>
                 <div class="pc-stat">
                     <div class="k">Dipakai</div>
@@ -346,12 +353,20 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xml
                             <div class="fhint">0 = gratis</div>
                         </div>
                         <div class="fg">
-                            <label>Periode</label>
-                            <select name="billing_period" class="fc">
-                                <option value="monthly" {{ old('billing_period') === 'monthly' ? 'selected' : '' }}>Per Bulan</option>
-                                <option value="yearly"  {{ old('billing_period') === 'yearly'  ? 'selected' : '' }}>Per Tahun</option>
-                            </select>
+                            <label>Durasi</label>
+                            <input type="number" name="duration_value" class="fc" placeholder="1" min="1" value="{{ old('duration_value', 1) }}" required>
                         </div>
+                    </div>
+
+                    <div class="fg">
+                        <label>Satuan Durasi</label>
+                        <select name="billing_period" class="fc">
+                            <option value="minutes" {{ old('billing_period') === 'minutes' ? 'selected' : '' }}>Menit (testing)</option>
+                            <option value="hours"   {{ old('billing_period') === 'hours'   ? 'selected' : '' }}>Jam (testing)</option>
+                            <option value="days"    {{ old('billing_period') === 'days'    ? 'selected' : '' }}>Hari</option>
+                            <option value="monthly" {{ old('billing_period', 'monthly') === 'monthly' ? 'selected' : '' }}>Per Bulan</option>
+                            <option value="yearly"  {{ old('billing_period') === 'yearly'  ? 'selected' : '' }}>Per Tahun</option>
+                        </select>
                     </div>
 
                     <div class="fg">
