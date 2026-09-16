@@ -218,7 +218,7 @@
             <svg><use href="#ic-info"/></svg>
             <div class="text">
                 <strong>Tips:</strong> Buat paket dengan nama yang jelas (misal: Basic, Pro, Enterprise) dan harga yang sesuai. 
-                Paket yang <strong>aktif</strong> akan muncul di halaman pendaftaran perusahaan.
+                Paket yang <strong>aktif</strong> akan muncul di halaman pendaftaran perusahaan. Gunakan satuan Menit/Jam/Hari untuk paket testing.
             </div>
         </div>
 
@@ -252,7 +252,7 @@
                 @enderror
             </div>
 
-            <div class="grid-3">
+            <div class="grid-2">
                 <div class="form-group">
                     <label>Harga <span class="label-desc">(Rp)</span></label>
                     <input type="number" name="price" class="form-control" value="{{ old('price', 0) }}" min="0" required placeholder="0">
@@ -264,12 +264,22 @@
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label>Periode Tagihan</label>
-                    <select name="billing_period" class="form-control">
-                        <option value="monthly" {{ old('billing_period')==='monthly' ? 'selected' : '' }}>📅 Bulanan</option>
-                        <option value="yearly" {{ old('billing_period')==='yearly' ? 'selected' : '' }}>📆 Tahunan</option>
-                    </select>
-                    @error('billing_period')
+                    <label>Maksimal User <span class="label-desc">(opsional)</span></label>
+                    <input type="number" name="max_users" class="form-control" value="{{ old('max_users') }}" min="1" placeholder="tak terbatas">
+                    @error('max_users')
+                        <div class="form-error">
+                            <svg><use href="#ic-alert-circle"/></svg>
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Durasi <span class="label-desc">(angka)</span></label>
+                    <input type="number" name="duration_value" class="form-control" value="{{ old('duration_value', 1) }}" min="1" required placeholder="1">
+                    @error('duration_value')
                         <div class="form-error">
                             <svg><use href="#ic-alert-circle"/></svg>
                             {{ $message }}
@@ -277,9 +287,15 @@
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label>Maksimal User <span class="label-desc">(opsional)</span></label>
-                    <input type="number" name="max_users" class="form-control" value="{{ old('max_users') }}" min="1" placeholder="tak terbatas">
-                    @error('max_users')
+                    <label>Satuan Durasi</label>
+                    <select name="billing_period" class="form-control">
+                        <option value="minutes" {{ old('billing_period')==='minutes' ? 'selected' : '' }}>⏱️ Menit (testing)</option>
+                        <option value="hours" {{ old('billing_period')==='hours' ? 'selected' : '' }}>🕐 Jam (testing)</option>
+                        <option value="days" {{ old('billing_period')==='days' ? 'selected' : '' }}>🗓️ Hari</option>
+                        <option value="monthly" {{ old('billing_period', 'monthly')==='monthly' ? 'selected' : '' }}>📅 Bulanan</option>
+                        <option value="yearly" {{ old('billing_period')==='yearly' ? 'selected' : '' }}>📆 Tahunan</option>
+                    </select>
+                    @error('billing_period')
                         <div class="form-error">
                             <svg><use href="#ic-alert-circle"/></svg>
                             {{ $message }}

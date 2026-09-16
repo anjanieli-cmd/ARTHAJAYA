@@ -27,4 +27,16 @@ class SubscriptionPlan extends Model
     {
         return $this->hasMany(Company::class);
     }
+
+    public function calculateExpiryDate(): \Carbon\Carbon
+{
+    return match ($this->billing_period) {
+        'minutes' => now()->addMinutes($this->duration_value),
+        'hours'   => now()->addHours($this->duration_value),
+        'days'    => now()->addDays($this->duration_value),
+        'monthly' => now()->addMonths($this->duration_value),
+        'yearly'  => now()->addYears($this->duration_value),
+        default   => now()->addMonth(),
+    };
+}
 }

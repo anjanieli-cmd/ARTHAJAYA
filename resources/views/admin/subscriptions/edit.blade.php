@@ -30,6 +30,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xml
 .fhint{font-size:11.5px;color:var(--text-faint);line-height:1.5}
 .form-error{color:var(--danger);font-size:12px;margin-top:2px}
 .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surface-strong);border-radius:12px;border:1px solid var(--border)}
 .toggle-row .tl{font-size:13.5px;font-weight:600;color:var(--text)}
@@ -87,7 +88,7 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xml
         <div class="hi"><svg><use href="#i-edit"/></svg></div>
         <div>
             <h3>Informasi Paket</h3>
-            <p>Atur nama, harga, warna, ikon, dan fitur paket.</p>
+            <p>Atur nama, harga, durasi, warna, ikon, dan fitur paket.</p>
         </div>
     </div>
 
@@ -103,18 +104,27 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xml
                 @error('name')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
-            <div class="fg-row">
+            <div class="fg-row3">
                 <div class="fg">
                     <label>Harga <span class="opt">(Rp)</span></label>
                     <input type="number" name="price" class="fc" value="{{ old('price', $plan->price) }}" min="0" required placeholder="0">
                     @error('price')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
                 <div class="fg">
-                    <label>Periode Tagihan</label>
+                    <label>Durasi <span class="opt">(angka)</span></label>
+                    <input type="number" name="duration_value" class="fc" value="{{ old('duration_value', $plan->duration_value ?? 1) }}" min="1" required placeholder="1">
+                    @error('duration_value')<div class="form-error">{{ $message }}</div>@enderror
+                </div>
+                <div class="fg">
+                    <label>Satuan Durasi</label>
                     <select name="billing_period" class="fc">
+                        <option value="minutes" {{ old('billing_period', $plan->billing_period)==='minutes' ? 'selected' : '' }}>Menit (testing)</option>
+                        <option value="hours" {{ old('billing_period', $plan->billing_period)==='hours' ? 'selected' : '' }}>Jam (testing)</option>
+                        <option value="days" {{ old('billing_period', $plan->billing_period)==='days' ? 'selected' : '' }}>Hari</option>
                         <option value="monthly" {{ old('billing_period', $plan->billing_period)==='monthly' ? 'selected' : '' }}>Bulanan</option>
                         <option value="yearly" {{ old('billing_period', $plan->billing_period)==='yearly' ? 'selected' : '' }}>Tahunan</option>
                     </select>
+                    @error('billing_period')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
             </div>
 
