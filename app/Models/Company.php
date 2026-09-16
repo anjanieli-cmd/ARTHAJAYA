@@ -11,6 +11,8 @@ class Company extends Model
         'status',
         'plan',
         'plan_upgraded_at',
+        'plan_expires_at',
+        'subscription_plan_id',
         'currency',
         'industry',
         'city',
@@ -27,7 +29,8 @@ class Company extends Model
     {
         return [
             'plan_upgraded_at' => 'datetime',
-            'initial_balance' => 'decimal:2',
+            'plan_expires_at'  => 'datetime',
+            'initial_balance'  => 'decimal:2',
         ];
     }
 
@@ -127,6 +130,14 @@ class Company extends Model
     public function expenseSubmissions()
     {
         return $this->hasMany(ExpenseSubmission::class);
+    }
+
+    /**
+     * Relasi ke Plan (paket langganan yang sedang aktif)
+     */
+    public function subscriptionPlan()
+    {
+        return $this->belongsTo(Plan::class, 'subscription_plan_id');
     }
 
     /**
@@ -234,6 +245,15 @@ class Company extends Model
     public function hasReceivables(): bool
     {
         return $this->hasFeature('piutang_utang');
+    }
+
+    /**
+     * Cek apakah paket berbayar company ini sudah expired
+     */
+    public function isPlanExpired(): bool
+    {
+        return $this->plan_expires_at !== null
+            && $this->plan_expires_at->isPast();
     }
 
     /**

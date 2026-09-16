@@ -4,8 +4,10 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use App\Console\Commands\CheckInvoiceStatuses;
+use App\Console\Commands\ExpireSubscriptions;
 
 Schedule::command(CheckInvoiceStatuses::class)->dailyAt('07:00');
+Schedule::command(ExpireSubscriptions::class)->everyMinute();
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());

@@ -614,6 +614,8 @@ class PaymentController extends Controller
                     'companies'
                 );
 
+            // Ambil relasi plan dari transaksi (butuh method plan() di model Transaction)
+            $plan = $transaction->plan;
 
             $updateData = [];
 
@@ -626,9 +628,7 @@ class PaymentController extends Controller
             ) {
 
                 $updateData['plan'] =
-                    $transaction
-                        ->plan
-                        ->slug;
+                    $plan->slug;
             }
 
 
@@ -644,6 +644,30 @@ class PaymentController extends Controller
             }
 
 
+            if (
+                in_array(
+                    'plan_expires_at',
+                    $companyColumns
+                )
+            ) {
+
+                $updateData['plan_expires_at'] =
+                    $plan->calculateExpiryDate();
+            }
+
+
+            if (
+                in_array(
+                    'subscription_plan_id',
+                    $companyColumns
+                )
+            ) {
+
+                $updateData['subscription_plan_id'] =
+                    $plan->id;
+            }
+
+
             if (!empty($updateData)) {
 
                 $transaction
@@ -651,6 +675,20 @@ class PaymentController extends Controller
                     ->update(
                         $updateData
                     );
+
+                Log::info(
+                    'Company plan diperbarui setelah pembayaran sukses',
+                    [
+                        'company_id' =>
+                            $transaction->company_id,
+
+                        'plan' =>
+                            $plan->slug,
+
+                        'expires_at' =>
+                            $updateData['plan_expires_at'] ?? null,
+                    ]
+                );
 
             } else {
 
