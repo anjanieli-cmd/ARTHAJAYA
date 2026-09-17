@@ -76,6 +76,11 @@ class Company extends Model
         return $this->hasMany(User::class);
     }
 
+    public function staffUsers()
+    {
+        return $this->users()->where('access_level', \App\Enums\AccessLevel::Staff);
+    }
+
     /**
      * Relasi ke Invoice
      */
