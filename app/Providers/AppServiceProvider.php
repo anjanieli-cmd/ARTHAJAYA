@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\SmtpConfigService;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\URL;
@@ -22,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
+
+        // Timpa config mail.mailers.smtp dengan pengaturan SMTP
+        // yang disimpan admin lewat panel Admin > Pengaturan Sistem
+        SmtpConfigService::apply();
 
         // Share $company otomatis ke SEMUA view, termasuk navigation.blade.php
         View::composer('*', function ($view) {

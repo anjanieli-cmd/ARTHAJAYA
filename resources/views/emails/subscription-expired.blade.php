@@ -46,7 +46,7 @@
                     <!-- CTA BUTTON -->
                     <tr>
                         <td style="padding:24px 40px 0;">
-                            <a href="{{ route('pricing') }}"
+                            <a href="{{ route('pricing.index') }}"
                                style="display:inline-block; padding:14px 28px; background-color:#34B583; color:#ffffff; text-decoration:none; font-size:14px; font-weight:700; border-radius:12px;">
                                 Perpanjang Langganan
                             </a>
