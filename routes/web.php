@@ -412,6 +412,19 @@ Route::middleware(['auth', 'onboarding.complete', 'access:staff'])->group(functi
 // ===== WEBHOOK MIDTRANS — di luar semua middleware auth =====
 Route::post('/midtrans/notification', [PaymentController::class, 'notification'])->name('midtrans.notification');
 
+Route::get('/cron/check-subscriptions', function (\Illuminate\Http\Request $request) {
+    if ($request->query('secret') !== config('services.cron_secret')) {
+        abort(403, 'Forbidden');
+    }
+
+    \Illuminate\Support\Facades\Artisan::call('subscriptions:check-expiry');
+
+    return response()->json([
+        'status' => 'ok',
+        'output' => \Illuminate\Support\Facades\Artisan::output(),
+    ]);
+})->name('cron.check-subscriptions');
+
 // ================================================================
 // ADMIN ROUTES (hanya admin)
 // ================================================================

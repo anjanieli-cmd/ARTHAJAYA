@@ -20,5 +20,11 @@
       "src": "/(.*)",
       "dest": "/api/index.php"
     }
+  ],
+  "crons": [
+    {
+      "path": "/cron/check-subscriptions?secret=82LCXG5l7bDPnfHRStpGRTiJ5AL5mb1edMDAiHqF",
+      "schedule": "0 1 * * *"
+    }
   ]
 }

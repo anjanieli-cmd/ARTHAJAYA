@@ -41,4 +41,6 @@ return [
         'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
     ],
 
+    'cron_secret' => env('CRON_SECRET'),
+
 ];
