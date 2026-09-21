@@ -8,23 +8,20 @@ use Illuminate\Support\Facades\Auth;
 
 class PricingController extends Controller
 {
-    protected array $planStyles = [
-        'free'    => ['color' => '#6366f1', 'icon' => 'i-zap'],
-        'silver'  => ['color' => '#94a3b8', 'icon' => 'i-star'],
-        'gold'    => ['color' => '#f59e0b', 'icon' => 'i-diamond'],
-    ];
-
+    /**
+     * Tampilkan halaman pricing.
+     *
+     * Warna & ikon paket diambil langsung dari kolom `color` dan `icon`
+     * di database (diisi lewat halaman admin) — tidak ada override
+     * hardcode di sini, supaya apa yang diset di admin langsung
+     * konsisten muncul di halaman pricing.
+     */
     public function index()
     {
         $user    = Auth::user();
         $company = $user->company;
 
-        $plans = Plan::orderBy('price')->get()->map(function ($plan) {
-            $style = $this->planStyles[$plan->slug] ?? ['color' => '#6366f1', 'icon' => 'i-zap'];
-            $plan->color = $style['color'];
-            $plan->icon  = $style['icon'];
-            return $plan;
-        });
+        $plans = Plan::orderBy('price')->get();
 
         $currentPlan = $company->plan ?? 'free';
 
