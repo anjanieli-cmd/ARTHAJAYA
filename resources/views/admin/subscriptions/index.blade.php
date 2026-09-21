@@ -165,6 +165,21 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xml
 .fp-item svg{width:11px;height:11px;color:var(--emerald);flex-shrink:0}
 .fp-empty{font-size:11.5px;color:var(--text-faint);font-style:italic}
 
+/* ===== FEATURE FLAGS CHECKBOX ===== */
+.feature-toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feature-toggle{
+    display:flex;align-items:center;gap:9px;
+    padding:10px 12px;border-radius:10px;
+    background:var(--surface-strong);border:1px solid var(--border);
+    cursor:pointer;transition:all .15s ease;
+}
+.feature-toggle:hover{border-color:var(--border-hover)}
+.feature-toggle input{width:16px;height:16px;accent-color:var(--emerald);cursor:pointer;flex-shrink:0}
+.feature-toggle span{font-size:12.5px;font-weight:600;color:var(--text-mute)}
+.feature-toggle:has(input:checked){border-color:var(--emerald);background:rgba(var(--emerald-rgb),.08)}
+.feature-toggle:has(input:checked) span{color:var(--text)}
+@media(max-width:480px){.feature-toggle-grid{grid-template-columns:1fr}}
+
 /* info card */
 .info-card{background:rgba(var(--emerald-rgb),.05);border:1px solid rgba(var(--emerald-rgb),.15);border-radius:14px;padding:16px 18px}
 .info-card h4{font-size:12px;font-weight:700;color:var(--emerald);margin:0 0 10px;text-transform:uppercase;letter-spacing:.05em}
@@ -430,6 +445,36 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xml
                                 <div class="fp-empty">Isi fitur di atas untuk lihat preview...</div>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="fg">
+                        <label>
+                            Fitur yang Dibuka
+                            <span class="opt">— centang modul yang boleh diakses staff</span>
+                        </label>
+                        @php
+                            $featureOptions = [
+                                'piutang_utang' => 'Piutang & Utang',
+                                'perbankan'     => 'Perbankan',
+                                'laporan'       => 'Laporan Keuangan',
+                                'inventaris'    => 'Inventaris',
+                                'payroll'       => 'Payroll',
+                                'pajak'         => 'Pajak',
+                                'anggaran'      => 'Anggaran & Forecasting',
+                                'multi_user'    => 'Multi-User & Hak Akses',
+                            ];
+                            $selectedFeatureFlags = old('feature_flags', []);
+                        @endphp
+                        <div class="feature-toggle-grid">
+                            @foreach($featureOptions as $key => $label)
+                            <label class="feature-toggle">
+                                <input type="checkbox" name="feature_flags[]" value="{{ $key }}"
+                                    {{ in_array($key, $selectedFeatureFlags) ? 'checked' : '' }}>
+                                <span>{{ $label }}</span>
+                            </label>
+                            @endforeach
+                        </div>
+                        <div class="fhint">Fitur yang tidak dicentang akan terkunci di sidebar staff dan mengarahkan ke halaman upgrade.</div>
                     </div>
 
                     <div class="toggle-row">

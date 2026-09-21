@@ -25,6 +25,13 @@ class Company extends Model
         'initial_balance',
     ];
 
+    /**
+     * Cache ringan untuk hasFeature() supaya query Plan tidak
+     * diulang tiap kali dipanggil dalam satu request (misal di sidebar
+     * yang memanggil hasFeature() berkali-kali untuk tiap menu).
+     */
+    protected $cachedPlan;
+
     protected function casts(): array
     {
         return [
@@ -155,15 +162,51 @@ class Company extends Model
 
     /**
      * Cek apakah plan company ini punya akses ke fitur tertentu.
-     * $key harus cocok dengan key yang ada di config/features.php
+     *
+     * Prioritas: baca dari kolom `feature_flags` (json) di tabel
+     * subscription_plans, yang di-set admin lewat checkbox "Fitur
+     * yang Dibuka" di halaman Kelola Langganan. Plan dicari
+     * berdasarkan slug yang cocok dengan kolom `plan` (string) di
+     * company — bukan lewat subscription_plan_id, mengikuti cara
+     * controller & index() mencocokkan company ke plan.
+     *
+     * Kalau paket belum punya `feature_flags` sama sekali (misal
+     * paket lama yang belum di-edit ulang oleh admin), fallback ke
+     * config/features.php berdasarkan slug plan, supaya company lama
+     * tidak tiba-tiba kehilangan akses.
+     *
+     * Catatan: kolom `features` (tanpa "_flags") adalah kolom
+     * terpisah yang dipakai untuk teks daftar fitur di halaman
+     * checkout — bukan untuk permission, jangan dicampur.
      *
      * Contoh pakai: $company->hasFeature('payroll')
      */
     public function hasFeature(string $key): bool
     {
+        $plan = $this->getCachedPlan();
+
+        if ($plan && is_array($plan->feature_flags) && count($plan->feature_flags) > 0) {
+            return in_array($key, $plan->feature_flags);
+        }
+
         $allowed = config("features.$key", []);
 
         return in_array($this->plan, $allowed);
+    }
+
+    /**
+     * Ambil Plan yang cocok dengan kolom `plan` (slug) company ini,
+     * dengan cache di instance supaya tidak query berulang.
+     */
+    protected function getCachedPlan(): ?Plan
+    {
+        if (!isset($this->cachedPlan)) {
+            $this->cachedPlan = $this->plan
+                ? Plan::where('slug', $this->plan)->first()
+                : null;
+        }
+
+        return $this->cachedPlan;
     }
 
     /**

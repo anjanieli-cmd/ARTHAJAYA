@@ -59,6 +59,21 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xml
 .icon-opt svg{width:17px;height:17px;pointer-events:none}
 .icon-opt:has(input:checked){border-color:var(--emerald);background:rgba(var(--emerald-rgb),.12);color:var(--emerald)}
 
+/* ===== FEATURE FLAGS CHECKBOX ===== */
+.feature-toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feature-toggle{
+    display:flex;align-items:center;gap:9px;
+    padding:10px 12px;border-radius:10px;
+    background:var(--surface-strong);border:1px solid var(--border);
+    cursor:pointer;transition:all .15s ease;
+}
+.feature-toggle:hover{border-color:var(--border-hover)}
+.feature-toggle input{width:16px;height:16px;accent-color:var(--emerald);cursor:pointer;flex-shrink:0}
+.feature-toggle span{font-size:12.5px;font-weight:600;color:var(--text-mute)}
+.feature-toggle:has(input:checked){border-color:var(--emerald);background:rgba(var(--emerald-rgb),.08)}
+.feature-toggle:has(input:checked) span{color:var(--text)}
+@media(max-width:480px){.feature-toggle-grid{grid-template-columns:1fr}}
+
 .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;font-size:13.5px;font-weight:700;cursor:pointer;border:none;text-decoration:none;transition:all .2s ease}
 .btn svg{width:15px;height:15px}
 .btn-primary{background:var(--emerald);color:#052117;box-shadow:0 4px 16px rgba(var(--emerald-rgb),.3)}
@@ -176,6 +191,34 @@ select.fc{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xml
                 <label>Daftar Fitur <span class="opt">— satu fitur per baris</span></label>
                 <textarea name="description" class="fc" placeholder="Semua fitur dasar&#10;Laporan keuangan&#10;Manajemen klien">{{ old('description', $plan->description) }}</textarea>
                 <div class="fhint">Ikon tiap fitur otomatis dipilih dari kata kunci (payroll, pajak, laporan, dll) di halaman pricing.</div>
+            </div>
+
+            <div class="fg">
+                <label>Fitur yang Dibuka <span class="opt">— centang modul yang boleh diakses staff</span></label>
+                @php
+                    $featureOptions = [
+                        'piutang_utang' => 'Piutang & Utang',
+                        'perbankan'     => 'Perbankan',
+                        'laporan'       => 'Laporan Keuangan',
+                        'inventaris'    => 'Inventaris',
+                        'payroll'       => 'Payroll',
+                        'pajak'         => 'Pajak',
+                        'anggaran'      => 'Anggaran & Forecasting',
+                        'multi_user'    => 'Multi-User & Hak Akses',
+                    ];
+                    $selectedFeatureFlags = old('feature_flags', $plan->feature_flags ?? []);
+                @endphp
+                <div class="feature-toggle-grid">
+                    @foreach($featureOptions as $key => $label)
+                    <label class="feature-toggle">
+                        <input type="checkbox" name="feature_flags[]" value="{{ $key }}"
+                            {{ in_array($key, $selectedFeatureFlags) ? 'checked' : '' }}>
+                        <span>{{ $label }}</span>
+                    </label>
+                    @endforeach
+                </div>
+                <div class="fhint">Ubah centang lalu simpan — perubahan langsung berlaku di sidebar staff.</div>
+                @error('feature_flags')<div class="form-error">{{ $message }}</div>@enderror
             </div>
 
             <div class="toggle-row">

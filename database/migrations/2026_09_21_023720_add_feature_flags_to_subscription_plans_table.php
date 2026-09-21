@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('subscription_plans', function (Blueprint $table) {
-            if (!Schema::hasColumn('subscription_plans', 'features')) {
-                $table->json('features')->nullable()->after('icon');
+            if (!Schema::hasColumn('subscription_plans', 'feature_flags')) {
+                $table->json('feature_flags')->nullable()->after('icon');
             }
         });
     }
@@ -18,8 +18,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('subscription_plans', function (Blueprint $table) {
-            if (Schema::hasColumn('subscription_plans', 'features')) {
-                $table->dropColumn('features');
+            if (Schema::hasColumn('subscription_plans', 'feature_flags')) {
+                $table->dropColumn('feature_flags');
             }
         });
     }

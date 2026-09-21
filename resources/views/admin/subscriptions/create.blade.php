@@ -179,6 +179,21 @@
             color:var(--text);
         }
 
+        /* ===== FEATURE FLAGS CHECKBOX ===== */
+        .feature-toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .feature-toggle{
+            display:flex;align-items:center;gap:9px;
+            padding:10px 12px;border-radius:10px;
+            background:var(--surface-strong);border:1px solid var(--border);
+            cursor:pointer;transition:all .15s ease;
+        }
+        .feature-toggle:hover{border-color:var(--border-hover)}
+        .feature-toggle input{width:16px;height:16px;accent-color:var(--emerald);cursor:pointer;flex-shrink:0}
+        .feature-toggle span{font-size:12.5px;font-weight:600;color:var(--text-mute)}
+        .feature-toggle:has(input:checked){border-color:var(--emerald);background:rgba(var(--emerald-rgb),.08)}
+        .feature-toggle:has(input:checked) span{color:var(--text)}
+        @media(max-width:480px){.feature-toggle-grid{grid-template-columns:1fr}}
+
         @media (max-width:1100px){
             .grid-3{ grid-template-columns:1fr 1fr; }
         }
@@ -302,6 +317,38 @@
                         </div>
                     @enderror
                 </div>
+            </div>
+
+            <div class="form-group">
+                <label>Fitur yang Dibuka <span class="label-desc">(centang modul yang boleh diakses staff)</span></label>
+                @php
+                    $featureOptions = [
+                        'piutang_utang' => 'Piutang & Utang',
+                        'perbankan'     => 'Perbankan',
+                        'laporan'       => 'Laporan Keuangan',
+                        'inventaris'    => 'Inventaris',
+                        'payroll'       => 'Payroll',
+                        'pajak'         => 'Pajak',
+                        'anggaran'      => 'Anggaran & Forecasting',
+                        'multi_user'    => 'Multi-User & Hak Akses',
+                    ];
+                    $selectedFeatureFlags = old('feature_flags', []);
+                @endphp
+                <div class="feature-toggle-grid">
+                    @foreach($featureOptions as $key => $label)
+                    <label class="feature-toggle">
+                        <input type="checkbox" name="feature_flags[]" value="{{ $key }}"
+                            {{ in_array($key, $selectedFeatureFlags) ? 'checked' : '' }}>
+                        <span>{{ $label }}</span>
+                    </label>
+                    @endforeach
+                </div>
+                @error('feature_flags')
+                    <div class="form-error">
+                        <svg><use href="#ic-alert-circle"/></svg>
+                        {{ $message }}
+                    </div>
+                @enderror
             </div>
 
             <div class="form-group">

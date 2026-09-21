@@ -21,6 +21,7 @@ class Plan extends Model
         'color',
         'icon',
         'features',
+        'feature_flags',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class Plan extends Model
         return [
             'is_active'      => 'boolean',
             'duration_value' => 'integer',
+            'feature_flags'  => 'array',
         ];
     }
 
@@ -78,5 +80,14 @@ class Plan extends Model
             'yearly'  => 'Langganan Tahunan',
             default   => $this->name,
         };
+    }
+
+    /**
+     * Semua company yang memakai paket ini (dicocokkan lewat slug,
+     * bukan foreign key — lihat Company::hasFeature()).
+     */
+    public function companies()
+    {
+        return $this->hasMany(Company::class, 'plan', 'slug');
     }
 }

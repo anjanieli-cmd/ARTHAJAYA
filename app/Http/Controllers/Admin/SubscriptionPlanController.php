@@ -31,6 +31,7 @@ class SubscriptionPlanController extends Controller
         $data = $this->validateData($request);
         $data['slug'] = Str::slug($data['name']);
         $data['is_active'] = $request->boolean('is_active');
+        $data['feature_flags'] = $request->input('feature_flags', []);
 
         $plan = Plan::create($data);
 
@@ -54,6 +55,7 @@ class SubscriptionPlanController extends Controller
         $data = $this->validateData($request);
         $data['slug'] = Str::slug($data['name']);
         $data['is_active'] = $request->boolean('is_active');
+        $data['feature_flags'] = $request->input('feature_flags', []);
 
         $subscriptionPlan->update($data);
 
@@ -103,15 +105,17 @@ class SubscriptionPlanController extends Controller
     private function validateData(Request $request): array
     {
         return $request->validate([
-            'name'           => 'required|string|max:255',
-            'description'    => 'nullable|string',
-            'price'          => 'required|integer|min:0',
-            'billing_period' => 'required|in:minutes,hours,days,monthly,yearly',
-            'duration_value' => 'required|integer|min:1',
-            'max_users'      => 'nullable|integer|min:1',
-            'is_active'      => 'sometimes|boolean',
-            'color'          => 'nullable|string|max:20',
-            'icon'           => 'nullable|string|max:30',
+            'name'             => 'required|string|max:255',
+            'description'      => 'nullable|string',
+            'price'            => 'required|integer|min:0',
+            'billing_period'   => 'required|in:minutes,hours,days,monthly,yearly',
+            'duration_value'   => 'required|integer|min:1',
+            'max_users'        => 'nullable|integer|min:1',
+            'is_active'        => 'sometimes|boolean',
+            'color'            => 'nullable|string|max:20',
+            'icon'             => 'nullable|string|max:30',
+            'feature_flags'    => 'nullable|array',
+            'feature_flags.*'  => 'string|in:piutang_utang,perbankan,laporan,inventaris,payroll,pajak,anggaran,multi_user',
         ]);
     }
 }
