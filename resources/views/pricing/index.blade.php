@@ -230,6 +230,18 @@
                 $planColor = $plan->color ?: '#6366f1';
                 $planIcon  = $plan->icon ?: 'i-zap';
 
+                // Hitung label periode langsung dari duration_value + billing_period
+                // (bukan dari accessor period_label, biar konsisten sama data admin
+                // dan support periode testing seperti menit/jam/hari)
+                $periodSuffix = match($plan->billing_period) {
+                    'minutes' => '/' . $plan->duration_value . ' menit',
+                    'hours'   => '/' . $plan->duration_value . ' jam',
+                    'days'    => '/' . $plan->duration_value . ' hari',
+                    'monthly' => '/bulan',
+                    'yearly'  => '/tahun',
+                    default   => '',
+                };
+
                 $features = [];
                 if ($plan->description) {
                     $features = array_values(array_filter(
@@ -263,11 +275,13 @@
                     @else
                         <div class="plan-price">
                             <span class="rp">Rp</span>{{ number_format($plan->price, 0, ',', '.') }}
-                            <span class="period">{{ $plan->period_label }}</span>
+                            <span class="period">{{ $periodSuffix }}</span>
                         </div>
                         <div class="plan-price-note">
                             @if($plan->billing_period === 'yearly')
                                 Hemat dibanding bayar bulanan
+                            @elseif(in_array($plan->billing_period, ['minutes','hours','days']))
+                                Paket uji coba / jangka pendek
                             @else
                                 Batalkan kapan saja
                             @endif

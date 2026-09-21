@@ -2,11 +2,25 @@
     <x-slot name="title">Pembayaran</x-slot>
 
     @php
-        $accent = $plan->accent ?? ($plan->slug === 'gold' ? 'gold' : 'emerald');
-        $isGold = $accent === 'gold';
+        $planColor = $plan->color ?: '#6366f1';
+        $planIcon  = $plan->icon ?: 'i-zap';
 
-        $accentColor = $isGold ? '#f59e0b' : 'var(--emerald)';
-        $accentRgb = $isGold ? '245, 158, 11' : 'var(--emerald-rgb)';
+        // hex -> "r, g, b" biar bisa dipakai di rgba()
+        $hex = ltrim($planColor, '#');
+        if (strlen($hex) === 3) {
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        }
+        $accentRgb = implode(', ', array_map(fn($c) => hexdec($c), str_split($hex, 2)));
+        $accentColor = $planColor;
+
+        $periodSuffix = match($plan->billing_period) {
+            'minutes' => $plan->duration_value . ' Menit',
+            'hours'   => $plan->duration_value . ' Jam',
+            'days'    => $plan->duration_value . ' Hari',
+            'monthly' => 'Bulanan',
+            'yearly'  => 'Tahunan',
+            default   => $plan->billing_period,
+        };
     @endphp
 
     <style>
@@ -406,7 +420,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background: linear-gradient(135deg,#fbbf24,#f59e0b);
+            background: linear-gradient(135deg, {{ $accentColor }}, {{ $accentColor }});
             box-shadow: 0 4px 16px rgba({{ $accentRgb }}, .3);
         }
 
@@ -491,6 +505,14 @@
         }
     </style>
 
+    <svg style="display:none;"><defs>
+        <symbol id="i-zap"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+        <symbol id="i-star"    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+        <symbol id="i-shield"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+        <symbol id="i-diamond" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0Z"/></symbol>
+        <symbol id="i-rocket"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></symbol>
+    </defs></svg>
+
     <div class="checkout-wrap">
 
         <!-- BACK -->
@@ -525,7 +547,7 @@
                         <polyline points="20 6 9 17 4 12"/>
                     </svg>
 
-                    {{ $plan->period_name }}
+                    {{ $periodSuffix }}
                 </span>
             </p>
         </div>
@@ -755,22 +777,7 @@
                     <div class="summary-plan">
 
                         <div class="plan-icon">
-
-                            <svg viewBox="0 0 24 24"
-                                 fill="none"
-                                 stroke="currentColor"
-                                 stroke-width="2"
-                                 stroke-linecap="round"
-                                 stroke-linejoin="round">
-
-                                @if($isGold)
-                                    <path d="M12 2 3 14h8l-1 8 10-12h-8l1-8Z"/>
-                                @else
-                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                                @endif
-
-                            </svg>
-
+                            <svg><use href="#{{ $planIcon }}"/></svg>
                         </div>
 
                         <div>
@@ -779,7 +786,7 @@
                             </div>
 
                             <span class="plan-badge">
-                                {{ $plan->period_name }}
+                                {{ $periodSuffix }}
                             </span>
                         </div>
 
@@ -822,11 +829,11 @@
                         <span>Periode</span>
 
                         <span>
-                            {{ $plan->period_name }}
+                            {{ $periodSuffix }}
                         </span>
                     </div>
 
-                    @if($isGold)
+                    @if($plan->billing_period === 'yearly')
 
                         <div class="summary-save">
 
