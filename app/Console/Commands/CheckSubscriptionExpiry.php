@@ -12,28 +12,16 @@ use Illuminate\Support\Facades\Log;
 
 class CheckSubscriptionExpiry extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'subscriptions:check-expiry';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Cek company yang langganannya mau/sudah habis, lalu kirim email pengingat ke Staff company tsb.';
+    protected $description = 'Cek company yang langganannya mau/sudah habis, downgrade yang expired ke Free, lalu kirim email pengingat/notifikasi ke Staff.';
 
-    /**
-     * Hari-H sebelum expired untuk kirim reminder.
-     */
     private array $reminderDays = [7, 3, 1];
 
     public function handle(): int
     {
         $this->sendReminders();
+        $this->downgradeExpiredCompanies();
         $this->sendExpiredNotices();
 
         $this->info('Selesai cek langganan.');
@@ -42,8 +30,31 @@ class CheckSubscriptionExpiry extends Command
     }
 
     /**
-     * Kirim email pengingat H-7, H-3, H-1 sebelum expired.
+     * Downgrade company yang plan_expires_at-nya sudah lewat,
+     * kembali ke plan Free. Ini yang bikin paket beneran berhenti
+     * jalan setelah waktunya habis — bukan cuma kirim email.
      */
+    private function downgradeExpiredCompanies(): void
+    {
+        $companies = Company::whereNotNull('plan_expires_at')
+            ->where('plan_expires_at', '<', now())
+            ->where('plan', '!=', 'free')
+            ->get();
+
+        foreach ($companies as $company) {
+            $previousPlan = $company->plan;
+
+            $company->update([
+                'plan'             => 'free',
+                'plan_upgraded_at' => now(),
+                'plan_expires_at'  => null,
+            ]);
+
+            Log::info("Company #{$company->id} ({$company->name}) di-downgrade dari '{$previousPlan}' ke 'free' karena expired.");
+            $this->line("Downgrade: {$company->name} ({$previousPlan} → free).");
+        }
+    }
+
     private function sendReminders(): void
     {
         foreach ($this->reminderDays as $daysLeft) {
@@ -86,6 +97,8 @@ class CheckSubscriptionExpiry extends Command
 
     /**
      * Kirim email pemberitahuan untuk company yang langganannya sudah expired.
+     * Dijalankan SETELAH downgradeExpiredCompanies(), jadi email dikirim
+     * setelah plan beneran sudah balik ke Free.
      */
     private function sendExpiredNotices(): void
     {
